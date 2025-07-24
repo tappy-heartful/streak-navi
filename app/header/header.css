@@ -23,6 +23,7 @@
   align-items: center;
   gap: 8px;
   cursor: pointer;
+  position: relative; /* ← これが重要 */
 }
 
 .header-right .line-icon {
@@ -40,12 +41,13 @@
 /* ログアウトメニュー */
 .logout-menu {
   position: absolute;
-  top: 60px; /* headerの下に出る */
-  right: 10px;
+  top: 100%; /* アカウント名の真下に出す */
+  left: 0;   /* ← これで親の左端に揃える */
   background: white;
   border: 1px solid #ccc;
   border-radius: 6px;
   padding: 10px;
+  margin-top: 8px;
   z-index: 10;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
@@ -57,6 +59,7 @@
   padding: 8px 16px;
   border-radius: 4px;
   cursor: pointer;
+  white-space: nowrap; /* 改行を防ぐ */
 }
 
 .logout-menu button:hover {
