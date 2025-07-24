@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ログイン</title>
+    <style>
+      body {
+        font-family: sans-serif;
+        text-align: center;
+        padding: 50px;
+      }
+      button {
+        background-color: #06c755;
+        color: white;
+        font-size: 18px;
+        padding: 12px 24px;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+      button:hover {
+        background-color: #04a94f;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Streak Navi(仮)</h1>
+    <button onclick="loginWithLINE()">LINEでログイン</button>
+
+    <script>
+      function loginWithLINE() {
+        const clientId = '2007808275';
+        const redirectUri = encodeURIComponent(
+          '../app/dashboard/dashboard.html'
+        ); // あなたのコールバックURLに変更
+        const state = Math.random().toString(36).substring(2); // 任意の文字列（CSRF対策）
+        const scope = 'openid profile email';
+
+        const loginUrl =
+          `https://access.line.me/oauth2/v2.1/authorize?` +
+          `response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}` +
+          `&state=${state}&scope=${scope}`;
+
+        window.location.href = loginUrl;
+      }
+    </script>
+  </body>
+</html>
