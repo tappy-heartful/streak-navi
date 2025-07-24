@@ -93,26 +93,29 @@ function scrollToTop() {
 
 // HTML読み込み
 async function loadComponent(target) {
-  // 1. CSS 読み込み
-  if ('../' + target + '/' + target + '.css') {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href = '../' + target + '/' + target + '.css';
-    document.head.appendChild(link);
-  }
+  const basePath = '../' + target + '/' + target;
 
-  // 2. HTML 読み込み
+  // 1. CSS読み込み
+  const link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = basePath + '.css';
+  document.head.appendChild(link);
+
+  // 2. HTML読み込み
   try {
-    const res = await fetch('../' + target + '/' + target + '.html');
+    const res = await fetch(basePath + '.html');
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const html = await res.text();
     document.getElementById(target + '-placeholder').innerHTML = html;
   } catch (err) {
-    console.error(
-      `Error loading ${'../' + target + '/' + target + '.html'}:`,
-      err
-    );
+    console.error(`Error loading ${basePath}.html:`, err);
   }
+
+  // 3. JS読み込み
+  const script = document.createElement('script');
+  script.src = basePath + '.js';
+  script.defer = true; // 必須ではないがHTML後に実行させるなら
+  document.body.appendChild(script);
 }
 
 // ヘッダー、フッター表示
