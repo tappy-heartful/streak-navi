@@ -48,7 +48,7 @@ button {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  position: fixed;
+  position: absolute;
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
