@@ -42,6 +42,7 @@
 .logout-menu {
   position: absolute;
   top: 100%; /* アカウント名の真下に出す */
+  width: 100%;
   left: 0;   /* ← これで親の左端に揃える */
   background: white;
   border: 1px solid #ccc;
@@ -53,6 +54,7 @@
 }
 
 .logout-menu button {
+  width: 100%;
   background-color: #f44336;
   color: white;
   border: none;
