@@ -1,6 +1,7 @@
 /* 全体制限：最大幅768px、中央寄せ */
 html, body {
   height: 100%;
+  width: 100%;
   margin: 0;
   padding: 0;
   max-width: 768px;
