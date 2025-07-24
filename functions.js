@@ -118,6 +118,8 @@ async function loadComponent(target) {
   document.body.appendChild(script);
 }
 
-// ヘッダー、フッター表示
-loadComponent('header');
-loadComponent('footer');
+// ヘッダー、フッター表示(ログイン済みの場合のみ)
+if (getSessionArray('line_profile').userId) {
+  loadComponent('header');
+  loadComponent('footer');
+}
