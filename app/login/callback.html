@@ -85,7 +85,7 @@
           const profile = await profileResponse.json();
 
           // ④ プロフィールをセッションに保存、または次の画面に渡す
-          sessionStorage.setItem('line_profile', JSON.stringify(profile));
+          setSessionArray('line_profile', profile);
 
           // ⑤ ログイン後ダッシュボードページへ遷移
           window.location.href = baseUrl + '/app/dashboard/dashboard.html';
