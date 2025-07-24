@@ -34,7 +34,9 @@ $(document).ready(async function () {
 function loginWithLINE() {
   const clientId = getSession('clientId');
   const redirectUri = encodeURIComponent(
-    window.location.origin + '/app/login/callback.html'
+    (getSession('isProd')
+      ? getSession('urlBaseProd') // 本番環境の場合、設定ファイルの情報(github Pagesはサブドメインまであるため)
+      : window.location.origin) + '/app/login/callback.html' // テスト環境の場合、今のベースURLに結合
   );
   const state = Math.random().toString(36).substring(2); // 任意の文字列（CSRF対策）
   const scope = 'openid profile email';
