@@ -1,10 +1,3 @@
-/* 全体制限：最大幅768px、中央寄せ */
-html, body {
-  height: 100%;
-  margin: 0;
-  padding: 0;
-}
-
 body {
   font-family: sans-serif;
   text-align: center;
@@ -30,8 +23,6 @@ body::before {
 
 /* コンテンツ最大幅を768pxに制限 */
 .container {
-  width: 100%;
-  max-width: 768px;
   padding: 20px;
   box-sizing: border-box;
 }
