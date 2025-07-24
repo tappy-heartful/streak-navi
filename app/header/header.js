@@ -2,9 +2,6 @@
 // 初期表示
 ////////////////////////////
 $(document).ready(function () {
-  // ログイン済みチェック
-  checkLogin();
-
   // ログイン情報反映
   const lineProfile = getSessionArray('line_profile');
   const lineIconPath = lineProfile.pictureUrl;

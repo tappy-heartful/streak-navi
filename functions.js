@@ -118,16 +118,14 @@ async function loadComponent(target) {
   document.body.appendChild(script);
 }
 
-// ヘッダー、フッター表示(ログイン済みの場合のみ)
-if (getSessionArray('line_profile').userId) {
-  loadComponent('header');
-  loadComponent('footer');
-}
-
 //ログイン済みチェック
 function checkLogin() {
   if (!getSessionArray('line_profile').userId) {
     // 不正遷移の場合ログインページへ遷移(本番環境のみの対策でいいため決め打ち)
     window.location.href = 'https://tappy-heartful.github.io/streak-navi';
+  } else {
+    // ヘッダー、フッター表示(ログイン済みの場合のみ)
+    loadComponent('header');
+    loadComponent('footer');
   }
 }

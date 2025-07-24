@@ -1,7 +1,4 @@
 ////////////////////////////
 // 初期表示
 ////////////////////////////
-$(document).ready(async function () {
-  // ログイン済みチェック
-  checkLogin();
-});
+$(document).ready(async function () {});
