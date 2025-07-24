@@ -20,7 +20,7 @@ $(document).ready(async function () {
     // 環境情報を保存(本番 or テスト)
     setSession(
       'isProd',
-      window.location.href.startsWith(getSession('urlBaseProd'))
+      window.location.href.startsWith(getSession('urlBaseProd')) ? 'true' : ''
     );
   } catch (error) {
     // データ読み込み失敗時にエラー表示
@@ -39,7 +39,7 @@ function loginWithLINE() {
       : window.location.origin) + '/app/login/callback.html' // テスト環境の場合、今のベースURLに結合
   );
   const state = Math.random().toString(36).substring(2); // 任意の文字列（CSRF対策）
-  const scope = 'openid profile email';
+  const scope = 'openid profile';
 
   const loginUrl =
     `https://access.line.me/oauth2/v2.1/authorize?` +

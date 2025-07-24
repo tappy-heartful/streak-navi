@@ -1,3 +1,6 @@
+// 定数
+const appName = 'streakNavi';
+
 // JSONデータを取得する関数
 function getJsonData(jsonUrl) {
   return new Promise((resolve, reject) => {
@@ -32,12 +35,12 @@ function parseCsv(csvText, skipRowCount) {
 
 // データをセッションストレージからクリアする関数
 function removeSession(key) {
-  sessionStorage.removeItem(appsettings.appName + '.' + key);
+  sessionStorage.removeItem(appName + '.' + key);
 }
 
 // データをセッションストレージから全削除する関数
 function clearAllAppSession() {
-  const prefix = appsettings.appName + '.';
+  const prefix = appName + '.';
   const keysToRemove = [];
 
   // 対象キーを先に抽出（直接ループ中に削除するとバグになる）
@@ -54,27 +57,22 @@ function clearAllAppSession() {
 
 // データをセッションストレージにセットする関数
 function setSession(key, value) {
-  sessionStorage.setItem(appsettings.appName + '.' + key, value);
+  sessionStorage.setItem(appName + '.' + key, value);
 }
 
 // セッションストレージからデータをゲットする関数
 function getSession(key) {
-  return sessionStorage.getItem(appsettings.appName + '.' + key);
+  return sessionStorage.getItem(appName + '.' + key);
 }
 
 // セッションストレージから配列を取得(nullは空に)
 function getSessionArray(key) {
-  return (
-    JSON.parse(sessionStorage.getItem(appsettings.appName + '.' + key)) ?? []
-  );
+  return JSON.parse(sessionStorage.getItem(appName + '.' + key)) ?? [];
 }
 
 // セッションストレージに配列設定(nullは空に)
 function setSessionArray(key, array) {
-  sessionStorage.setItem(
-    appsettings.appName + '.' + key,
-    JSON.stringify(array ?? [])
-  );
+  sessionStorage.setItem(appName + '.' + key, JSON.stringify(array ?? []));
 }
 
 // エラー時処理
