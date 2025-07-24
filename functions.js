@@ -123,3 +123,13 @@ if (getSessionArray('line_profile').userId) {
   loadComponent('header');
   loadComponent('footer');
 }
+
+//ログイン済みチェック
+function checkLogin() {
+  if (!getSessionArray('line_profile').userId) {
+    // 不正遷移の場合ログインページへ遷移(TODO:ここどうするよ)
+    window.location.href = getSession('isProd')
+      ? getSession('urlBaseProd') // 本番環境の場合、設定ファイルの情報(github Pagesはサブドメインまであるため)
+      : window.location.origin; // テスト環境の場合、今のベースURLに結合;
+  }
+}

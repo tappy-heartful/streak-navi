@@ -36,3 +36,29 @@
   font-size: 16px;
   color: #333;
 }
+
+/* ログアウトメニュー */
+.logout-menu {
+  position: absolute;
+  top: 60px; /* headerの下に出る */
+  right: 10px;
+  background: white;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  z-index: 10;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+}
+
+.logout-menu button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.logout-menu button:hover {
+  background-color: #d32f2f;
+}
