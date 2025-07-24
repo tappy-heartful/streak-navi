@@ -21,9 +21,6 @@ $(document).ready(function () {
 
   // ログアウトボタンクリック時にログイン画面へ遷移
   $('#logout-button').on('click', function () {
-    // セッション全破棄
-    clearAllAppSession();
-
     // ログインページへ遷移
     window.location.href = getSession('isProd')
       ? getSession('urlBaseProd') // 本番環境の場合、設定ファイルの情報(github Pagesはサブドメインまであるため)
