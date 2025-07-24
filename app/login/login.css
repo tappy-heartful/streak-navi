@@ -1,14 +1,20 @@
 body {
   font-family: sans-serif;
   text-align: center;
-  background: url('../../images/background.jpg') no-repeat center center;
+
+  /* 背景画像設定 */
+  background-image: url('../../images/background.jpg');
+  background-repeat: no-repeat;
+  background-position: center center;
   background-size: cover;
 
-  /* ↓flexとalign-itemsは必要なら調整 */
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative; /* ::beforeの基準に */
+  justify-content: flex-start;
+
+  position: relative;
+  min-height: 100vh; /* iPad対応に重要 */
 }
 
 body::before {
