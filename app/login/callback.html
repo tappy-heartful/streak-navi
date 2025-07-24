@@ -64,7 +64,6 @@
           );
 
           const tokenData = await tokenResponse.json();
-          console.log('token response:', tokenData); // ← これでエラー内容が表示される
           if (!tokenData.access_token) {
             throw new Error('アクセストークンの取得に失敗しました');
           }
