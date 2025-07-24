@@ -11,13 +11,17 @@ $(document).ready(async function () {
     // 設定ファイルを読み込み
     appsettings = await getJsonData('../../appsettings.json');
 
-    // セッションストレージに保存
+    // 設定ファイル情報をセッションストレージに保存
     clearAllAppSession(); // 一度全削除
     Object.keys(appsettings).forEach((key) => {
       setSession(key, appsettings[key]);
     });
-    setSession('isLogin', false);
-    setSession('isTest', false);
+
+    // 環境情報を保存(本番 or テスト)
+    setSession(
+      'isProd',
+      window.location.href.startsWith(getSession('urlBaseProd'))
+    );
   } catch (error) {
     // データ読み込み失敗時にエラー表示
     showError('Failed:', error);
@@ -28,8 +32,10 @@ $(document).ready(async function () {
 // ログインボタン押下
 ////////////////////////////
 function loginWithLINE() {
-  const clientId = '2007808275';
-  const redirectUri = encodeURIComponent('../app/dashboard/dashboard.html');
+  const clientId = getSession('clientId');
+  const redirectUri = encodeURIComponent(
+    window.location.origin + '/app/login/callback.html'
+  );
   const state = Math.random().toString(36).substring(2); // 任意の文字列（CSRF対策）
   const scope = 'openid profile email';
 
