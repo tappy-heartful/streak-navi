@@ -2,6 +2,6 @@
 // 初期表示
 ////////////////////////////
 $(document).ready(async function () {
-  // ログイン済みチェック
-  checkLogin();
+  // 初期処理
+  initDisplay();
 });

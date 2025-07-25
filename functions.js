@@ -118,8 +118,8 @@ async function loadComponent(target) {
   document.body.appendChild(script);
 }
 
-//ログイン済みチェック
-function checkLogin() {
+// 画面共通初期処理
+function initDisplay() {
   if (!getSessionArray('line_profile').userId) {
     // 不正遷移の場合ログインページへ遷移(本番環境のみの対策でいいため決め打ち)
     window.location.href = 'https://tappy-heartful.github.io/streak-navi';
