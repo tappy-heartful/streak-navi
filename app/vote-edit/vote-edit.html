@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>投票管理</title>
+    <link rel="stylesheet" href="../../common.css" />
+    <link rel="stylesheet" href="vote-edit.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main class="container">
+      <h1>投票管理</h1>
+
+      <!-- 投票名 -->
+      <div class="form-group">
+        <label for="vote-title">投票名</label>
+        <input type="text" id="vote-title" placeholder="例：文化祭アンケート" />
+      </div>
+
+      <!-- 投票説明 -->
+      <div class="form-group">
+        <label for="vote-description">投票説明</label>
+        <textarea
+          id="vote-description"
+          rows="3"
+          placeholder="説明文を入力..."
+        ></textarea>
+      </div>
+
+      <!-- 投票項目 -->
+      <div id="vote-items-container">
+        <div class="vote-item">
+          <input
+            type="text"
+            class="vote-item-title"
+            placeholder="項目名（例：演目候補）"
+          />
+          <div class="vote-choices">
+            <input type="text" class="vote-choice" placeholder="選択肢1" />
+            <input type="text" class="vote-choice" placeholder="選択肢2" />
+          </div>
+          <button class="add-choice">＋ 選択肢を追加</button>
+          <button class="remove-item">× 項目を削除</button>
+        </div>
+      </div>
+      <button id="add-item">＋ 投票項目を追加</button>
+
+      <!-- 回答受付 -->
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" id="is-open" />
+          回答を受付
+        </label>
+      </div>
+
+      <!-- アクションボタン -->
+      <div class="button-group" id="action-buttons">
+        <button class="clear-button">クリア</button>
+        <button class="submit-button">登録 / 更新</button>
+      </div>
+
+      <!-- 確認モード用 -->
+      <div class="confirm-buttons hidden" id="confirm-buttons">
+        <button class="answer-button">回答する</button>
+        <button class="edit-button">編集する</button>
+        <button class="delete-button">削除</button>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../../functions.js"></script>
+    <script src="vote-edit.js"></script>
+  </body>
+</html>
