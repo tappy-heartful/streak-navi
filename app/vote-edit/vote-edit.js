@@ -31,12 +31,15 @@ $(document).ready(function () {
   // 確認モード制御
   if (mode === 'confirm') {
     actionButtons.classList.add('hidden');
-    confirmButtons.classList.remove('hidden');
+    confirmButtons.classList.add('confirm-buttons');
     inputs.forEach((el) => {
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
         el.setAttribute('readonly', true);
         el.setAttribute('disabled', true);
       }
     });
+  } else {
+    actionButtons.classList.add('action-buttons');
+    confirmButtons.classList.add('hidden');
   }
 });
