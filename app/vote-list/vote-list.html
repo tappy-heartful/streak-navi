@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link
+      rel="apple-touch-icon"
+      href="../../images/favicon.png"
+      type="image/png"
+    />
+    <title>ダッシュボード</title>
+    <link rel="stylesheet" href="../../common.css" />
+    <link rel="stylesheet" href="dashboard.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main class="dashboard-container">
+      <h1 class="dashboard-title">ダッシュボード</h1>
+
+      <section class="announcement-container">
+        <div class="announcement-header">
+          <h3>未回答の投票</h3>
+        </div>
+        <ul class="notification-list">
+          <li>
+            <a href="#" class="notification-link"
+              >マラソン大会沿道応援 参加希望アンケート</a
+            >
+          </li>
+          <li><a href="#" class="notification-link">2025/08 曲投票</a></li>
+        </ul>
+      </section>
+
+      <div class="procedure">
+        <h3>メニュー</h3>
+        <div class="menu-list">
+          <a href="../vote/list.html" class="menu-button vote"> 📊 投票一覧 </a>
+          <a href="../user/list.html" class="menu-button user">
+            👥 ユーザ一覧
+          </a>
+        </div>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../../functions.js"></script>
+    <script src="dashboard.js"></script>
+  </body>
+</html>

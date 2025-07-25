@@ -1,0 +1,116 @@
+/* カード共通スタイル */
+.container,
+.announcement-container,
+.procedure {
+  box-sizing: border-box;
+  width: 90%;
+  margin: 20px auto;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
+  background-color: #ffffff;
+}
+
+/* タイトル中央寄せ */
+h1 {
+  text-align: center;
+  font-size: 28px;
+  margin-top: 20px;
+  color: #333;
+}
+
+/* お知らせ */
+.announcement-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.notification-list {
+  list-style: none;
+  padding-left: 0;
+  margin: 0;
+}
+
+.notification-list li {
+  margin-bottom: 10px;
+}
+
+.notification-link {
+  display: block;
+  text-decoration: none;
+  color: #333;
+  padding: 12px 16px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  transition: background 0.3s ease;
+  font-size: 16px;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.05);
+}
+
+.notification-link:hover {
+  background-color: #e0f5e9;
+}
+
+/* メニュー */
+h3 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 20px;
+  border-left: 5px solid #4CAF50;
+  padding-left: 10px;
+  text-align: left;
+}
+
+/* メニューボタン */
+.menu-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px; /* ボタン間のスペース */
+  margin-top: 30px;
+}
+
+.menu-button {
+  display: block;
+  width: 90%;                /* 幅を少し余白持たせる */
+  max-width: 300px;
+  padding: 16px 20px;
+  font-size: 18px;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 10px;
+  text-decoration: none;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+  transition: background 0.3s ease;
+  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.08);
+  box-sizing: border-box;
+}
+
+/* 背景アイコン */
+.menu-button::after {
+  content: '';
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 40px;
+  color: rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+}
+
+/* 各アイコン例 */
+.menu-button.vote::after {
+  content: "📊";
+}
+
+.menu-button.user::after {
+  content: "👥";
+}
+
+.menu-button:hover {
+  background-color: #45a049;
+}
