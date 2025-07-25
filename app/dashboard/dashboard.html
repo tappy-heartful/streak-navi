@@ -15,7 +15,31 @@
   </head>
   <body>
     <div id="header-placeholder"></div>
-    <h1>ダッシュボード</h1>
+
+    <main class="dashboard-container">
+      <h1 class="dashboard-title">ダッシュボード</h1>
+
+      <section class="announcement-container">
+        <div class="announcement-header">
+          <h3>未回答の投票</h3>
+        </div>
+        <ul class="notification-list">
+          <li>
+            <a href="#" class="notification-link"
+              >🎯 イベント参加希望アンケート</a
+            >
+          </li>
+          <li><a href="#" class="notification-link">📅 夏休みの予定調査</a></li>
+        </ul>
+      </section>
+
+      <div class="procedure">
+        <h3>メニュー</h3>
+        <a href="../vote/list.html" class="menu-button vote"> 📊 投票一覧 </a>
+        <a href="../user/list.html" class="menu-button user"> 👥 ユーザ一覧 </a>
+      </div>
+    </main>
+
     <div id="footer-placeholder"></div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../../functions.js"></script>
