@@ -1,4 +1,4 @@
-body {
+body.login-page {
   font-family: sans-serif;
   text-align: center;
   background: url('../../images/background.jpg') no-repeat center center;
@@ -11,7 +11,7 @@ body {
   position: relative; /* ::beforeの基準に */
 }
 
-body::before {
+body.login-page::before {
   content: "";
   position: absolute;  /* fixed → absoluteに */
   top: 0; left: 0;
