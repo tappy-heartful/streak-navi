@@ -85,8 +85,8 @@
           // ④ プロフィールをセッションに保存、または次の画面に渡す
           setSessionArray('line_profile', profile);
 
-          // ⑤ ログイン後ダッシュボードページへ遷移
-          window.location.href = baseUrl + '/app/dashboard/dashboard.html';
+          // ⑤ ログイン後TOPページへ遷移
+          window.location.href = baseUrl + '/app/top/top.html';
         } catch (err) {
           console.error('LINEログイン処理中にエラーが発生しました:', err);
           alert(
