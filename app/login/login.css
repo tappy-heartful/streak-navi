@@ -22,7 +22,7 @@ body.login-page::before {
 
 
 /* コンテンツ最大幅を768pxに制限 */
-.container {
+.title {
   padding: 20px;
   box-sizing: border-box;
 }
