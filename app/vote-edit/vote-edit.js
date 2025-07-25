@@ -16,7 +16,7 @@ $(document).ready(function () {
   // タイトル切り替え
   switch (mode) {
     case 'new':
-      pageTitle.textContent = '投票作成';
+      pageTitle.textContent = '投票新規作成';
       break;
     case 'edit':
       pageTitle.textContent = '投票編集';
