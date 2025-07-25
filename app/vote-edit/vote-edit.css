@@ -111,3 +111,35 @@ input[type="text"], textarea {
 .hidden {
   display: none;
 }
+.page-header {
+  max-width: 768px;
+  margin: 30px auto 10px auto;
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 28px;
+  color: #333;
+  margin-bottom: 10px;
+}
+
+.page-footer {
+  max-width: 768px;
+  margin: 30px auto 50px auto;
+  text-align: center;
+}
+
+.back-link {
+  text-decoration: none;
+  color: #4CAF50;
+  font-weight: bold;
+  border: 2px solid #4CAF50;
+  padding: 10px 20px;
+  border-radius: 8px;
+  display: inline-block;
+  transition: background-color 0.2s ease;
+}
+
+.back-link:hover {
+  background-color: #d8f7de;
+}

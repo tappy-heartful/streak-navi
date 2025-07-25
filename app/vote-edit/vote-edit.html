@@ -10,9 +10,12 @@
   <body>
     <div id="header-placeholder"></div>
 
-    <main class="container">
-      <h1>投票管理</h1>
+    <!-- タイトル（カード外） -->
+    <div class="page-header">
+      <h1 id="page-title">投票管理</h1>
+    </div>
 
+    <main class="container">
       <!-- 投票名 -->
       <div class="form-group">
         <label for="vote-title">投票名</label>
@@ -68,6 +71,13 @@
         <button class="delete-button">削除</button>
       </div>
     </main>
+
+    <!-- フッター部（カード外） -->
+    <div class="page-footer">
+      <a href="../vote-list/vote-list.html" class="back-link"
+        >← 投票一覧に戻る</a
+      >
+    </div>
 
     <div id="footer-placeholder"></div>
 
