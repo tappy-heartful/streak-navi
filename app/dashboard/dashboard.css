@@ -1,4 +1,8 @@
-.container {
+/* カード共通スタイル */
+.container,
+.announcement-container,
+.procedure {
+  width: 90%;
   margin: 20px auto;
   padding: 20px;
   border-radius: 10px;
@@ -7,16 +11,15 @@
   text-align: center;
 }
 
-/* お知らせ */
-.announcement-container {
-  margin-top: 30px;
-  background-color: #fff;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-  text-align: left;
+/* タイトル中央寄せ */
+h1 {
+  text-align: center;
+  font-size: 24px;
+  margin-top: 20px;
+  color: #333;
 }
 
+/* お知らせ */
 .announcement-header {
   display: flex;
   justify-content: space-between;
@@ -43,7 +46,7 @@
   background-color: #f9f9f9;
   transition: background 0.3s ease;
   font-size: 16px;
-  box-shadow: 1px 1px 5px rgba(0,0,0,0.05);
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.05);
 }
 
 .notification-link:hover {
@@ -51,15 +54,6 @@
 }
 
 /* メニュー */
-.procedure {
-  margin-top: 30px;
-  padding: 15px;
-  background-color: #fff;
-  border-radius: 10px;
-  box-shadow: 2px 2px 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-}
-
 .procedure h3 {
   font-size: 18px;
   color: #333;
@@ -69,7 +63,7 @@
   text-align: left;
 }
 
-/* Z順に並ぶメニュー＋背景アイコン */
+/* メニューボタン（背景取りやめ → 白背景＋枠線） */
 .menu-button {
   display: block;
   width: 100%;
@@ -98,7 +92,7 @@
   pointer-events: none;
 }
 
-/* 個別背景アイコン */
+/* 個別アイコン */
 .menu-button.vote::after {
   content: "📊";
 }
