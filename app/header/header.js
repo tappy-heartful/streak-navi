@@ -9,6 +9,12 @@ $(document).ready(function () {
   $('#line-icon').attr('src', lineIconPath);
   $('#line-name').text(lineAccountName);
 
+  // バンドアイコンボタン制御
+  // TOPへ遷移
+  $('.header-left').on('click', function (e) {
+    window.location.href = '../top/top.html';
+  });
+
   // ログアウトボタン制御
   // トグル表示
   $('.header-right').on('click', function (e) {
