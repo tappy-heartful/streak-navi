@@ -1,18 +1,30 @@
 ////////////////////////////
-//グローバル変数
+// グローバル変数
 ////////////////////////////
 let initialStateHtml;
 
 ////////////////////////////
-// 初期表示
+// 初期処理（画面読み込み時）
 ////////////////////////////
 $(document).ready(function () {
-  // 初期処理
   initDisplay();
-  // モード取得
-  const params = new URLSearchParams(location.search);
-  const mode = params.get('mode') || 'new';
+  const mode = getModeFromURL();
+  setupPageMode(mode);
+  setupEventHandlers(mode);
+});
 
+////////////////////////////
+// モード取得
+////////////////////////////
+function getModeFromURL() {
+  const params = new URLSearchParams(location.search);
+  return params.get('mode') || 'new';
+}
+
+////////////////////////////
+// 画面モードに応じた表示切替
+////////////////////////////
+function setupPageMode(mode) {
   const actionButtons = document.getElementById('action-buttons');
   const confirmButtons = document.getElementById('confirm-buttons');
   const inputs = document.querySelectorAll('input, textarea, button');
@@ -33,11 +45,12 @@ $(document).ready(function () {
       pageTitle.textContent = '投票管理';
   }
 
-  // モード制御
+  // モードごとの表示制御
   if (mode === 'confirm') {
-    // 確認モードの場合
     actionButtons.classList.add('hidden');
     confirmButtons.classList.add('confirm-buttons');
+
+    // 入力を無効化
     inputs.forEach((el) => {
       if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
         el.setAttribute('readonly', true);
@@ -45,25 +58,27 @@ $(document).ready(function () {
       }
     });
   } else {
-    // 編集・新規モードの場合
     actionButtons.classList.add('action-buttons');
     confirmButtons.classList.add('hidden');
 
-    // 項目追加
+    // 投票項目を初期表示 & 状態を保存
     const newItem = createVoteItemTemplate();
     $('#vote-items-container').append(newItem);
-
-    //クリア処理用
     captureInitialState();
   }
+}
 
-  // 追加：投票項目追加ボタン処理
+////////////////////////////
+// イベントハンドラー設定
+////////////////////////////
+function setupEventHandlers(mode) {
+  // 投票項目を追加
   $('#add-item').on('click', function () {
     const newItem = createVoteItemTemplate();
     $('#vote-items-container').append(newItem);
   });
 
-  // 追加：動的追加要素へのイベント委任
+  // 動的追加要素へのイベント委任
   $('#vote-items-container')
     .on('click', '.add-choice', function () {
       const $choices = $(this).siblings('.vote-choices');
@@ -76,45 +91,26 @@ $(document).ready(function () {
       `);
       $choices.append(choice);
     })
-
     .on('click', '.remove-choice', function () {
       $(this).parent('.choice-wrapper').remove();
     })
-
     .on('click', '.remove-item', function () {
       $(this).closest('.vote-item').remove();
     });
 
-  // クリアボタン処理
+  // クリアボタン：初期状態に戻す
   $('.clear-button').on('click', function () {
     restoreInitialState();
   });
+}
 
-  function captureInitialState() {
-    initialStateHtml = {
-      title: $('#vote-title').val(),
-      description: $('#vote-description').val(),
-      isOpen: $('#is-open').prop('checked'),
-      voteItemsHtml: $('#vote-items-container').html(),
-    };
-  }
-
-  function restoreInitialState() {
-    $('#vote-title').val(initialStateHtml.title);
-    $('#vote-description').val(initialStateHtml.description);
-    $('#is-open').prop('checked', initialStateHtml.isOpen);
-    $('#vote-items-container').html(initialStateHtml.voteItemsHtml);
-  }
-});
-// 項目のHTMLテンプレート
+////////////////////////////
+// 投票項目テンプレート生成
+////////////////////////////
 function createVoteItemTemplate() {
-  const voteItem = $(`
+  return $(`
     <div class="vote-item">
-      <input
-        type="text"
-        class="vote-item-title"
-        placeholder="項目名（例：演目候補）"
-      />
+      <input type="text" class="vote-item-title" placeholder="項目名（例：演目候補）" />
       <div class="vote-choices">
         <div class="choice-wrapper">
           <input type="text" class="vote-choice" placeholder="選択肢1" />
@@ -129,6 +125,23 @@ function createVoteItemTemplate() {
       <button class="remove-item">× 項目を削除</button>
     </div>
   `);
+}
 
-  return voteItem;
+////////////////////////////
+// 初期状態の保存・復元（クリアボタン用）
+////////////////////////////
+function captureInitialState() {
+  initialStateHtml = {
+    title: $('#vote-title').val(),
+    description: $('#vote-description').val(),
+    isOpen: $('#is-open').prop('checked'),
+    voteItemsHtml: $('#vote-items-container').html(),
+  };
+}
+
+function restoreInitialState() {
+  $('#vote-title').val(initialStateHtml.title);
+  $('#vote-description').val(initialStateHtml.description);
+  $('#is-open').prop('checked', initialStateHtml.isOpen);
+  $('#vote-items-container').html(initialStateHtml.voteItemsHtml);
 }
