@@ -23,10 +23,6 @@
   color: #fff;
 }
 
-.tab:hover {
-  background-color: #d8f7de;
-}
-
 /* リスト */
 .notification-list {
   list-style: none;
