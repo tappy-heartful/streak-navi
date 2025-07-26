@@ -9,16 +9,20 @@
       href="../../images/favicon.png"
       type="image/png"
     />
-    <title>リダイレクト中...</title>
+    <title>読み込み中...</title>
     <link rel="stylesheet" href="../../common.css" />
   </head>
   <body>
-    <h1 style="text-align: center">リダイレクト中...</h1>
+    <h1 style="text-align: center">読み込み中...</h1>
     <div id="message"></div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../../functions.js"></script>
     <script>
+      // 先頭に sleep 関数を追加
+      function sleep(ms) {
+        return new Promise((resolve) => setTimeout(resolve, ms));
+      }
       // コールバック処理
       (async () => {
         const clientId = getSession('clientId'); // あなたのLINEチャネルID
@@ -91,7 +95,10 @@
 
           // メッセージ表示
           $('#message').append('LINE プロフィール取得成功<br>');
-          $('#message').append('All Process OK(〜￣▽￣)〜');
+          $('#message').append('All Processes OK (〜￣▽￣)〜');
+
+          // 👇ここで1秒待機
+          await sleep(1000);
 
           // ④ プロフィールをセッションに保存、または次の画面に渡す
           setSessionArray('line_profile', profile);
