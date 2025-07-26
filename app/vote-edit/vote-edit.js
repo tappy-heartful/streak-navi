@@ -29,14 +29,17 @@ function setupPageMode(mode) {
   const confirmButtons = document.getElementById('confirm-buttons');
   const inputs = document.querySelectorAll('input, textarea, button');
   const pageTitle = document.getElementById('page-title');
+  const submitButton = document.getElementById('submit-button');
 
   // タイトル切り替え
   switch (mode) {
     case 'new':
       pageTitle.textContent = '投票新規作成';
+      submitButton.textContent = '登録';
       break;
     case 'edit':
       pageTitle.textContent = '投票編集';
+      submitButton.textContent = '更新';
       break;
     case 'confirm':
       pageTitle.textContent = '投票確認';
