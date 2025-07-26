@@ -74,28 +74,6 @@ input[type="text"], textarea {
   color: #fff;
 }
 
-.confirm-buttons {
-  display: flex;
-  gap: 15px;
-  margin-top: 30px;
-  justify-content: space-between;
-}
-
-.answer-button {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.edit-button {
-  background-color: #2196F3;
-  color: white;
-}
-
-.delete-button {
-  background-color: #f44336;
-  color: white;
-}
-
 .checkbox-group {
   margin-top: 20px;
   text-align: center;

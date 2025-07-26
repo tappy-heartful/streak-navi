@@ -25,50 +25,28 @@ function getModeFromURL() {
 // 画面モードに応じた表示切替
 ////////////////////////////
 function setupPageMode(mode) {
-  const actionButtons = document.getElementById('action-buttons');
-  const confirmButtons = document.getElementById('confirm-buttons');
-  const inputs = document.querySelectorAll('input, textarea, button');
+  const title = document.getElementById('title');
   const pageTitle = document.getElementById('page-title');
   const submitButton = document.getElementById('submit-button');
 
-  // タイトル切り替え
   switch (mode) {
     case 'new':
       pageTitle.textContent = '投票新規作成';
+      title.textContent = '投票新規作成';
       submitButton.textContent = '登録';
       break;
     case 'edit':
       pageTitle.textContent = '投票編集';
+      title.textContent = '投票編集';
       submitButton.textContent = '更新';
-      break;
-    case 'confirm':
-      pageTitle.textContent = '投票確認';
       break;
     default:
       pageTitle.textContent = '投票管理';
   }
-
-  // モードごとの表示制御
-  if (mode === 'confirm') {
-    actionButtons.classList.add('hidden');
-    confirmButtons.classList.add('confirm-buttons');
-
-    // 入力を無効化
-    inputs.forEach((el) => {
-      if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
-        el.setAttribute('readonly', true);
-        el.setAttribute('disabled', true);
-      }
-    });
-  } else {
-    actionButtons.classList.add('action-buttons');
-    confirmButtons.classList.add('hidden');
-
-    // 投票項目を初期表示 & 状態を保存
-    const newItem = createVoteItemTemplate();
-    $('#vote-items-container').append(newItem);
-    captureInitialState();
-  }
+  // 初期項目と状態保持
+  const newItem = createVoteItemTemplate();
+  $('#vote-items-container').append(newItem);
+  captureInitialState();
 }
 
 ////////////////////////////
