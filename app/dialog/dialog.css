@@ -22,12 +22,27 @@
 
 .dialog-buttons {
   margin-top: 20px;
+  display: flex;
+  justify-content: center;
+  gap: 10px; /* ボタンの間隔 */
 }
 
 .dialog-buttons button {
-  margin: 0 10px;
-  padding: 8px 16px;
+  padding: 12px 24px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
   cursor: pointer;
+}
+
+.dialog-cancel {
+  background-color: #ccc;
+  color: #000;
+}
+
+.dialog-ok {
+  background-color: #4CAF50;
+  color: #fff;
 }
 
 .hidden {

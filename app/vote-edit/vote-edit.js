@@ -112,9 +112,9 @@ function setupEventHandlers(mode) {
 
   // 登録/更新ボタン
   $('.submit-button').on('click', function () {
-    showDialog(
-      '投票を' + (mode === 'new' ? '登録' : '更新') + 'しますか？'
-    ).then((result) => {});
+    showDialog((mode === 'new' ? '登録' : '更新') + 'しますか？').then(
+      (result) => {}
+    );
   });
 }
 
