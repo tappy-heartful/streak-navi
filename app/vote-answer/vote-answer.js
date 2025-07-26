@@ -54,6 +54,6 @@ function setupEventHandlers() {
   });
 
   $('.answer-button').on('click', function () {
-    window.location.href = '../vote-answer/vote-answer.html';
+    alert('回答ページへ遷移（未実装）');
   });
 }
