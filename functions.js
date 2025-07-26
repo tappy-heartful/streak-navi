@@ -127,5 +127,7 @@ function initDisplay() {
     // ヘッダー、フッター表示(ログイン済みの場合のみ)
     loadComponent('header');
     loadComponent('footer');
+    // ダイアログ読み込み
+    loadComponent('dialog');
   }
 }

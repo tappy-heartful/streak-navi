@@ -103,7 +103,11 @@ function setupEventHandlers(mode) {
 
   // クリアボタン：初期状態に戻す
   $('.clear-button').on('click', function () {
-    restoreInitialState();
+    showDialog('クリアしますか？').then((result) => {
+      if (result) {
+        restoreInitialState();
+      }
+    });
   });
 }
 
