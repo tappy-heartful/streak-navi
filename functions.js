@@ -121,8 +121,10 @@ async function loadComponent(target) {
 // 画面共通初期処理
 function initDisplay() {
   if (!getSessionArray('line_profile').userId) {
-    // 不正遷移の場合ログインページへ遷移(本番環境のみの対策でいいため決め打ち)
-    window.location.href = 'https://tappy-heartful.github.io/streak-navi';
+    // 不正遷移の場合ログインページへ遷移(セッションが正しくセットされていない場合を考慮)
+    window.location.href = window.location.href.includes('tappy-heartful')
+      ? 'https://tappy-heartful.github.io/streak-navi'
+      : window.location.origin;
   } else {
     // ヘッダー、フッター表示(ログイン済みの場合のみ)
     loadComponent('header');
