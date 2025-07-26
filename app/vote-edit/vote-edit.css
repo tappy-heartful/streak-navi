@@ -20,6 +20,7 @@ input[type="text"], textarea {
   border: 1px solid #ccc;
   border-radius: 6px;
   font-size: 16px;
+  box-sizing: border-box;
 }
 
 .vote-item {
@@ -115,5 +116,18 @@ input[type="text"], textarea {
   border: none;
   border-radius: 6px;
   padding: 6px 10px;
+  cursor: pointer;
+}
+
+/* remove-itemボタン右寄せ */
+.remove-item {
+  display: block;
+  margin-left: auto;
+  margin-top: 10px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
   cursor: pointer;
 }
