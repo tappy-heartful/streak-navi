@@ -98,3 +98,22 @@ input[type="text"], textarea {
 .checkbox-group {
   margin-top: 20px;
 }
+.choice-wrapper {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.choice-wrapper input {
+  flex: 1;
+}
+
+.remove-choice {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
