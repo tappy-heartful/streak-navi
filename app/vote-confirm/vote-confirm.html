@@ -22,32 +22,21 @@
     </div>
 
     <main class="container">
-      <!-- 投票名 -->
       <div class="form-group">
-        <label for="vote-title">投票名</label>
-        <input type="text" id="vote-title" placeholder="例：文化祭アンケート" />
+        <label class="label-title">投票名</label>
+        <div class="label-value" id="vote-title"></div>
       </div>
 
-      <!-- 投票説明 -->
       <div class="form-group">
-        <label for="vote-description">投票説明</label>
-        <textarea
-          id="vote-description"
-          rows="3"
-          placeholder="説明文を入力..."
-        ></textarea>
+        <label class="label-title">投票説明</label>
+        <div class="label-value" id="vote-description"></div>
       </div>
 
-      <!-- 投票項目 -->
       <div id="vote-items-container"></div>
-      <button id="add-item">＋ 投票項目を追加</button>
 
-      <!-- 回答受付 -->
-      <div class="form-group checkbox-group">
-        <label>
-          <input type="checkbox" id="is-open" />
-          回答を受付
-        </label>
+      <div class="form-group">
+        <label class="label-title">受付状況</label>
+        <div class="label-value" id="vote-status"></div>
       </div>
 
       <div id="confirm-buttons" class="confirm-buttons">

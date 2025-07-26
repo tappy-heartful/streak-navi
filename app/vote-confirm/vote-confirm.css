@@ -8,19 +8,17 @@ h1 {
   margin-bottom: 20px;
 }
 
-.form-group label {
-  display: block;
+.label-title {
   font-weight: bold;
   margin-bottom: 6px;
+  display: block;
 }
 
-input[type="text"], textarea {
-  width: 100%;
+.label-value {
   padding: 10px;
-  border: 1px solid #ccc;
+  background: #f4f4f4;
   border-radius: 6px;
   font-size: 16px;
-  box-sizing: border-box;
 }
 
 .vote-item {
@@ -32,20 +30,25 @@ input[type="text"], textarea {
 }
 
 .vote-item-title {
+  font-weight: bold;
   margin-bottom: 10px;
+  font-size: 18px;
 }
 
-.vote-choices input {
-  margin-bottom: 8px;
+.vote-choices {
+  padding-left: 20px;
 }
 
-.add-choice, .remove-item, #add-item {
-  margin-top: 10px;
-  background-color: #eee;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
+.vote-choice {
+  margin-bottom: 6px;
+  padding-left: 8px;
+}
+
+.confirm-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+  justify-content: space-between;
 }
 
 .confirm-buttons button {
@@ -55,13 +58,6 @@ input[type="text"], textarea {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-}
-
-.confirm-buttons {
-  display: flex;
-  gap: 15px;
-  margin-top: 30px;
-  justify-content: space-between;
 }
 
 .answer-button {
@@ -77,41 +73,4 @@ input[type="text"], textarea {
 .delete-button {
   background-color: #f44336;
   color: white;
-}
-
-.checkbox-group {
-  margin-top: 20px;
-  text-align: center;
-}
-.choice-wrapper {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 8px;
-  align-items: center;
-}
-
-.choice-wrapper input {
-  flex: 1;
-}
-
-.remove-choice {
-  background-color: #f44336;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 10px;
-  cursor: pointer;
-}
-
-/* remove-itemボタン右寄せ */
-.remove-item {
-  display: block;
-  margin-left: auto;
-  margin-top: 10px;
-  background-color: #f44336;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
 }
