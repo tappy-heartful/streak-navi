@@ -42,6 +42,7 @@ function setupPageMode(mode) {
       break;
     default:
       pageTitle.textContent = '投票管理';
+      throw new Error('モード不正です');
   }
   // 初期項目と状態保持
   const newItem = createVoteItemTemplate();
