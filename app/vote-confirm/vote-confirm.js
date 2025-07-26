@@ -7,17 +7,17 @@ $(document).ready(function () {
 function renderVote() {
   // 仮データ（本番は APIやストレージから取得する）
   const voteData = {
-    title: '文化祭アンケート',
-    description: '文化祭の出し物に関するアンケートです。',
+    title: '2026年3月 曲投票',
+    description: 'ラテンと4beatの曲投票です。',
     isOpen: true,
     items: [
       {
-        title: '模擬店',
-        choices: ['焼きそば', 'たこ焼き', 'クレープ'],
+        title: 'ラテン',
+        choices: ['Alianza', 'Obatala', 'Caraban'],
       },
       {
-        title: 'ステージ企画',
-        choices: ['ダンス', '演劇', 'バンド演奏'],
+        title: '4beat',
+        choices: ['Hay Burner', 'Tall Cotton', 'Queen Bee'],
       },
     ],
   };
