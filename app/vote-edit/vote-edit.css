@@ -6,7 +6,6 @@ h1 {
 
 .form-group {
   margin-bottom: 20px;
-  text-align: center;
 }
 
 .form-group label {
@@ -99,6 +98,7 @@ input[type="text"], textarea {
 
 .checkbox-group {
   margin-top: 20px;
+  text-align: center;
 }
 .choice-wrapper {
   display: flex;
