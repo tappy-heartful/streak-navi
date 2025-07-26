@@ -1,4 +1,9 @@
 ////////////////////////////
+//グローバル変数
+////////////////////////////
+let initialStateHtml;
+
+////////////////////////////
 // 初期表示
 ////////////////////////////
 $(document).ready(function () {
@@ -47,6 +52,9 @@ $(document).ready(function () {
     // 項目追加
     const newItem = createVoteItemTemplate();
     $('#vote-items-container').append(newItem);
+
+    //クリア処理用
+    captureInitialState();
   }
 
   // 追加：投票項目追加ボタン処理
@@ -76,6 +84,27 @@ $(document).ready(function () {
     .on('click', '.remove-item', function () {
       $(this).closest('.vote-item').remove();
     });
+
+  // クリアボタン処理
+  $('.clear-button').on('click', function () {
+    restoreInitialState();
+  });
+
+  function captureInitialState() {
+    initialStateHtml = {
+      title: $('#vote-title').val(),
+      description: $('#vote-description').val(),
+      isOpen: $('#is-open').prop('checked'),
+      voteItemsHtml: $('#vote-items-container').html(),
+    };
+  }
+
+  function restoreInitialState() {
+    $('#vote-title').val(initialStateHtml.title);
+    $('#vote-description').val(initialStateHtml.description);
+    $('#is-open').prop('checked', initialStateHtml.isOpen);
+    $('#vote-items-container').html(initialStateHtml.voteItemsHtml);
+  }
 });
 // 項目のHTMLテンプレート
 function createVoteItemTemplate() {
