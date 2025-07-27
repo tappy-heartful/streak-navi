@@ -24,7 +24,7 @@ $(document).ready(async function () {
 
   users.forEach((user) => {
     const li = $(`
-      <li class="user-item">
+      <li class="user-item" onclick="window.location.href = '../user-edit/user-edit.html'">
         <img src="${user.pictureUrl}" alt="${user.name}のアイコン">
         <span class="username">${user.name}</span>
       </li>
