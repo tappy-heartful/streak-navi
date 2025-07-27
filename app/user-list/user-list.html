@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="../../images/favicon.png" />
+    <title>ユーザ一覧</title>
+    <link rel="stylesheet" href="../../common.css" />
+    <link rel="stylesheet" href="user-list.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="page-header">
+        <h1>ユーザ一覧</h1>
+      </div>
+
+      <div class="container">
+        <div class="tabs">
+          <button class="tab active" data-tab="pending">未投票</button>
+          <button class="tab" data-tab="voted">投票済</button>
+          <button class="tab" data-tab="closed">終了</button>
+        </div>
+
+        <section class="vote-list">
+          <ul class="notification-list" data-tab-content="pending">
+            <li>
+              <a
+                href="../vote-confirm/vote-confirm.html"
+                class="notification-link"
+                >🏃‍♂️ マラソン大会応援アンケート</a
+              >
+            </li>
+            <li>
+              <a
+                href="../vote-confirm/vote-confirm.html"
+                class="notification-link"
+                >🎵 2025年8月 曲投票</a
+              >
+            </li>
+          </ul>
+
+          <ul class="notification-list hidden" data-tab-content="voted">
+            <li>
+              <a
+                href="../vote-confirm/vote-confirm.html"
+                class="notification-link"
+                >📝 学園祭アンケート</a
+              >
+            </li>
+          </ul>
+
+          <ul class="notification-list hidden" data-tab-content="closed">
+            <li>
+              <a
+                href="../vote-confirm/vote-confirm.html"
+                class="notification-link"
+                >🎤 発表テーマ人気投票</a
+              >
+            </li>
+          </ul>
+        </section>
+      </div>
+
+      <div class="page-footer">
+        <a href="../top/top.html" class="back-link">← TOPに戻る</a>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../../functions.js"></script>
+    <script src="user-list.js"></script>
+  </body>
+</html>
