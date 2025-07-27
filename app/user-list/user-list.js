@@ -24,7 +24,7 @@ $(document).ready(async function () {
 
   users.forEach((user) => {
     const li = $(`
-      <li>
+      <li class="user-item">
         <img src="${user.pictureUrl}" alt="${user.name}のアイコン">
         <span class="username">${user.name}</span>
       </li>

@@ -27,3 +27,7 @@
   font-weight: 500;
   color: #333;
 }
+
+.user-item {
+  cursor: pointer;
+}
