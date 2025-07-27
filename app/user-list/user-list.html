@@ -18,50 +18,7 @@
       </div>
 
       <div class="container">
-        <div class="tabs">
-          <button class="tab active" data-tab="pending">未投票</button>
-          <button class="tab" data-tab="voted">投票済</button>
-          <button class="tab" data-tab="closed">終了</button>
-        </div>
-
-        <section class="vote-list">
-          <ul class="notification-list" data-tab-content="pending">
-            <li>
-              <a
-                href="../vote-confirm/vote-confirm.html"
-                class="notification-link"
-                >🏃‍♂️ マラソン大会応援アンケート</a
-              >
-            </li>
-            <li>
-              <a
-                href="../vote-confirm/vote-confirm.html"
-                class="notification-link"
-                >🎵 2025年8月 曲投票</a
-              >
-            </li>
-          </ul>
-
-          <ul class="notification-list hidden" data-tab-content="voted">
-            <li>
-              <a
-                href="../vote-confirm/vote-confirm.html"
-                class="notification-link"
-                >📝 学園祭アンケート</a
-              >
-            </li>
-          </ul>
-
-          <ul class="notification-list hidden" data-tab-content="closed">
-            <li>
-              <a
-                href="../vote-confirm/vote-confirm.html"
-                class="notification-link"
-                >🎤 発表テーマ人気投票</a
-              >
-            </li>
-          </ul>
-        </section>
+        <ul id="user-list" class="user-list"></ul>
       </div>
 
       <div class="page-footer">
@@ -70,7 +27,6 @@
     </main>
 
     <div id="footer-placeholder"></div>
-    <div id="dialog-placeholder"></div>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../../functions.js"></script>
     <script src="user-list.js"></script>
