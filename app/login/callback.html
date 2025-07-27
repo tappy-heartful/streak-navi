@@ -73,7 +73,9 @@
 
           const tokenData = await tokenResponse.json();
           if (!tokenData.access_token) {
-            throw new Error('アクセストークンの取得に失敗しました' + tokenData);
+            throw new Error(
+              'アクセストークンの取得に失敗しました' + JSON.stringify(tokenData)
+            );
           }
 
           // メッセージ表示
@@ -94,7 +96,9 @@
           const profile = await profileResponse.json();
 
           if (!profile) {
-            throw new Error('アクセストークンの取得に失敗しました' + profile);
+            throw new Error(
+              'アクセストークンの取得に失敗しました' + JSON.stringify(profile)
+            );
           }
 
           // メッセージ表示
