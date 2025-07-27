@@ -45,7 +45,7 @@
         }
 
         if (!code || !state) {
-          alert('無効なLINEログイン応答です');
+          alert('無効なLINEログイン応答です' + error);
           return;
         }
 
@@ -73,7 +73,7 @@
 
           const tokenData = await tokenResponse.json();
           if (!tokenData.access_token) {
-            throw new Error('アクセストークンの取得に失敗しました');
+            throw new Error('アクセストークンの取得に失敗しました' + tokenData);
           }
 
           // メッセージ表示
@@ -92,6 +92,10 @@
           );
 
           const profile = await profileResponse.json();
+
+          if (!profile) {
+            throw new Error('アクセストークンの取得に失敗しました' + profile);
+          }
 
           // メッセージ表示
           $('#message').append('✅LINE プロフィール取得成功<br>');
