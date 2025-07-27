@@ -14,7 +14,7 @@ $(document).ready(async function () {
       pictureUrl: '../../images/favicon.png',
     },
     {
-      name: 'カウント 一郎',
+      name: 'マイルス 一郎',
       pictureUrl: '../../images/favicon.png',
     },
   ];
