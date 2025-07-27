@@ -7,15 +7,15 @@ $(document).ready(async function () {
   const users = [
     {
       name: 'カウント 太郎',
-      pictureUrl: 'https://profile.line-scdn.net/0h123456789abcdef',
+      pictureUrl: '../../images/favicon.png',
     },
     {
       name: 'サミー 花子',
-      pictureUrl: 'https://profile.line-scdn.net/0habcdef123456789',
+      pictureUrl: '../../images/favicon.png',
     },
     {
       name: 'カウント 一郎',
-      pictureUrl: 'https://profile.line-scdn.net/0hzyx987654321000',
+      pictureUrl: '../../images/favicon.png',
     },
   ];
 
