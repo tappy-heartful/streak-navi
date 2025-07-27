@@ -4,11 +4,7 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="../../images/favicon.png" type="image/png" />
-    <link
-      rel="apple-touch-icon"
-      href="../../images/favicon.png"
-      type="image/png"
-    />
+    <link rel="apple-touch-icon" href="../../images/favicon.png" />
     <title id="title">ユーザ編集</title>
     <link rel="stylesheet" href="../../common.css" />
     <link rel="stylesheet" href="user-edit.css" />
@@ -16,32 +12,41 @@
   <body>
     <div id="header-placeholder"></div>
 
-    <!-- タイトル（カード外） -->
     <div class="page-header">
       <h1 id="page-title">ユーザ編集</h1>
     </div>
 
     <main class="container">
-      <div class="form-group">
-        <label class="label-title">投票名</label>
-        <div class="label-value" id="vote-title"></div>
+      <div class="user-profile">
+        <img
+          src="../../images/favicon.png"
+          alt="ユーザアイコン"
+          class="user-icon"
+        />
+        <div class="user-name" id="user-name">山田 太郎</div>
       </div>
 
       <div class="form-group">
-        <label class="label-title">投票説明</label>
-        <div class="label-value" id="vote-description"></div>
+        <label class="label-title">ユーザ管理者</label>
+        <select id="is-user-admin">
+          <option value="true">はい</option>
+          <option value="false">いいえ</option>
+        </select>
       </div>
 
-      <div id="vote-items-container"></div>
+      <div class="form-group">
+        <label class="label-title">投票管理者</label>
+        <select id="is-vote-admin">
+          <option value="true">はい</option>
+          <option value="false">いいえ</option>
+        </select>
+      </div>
 
       <div id="confirm-buttons" class="confirm-buttons">
-        <button class="answer-button" id="answer-submit">
-          ユーザを修正する
-        </button>
+        <button class="answer-button" id="save-button">ユーザを修正する</button>
       </div>
     </main>
 
-    <!-- フッター部（カード外） -->
     <div class="page-footer">
       <a href="../user-list/user-list.html" class="back-link"
         >← ユーザ一覧に戻る</a
