@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link
+      rel="apple-touch-icon"
+      href="../../images/favicon.png"
+      type="image/png"
+    />
+    <title id="title">ユーザ編集</title>
+    <link rel="stylesheet" href="../../common.css" />
+    <link rel="stylesheet" href="user-edit.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <!-- タイトル（カード外） -->
+    <div class="page-header">
+      <h1 id="page-title">ユーザ編集</h1>
+    </div>
+
+    <main class="container">
+      <div class="form-group">
+        <label class="label-title">投票名</label>
+        <div class="label-value" id="vote-title"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">投票説明</label>
+        <div class="label-value" id="vote-description"></div>
+      </div>
+
+      <div id="vote-items-container"></div>
+
+      <div id="confirm-buttons" class="confirm-buttons">
+        <button class="answer-button" id="answer-submit">
+          ユーザを修正する
+        </button>
+      </div>
+    </main>
+
+    <!-- フッター部（カード外） -->
+    <div class="page-footer">
+      <a href="../user-list/user-list.html" class="back-link"
+        >← ユーザ一覧に戻る</a
+      >
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../../functions.js"></script>
+    <script src="user-edit.js"></script>
+  </body>
+</html>
