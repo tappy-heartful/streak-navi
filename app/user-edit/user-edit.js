@@ -31,4 +31,23 @@ function setupEventHandlers() {
       }
     });
   });
+
+  //ツールチップ
+  $('.tooltip-icon').on('click touchstart', function (e) {
+    e.preventDefault(); // ← これを追加（クリック動作防止）
+    e.stopPropagation(); // 他のイベントをブロック
+
+    const $tooltip = $(this);
+
+    // 既存のツールチップをすべて非表示
+    $('.tooltip-icon').not(this).removeClass('show');
+
+    // トグル表示
+    $tooltip.toggleClass('show');
+  });
+
+  // 他の場所をタップしたら消す
+  $(document).on('click touchstart', function () {
+    $('.tooltip-icon').removeClass('show');
+  });
 }
