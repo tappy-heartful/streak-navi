@@ -15,20 +15,15 @@ $(document).ready(async function () {
 // ログインボタン押下
 ////////////////////////////
 function loginWithLINE() {
-  const clientId = '2007808275';
   const redirectUri = encodeURIComponent(
-    (window.location.href.startsWith(
-      'https://tappy-heartful.github.io/streak-navi'
-    )
-      ? 'https://tappy-heartful.github.io/streak-navi' // 本番環境の場合、設定ファイルの情報(github Pagesはサブドメインまであるため)
-      : window.location.origin) + '/app/login/callback.html' // テスト環境の場合、今のベースURLに結合
+    globalBaseUrl + '/app/login/callback.html' // テスト環境の場合、今のベースURLに結合
   );
   const state = Math.random().toString(36).substring(2); // 任意の文字列（CSRF対策）
   const scope = 'openid profile';
 
   const loginUrl =
     `https://access.line.me/oauth2/v2.1/authorize?` +
-    `response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}` +
+    `response_type=code&client_id=${globalClientId}&redirect_uri=${redirectUri}` +
     `&state=${state}&scope=${scope}`;
 
   window.location.href = loginUrl;

@@ -25,13 +25,7 @@
       }
       // コールバック処理
       (async () => {
-        const clientId = '2007808275';
-        const baseUrl = window.location.href.startsWith(
-          'https://tappy-heartful.github.io/streak-navi'
-        )
-          ? 'https://tappy-heartful.github.io/streak-navi' // 本番環境の場合、設定ファイルの情報(github Pagesはサブドメインまであるため)
-          : window.location.origin; // テスト環境の場合、今のベースURLに結合
-        const redirectUri = baseUrl + '/app/login/callback.html';
+        const redirectUri = globalBaseUrl + '/app/login/callback.html';
 
         const clientSecret = '126dea4d33dd7deca8d6ee9b7870237f'; // 必要なら（セキュアなバックエンドで）
 
@@ -67,7 +61,7 @@
                 grant_type: 'authorization_code',
                 code: code,
                 redirect_uri: redirectUri,
-                client_id: clientId,
+                client_id: globalClientId,
                 client_secret: clientSecret, // セキュアな処理はバックエンド推奨
               }),
             }
@@ -111,7 +105,7 @@
           setSessionArray('line_profile', profile);
 
           // ⑤ ログイン後TOPページへ遷移
-          window.location.href = baseUrl + '/app/top/top.html';
+          window.location.href = globalBaseUrl + '/app/top/top.html';
         } catch (err) {
           console.error('LINEログイン処理中にエラーが発生しました:', err);
           $('#message').append(

@@ -1,5 +1,11 @@
-// 定数
-const appName = 'streakNavi';
+// グローバル定数
+const globalAppName = 'streakNavi';
+const globalClientId = '2007808275';
+const globalBaseUrl = window.location.href.startsWith(
+  'https://tappy-heartful.github.io/streak-navi'
+)
+  ? 'https://tappy-heartful.github.io/streak-navi' // 本番環境の場合(github Pagesはサブドメインまであるため)
+  : window.location.origin; // テスト環境の場合、今のベースURLに結合;
 
 // JSONデータを取得する関数
 function getJsonData(jsonUrl) {
@@ -35,12 +41,12 @@ function parseCsv(csvText, skipRowCount) {
 
 // データをセッションストレージからクリアする関数
 function removeSession(key) {
-  sessionStorage.removeItem(appName + '.' + key);
+  sessionStorage.removeItem(globalAppName + '.' + key);
 }
 
 // データをセッションストレージから全削除する関数
 function clearAllAppSession() {
-  const prefix = appName + '.';
+  const prefix = globalAppName + '.';
   const keysToRemove = [];
 
   // 対象キーを先に抽出（直接ループ中に削除するとバグになる）
@@ -57,22 +63,25 @@ function clearAllAppSession() {
 
 // データをセッションストレージにセットする関数
 function setSession(key, value) {
-  sessionStorage.setItem(appName + '.' + key, value);
+  sessionStorage.setItem(globalAppName + '.' + key, value);
 }
 
 // セッションストレージからデータをゲットする関数
 function getSession(key) {
-  return sessionStorage.getItem(appName + '.' + key);
+  return sessionStorage.getItem(globalAppName + '.' + key);
 }
 
 // セッションストレージから配列を取得(nullは空に)
 function getSessionArray(key) {
-  return JSON.parse(sessionStorage.getItem(appName + '.' + key)) ?? [];
+  return JSON.parse(sessionStorage.getItem(globalAppName + '.' + key)) ?? [];
 }
 
 // セッションストレージに配列設定(nullは空に)
 function setSessionArray(key, array) {
-  sessionStorage.setItem(appName + '.' + key, JSON.stringify(array ?? []));
+  sessionStorage.setItem(
+    globalAppName + '.' + key,
+    JSON.stringify(array ?? [])
+  );
 }
 
 // エラー時処理
