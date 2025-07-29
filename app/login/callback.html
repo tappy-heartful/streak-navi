@@ -25,9 +25,11 @@
       }
       // コールバック処理
       (async () => {
-        const clientId = getSession('clientId'); // あなたのLINEチャネルID
-        const baseUrl = getSession('isProd')
-          ? getSession('urlBaseProd') // 本番環境の場合、設定ファイルの情報(github Pagesはサブドメインまであるため)
+        const clientId = '2007808275';
+        const baseUrl = window.location.href.startsWith(
+          'https://tappy-heartful.github.io/streak-navi'
+        )
+          ? 'https://tappy-heartful.github.io/streak-navi' // 本番環境の場合、設定ファイルの情報(github Pagesはサブドメインまであるため)
           : window.location.origin; // テスト環境の場合、今のベースURLに結合
         const redirectUri = baseUrl + '/app/login/callback.html';
 

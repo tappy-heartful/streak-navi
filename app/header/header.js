@@ -25,8 +25,10 @@ $(document).ready(function () {
   // ログアウトボタンクリック時にログイン画面へ遷移
   $('#logout-button').on('click', function () {
     // ログインページへ遷移
-    window.location.href = getSession('isProd')
-      ? getSession('urlBaseProd') // 本番環境の場合、設定ファイルの情報(github Pagesはサブドメインまであるため)
+    window.location.href.startsWith(
+      'https://tappy-heartful.github.io/streak-navi'
+    )
+      ? 'https://tappy-heartful.github.io/streak-navi' // 本番環境の場合(github Pagesはサブドメインまであるため)
       : window.location.origin; // テスト環境の場合、今のベースURLに結合;
   });
 

@@ -1,27 +1,10 @@
 ////////////////////////////
-// グローバル変数
-////////////////////////////
-let appsettings = [];
-
-////////////////////////////
 // 初期表示
 ////////////////////////////
 $(document).ready(async function () {
   try {
-    // 設定ファイルを読み込み
-    appsettings = await getJsonData('../../appsettings.json');
-
-    // 設定ファイル情報をセッションストレージに保存
-    clearAllAppSession(); // 一度全削除
-    Object.keys(appsettings).forEach((key) => {
-      setSession(key, appsettings[key]);
-    });
-
-    // 環境情報を保存(本番 or テスト)
-    setSession(
-      'isProd',
-      window.location.href.startsWith(getSession('urlBaseProd')) ? 'true' : ''
-    );
+    // セッションストレージ一度全削除
+    clearAllAppSession(); //
   } catch (error) {
     // データ読み込み失敗時にエラー表示
     showError('Failed:', error);
@@ -32,10 +15,12 @@ $(document).ready(async function () {
 // ログインボタン押下
 ////////////////////////////
 function loginWithLINE() {
-  const clientId = getSession('clientId');
+  const clientId = '2007808275';
   const redirectUri = encodeURIComponent(
-    (getSession('isProd')
-      ? getSession('urlBaseProd') // 本番環境の場合、設定ファイルの情報(github Pagesはサブドメインまであるため)
+    (window.location.href.startsWith(
+      'https://tappy-heartful.github.io/streak-navi'
+    )
+      ? 'https://tappy-heartful.github.io/streak-navi' // 本番環境の場合、設定ファイルの情報(github Pagesはサブドメインまであるため)
       : window.location.origin) + '/app/login/callback.html' // テスト環境の場合、今のベースURLに結合
   );
   const state = Math.random().toString(36).substring(2); // 任意の文字列（CSRF対策）
