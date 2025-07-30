@@ -16,7 +16,7 @@ $(document).ready(async function () {
 ////////////////////////////
 function loginWithLINE() {
   const redirectUri = encodeURIComponent(
-    globalBaseUrl + '/public/app/login/callback.html' // テスト環境の場合、今のベースURLに結合
+    globalBaseUrl + '/app/login/callback.html' // テスト環境の場合、今のベースURLに結合
   );
   const state = Math.random().toString(36).substring(2); // 任意の文字列（CSRF対策）
   const scope = 'openid profile';

@@ -4,8 +4,9 @@ const globalClientId = '2007808275';
 const globalBaseUrl = window.location.href.startsWith(
   'https://tappy-heartful.github.io/streak-navi'
 )
-  ? 'https://tappy-heartful.github.io/streak-navi' // 本番環境の場合(github Pagesはサブドメインまであるため)
-  : window.location.origin; // テスト環境の場合、今のベースURLに結合;
+  ? 'https://tappy-heartful.github.io/streak-navi' // 旧本番環境(github Pagesはサブドメインまである)
+  : window.location.origin + // 本番環境(firebase上で公開。publicのパス抜き)
+    (window.location.href.includes('public') ? '/public' : ''); // ローカル環境(liveserverでhosting。publicのパスあり)
 
 // JSONデータを取得する関数
 function getJsonData(jsonUrl) {
