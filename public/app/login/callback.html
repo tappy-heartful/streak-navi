@@ -25,7 +25,7 @@
       }
       // コールバック処理
       (async () => {
-        const redirectUri = globalBaseUrl + '/app/login/callback.html';
+        const redirectUri = globalBaseUrl + '/public/app/login/callback.html';
 
         const clientSecret = '126dea4d33dd7deca8d6ee9b7870237f'; // 必要なら（セキュアなバックエンドで）
 
@@ -105,7 +105,7 @@
           setSessionArray('line_profile', profile);
 
           // ⑤ ログイン後TOPページへ遷移
-          window.location.href = globalBaseUrl + '/app/top/top.html';
+          window.location.href = globalBaseUrl + '/public/app/top/top.html';
         } catch (err) {
           console.error('LINEログイン処理中にエラーが発生しました:', err);
           $('#message').append(
