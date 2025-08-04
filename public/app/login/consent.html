@@ -4,6 +4,12 @@
     <meta charset="UTF-8" />
     <title>LINEログイン同意 | Streak Navi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link
+      rel="apple-touch-icon"
+      href="../../images/favicon.png"
+      type="image/png"
+    />
     <link rel="stylesheet" href="../../common.css" />
     <style>
       .page-header h1 {
@@ -118,10 +124,13 @@
     <div class="page-footer">
       <a href="login.html" class="back-link">← ログイン画面に戻る</a>
     </div>
+    <div id="footer-placeholder"></div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="../../functions.js"></script>
     <script>
+      // フッター読み込み
+      loadComponent('footer');
       const checkbox = document.getElementById('agreeCheckbox');
       const button = document.getElementById('agreeButton');
 
