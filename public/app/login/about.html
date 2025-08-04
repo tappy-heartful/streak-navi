@@ -4,26 +4,14 @@
     <meta charset="UTF-8" />
     <title>サイト情報 | Streak Navi</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../../common.css" />
     <style>
       :root {
         --accent-color: #4caf50;
-        --bg-color: #f9f9fb;
-        --text-color: #333;
         --tab-bg: #e5def0;
         --tab-active-bg: #ffffff;
       }
-      * {
-        box-sizing: border-box;
-      }
-      body {
-        font-family: 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
-        background: var(--bg-color);
-        color: var(--text-color);
-        line-height: 1.8;
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 2rem;
-      }
+
       h1,
       h2,
       h3 {
@@ -31,11 +19,13 @@
         border-bottom: 1px solid #ccc;
         padding-bottom: 0.3rem;
       }
+
       code {
         background-color: #f5f5f5;
         padding: 0.2rem 0.4rem;
         border-radius: 4px;
       }
+
       .tabs {
         display: flex;
         flex-wrap: wrap;
@@ -43,6 +33,7 @@
         border-bottom: 2px solid #ccc;
         margin-bottom: 1rem;
       }
+
       .tab {
         flex: 1 1 auto;
         text-align: center;
@@ -56,14 +47,17 @@
         min-width: 120px;
         white-space: nowrap;
       }
+
       .tab:hover {
         background: #dcd2eb;
       }
+
       .tab.active {
         background: var(--tab-active-bg);
         font-weight: bold;
         border-bottom: 2px solid var(--tab-active-bg);
       }
+
       .tab-content {
         display: none;
         background: #fff;
@@ -71,61 +65,40 @@
         border-radius: 0 0 10px 10px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
       }
+
       .tab-content.active {
         display: block;
       }
+
       a {
         color: var(--accent-color);
         word-break: break-word;
       }
-      ul,
-      ol {
-        padding-left: 1.2rem;
-      }
+
       @media screen and (max-width: 600px) {
-        body {
-          padding: 1rem;
-        }
         .tab {
           flex: 1 1 100%;
           font-size: 1rem;
         }
+
         h1 {
           font-size: 1.3rem;
         }
+
         h2 {
           font-size: 1.1rem;
         }
+
         p {
           font-size: 0.95rem;
         }
       }
-
-      /* 戻るボタン */
-      .page-footer {
-        max-width: 768px;
-        margin: 30px auto 50px auto;
-        text-align: center;
-      }
-
-      .back-link {
-        text-decoration: none;
-        color: #4caf50;
-        font-weight: bold;
-        border: 2px solid #4caf50;
-        padding: 10px 20px;
-        border-radius: 8px;
-        display: inline-block;
-        transition: background-color 0.2s ease;
-      }
-
-      .back-link:hover {
-        background-color: #d8f7de;
-      }
     </style>
   </head>
+
   <body>
     <h1>サイト情報 | Streak Navi</h1>
+
     <div class="tabs">
       <div class="tab active" data-tab="about">このサイトについて</div>
       <div class="tab" data-tab="quote">引用について</div>
