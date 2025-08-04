@@ -1,18 +1,20 @@
 body.login-page {
-  /* 背景画像＋白半透明レイヤーを直接指定 */
+  font-family: sans-serif;
+  text-align: center;
+
   background: 
     linear-gradient(rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.5)),
     url('../../images/background.jpg') no-repeat center center;
   background-size: cover;
 
-  /* 縦方向レイアウト */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-
-  min-height: 100vh;
+  /* 高さは画面の高さ以上に必要。最小100vhではなく「内容に応じて拡張」 */
+  min-height: 100%;
   margin: 0;
   padding: 0;
+
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 中央寄せにしたい場合 */
 }
 
 
@@ -65,9 +67,13 @@ body.login-page::before {
 /* ボタンとリンクを下部に配置 */
 .login-footer {
   padding-bottom: 30px;
+  margin-top: 40px;
+  text-align: center;
 }
 
 .login-footer button {
+  display: block;
+  margin: 0 auto 10px auto;
   background-color: #06c755;
   color: white;
   font-size: 18px;
@@ -75,8 +81,9 @@ body.login-page::before {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  margin-bottom: 10px;
+  position: static; /* 念のため static 明示 */
 }
+
 
 .login-footer button:hover {
   background-color: #04a94f;
