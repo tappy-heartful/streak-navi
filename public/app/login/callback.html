@@ -104,8 +104,10 @@
           // ④ プロフィールをセッションに保存、または次の画面に渡す
           setSessionArray('line_profile', profile);
 
-          // ⑤ ログイン後TOPページへ遷移
-          window.location.href = globalBaseUrl + '/app/top/top.html';
+          // ⑤ ログイン後TOPページ/同意確認ページへ遷移 TODO ユーザがあるかどうかの判定
+          window.location.href =
+            globalBaseUrl +
+            (false ? '/app/top/top.html' : '/app/login/consent.html');
         } catch (err) {
           console.error('LINEログイン処理中にエラーが発生しました:', err);
           $('#message').append(

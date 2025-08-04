@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <title>LINEログイン同意 | Streak Navi</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="../../common.css" />
+    <style>
+      body {
+        font-family: 'Hiragino Kaku Gothic ProN', Meiryo, sans-serif;
+        background: #f9f9fb;
+        color: #333;
+        line-height: 1.8;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+
+      h1 {
+        color: #4caf50;
+        border-bottom: 1px solid #ccc;
+        padding-bottom: 0.3rem;
+        font-size: 1.6rem;
+      }
+
+      p {
+        margin: 1rem 0;
+      }
+
+      ul {
+        padding-left: 1.5rem;
+        margin-bottom: 1rem;
+      }
+
+      li {
+        margin-bottom: 0.5rem;
+      }
+
+      label {
+        display: block;
+        margin-top: 1.5rem;
+      }
+
+      .checkbox {
+        margin-right: 0.5rem;
+      }
+
+      .button-container {
+        margin-top: 2rem;
+        text-align: center;
+      }
+
+      button {
+        background-color: #4caf50;
+        color: #fff;
+        border: none;
+        padding: 12px 24px;
+        font-size: 1rem;
+        border-radius: 8px;
+        cursor: pointer;
+      }
+
+      button:disabled {
+        background-color: #bbb;
+        cursor: not-allowed;
+      }
+
+      .note {
+        font-size: 0.9rem;
+        color: #666;
+        margin-top: 1rem;
+      }
+
+      a {
+        color: #4caf50;
+      }
+
+      @media screen and (max-width: 600px) {
+        body {
+          padding: 1rem;
+        }
+
+        h1 {
+          font-size: 1.3rem;
+        }
+
+        button {
+          width: 100%;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <h1>LINEログインに関する同意</h1>
+
+    <p>
+      本Webアプリ「Streak Navi」は、Swing Streak Jazz
+      Orchestraのメンバー専用の非公開ツールです。
+    </p>
+
+    <p>以下の情報を取得し、本人確認およびログイン管理のために利用します：</p>
+    <ul>
+      <li>LINEアカウントの表示名</li>
+      <li>LINEのユーザーID</li>
+      <li>メールアドレス（※LINE Developersで取得許可を申請中）</li>
+    </ul>
+
+    <p>これらの情報は以下のように取り扱います：</p>
+    <ul>
+      <li>アカウント識別のみに使用され、バンド外には一切公開されません</li>
+      <li>すべての情報は暗号化・ハッシュ化し、安全にFirestoreに保存されます</li>
+      <li>取得した情報は、第三者に提供・共有されることはありません</li>
+    </ul>
+
+    <label>
+      <input type="checkbox" id="agreeCheckbox" class="checkbox" />
+      上記の内容を読み、同意します
+    </label>
+
+    <div class="button-container">
+      <button id="agreeButton" disabled>同意して進む</button>
+    </div>
+
+    <p class="note">
+      詳細は
+      <a href="about.html" target="_blank">サイト情報</a>
+      をご確認ください。
+    </p>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="../../functions.js"></script>
+    <script>
+      const checkbox = document.getElementById('agreeCheckbox');
+      const button = document.getElementById('agreeButton');
+
+      checkbox.addEventListener('change', () => {
+        button.disabled = !checkbox.checked;
+      });
+
+      button.addEventListener('click', async () => {
+        // // Firebase Auth 経由でログインユーザー取得 TODO
+        // const user = firebase.auth().currentUser;
+        // if (!user) return alert('ログイン情報が見つかりません');
+
+        // // Firestore に「同意済み」フラグを記録
+        // await firebase.firestore().collection('users').doc(user.uid).set(
+        //   {
+        //     agreed: true,
+        //     agreedAt: firebase.firestore.FieldValue.serverTimestamp(),
+        //   },
+        //   { merge: true }
+        // );
+
+        // 通常画面へリダイレクト
+        window.location.href = globalBaseUrl + '/app/top/top.html';
+      });
+    </script>
+
+    <!-- Firebase SDK (必要に応じて追加してください) -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
+    <script>
+      const firebaseConfig = {
+        // あなたのFirebase設定をここに
+      };
+      firebase.initializeApp(firebaseConfig);
+      firebase.auth();
+      firebase.firestore();
+    </script>
+  </body>
+</html>
