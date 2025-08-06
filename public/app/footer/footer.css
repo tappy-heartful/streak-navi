@@ -1,7 +1,18 @@
 footer {
   text-align: center;
   margin-top: 3rem;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
   font-size: 0.9rem;
   color: #888;
+}
+.note {
+  font-size: 0.9rem;
+  color: #666;
+  margin-top: 1rem;
+  margin-bottom: 3rem;
+  text-align: center;
+}
+
+a {
+  color: #4caf50;
 }
