@@ -1,4 +1,6 @@
-function showDialog(message) {
+import * as utils from '../common/functions.js';
+
+export function showDialog(message) {
   return new Promise((resolve) => {
     const overlay = document.getElementById('custom-dialog');
     const msg = document.getElementById('dialog-message');

@@ -1,3 +1,4 @@
+import * as utils from '../common/functions.js';
 ////////////////////////////
 // 初期表示
 ////////////////////////////
@@ -25,7 +26,7 @@ $(document).ready(function () {
   // ログアウトボタンクリック時にログイン画面へ遷移
   $('#logout-button').on('click', function () {
     // ログインページへ遷移
-    window.location.href = globalBaseUrl;
+    window.location.href = utils.globalBaseUrl;
   });
 
   // 外部クリックで閉じる

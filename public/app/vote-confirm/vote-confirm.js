@@ -1,3 +1,4 @@
+import * as utils from '../common/functions.js';
 $(document).ready(function () {
   initDisplay();
   renderVote();
@@ -40,7 +41,7 @@ function renderVote() {
 
 function setupEventHandlers() {
   $('.delete-button').on('click', function () {
-    showDialog('削除しますか？').then((result) => {
+    utils.showDialog('削除しますか？').then((result) => {
       if (result) {
         alert('削除処理（未実装）');
       }

@@ -1,3 +1,4 @@
+import * as utils from '../common/functions.js';
 ////////////////////////////
 // グローバル変数
 ////////////////////////////
@@ -82,7 +83,7 @@ function setupEventHandlers(mode) {
 
   // クリアボタン：初期状態に戻す
   $('.clear-button').on('click', function () {
-    showDialog('クリアしますか？').then((result) => {
+    utils.showDialog('クリアしますか？').then((result) => {
       if (result) {
         restoreInitialState();
       }
@@ -91,9 +92,9 @@ function setupEventHandlers(mode) {
 
   // 登録/更新ボタン
   $('.submit-button').on('click', function () {
-    showDialog((mode === 'new' ? '登録' : '更新') + 'しますか？').then(
-      (result) => {}
-    );
+    utils
+      .showDialog((mode === 'new' ? '登録' : '更新') + 'しますか？')
+      .then((result) => {});
   });
 }
 

@@ -1,3 +1,5 @@
+import * as utils from '../common/functions.js';
+
 ////////////////////////////
 // 初期表示
 ////////////////////////////
@@ -10,7 +12,7 @@ $(document).ready(async function () {
   const isFirstLogin = urlParams.get('first_login') === '1';
 
   if (isFirstLogin) {
-    const lineProfile = getSessionArray('line_profile');
+    const lineProfile = utils.getSessionArray('line_profile');
     const lineIconPath = lineProfile.pictureUrl;
     const lineAccountName = lineProfile.displayName;
 

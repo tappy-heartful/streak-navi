@@ -27,7 +27,7 @@
 
       // コールバック処理
       (async () => {
-        const redirectUri = globalBaseUrl + '/app/login/callback.html';
+        const redirectUri = utils.globalBaseUrl + '/app/login/callback.html';
         const clientSecret = '126dea4d33dd7deca8d6ee9b7870237f';
 
         const params = new URLSearchParams(window.location.search);
@@ -61,7 +61,7 @@
                 grant_type: 'authorization_code',
                 code: code,
                 redirect_uri: redirectUri,
-                client_id: globalClientId,
+                client_id: utils.globalClientId,
                 client_secret: clientSecret,
               }),
             }
@@ -100,7 +100,7 @@
           $('#message').append('✅LINE プロフィール取得成功<br>');
 
           // ✅ Firebase 匿名ログイン
-          await app.auth().signInAnonymously();
+          await utils.signInAnonymously(utils.auth);
           $('#message').append('✅Firebase 匿名ログイン成功<br>');
 
           // ✅ セッションにプロフィール保存（ローカルストレージにも可）
@@ -110,7 +110,7 @@
 
           // ✅ TOPまたは同意画面へ遷移（ユーザ存在判定は後で実装）
           window.location.href =
-            globalBaseUrl +
+            utils.globalBaseUrl +
             (false ? '/app/top/top.html' : '/app/login/consent.html');
         } catch (err) {
           console.error('エラー:', err);

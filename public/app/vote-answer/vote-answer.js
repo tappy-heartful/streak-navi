@@ -1,3 +1,4 @@
+import * as utils from '../common/functions.js';
 $(document).ready(function () {
   const mode = getParam('mode'); // 'new' or 'edit'
   initDisplay();
@@ -80,12 +81,12 @@ function setupEventHandlers(mode) {
     console.log('選択結果:', answers);
 
     // 今後ここでAPI送信などに接続可能
-    showDialog(`回答を${mode === 'edit' ? '修正' : '登録'}しますか？`).then(
-      (result) => {
+    utils
+      .showDialog(`回答を${mode === 'edit' ? '修正' : '登録'}しますか？`)
+      .then((result) => {
         if (result) {
           alert(`回答を${mode === 'edit' ? '修正' : '登録'}しました（仮）`);
         }
-      }
-    );
+      });
   });
 }

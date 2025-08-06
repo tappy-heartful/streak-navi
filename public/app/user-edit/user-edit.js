@@ -1,3 +1,5 @@
+import * as utils from '../common/functions.js';
+
 $(document).ready(function () {
   initDisplay();
   setUpPage();
@@ -25,7 +27,7 @@ function setupEventHandlers() {
 
     console.log('更新内容:', updatedData);
 
-    showDialog('ユーザ情報を更新しますか？').then((result) => {
+    utils.showDialog('ユーザ情報を更新しますか？').then((result) => {
       if (result) {
         alert('ユーザ情報を更新しました（仮）');
       }
