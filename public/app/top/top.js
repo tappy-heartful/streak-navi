@@ -5,7 +5,7 @@ import * as utils from '../common/functions.js';
 ////////////////////////////
 $(document).ready(async function () {
   // 初期処理
-  initDisplay();
+  utils.initDisplay();
 
   //初回ログインウェルカム演出
   const urlParams = new URLSearchParams(window.location.search);

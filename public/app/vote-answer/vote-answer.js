@@ -1,7 +1,7 @@
 import * as utils from '../common/functions.js';
 $(document).ready(function () {
   const mode = getParam('mode'); // 'new' or 'edit'
-  initDisplay();
+  utils.initDisplay();
   setupPageMode(mode);
   renderVote();
   setupEventHandlers(mode);

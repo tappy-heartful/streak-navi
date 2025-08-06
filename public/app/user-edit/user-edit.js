@@ -1,7 +1,7 @@
 import * as utils from '../common/functions.js';
 
 $(document).ready(function () {
-  initDisplay();
+  utils.initDisplay();
   setUpPage();
   setupEventHandlers();
 });

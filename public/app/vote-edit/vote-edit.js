@@ -8,7 +8,7 @@ let initialStateHtml;
 // 初期処理（画面読み込み時）
 ////////////////////////////
 $(document).ready(function () {
-  initDisplay();
+  utils.initDisplay();
   const mode = getModeFromURL();
   setupPageMode(mode);
   setupEventHandlers(mode);

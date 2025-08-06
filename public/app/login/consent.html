@@ -127,9 +127,10 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="module" src="../common/functions.js"></script>
-    <script>
+    <script type="module">
+      import * as utils from '../common/functions.js';
       // フッター読み込み
-      loadComponent('footer');
+      utils.loadComponent('footer');
       const checkbox = document.getElementById('agreeCheckbox');
       const button = document.getElementById('agreeButton');
 
@@ -138,28 +139,10 @@
       });
 
       button.addEventListener('click', async () => {
-        // // Firebase Auth 経由でログインユーザー取得 TODO
-        // const user = firebase.auth().currentUser;
-        // if (!user) return alert('ログイン情報が見つかりません');
-
-        // // Firestore に「同意済み」フラグを記録
-        // await firebase.firestore().collection('users').doc(user.uid).set(
-        //   {
-        //     agreed: true,
-        //     agreedAt: firebase.firestore.FieldValue.serverTimestamp(),
-        //   },
-        //   { merge: true }
-        // );
-
         // 通常画面へリダイレクト
         window.location.href =
           utils.globalBaseUrl + '/app/top/top.html?first_login=1';
       });
     </script>
-
-    <!-- Firebase SDK（必要なら） -->
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore.js"></script>
   </body>
 </html>

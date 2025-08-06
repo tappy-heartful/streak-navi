@@ -1,4 +1,6 @@
 import * as utils from '../common/functions.js';
+import { getSessionArray } from '../common/functions.js';
+import { globalBaseUrl } from '../common/functions.js';
 ////////////////////////////
 // 初期表示
 ////////////////////////////
@@ -26,7 +28,7 @@ $(document).ready(function () {
   // ログアウトボタンクリック時にログイン画面へ遷移
   $('#logout-button').on('click', function () {
     // ログインページへ遷移
-    window.location.href = utils.globalBaseUrl;
+    window.location.href = globalBaseUrl;
   });
 
   // 外部クリックで閉じる

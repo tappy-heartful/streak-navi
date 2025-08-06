@@ -156,6 +156,7 @@ export async function loadComponent(
   if (isJs) {
     const script = document.createElement('script');
     script.src = basePath + '.js';
+    script.type = 'module';
     script.defer = true; // 必須ではないがHTML後に実行させるなら
     document.body.appendChild(script);
   }
@@ -169,9 +170,6 @@ export function initDisplay() {
       ? 'https://tappy-heartful.github.io/streak-navi'
       : window.location.origin;
   } else {
-    //共通スクリプト
-    loadComponent('script', false, true, false);
-
     // ヘッダー、フッター
     loadComponent('header');
     loadComponent('footer');
