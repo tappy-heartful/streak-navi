@@ -35,10 +35,14 @@
 
 .confirm-buttons {
   margin-top: 30px;
-  text-align: center;
 }
 
+/* 画面横いっぱいの更新ボタン */
 .answer-button {
+  display: block;
+  width: 100%;
+  max-width: none;
+  box-sizing: border-box;
   padding: 12px 24px;
   font-size: 16px;
   background-color: #4CAF50;
