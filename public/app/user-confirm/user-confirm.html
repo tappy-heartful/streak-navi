@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="../../images/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="../../images/favicon.png" />
-    <title id="title">ユーザ編集</title>
+    <title id="title">ユーザ確認</title>
     <link rel="stylesheet" href="../common/common.css" />
     <link rel="stylesheet" href="user-confirm.css" />
   </head>
@@ -13,7 +13,7 @@
     <div id="header-placeholder"></div>
 
     <div class="page-header">
-      <h1 id="page-title">ユーザ編集</h1>
+      <h1 id="page-title">ユーザ確認</h1>
     </div>
 
     <main class="container">
@@ -29,11 +29,10 @@
       <!-- 該当箇所のみ抜粋 -->
       <div class="form-group">
         <label class="label-title">
-          <input type="checkbox" id="is-user-admin" />
-          ユーザ管理者にする
+          ユーザ管理者：はい
           <span
             class="tooltip-icon"
-            data-tooltip="ユーザ管理者はユーザ一覧の閲覧・編集ができます。"
+            data-tooltip="ユーザ管理者はユーザ一の権限編集・退会ができます。"
             >？</span
           >
         </label>
@@ -41,8 +40,7 @@
 
       <div class="form-group">
         <label class="label-title">
-          <input type="checkbox" id="is-vote-admin" />
-          投票管理者にする
+          投票管理者：いいえ
           <span
             class="tooltip-icon"
             data-tooltip="投票管理者は投票内容の作成・編集・公開ができます。"
@@ -58,7 +56,7 @@
         >
           編集する
         </button>
-        <button class="delete-button">削除する</button>
+        <button class="delete-button">退会する</button>
       </div>
     </main>
 
