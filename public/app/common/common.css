@@ -69,3 +69,8 @@ body {
 .hidden {
   display: none;
 }
+
+/* リンクの色指定 */
+a {
+  color: #4caf50;
+}

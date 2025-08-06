@@ -5,14 +5,10 @@ footer {
   font-size: 0.9rem;
   color: #888;
 }
-.note {
+.footer-note {
   font-size: 0.9rem;
   color: #666;
   margin-top: 1rem;
   margin-bottom: 3rem;
   text-align: center;
-}
-
-a {
-  color: #4caf50;
 }
