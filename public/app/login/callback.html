@@ -17,19 +17,19 @@
     <div id="message"></div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="../common/functions.js"></script>
-    <script>
-      // 先頭に sleep 関数を追加
+    <script type="module" src="../common/functions.js"></script>
+
+    <script type="module">
+      import * as utils from '../common/functions.js';
       function sleep(ms) {
         return new Promise((resolve) => setTimeout(resolve, ms));
       }
+
       // コールバック処理
       (async () => {
         const redirectUri = globalBaseUrl + '/app/login/callback.html';
+        const clientSecret = '126dea4d33dd7deca8d6ee9b7870237f';
 
-        const clientSecret = '126dea4d33dd7deca8d6ee9b7870237f'; // 必要なら（セキュアなバックエンドで）
-
-        // ① クエリパラメータから code と state を取得
         const params = new URLSearchParams(window.location.search);
         const code = params.get('code');
         const state = params.get('state');
@@ -62,7 +62,7 @@
                 code: code,
                 redirect_uri: redirectUri,
                 client_id: globalClientId,
-                client_secret: clientSecret, // セキュアな処理はバックエンド推奨
+                client_secret: clientSecret,
               }),
             }
           );
@@ -76,7 +76,6 @@
 
           // メッセージ表示
           $('#message').append('✅LINE アクセストークン取得成功<br>');
-
           const accessToken = tokenData.access_token;
 
           // ③ ユーザープロフィール取得
@@ -93,26 +92,29 @@
 
           if (!profile) {
             throw new Error(
-              'アクセストークンの取得に失敗しました' + JSON.stringify(profile)
+              'プロフィールの取得に失敗しました' + JSON.stringify(profile)
             );
           }
 
           // メッセージ表示
           $('#message').append('✅LINE プロフィール取得成功<br>');
+
+          // ✅ Firebase 匿名ログイン
+          await app.auth().signInAnonymously();
+          $('#message').append('✅Firebase 匿名ログイン成功<br>');
+
+          // ✅ セッションにプロフィール保存（ローカルストレージにも可）
+          utils.setSessionArray('line_profile', profile);
+
           $('#message').append('<br>All Processes OK (〜￣▽￣)〜');
 
-          // ④ プロフィールをセッションに保存、または次の画面に渡す
-          setSessionArray('line_profile', profile);
-
-          // ⑤ ログイン後TOPページ/同意確認ページへ遷移 TODO ユーザがあるかどうかの判定
+          // ✅ TOPまたは同意画面へ遷移（ユーザ存在判定は後で実装）
           window.location.href =
             globalBaseUrl +
             (false ? '/app/top/top.html' : '/app/login/consent.html');
         } catch (err) {
-          console.error('LINEログイン処理中にエラーが発生しました:', err);
-          $('#message').append(
-            'LINEログイン処理中にエラーが発生しました:' + err
-          );
+          console.error('エラー:', err);
+          $('#message').append('エラー: ' + err.message);
           if (
             confirm('ログイン処理に失敗しました\nログイン画面に戻りますか？')
           ) {

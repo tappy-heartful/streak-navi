@@ -1,7 +1,9 @@
+import { app, auth } from './firebase-init.js';
+
 // グローバル定数
-const globalAppName = 'streakNavi';
-const globalClientId = '2007808275';
-const globalBaseUrl = window.location.href.startsWith(
+export const globalAppName = 'streakNavi';
+export const globalClientId = '2007808275';
+export const globalBaseUrl = window.location.href.startsWith(
   'https://tappy-heartful.github.io/streak-navi'
 )
   ? 'https://tappy-heartful.github.io/streak-navi' // 旧本番環境(github Pagesはサブドメインまである)
@@ -9,7 +11,7 @@ const globalBaseUrl = window.location.href.startsWith(
     (window.location.href.includes('public') ? '/public' : ''); // ローカル環境(liveserverでhosting。publicのパスあり)
 
 // JSONデータを取得する関数
-function getJsonData(jsonUrl) {
+export function getJsonData(jsonUrl) {
   return new Promise((resolve, reject) => {
     $.getJSON(jsonUrl, function (data) {
       resolve(data);
@@ -20,7 +22,7 @@ function getJsonData(jsonUrl) {
 }
 
 // CSVデータを取得する関数
-async function fetchCsvData(fileName, skipRowCount = 0) {
+export async function fetchCsvData(fileName, skipRowCount = 0) {
   try {
     const response = await fetch(fileName);
     const text = await response.text();
@@ -31,7 +33,7 @@ async function fetchCsvData(fileName, skipRowCount = 0) {
 }
 
 // CSVデータをパースする関数（csvデータ内の「,」は「，」にしているため「,」に変換して返却）
-function parseCsv(csvText, skipRowCount) {
+export function parseCsv(csvText, skipRowCount) {
   var regx = new RegExp(appsettings.commaInString, 'g');
   return csvText
     .trim()
@@ -41,12 +43,12 @@ function parseCsv(csvText, skipRowCount) {
 }
 
 // データをセッションストレージからクリアする関数
-function removeSession(key) {
+export function removeSession(key) {
   sessionStorage.removeItem(globalAppName + '.' + key);
 }
 
 // データをセッションストレージから全削除する関数
-function clearAllAppSession() {
+export function clearAllAppSession() {
   const prefix = globalAppName + '.';
   const keysToRemove = [];
 
@@ -63,22 +65,22 @@ function clearAllAppSession() {
 }
 
 // データをセッションストレージにセットする関数
-function setSession(key, value) {
+export function setSession(key, value) {
   sessionStorage.setItem(globalAppName + '.' + key, value);
 }
 
 // セッションストレージからデータをゲットする関数
-function getSession(key) {
+export function getSession(key) {
   return sessionStorage.getItem(globalAppName + '.' + key);
 }
 
 // セッションストレージから配列を取得(nullは空に)
-function getSessionArray(key) {
+export function getSessionArray(key) {
   return JSON.parse(sessionStorage.getItem(globalAppName + '.' + key)) ?? [];
 }
 
 // セッションストレージに配列設定(nullは空に)
-function setSessionArray(key, array) {
+export function setSessionArray(key, array) {
   sessionStorage.setItem(
     globalAppName + '.' + key,
     JSON.stringify(array ?? [])
@@ -86,14 +88,14 @@ function setSessionArray(key, array) {
 }
 
 // エラー時処理
-function showError(errorMsg1, errorMsg2) {
+export function showError(errorMsg1, errorMsg2) {
   // コンソールに表示
   console.error(errorMsg1, errorMsg2);
   // 画面に表示
   alert(errorMsg2);
 }
 
-function scrollToTop() {
+export function scrollToTop() {
   // 一番上にスクロール
   window.scrollTo({
     top: 0,
@@ -102,41 +104,55 @@ function scrollToTop() {
 }
 
 // HTML読み込み
-async function loadComponent(target) {
+export async function loadComponent(
+  target,
+  isCss = true,
+  isHTML = true,
+  isJs = true
+) {
   const basePath = '../' + target + '/' + target;
 
   // 1. CSS読み込み
-  const link = document.createElement('link');
-  link.rel = 'stylesheet';
-  link.href = basePath + '.css';
-  document.head.appendChild(link);
+  if (isCss) {
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = basePath + '.css';
+    document.head.appendChild(link);
+  }
 
   // 2. HTML読み込み
-  try {
-    const res = await fetch(basePath + '.html');
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const html = await res.text();
-    document.getElementById(target + '-placeholder').innerHTML = html;
-  } catch (err) {
-    console.error(`Error loading ${basePath}.html:`, err);
+  if (isHTML) {
+    try {
+      const res = await fetch(basePath + '.html');
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const html = await res.text();
+      document.getElementById(target + '-placeholder').innerHTML = html;
+    } catch (err) {
+      console.error(`Error loading ${basePath}.html:`, err);
+    }
   }
 
   // 3. JS読み込み
-  const script = document.createElement('script');
-  script.src = basePath + '.js';
-  script.defer = true; // 必須ではないがHTML後に実行させるなら
-  document.body.appendChild(script);
+  if (isJs) {
+    const script = document.createElement('script');
+    script.src = basePath + '.js';
+    script.defer = true; // 必須ではないがHTML後に実行させるなら
+    document.body.appendChild(script);
+  }
 }
 
 // 画面共通初期処理
-function initDisplay() {
+export function initDisplay() {
   if (!getSessionArray('line_profile').userId) {
     // 不正遷移の場合ログインページへ遷移(セッションが正しくセットされていない場合を考慮)
     window.location.href = window.location.href.includes('tappy-heartful')
       ? 'https://tappy-heartful.github.io/streak-navi'
       : window.location.origin;
   } else {
-    // ヘッダー、フッター表示(ログイン済みの場合のみ)
+    //共通スクリプト
+    loadComponent('script', false, true, false);
+
+    // ヘッダー、フッター
     loadComponent('header');
     loadComponent('footer');
     // ダイアログ読み込み
