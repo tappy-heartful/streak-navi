@@ -5,9 +5,9 @@ $(document).ready(async function () {
   // 初期処理
   initDisplay();
 
-  //初回ログインウェルカム演出 TODO 毎回でよくね？
+  //初回ログインウェルカム演出
   const urlParams = new URLSearchParams(window.location.search);
-  const isFirstLogin = true; //urlParams.get('first_login') === '1';
+  const isFirstLogin = urlParams.get('first_login') === '1';
 
   if (isFirstLogin) {
     const lineProfile = getSessionArray('line_profile');
