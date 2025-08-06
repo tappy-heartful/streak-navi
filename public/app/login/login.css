@@ -38,15 +38,8 @@ h1 {
 
 body.login-page {
   font-family: sans-serif;
-  text-align: center;
   background: url('../../images/background.jpg') no-repeat center center;
   background-size: cover;
-  min-height: 100vh;
-
-  /* 高さを確保して縦方向レイアウト */
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
   position: relative;
 }
 
@@ -59,16 +52,34 @@ body.login-page::before {
   z-index: -1;
 }
 
-/* タイトル中央 */
-.title {
-  padding: 20px;
+/* ← コンテンツの垂直配置を制御 */
+.login-wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between; /* タイトル上、footer下 */
+  min-height: 100vh;
+  text-align: center;
 }
 
-/* ボタンとリンクを下部に配置 */
+/* タイトルエリア */
+.title {
+  padding-top: 60px;
+}
+
+/* タイトルデザイン */
+h1 {
+  display: inline-block;
+  font-family: Impact, sans-serif;
+  color: white;
+  background-color: black;
+  padding: 10px 20px;
+  font-size: 32px;
+  border-radius: 8px;
+}
+
+/* フッター（下部に配置） */
 .login-footer {
-  padding-bottom: 60px;
-  margin-top: 40px;
-  text-align: center;
+  padding: 30px 0;
 }
 
 .login-footer button {
@@ -81,9 +92,7 @@ body.login-page::before {
   border: none;
   border-radius: 8px;
   cursor: pointer;
-  position: static; /* 念のため static 明示 */
 }
-
 
 .login-footer button:hover {
   background-color: #04a94f;
