@@ -1,0 +1,123 @@
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.user-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.label-title {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.label-title input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.2);
+}
+
+
+.confirm-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 30px;
+  justify-content: space-between;
+}
+
+.confirm-buttons button {
+  flex: 1;
+  padding: 12px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.answer-button {
+  padding: 12px 24px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.answer-button:hover {
+  background-color: #45a049;
+}
+
+
+/* ツールチップ */
+/* 吹き出し用ツールチップ */
+.tooltip-icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  line-height: 18px;
+  text-align: center;
+  border-radius: 50%;
+  background-color: #666;
+  color: white;
+  font-size: 14px;
+  margin-left: 6px;
+  cursor: pointer;
+  position: relative;
+}
+
+.tooltip-icon::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 8px 12px;
+  font-size: 14px;
+  white-space: normal;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  width: max-content;
+  max-width: 240px;
+  z-index: 100;
+}
+
+.tooltip-icon::before {
+  content: '';
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #333;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+/* 表示状態 */
+.tooltip-icon.show::after,
+.tooltip-icon.show::before {
+  opacity: 1;
+}
