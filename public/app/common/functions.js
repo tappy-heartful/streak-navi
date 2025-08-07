@@ -21,14 +21,26 @@ export { app, auth, signInWithCustomToken };
 
 // Firestore
 import {
+  getFirestore,
   doc,
   getDoc,
+  updateDoc,
+  addDoc,
   setDoc,
-  getFirestore,
+  collection,
   serverTimestamp,
 } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';
 const db = getFirestore();
-export { db, doc, setDoc, getDoc, serverTimestamp };
+export {
+  db,
+  doc,
+  getDoc,
+  updateDoc,
+  addDoc,
+  setDoc,
+  collection,
+  serverTimestamp,
+};
 
 // グローバル定数
 export const globalAppName = 'streakNavi';

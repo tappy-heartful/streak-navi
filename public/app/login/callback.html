@@ -147,22 +147,28 @@
 
           if (userExists) {
             // ユーザーデータ存在
-            // ユーザー情報更新(表示名のみ)
-            await utils.setDoc(userRef, {
-              displayName: user.displayName,
-              updatedAt: utils.serverTimestamp(),
-              updateUser: user.uid,
-            });
+            // ユーザー情報更新
+            await utils.setDoc(
+              userRef,
+              {
+                displayName: profile.displayName,
+                lastLoginAt: utils.serverTimestamp(),
+                updateAt: utils.serverTimestamp(),
+                updateUser: user.uid,
+              },
+              { merge: true }
+            );
           } else {
             // ユーザーデータ非存在
             // ユーザー新規登録
             await utils.setDoc(userRef, {
-              displayName: user.displayName,
-              userAdminFlg: 0, //TODO不要か？
-              voteAdminFlg: 0, //TODO不要か？
-              createdAt: utils.serverTimestamp(),
-              createdUser: user.uid,
-              updatedAt: utils.serverTimestamp(),
+              displayName: profile.displayName,
+              userAdminFlg: 0,
+              voteAdminFlg: 0,
+              lastLoginAt: utils.serverTimestamp(),
+              createAt: utils.serverTimestamp(),
+              createUser: user.uid,
+              updateAt: utils.serverTimestamp(),
               updateUser: user.uid,
             });
           }
