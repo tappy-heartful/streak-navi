@@ -103,12 +103,12 @@
           await utils.signInAnonymously(utils.auth);
           $('#message').append('✅Firebase 匿名ログイン成功<br>');
 
-          // ✅ セッションにプロフィール保存（ローカルストレージにも可）
+          // セッションにプロフィール保存
           utils.setSessionArray('line_profile', profile);
 
           $('#message').append('<br>All Processes OK (〜￣▽￣)〜');
 
-          // ✅ TOPまたは同意画面へ遷移（ユーザ存在判定は後で実装）
+          // TOPまたは同意画面へ遷移（ユーザ存在判定は後で実装）
           window.location.href =
             utils.globalBaseUrl +
             (false ? '/app/top/top.html' : '/app/login/consent.html');
