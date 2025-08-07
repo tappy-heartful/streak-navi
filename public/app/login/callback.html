@@ -173,7 +173,7 @@
           // ✅ ログイン成功
           $('#message').append('<br>✅All Processes OK (〜￣▽￣)〜');
 
-          // TOPまたは同意画面へ遷移 TODO 新規ユーザかどうか判定
+          // TOPまたは同意画面へ遷移
           window.location.href =
             utils.globalBaseUrl +
             (userExists ? '/app/top/top.html' : '/app/login/consent.html');
