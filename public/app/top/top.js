@@ -33,6 +33,6 @@ $(document).ready(async function () {
       setTimeout(() => {
         $overlay.addClass('hidden');
       }, 500);
-    }, 3000);
+    }, 2000);
   }
 });
