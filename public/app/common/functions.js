@@ -23,12 +23,7 @@ export { app, auth, signInAnonymously };
 // グローバル定数
 export const globalAppName = 'streakNavi';
 export const globalClientId = '2007808275';
-export const globalBaseUrl = window.location.href.startsWith(
-  'https://tappy-heartful.github.io/streak-navi'
-)
-  ? 'https://tappy-heartful.github.io/streak-navi' // 旧本番環境(github Pagesはサブドメインまである)
-  : window.location.origin + // 本番環境(firebase上で公開。publicのパス抜き)
-    (window.location.href.includes('public') ? '/public' : ''); // ローカル環境(liveserverでhosting。publicのパスあり)
+export const globalBaseUrl = window.location.origin; // 本番環境(firebase上で公開。publicのパス抜き)
 
 // JSONデータを取得する関数
 export function getJsonData(jsonUrl) {
@@ -166,9 +161,7 @@ export async function loadComponent(
 export function initDisplay() {
   if (!getSessionArray('line_profile').userId) {
     // 不正遷移の場合ログインページへ遷移(セッションが正しくセットされていない場合を考慮)
-    window.location.href = window.location.href.includes('tappy-heartful')
-      ? 'https://tappy-heartful.github.io/streak-navi'
-      : window.location.origin;
+    window.location.href = window.location.origin;
   } else {
     // ヘッダー、フッター
     loadComponent('header');

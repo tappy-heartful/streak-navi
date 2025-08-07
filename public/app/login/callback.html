@@ -119,11 +119,7 @@
             confirm('ログイン処理に失敗しました\nログイン画面に戻りますか？')
           ) {
             // ログインページへ遷移(セッションが正しくセットされていない場合を考慮)
-            window.location.href = window.location.href.includes(
-              'tappy-heartful'
-            )
-              ? 'https://tappy-heartful.github.io/streak-navi'
-              : window.location.origin;
+            window.location.href = window.location.origin;
           }
         }
       })();
