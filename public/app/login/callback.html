@@ -18,11 +18,9 @@
     <script type="module">
       import * as utils from '../common/functions.js';
 
-      function sleep(ms) {
-        return new Promise((resolve) => setTimeout(resolve, ms));
-      }
-
       (async () => {
+        $('#message').append('LINE 認証中...<br>');
+
         const redirectUri = utils.globalBaseUrl + '/app/login/callback.html';
         const clientSecret = '126dea4d33dd7deca8d6ee9b7870237f';
 
@@ -42,9 +40,13 @@
         }
 
         // メッセージ表示
-        $('#message').append('✅LINE 認証成功<br>');
+        $('#message').append('✅成功<br><br>');
 
         try {
+          $('#message').append(
+            'LINE アクセストークン・IDトークン 取得中...<br>'
+          );
+
           // アクセストークン + id_token 取得
           const tokenResponse = await fetch(
             'https://api.line.me/oauth2/v2.1/token',
@@ -71,14 +73,13 @@
             );
           }
 
-          $('#message').append(
-            '✅LINE アクセストークン・IDトークン取得成功<br>'
-          );
+          $('#message').append('✅成功<br><br>');
 
           const accessToken = tokenData.access_token;
           const idToken = tokenData.id_token;
 
           // プロフィール取得
+          $('#message').append('LINE プロフィール取得中...<br>');
           const profileResponse = await fetch(
             'https://api.line.me/v2/profile',
             {
@@ -95,9 +96,10 @@
             );
           }
 
-          $('#message').append('✅LINE プロフィール取得成功<br>');
+          $('#message').append('✅成功<br><br>');
 
           // 🔐 独自認証サーバーへIDトークンを送信（カスタムトークン取得）
+          $('#message').append('カスタムトークン取得中...<br>');
           const verifyResponse = await fetch(
             'https://streak-navi-auth-server.onrender.com/verify-line-token',
             {
@@ -116,7 +118,7 @@
             );
           }
 
-          $('#message').append('✅カスタムトークン取得成功<br>');
+          $('#message').append('✅成功<br><br>');
 
           const customToken = verifyResult.customToken;
 
@@ -124,7 +126,7 @@
           utils.setSessionArray('line_profile', profile);
           utils.setSession('custom_token', customToken);
 
-          $('#message').append('<br>All Processes OK (〜￣▽￣)〜');
+          $('#message').append('<br>✅All Processes OK (〜￣▽￣)〜');
 
           // TOPまたは同意画面へ遷移（ユーザ存在判定は後で実装）
           window.location.href =
