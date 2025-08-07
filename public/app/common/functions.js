@@ -2,7 +2,7 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js';
 import {
   getAuth,
-  signInAnonymously,
+  signInWithCustomToken,
 } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js';
 // 必要に応じて他のSDKも import する（例：firestoreなど）
 
@@ -18,7 +18,7 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-export { app, auth, signInAnonymously };
+export { app, auth, signInWithCustomToken };
 
 // グローバル定数
 export const globalAppName = 'streakNavi';
