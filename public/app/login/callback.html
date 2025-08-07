@@ -97,34 +97,32 @@
 
           $('#message').append('✅LINE プロフィール取得成功<br>');
 
-          //TODO
-          // // 🔐 独自認証サーバーへIDトークンを送信（カスタムトークン取得）
-          // const verifyResponse = await fetch(
-          //   'https://YOUR_AUTH_SERVER_DOMAIN/verify-line-token',
-          //   {
-          //     method: 'POST',
-          //     headers: {
-          //       'Content-Type': 'application/json',
-          //     },
-          //     body: JSON.stringify({ idToken }),
-          //   }
-          // );
+          // 🔐 独自認証サーバーへIDトークンを送信（カスタムトークン取得）
+          const verifyResponse = await fetch(
+            'https://streak-navi-auth-server.onrender.com/verify-line-token',
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ idToken }),
+            }
+          );
 
-          // const verifyResult = await verifyResponse.json();
-          // if (!verifyResponse.ok || !verifyResult.customToken) {
-          //   throw new Error(
-          //     'カスタムトークンの取得に失敗: ' + JSON.stringify(verifyResult)
-          //   );
-          // }
+          const verifyResult = await verifyResponse.json();
+          if (!verifyResponse.ok || !verifyResult.customToken) {
+            throw new Error(
+              'カスタムトークンの取得に失敗: ' + JSON.stringify(verifyResult)
+            );
+          }
 
-          // $('#message').append('✅カスタムトークン取得成功<br>');
+          $('#message').append('✅カスタムトークン取得成功<br>');
 
-          // const customToken = verifyResult.customToken;
+          const customToken = verifyResult.customToken;
 
-          //TODO
           // セッションにプロフィールとトークン保存
           utils.setSessionArray('line_profile', profile);
-          // utils.setSessionValue('custom_token', customToken);
+          utils.setSession('custom_token', customToken);
 
           $('#message').append('<br>All Processes OK (〜￣▽￣)〜');
 
