@@ -200,9 +200,10 @@
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="module" src="../common/functions.js"></script>
-    <script>
+    <script type="module">
+      import * as utils from '../common/functions.js';
       // フッター読み込み
-      loadComponent('footer');
+      utils.loadComponent('footer');
       const tabs = document.querySelectorAll('.tab');
       const contents = document.querySelectorAll('.tab-content');
       tabs.forEach((tab) => {
