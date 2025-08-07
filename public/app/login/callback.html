@@ -128,23 +128,55 @@
 
           // カスタムトークンでFirebase ログイン
           $('#message').append('Firebaseログイン中...<br>');
-          utils
+          const userCredential = await utils
             .signInWithCustomToken(utils.auth, customToken)
-            .then((userCredential) => {
-              // ✅ ログイン成功
-              const user = userCredential.user;
-
-              $('#message').append('✅成功<br><br>');
-              $('#message').append('<br>✅All Processes OK (〜￣▽￣)〜');
-
-              // TOPまたは同意画面へ遷移 TODO 新規ユーザかどうか判定
-              window.location.href =
-                utils.globalBaseUrl +
-                (false ? '/app/top/top.html' : '/app/login/consent.html');
-            })
             .catch((error) => {
               throw new Error('Firebaseログイン失敗: ' + JSON.stringify(error));
             });
+          const user = userCredential.user;
+          // ✅ ログイン成功
+          $('#message').append('✅成功<br><br>');
+
+          // ユーザーデータ更新
+          const userRef = utils.doc(utils.db, 'users', user.uid);
+          const docSnap = await utils.getDoc(userRef);
+          const userExists = docSnap.exists();
+          $('#message').append(
+            'ユーザデータ' + (userExists ? '更新' : '登録') + '中...<br>'
+          );
+
+          if (userExists) {
+            // ユーザーデータ存在
+            // ユーザー情報更新(表示名のみ)
+            await utils.setDoc(userRef, {
+              displayName: user.displayName,
+              updatedAt: utils.serverTimestamp(),
+              updateUser: user.uid,
+            });
+          } else {
+            // ユーザーデータ非存在
+            // ユーザー新規登録
+            await utils.setDoc(userRef, {
+              displayName: user.displayName,
+              userAdminFlg: 0, //TODO不要か？
+              voteAdminFlg: 0, //TODO不要か？
+              createdAt: utils.serverTimestamp(),
+              createdUser: user.uid,
+              updatedAt: utils.serverTimestamp(),
+              updateUser: user.uid,
+            });
+          }
+
+          // ✅ ユーザーデータ更新
+          $('#message').append('✅成功<br><br>');
+
+          // ✅ ログイン成功
+          $('#message').append('<br>✅All Processes OK (〜￣▽￣)〜');
+
+          // TOPまたは同意画面へ遷移 TODO 新規ユーザかどうか判定
+          window.location.href =
+            utils.globalBaseUrl +
+            (userExists ? '/app/top/top.html' : '/app/login/consent.html');
         } catch (err) {
           console.error('エラー:', err);
           $('#message').append('エラー: ' + err.message);
