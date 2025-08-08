@@ -47,14 +47,24 @@ $(document).ready(async function () {
       const $sectionList = $('<ul class="section-user-list"></ul>');
 
       users.forEach((user) => {
+        const isLeader = user.isPartLeader === true;
         const li = $(`
-          <li class="user-item" onclick="window.location.href = '../user-confirm/user-confirm.html'">
-            <img src="${user.pictureUrl || '../../images/favicon.png'}" alt="${
-          user.displayName || '名無し'
-        }のアイコン">
-            <span class="username">${user.displayName || '名無し'}</span>
-          </li>
-        `);
+                    <li class="user-item ${
+                      isLeader ? 'part-leader' : ''
+                    }" onclick="window.location.href = '../user-confirm/user-confirm.html'">
+                      <img src="${
+                        user.pictureUrl || '../../images/favicon.png'
+                      }" alt="${user.displayName || '名無し'}のアイコン">
+                      <span class="username">${
+                        user.displayName || '名無し'
+                      }</span>
+                      ${
+                        isLeader
+                          ? '<span class="leader-badge">リーダー</span>'
+                          : ''
+                      }
+                    </li>
+                  `);
         $sectionList.append(li);
       });
 
