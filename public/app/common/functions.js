@@ -183,7 +183,7 @@ export async function loadComponent(
 
 // 画面共通初期処理
 export function initDisplay() {
-  if (!getSessionArray('line_profile').userId) {
+  if (!getSession('lineUserId')) {
     // 不正遷移の場合ログインページへ遷移(セッションが正しくセットされていない場合を考慮)
     window.location.href = window.location.origin;
   } else {
@@ -193,4 +193,16 @@ export function initDisplay() {
     // ダイアログ読み込み
     loadComponent('dialog');
   }
+}
+
+// ハッシュ化
+export async function getHash(lineId) {
+  const encoder = new TextEncoder();
+  const data = encoder.encode(lineId);
+  const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+  const hashArray = Array.from(new Uint8Array(hashBuffer));
+  const hashHex = hashArray
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+  return hashHex; // ← これを保存用IDに
 }

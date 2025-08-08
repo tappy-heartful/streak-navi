@@ -98,6 +98,11 @@
 
           $('#message').append('✅成功<br><br>');
 
+          // セッションにプロフィール保存(UserIdはハッシュ化)
+          utils.setSession('lineUserId', await utils.getHash(profile.userId));
+          utils.setSession('linePictureUrl', profile.pictureUrl);
+          utils.setSession('lineDisplayName', profile.displayName);
+
           // 🔐 独自認証サーバーへIDトークンを送信（カスタムトークン取得）
           $('#message').append('カスタムトークン取得中...<br>');
           const verifyResponse = await fetch(
@@ -123,7 +128,6 @@
           const customToken = verifyResult.customToken;
 
           // セッションにプロフィールとトークン保存
-          utils.setSessionArray('line_profile', profile);
           utils.setSession('custom_token', customToken);
 
           // カスタムトークンでFirebase ログイン
@@ -137,8 +141,9 @@
           // ✅ ログイン成功
           $('#message').append('✅成功<br><br>');
 
-          // ユーザーデータ更新
-          const userRef = utils.doc(utils.db, 'users', user.uid);
+          // ユーザーデータ更新(LINEIDはハッシュ化して保存)
+          const hashedUid = utils.getSession('lineUserId');
+          const userRef = utils.doc(utils.db, 'users', hashedUid);
           const docSnap = await utils.getDoc(userRef);
           const userExists = docSnap.exists();
           $('#message').append(
@@ -155,7 +160,7 @@
                 pictureUrl: profile.pictureUrl,
                 lastLoginAt: utils.serverTimestamp(),
                 updateAt: utils.serverTimestamp(),
-                updateUser: user.uid,
+                updateUser: hashedUid,
               },
               { merge: true }
             );
@@ -171,9 +176,9 @@
               isPartLeader: false,
               lastLoginAt: utils.serverTimestamp(),
               createAt: utils.serverTimestamp(),
-              createUser: user.uid,
+              createUser: hashedUid,
               updateAt: utils.serverTimestamp(),
-              updateUser: user.uid,
+              updateUser: hashedUid,
             });
           }
 

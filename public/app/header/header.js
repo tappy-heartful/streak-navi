@@ -1,14 +1,12 @@
 import * as utils from '../common/functions.js';
-import { getSessionArray } from '../common/functions.js';
 import { globalBaseUrl } from '../common/functions.js';
 ////////////////////////////
 // 初期表示
 ////////////////////////////
 $(document).ready(function () {
   // ログイン情報反映
-  const lineProfile = getSessionArray('line_profile');
-  const lineIconPath = lineProfile.pictureUrl;
-  const lineAccountName = lineProfile.displayName;
+  const lineIconPath = utils.getSession('linePictureUrl');
+  const lineAccountName = utils.getSession('lineDisplayName');
   $('#line-icon').attr('src', lineIconPath);
   $('#line-name').text(lineAccountName);
 
