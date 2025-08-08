@@ -152,6 +152,7 @@
               userRef,
               {
                 displayName: profile.displayName,
+                pictureUrl: profile.pictureUrl,
                 lastLoginAt: utils.serverTimestamp(),
                 updateAt: utils.serverTimestamp(),
                 updateUser: user.uid,
@@ -163,6 +164,7 @@
             // ユーザー新規登録
             await utils.setDoc(userRef, {
               displayName: profile.displayName,
+              pictureUrl: profile.pictureUrl,
               userAdminFlg: 0,
               voteAdminFlg: 0,
               lastLoginAt: utils.serverTimestamp(),
