@@ -5,31 +5,30 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   // 初期処理
   utils.initDisplay();
-  const users = [
-    {
-      name: 'カウント 太郎',
-      pictureUrl: '../../images/favicon.png',
-    },
-    {
-      name: 'サミー 花子',
-      pictureUrl: '../../images/favicon.png',
-    },
-    {
-      name: 'マイルス 一郎',
-      pictureUrl: '../../images/favicon.png',
-    },
-  ];
 
   const $list = $('#user-list');
   $list.empty();
 
-  users.forEach((user) => {
-    const li = $(`
-      <li class="user-item" onclick="window.location.href = '../user-confirm/user-confirm.html'">
-        <img src="${user.pictureUrl}" alt="${user.name}のアイコン">
-        <span class="username">${user.name}</span>
-      </li>
-    `);
-    $list.append(li);
-  });
+  try {
+    // Firestore から users コレクションを取得
+    const querySnapshot = await utils.getDocs(
+      utils.collection(utils.db, 'users')
+    );
+
+    querySnapshot.forEach((doc) => {
+      const user = doc.data(); // 1人のユーザーデータ
+      const li = $(`
+        <li class="user-item" onclick="window.location.href = '../user-confirm/user-confirm.html'">
+          <img src="${user.pictureUrl || '../../images/favicon.png'}" alt="${
+        user.displayName || '名無し'
+      }のアイコン">
+          <span class="username">${user.displayName || '名無し'}</span>
+        </li>
+      `);
+      $list.append(li);
+    });
+  } catch (error) {
+    console.error('ユーザーの取得に失敗しました:', error);
+    $list.append('<li>ユーザーの取得に失敗しました</li>');
+  }
 });
