@@ -32,6 +32,7 @@ $(document).ready(async function () {
 
     userSnapshot.forEach((doc) => {
       const user = doc.data();
+      user.uid = doc.id;
       const sectionId = user.sectionId || 'unknown';
       if (!usersBySection[sectionId]) {
         usersBySection[sectionId] = [];
@@ -49,22 +50,18 @@ $(document).ready(async function () {
       users.forEach((user) => {
         const isLeader = user.isPartLeader === true;
         const li = $(`
-                    <li class="user-item ${
-                      isLeader ? 'part-leader' : ''
-                    }" onclick="window.location.href = '../user-confirm/user-confirm.html'">
-                      <img src="${
-                        user.pictureUrl || '../../images/favicon.png'
-                      }" alt="${user.displayName || '名無し'}のアイコン">
-                      <span class="username">${
-                        user.displayName || '名無し'
-                      }</span>
-                      ${
-                        isLeader
-                          ? '<span class="leader-badge">リーダー</span>'
-                          : ''
-                      }
-                    </li>
-                  `);
+        <li class="user-item ${
+          isLeader ? 'part-leader' : ''
+        }" onclick="window.location.href = '../user-confirm/user-confirm.html?uid=${
+          user.uid || ''
+        }'">
+          <img src="${user.pictureUrl || '../../images/favicon.png'}" alt="${
+          user.displayName || '名無し'
+        }のアイコン">
+            <span class="username">${user.displayName || '名無し'}</span>
+            ${isLeader ? '<span class="leader-badge">リーダー</span>' : ''}
+        </li>
+                    `);
         $sectionList.append(li);
       });
 
