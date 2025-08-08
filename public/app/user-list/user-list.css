@@ -52,14 +52,6 @@
   position: relative;
 }
 
-.user-item.part-leader::before {
-  content: '⭐';
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  font-size: 16px;
-}
-
 .leader-badge {
   margin-left: auto;
   font-size: 12px;
