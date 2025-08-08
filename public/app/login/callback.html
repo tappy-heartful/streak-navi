@@ -22,8 +22,6 @@
         $('#message').append('LINE 認証中...<br>');
 
         const redirectUri = utils.globalBaseUrl + '/app/login/callback.html';
-        const clientSecret = '126dea4d33dd7deca8d6ee9b7870237f';
-
         const params = new URLSearchParams(window.location.search);
         const code = params.get('code');
         const state = params.get('state');
@@ -43,25 +41,15 @@
         $('#message').append('✅成功<br><br>');
 
         try {
-          $('#message').append(
-            'LINE アクセストークン・IDトークン 取得中...<br>'
-          );
+          $('#message').append('LINE トークン交換中...<br>');
 
-          // アクセストークン + id_token 取得
+          // ここをLINE API直叩きから自サーバーAPIへ変更
           const tokenResponse = await fetch(
-            'https://api.line.me/oauth2/v2.1/token',
+            'https://streak-navi-auth-server.onrender.com/exchange-line-token',
             {
               method: 'POST',
-              headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-              },
-              body: new URLSearchParams({
-                grant_type: 'authorization_code',
-                code: code,
-                redirect_uri: redirectUri,
-                client_id: utils.globalClientId,
-                client_secret: clientSecret,
-              }),
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ code, redirectUri }),
             }
           );
 
