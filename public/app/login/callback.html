@@ -127,9 +127,6 @@
 
           const customToken = verifyResult.customToken;
 
-          // セッションにプロフィールとトークン保存
-          utils.setSession('custom_token', customToken);
-
           // カスタムトークンでFirebase ログイン
           $('#message').append('Firebaseログイン中...<br>');
           const userCredential = await utils
