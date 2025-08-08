@@ -20,7 +20,7 @@ $('#login').click(function () {
   const redirectUri = encodeURIComponent(
     utils.globalBaseUrl + '/app/login/callback.html' // テスト環境の場合、今のベースURLに結合
   );
-  const state = Math.random().toString(36).substring(2); // 任意の文字列（CSRF対策）
+  const state = generateAndStoreState();
   const scope = 'openid profile';
 
   const loginUrl =
@@ -30,3 +30,12 @@ $('#login').click(function () {
 
   window.location.href = loginUrl;
 });
+
+// 認証開始直前に呼ぶ
+function generateAndStoreState() {
+  const array = new Uint32Array(10);
+  window.crypto.getRandomValues(array);
+  const state = Array.from(array, (dec) => dec.toString(16)).join('');
+  utils.setSession('oauthState', state);
+  return state;
+}
