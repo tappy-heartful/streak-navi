@@ -149,15 +149,13 @@
 
           if (userExists) {
             // ユーザーデータ存在
-            // ユーザー情報更新
+            // ユーザー情報更新(表示名やプロフィール画像が変わっていることを考慮)
             await utils.setDoc(
               userRef,
               {
                 displayName: profile.displayName,
                 pictureUrl: profile.pictureUrl,
                 lastLoginAt: utils.serverTimestamp(),
-                updateAt: utils.serverTimestamp(),
-                updateUser: hashedUid,
               },
               { merge: true }
             );
@@ -172,10 +170,6 @@
               sectionId: 99,
               isPartLeader: false,
               lastLoginAt: utils.serverTimestamp(),
-              createAt: utils.serverTimestamp(),
-              createUser: hashedUid,
-              updateAt: utils.serverTimestamp(),
-              updateUser: hashedUid,
             });
           }
 
