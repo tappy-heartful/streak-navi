@@ -56,7 +56,9 @@
         $('#message').append('✅成功<br><br>');
 
         try {
-          $('#message').append('LINE トークン交換中...<br>');
+          $('#message').append(
+            'LINE プロフィール情報・カスタムトークン取得中...<br>'
+          );
 
           // 認証サーバーのlineログインAPI実行
           const loginResponse = await fetch(
@@ -71,6 +73,9 @@
           const { customToken, profile } = await loginResponse.json();
 
           if (!customToken) throw new Error('カスタムトークン取得失敗');
+
+          // ✅ LINE プロフィール情報・カスタムトークン取得成功
+          $('#message').append('✅成功<br><br>');
 
           // プロフィール情報をセッションに保存
           utils.setSession('lineUserId', await utils.getHash(profile.userId));
