@@ -58,9 +58,9 @@
         try {
           $('#message').append('LINE トークン交換中...<br>');
 
-          // ここをLINE API直叩きから自サーバーAPIへ変更
-          const tokenResponse = await fetch(
-            'https://streak-navi-auth-server.onrender.com/exchange-line-token',
+          // 認証サーバーのlineログインAPI実行
+          const loginResponse = await fetch(
+            'https://streak-navi-auth-server.onrender.com/line-login',
             {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
@@ -68,67 +68,14 @@
             }
           );
 
-          const tokenData = await tokenResponse.json();
-          if (!tokenData.access_token || !tokenData.id_token) {
-            throw new Error(
-              'アクセストークンまたはIDトークンの取得に失敗: ' +
-                JSON.stringify(tokenData)
-            );
-          }
+          const { customToken, profile } = await loginResponse.json();
 
-          $('#message').append('✅成功<br><br>');
+          if (!customToken) throw new Error('カスタムトークン取得失敗');
 
-          const accessToken = tokenData.access_token;
-          const idToken = tokenData.id_token;
-
-          // プロフィール取得
-          $('#message').append('LINE プロフィール取得中...<br>');
-          const profileResponse = await fetch(
-            'https://api.line.me/v2/profile',
-            {
-              headers: {
-                Authorization: `Bearer ${accessToken}`,
-              },
-            }
-          );
-
-          const profile = await profileResponse.json();
-          if (!profile) {
-            throw new Error(
-              'プロフィールの取得に失敗しました: ' + JSON.stringify(profile)
-            );
-          }
-
-          $('#message').append('✅成功<br><br>');
-
-          // セッションにプロフィール保存(UserIdはハッシュ化)
+          // プロフィール情報をセッションに保存
           utils.setSession('lineUserId', await utils.getHash(profile.userId));
           utils.setSession('linePictureUrl', profile.pictureUrl);
           utils.setSession('lineDisplayName', profile.displayName);
-
-          // 🔐 独自認証サーバーへIDトークンを送信（カスタムトークン取得）
-          $('#message').append('カスタムトークン取得中...<br>');
-          const verifyResponse = await fetch(
-            'https://streak-navi-auth-server.onrender.com/verify-line-token',
-            {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-              },
-              body: JSON.stringify({ idToken }),
-            }
-          );
-
-          const verifyResult = await verifyResponse.json();
-          if (!verifyResponse.ok || !verifyResult.customToken) {
-            throw new Error(
-              'カスタムトークンの取得に失敗: ' + JSON.stringify(verifyResult)
-            );
-          }
-
-          $('#message').append('✅成功<br><br>');
-
-          const customToken = verifyResult.customToken;
 
           // カスタムトークンでFirebase ログイン
           $('#message').append('Firebaseログイン中...<br>');
