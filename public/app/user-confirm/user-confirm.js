@@ -130,6 +130,42 @@ function setupEventHandlers() {
     const targetUrl = `../user-edit/user-edit.html?uid=${uid}`;
     window.location.href = targetUrl;
   });
+
+  // 削除するボタン
+  $('#confirm-buttons .delete-button').on('click', async () => {
+    const params = new URLSearchParams(window.location.search);
+    const uid = params.get('uid');
+    if (!uid) {
+      alert('ユーザIDが見つかりません。');
+      return;
+    }
+
+    // 確認ダイアログ
+    const dialogResult = await utils.showDialog(
+      'このユーザを削除してもよろしいですか？\n削除すると元に戻せません。'
+    );
+
+    if (!dialogResult) {
+      // ユーザがキャンセルしたら処理中断
+      return;
+    }
+
+    try {
+      // Firestoreの該当ユーザを削除
+      const userRef = utils.doc(utils.db, 'users', uid);
+      await utils.deleteDoc(userRef);
+
+      // 他者削除の場合ユーザ一覧、自分削除の場合ログインページへ戻る
+      await utils.showDialog('ユーザを削除しました', true);
+      window.location.href =
+        uid === utils.getSession('userId')
+          ? '../login/login.html'
+          : '../user-list/user-list.html';
+    } catch (error) {
+      console.error('ユーザ削除エラー:', error);
+      alert('削除に失敗しました。');
+    }
+  });
 }
 
 function formatDateTime(ts) {
