@@ -78,7 +78,6 @@
           $('#message').append('✅成功<br><br>');
 
           // プロフィール情報をセッションに保存
-          utils.setSession('lineUserId', await utils.getHash(profile.userId));
           utils.setSession('linePictureUrl', profile.pictureUrl);
           utils.setSession('lineDisplayName', profile.displayName);
 
@@ -90,12 +89,12 @@
               throw new Error('Firebaseログイン失敗: ' + JSON.stringify(error));
             });
           const user = userCredential.user;
+          utils.setSession('lineUserId', user.uid); // 認証済みuidを保存
           // ✅ ログイン成功
           $('#message').append('✅成功<br><br>');
 
           // ユーザーデータ更新(LINEIDはハッシュ化して保存)
-          const hashedUid = utils.getSession('lineUserId');
-          const userRef = utils.doc(utils.db, 'users', hashedUid);
+          const userRef = utils.doc(utils.db, 'users', user.uid);
           const docSnap = await utils.getDoc(userRef);
           const userExists = docSnap.exists();
           $('#message').append(
