@@ -20,6 +20,12 @@ async function setUpPage() {
 
   const userData = userSnap.data();
 
+  // 画面名
+  if (isInit) {
+    $('#title').text('ユーザ登録');
+    $('#page-title').text('ユーザ登録');
+  }
+
   // ユーザー名
   $('#user-name').text(userData.displayName || '名無し');
   $('.user-icon').attr(
@@ -98,7 +104,9 @@ function setupEventHandlers() {
     const userRef = utils.doc(utils.db, 'users', uid);
     try {
       // showDialogの結果をawaitで受け取る
-      const dialogResult = await utils.showDialog('ユーザ情報を更新しますか？');
+      const dialogResult = await utils.showDialog(
+        'ユーザ情報を' + (isInit ? '登録' : '更新') + 'しますか？'
+      );
 
       if (!dialogResult) {
         // ユーザがキャンセルしたら処理中断
@@ -106,13 +114,13 @@ function setupEventHandlers() {
       }
       // 更新処理
       await utils.updateDoc(userRef, updatedData);
-      await utils.showDialog('更新しました', true);
+      await utils.showDialog((isInit ? '登録' : '更新') + 'しました', true);
 
-      // 画面遷移 (初回ログインの場合TOP, それ以外の場合ユーザ一覧)
+      // 画面遷移 (初回ログインの場合TOP, それ以外の場合画面リロード)
       window.location.href =
         isInit === utils.globalStrTrue
           ? '../top/top.html?first_login=1'
-          : '../user-list/user-list.html';
+          : window.location.href;
     } catch (e) {
       console.error(e);
       alert('更新に失敗しました');
