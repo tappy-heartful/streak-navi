@@ -52,9 +52,7 @@ $(document).ready(async function () {
         const isLeader = user.roleId === '2';
         user.roleId;
         const li = $(`
-        <li class="user-item ${
-          isMaster || isLeader ? 'part-leader' : ''
-        }" onclick="window.location.href = '../user-confirm/user-confirm.html?uid=${
+        <li class="user-item" onclick="window.location.href = '../user-confirm/user-confirm.html?uid=${
           user.uid || ''
         }'">
           <img src="${user.pictureUrl || '../../images/favicon.png'}" alt="${
