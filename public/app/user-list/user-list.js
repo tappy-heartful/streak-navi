@@ -11,18 +11,30 @@ $(document).ready(async function () {
   $list.empty();
 
   try {
-    // sections コレクションを取得
+    // 1. sections コレクションを取得
     const sectionSnapshot = await utils.getDocs(
       utils.collection(utils.db, 'section')
     );
 
-    // sections をオブジェクトにマッピング（id => name など）
+    // sections をオブジェクトにマッピング（id => { name: "〇〇部門" }）
     const sectionMap = {};
     sectionSnapshot.forEach((doc) => {
-      sectionMap[doc.id] = doc.data(); // id: { name: "〇〇部門" }
+      sectionMap[doc.id] = doc.data();
     });
 
-    // users コレクションを取得
+    // 2. roles コレクションを取得
+    const rolesSnapshot = await utils.getDocs(
+      utils.collection(utils.db, 'roles')
+    );
+
+    // roles をオブジェクトにマッピング（roleId => roleName）
+    const roleMap = {};
+    rolesSnapshot.forEach((doc) => {
+      const roleData = doc.data();
+      roleMap[doc.id] = roleData.name || '';
+    });
+
+    // 3. users コレクションを取得
     const userSnapshot = await utils.getDocs(
       utils.collection(utils.db, 'users')
     );
@@ -48,25 +60,27 @@ $(document).ready(async function () {
       const $sectionList = $('<ul class="section-user-list"></ul>');
 
       users.forEach((user) => {
-        const isMaster = user.roleId === '1';
-        const isLeader = user.roleId === '2';
-        user.roleId;
+        // roleIdに対応する役職名を取得（メンバーはなし、なければ空文字）
+        const roleName = [1, 2].includes(user.roleId)
+          ? roleMap[user.roleId]
+          : '';
+
+        // 役職バッジ表示部分（役職名があれば表示）
+        const roleBadgeHtml = roleName
+          ? `<span class="leader-badge">${roleName}</span>`
+          : '';
+
         const li = $(`
-        <li class="user-item" onclick="window.location.href = '../user-confirm/user-confirm.html?uid=${
-          user.uid || ''
-        }'">
-          <img src="${user.pictureUrl || '../../images/favicon.png'}" alt="${
+          <li class="user-item" onclick="window.location.href = '../user-confirm/user-confirm.html?uid=${
+            user.uid || ''
+          }'">
+            <img src="${user.pictureUrl || '../../images/favicon.png'}" alt="${
           user.displayName || '名無し'
         }のアイコン">
             <span class="username">${user.displayName || '名無し'}</span>
-            ${
-              isMaster ? '<span class="leader-badge">バンドマスター</span>' : ''
-            }
-            ${
-              isLeader ? '<span class="leader-badge">パートリーダー</span>' : ''
-            }
-        </li>
-                    `);
+            ${roleBadgeHtml}
+          </li>
+        `);
         $sectionList.append(li);
       });
 
