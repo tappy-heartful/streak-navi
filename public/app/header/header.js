@@ -5,8 +5,8 @@ import { globalBaseUrl } from '../common/functions.js';
 ////////////////////////////
 $(document).ready(function () {
   // ログイン情報反映
-  const lineIconPath = utils.getSession('linePictureUrl');
-  const lineAccountName = utils.getSession('lineDisplayName');
+  const lineIconPath = utils.getSession('pictureUrl');
+  const lineAccountName = utils.getSession('displayName');
   $('#line-icon').attr('src', lineIconPath);
   $('#line-name').text(lineAccountName);
 

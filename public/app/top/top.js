@@ -12,8 +12,8 @@ $(document).ready(async function () {
   const isFirstLogin = urlParams.get('first_login') === '1';
 
   if (isFirstLogin) {
-    const lineIconPath = utils.getSession('linePictureUrl');
-    const lineAccountName = utils.getSession('lineDisplayName');
+    const lineIconPath = utils.getSession('pictureUrl');
+    const lineAccountName = utils.getSession('displayName');
 
     $('#line-icon').attr('src', lineIconPath);
     $('#line-name').text(lineAccountName);

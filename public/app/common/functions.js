@@ -183,7 +183,7 @@ export async function loadComponent(
 
 // 画面共通初期処理
 export function initDisplay() {
-  if (!getSession('lineUserId')) {
+  if (!getSession('userId')) {
     // 不正遷移の場合ログインページへ遷移(セッションが正しくセットされていない場合を考慮)
     window.location.href = window.location.origin;
   } else {

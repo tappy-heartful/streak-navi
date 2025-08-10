@@ -77,10 +77,6 @@
           // ✅ LINE プロフィール情報・カスタムトークン取得成功
           $('#message').append('✅成功<br><br>');
 
-          // プロフィール情報をセッションに保存
-          utils.setSession('linePictureUrl', profile.pictureUrl);
-          utils.setSession('lineDisplayName', profile.displayName);
-
           // カスタムトークンでFirebase ログイン
           $('#message').append('Firebaseログイン中...<br>');
           const userCredential = await utils
@@ -89,7 +85,7 @@
               throw new Error('Firebaseログイン失敗: ' + JSON.stringify(error));
             });
           const user = userCredential.user;
-          utils.setSession('lineUserId', user.uid); // 認証済みuidを保存
+          utils.setSession('userId', user.uid); // 認証済みuidを保存
           // ✅ ログイン成功
           $('#message').append('✅成功<br><br>');
 
@@ -109,7 +105,6 @@
               {
                 displayName: profile.displayName,
                 pictureUrl: profile.pictureUrl,
-                createdAt: utils.serverTimestamp(),
                 lastLoginAt: utils.serverTimestamp(),
               },
               { merge: true }
@@ -120,15 +115,31 @@
             await utils.setDoc(userRef, {
               displayName: profile.displayName,
               pictureUrl: profile.pictureUrl,
+              lastLoginAt: utils.serverTimestamp(),
+              createdAt: utils.serverTimestamp(),
               userAdminFlg: false,
               voteAdminFlg: false,
               roleId: 99,
               sectionId: 99,
-              lastLoginAt: utils.serverTimestamp(),
             });
           }
 
-          // ✅ ユーザーデータ更新
+          // ✅ ユーザーデータ更新成功
+          $('#message').append('✅成功<br><br>');
+
+          // ユーザデータをセッションに格納
+          $('#message').append('ユーザデータ取得中...<br>');
+
+          const latestUserSnap = await utils.getDoc(userRef);
+          if (!latestUserSnap.exists()) {
+            throw new Error('ユーザーデータが存在しません');
+          }
+          const latestUserData = latestUserSnap.data();
+          // 1項目ずつセッションに保存
+          for (const [key, value] of Object.entries(latestUserData)) {
+            utils.setSession(key, value);
+          }
+          // ✅ ユーザーデータ取得成功
           $('#message').append('✅成功<br><br>');
 
           // ✅ ログイン成功
