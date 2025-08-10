@@ -21,6 +21,10 @@ async function setUpPage() {
 
   // ユーザー名
   $('#user-name').text(userData.displayName || '名無し');
+  $('.user-icon').attr(
+    'src',
+    userData.pictureUrl || '../../images/favicon.png'
+  );
 
   // 管理者権限はラベル表示
   $('#is-user-admin-label').text(userData.userAdminFlg ? 'はい' : 'いいえ');
@@ -77,7 +81,6 @@ function setupEventHandlers() {
     };
 
     const userRef = utils.doc(utils.db, 'users', uid);
-    let dialogResult = false;
     try {
       // showDialogの結果をawaitで受け取る
       const dialogResult = await utils.showDialog('ユーザ情報を更新しますか？');
@@ -88,8 +91,8 @@ function setupEventHandlers() {
       }
       // 更新処理
       await utils.updateDoc(userRef, updatedData);
-      alert('更新しました');
-      window.location.href = '../user-list/user-list.html'; // 拡張子はhtmlと思われるので修正
+      await utils.showDialog('更新しました', true);
+      window.location.href = '../user-list/user-list.html';
     } catch (e) {
       console.error(e);
       alert('更新に失敗しました');

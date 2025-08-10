@@ -1,6 +1,6 @@
 import * as utils from '../common/functions.js';
 
-export function showDialog(message) {
+export function showDialog(message, isconfirm = false) {
   return new Promise((resolve) => {
     const overlay = document.getElementById('custom-dialog');
     const msg = document.getElementById('dialog-message');
@@ -9,6 +9,10 @@ export function showDialog(message) {
 
     msg.textContent = message;
     overlay.classList.remove('hidden');
+    if (isconfirm) {
+      okBtn.textContent = 'OK';
+      cancelBtn.classList.add('hidden');
+    }
 
     const cleanup = () => {
       overlay.classList.add('hidden');
