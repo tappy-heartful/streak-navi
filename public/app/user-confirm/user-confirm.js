@@ -81,9 +81,9 @@ async function setUpPage() {
   const isSelf = utils.getSession('userId') === uid;
   if (isAdmin || isSelf) {
     // 日付とUID表示
-    $('label:contains("アカウント作成日")').html(
-      `アカウント作成日：${formatDate(userData.createdAt)}
-      <span class="tooltip-icon" data-tooltip="このユーザが初めて登録された日です。">？</span>`
+    $('label:contains("アカウント作成日時")').html(
+      `アカウント作成日時：${formatDateTime(userData.createdAt)}
+      <span class="tooltip-icon" data-tooltip="このユーザが初めて登録された日時です。">？</span>`
     );
     $('label:contains("最終ログイン日時")').html(
       `最終ログイン日時：${formatDateTime(userData.lastLoginAt)}
