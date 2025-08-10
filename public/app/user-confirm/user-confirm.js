@@ -1,9 +1,11 @@
 import * as utils from '../common/functions.js';
 
-$(document).ready(function () {
-  utils.initDisplay();
+$(document).ready(async function () {
+  await utils.initDisplay();
   setUpPage();
   setupEventHandlers();
+  // スピナー非表示
+  utils.hideSpinner();
 });
 
 async function setUpPage() {

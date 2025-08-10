@@ -5,7 +5,7 @@ import * as utils from '../common/functions.js';
 ////////////////////////////
 $(document).ready(async function () {
   // 初期処理
-  utils.initDisplay();
+  await utils.initDisplay();
 
   const $list = $('#user-list');
   $list.empty();
@@ -91,4 +91,6 @@ $(document).ready(async function () {
     console.error('ユーザーの取得に失敗しました:', error);
     $list.append('<li>ユーザーの取得に失敗しました</li>');
   }
+  // スピナー非表示
+  utils.hideSpinner();
 });

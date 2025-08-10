@@ -5,7 +5,9 @@ import * as utils from '../common/functions.js';
 ////////////////////////////
 $(document).ready(async function () {
   // 初期処理
-  utils.initDisplay();
+  await utils.initDisplay();
+  // スピナー非表示
+  utils.hideSpinner();
 });
 
 ////////////////////////////

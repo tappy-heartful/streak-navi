@@ -1,8 +1,10 @@
 import * as utils from '../common/functions.js';
-$(document).ready(function () {
-  utils.initDisplay();
+$(document).ready(async function () {
+  await utils.initDisplay();
   renderVote();
   setupEventHandlers();
+  // スピナー非表示
+  utils.hideSpinner();
 });
 function renderVote() {
   const voteData = {

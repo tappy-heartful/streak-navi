@@ -7,11 +7,13 @@ let initialStateHtml;
 ////////////////////////////
 // 初期処理（画面読み込み時）
 ////////////////////////////
-$(document).ready(function () {
-  utils.initDisplay();
+$(document).ready(async function () {
+  await utils.initDisplay();
   const mode = utils.globalGetParamMode;
   setupPageMode(mode);
   setupEventHandlers(mode);
+  // スピナー非表示
+  utils.hideSpinner();
 });
 
 ////////////////////////////

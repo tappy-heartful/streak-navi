@@ -168,7 +168,12 @@ export async function loadComponent(
 }
 
 // 画面共通初期処理
-export async function initDisplay() {
+export async function initDisplay(isShowSpinner = true) {
+  if (isShowSpinner) {
+    // スピナー表示
+    showSpinner();
+  }
+
   // 不正遷移チェック
   if (!getSession('uid')) {
     // ログインページへ遷移
@@ -187,4 +192,22 @@ export async function initDisplay() {
   loadComponent('header');
   loadComponent('footer');
   loadComponent('dialog');
+}
+
+// スピナー表示処理
+export async function showSpinner() {
+  if ($('#spinner-overlay').length === 0) {
+    // スピナー用のタグがない場合追加
+    $('body').append(`
+      <div id="spinner-overlay">
+        <div class="spinner"></div>
+      </div>
+    `);
+  }
+  $('#spinner-overlay').show();
+}
+
+// スピナー非表示処理
+export async function hideSpinner() {
+  $('#spinner-overlay')?.hide();
 }

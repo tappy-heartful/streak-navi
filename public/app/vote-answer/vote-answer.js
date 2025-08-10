@@ -1,10 +1,12 @@
 import * as utils from '../common/functions.js';
-$(document).ready(function () {
+$(document).ready(async function () {
   const mode = utils.globalGetParamMode;
-  utils.initDisplay();
+  await utils.initDisplay();
   setupPageMode(mode);
   renderVote();
   setupEventHandlers(mode);
+  // スピナー非表示
+  utils.hideSpinner();
 });
 
 function setupPageMode(mode) {

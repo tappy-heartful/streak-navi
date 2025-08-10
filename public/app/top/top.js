@@ -4,11 +4,11 @@ import * as utils from '../common/functions.js';
 // 初期表示
 ////////////////////////////
 $(document).ready(async function () {
-  // 初期処理
-  utils.initDisplay();
-
-  //初回ログインウェルカム演出
+  //初回ログインかどうか
   const isFirstLogin = utils.globalGetParamFirstLogin === '1';
+
+  // 初期処理
+  await utils.initDisplay(!isFirstLogin);
 
   if (isFirstLogin) {
     const lineIconPath = utils.getSession('pictureUrl');
@@ -33,4 +33,7 @@ $(document).ready(async function () {
       }, 500);
     }, 2000);
   }
+
+  // スピナー非表示
+  utils.hideSpinner();
 });

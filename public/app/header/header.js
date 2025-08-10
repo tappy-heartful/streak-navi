@@ -3,7 +3,7 @@ import { globalBaseUrl } from '../common/functions.js';
 ////////////////////////////
 // 初期表示
 ////////////////////////////
-$(document).ready(function () {
+$(document).ready(async function () {
   // ログイン情報反映
   const lineIconPath = utils.getSession('pictureUrl');
   const lineAccountName = utils.getSession('displayName');
