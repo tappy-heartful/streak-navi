@@ -9,18 +9,10 @@ let initialStateHtml;
 ////////////////////////////
 $(document).ready(function () {
   utils.initDisplay();
-  const mode = getModeFromURL();
+  const mode = utils.globalGetParamMode;
   setupPageMode(mode);
   setupEventHandlers(mode);
 });
-
-////////////////////////////
-// モード取得
-////////////////////////////
-function getModeFromURL() {
-  const params = new URLSearchParams(location.search);
-  return params.get('mode') || 'new';
-}
 
 ////////////////////////////
 // 画面モードに応じた表示切替

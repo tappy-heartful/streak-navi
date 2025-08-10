@@ -57,37 +57,15 @@ export const globalBaseUrl = window.location.origin; // 本番環境(firebase上
 export const globalStrTrue = 'true';
 export const globalStrFalse = 'false';
 
-// JSONデータを取得する関数
-export function getJsonData(jsonUrl) {
-  return new Promise((resolve, reject) => {
-    $.getJSON(jsonUrl, function (data) {
-      resolve(data);
-    }).fail(function () {
-      reject('Failed to load JSON file');
-    });
-  });
-}
-
-// CSVデータを取得する関数
-export async function fetchCsvData(fileName, skipRowCount = 0) {
-  try {
-    const response = await fetch(fileName);
-    const text = await response.text();
-    return parseCsv(text, skipRowCount);
-  } catch (error) {
-    throw new Error('Failed to load CSV file:' + fileName);
-  }
-}
-
-// CSVデータをパースする関数（csvデータ内の「,」は「，」にしているため「,」に変換して返却）
-export function parseCsv(csvText, skipRowCount) {
-  var regx = new RegExp(appsettings.commaInString, 'g');
-  return csvText
-    .trim()
-    .split(/\r?\n|\r/)
-    .slice(skipRowCount)
-    .map((line) => line.split(',').map((value) => value.replace(regx, ',')));
-}
+// GETパラメータたち
+export const globalGetparams = new URLSearchParams(window.location.search);
+export const globalGetParamCode = globalGetparams.get('code');
+export const globalGetParamState = globalGetparams.get('state');
+export const globalGetParamError = globalGetparams.get('error');
+export const globalGetParamUid = globalGetparams.get('uid');
+export const globalGetParamIsInit = globalGetparams.get('isInit');
+export const globalGetParamFirstLogin = globalGetparams.get('firstLogin');
+export const globalGetParamMode = globalGetparams.get('mode');
 
 // データをセッションストレージからクリアする関数
 export function removeSession(key) {

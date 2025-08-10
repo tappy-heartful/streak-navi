@@ -7,9 +7,8 @@ $(document).ready(function () {
 });
 
 async function setUpPage() {
-  const params = new URLSearchParams(window.location.search);
-  const uid = params.get('uid');
-  const isInit = params.get('isInit');
+  const uid = utils.globalGetParamUid;
+  const isInit = utils.globalGetParamIsInit;
   const userRef = utils.doc(utils.db, 'users', uid);
   const userSnap = await utils.getDoc(userRef);
 
@@ -93,9 +92,8 @@ async function populateRoles(selectedId) {
 
 function setupEventHandlers() {
   $('#save-button').on('click', async function () {
-    const params = new URLSearchParams(window.location.search);
-    const uid = params.get('uid');
-    const isInit = params.get('isInit');
+    const uid = utils.globalGetParamUid;
+    const isInit = globalGetParamIsInit;
     const updatedData = {
       sectionId: $('#section-select').val(),
       roleId: $('#role-select').val(),
@@ -119,7 +117,7 @@ function setupEventHandlers() {
       // 画面遷移 (初回ログインの場合TOP, それ以外の場合画面リロード)
       window.location.href =
         isInit === utils.globalStrTrue
-          ? '../top/top.html?first_login=1'
+          ? '../top/top.html?firstLogin=1'
           : window.location.href;
     } catch (e) {
       console.error(e);

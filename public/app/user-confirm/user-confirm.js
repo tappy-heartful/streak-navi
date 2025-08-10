@@ -8,8 +8,7 @@ $(document).ready(function () {
 
 async function setUpPage() {
   // GETパラメータからuid取得
-  const params = new URLSearchParams(window.location.search);
-  const uid = params.get('uid');
+  const uid = utils.globalGetParamUid;
   if (!uid) {
     utils.showDialog('ユーザIDが指定されていません');
     return;
@@ -119,8 +118,7 @@ function setupEventHandlers() {
   // 編集するボタン
   $('#confirm-buttons .edit-button').on('click', () => {
     // 現在のURLのクエリパラメータからuidを取得
-    const params = new URLSearchParams(window.location.search);
-    const uid = params.get('uid');
+    const uid = utils.globalGetParamUid;
     if (!uid) {
       alert('ユーザIDが見つかりません。');
       return;
@@ -133,8 +131,7 @@ function setupEventHandlers() {
 
   // 削除するボタン
   $('#confirm-buttons .delete-button').on('click', async () => {
-    const params = new URLSearchParams(window.location.search);
-    const uid = params.get('uid');
+    const uid = utils.globalGetParamUid;
     if (!uid) {
       alert('ユーザIDが見つかりません。');
       return;

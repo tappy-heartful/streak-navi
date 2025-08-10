@@ -1,16 +1,11 @@
 import * as utils from '../common/functions.js';
 $(document).ready(function () {
-  const mode = getParam('mode'); // 'new' or 'edit'
+  const mode = utils.globalGetParamMode;
   utils.initDisplay();
   setupPageMode(mode);
   renderVote();
   setupEventHandlers(mode);
 });
-
-function getParam(name) {
-  const params = new URLSearchParams(window.location.search);
-  return params.get(name);
-}
 
 function setupPageMode(mode) {
   const title = mode === 'edit' ? '回答修正' : '回答登録';

@@ -8,8 +8,7 @@ $(document).ready(async function () {
   utils.initDisplay();
 
   //初回ログインウェルカム演出
-  const urlParams = new URLSearchParams(window.location.search);
-  const isFirstLogin = urlParams.get('first_login') === '1';
+  const isFirstLogin = utils.globalGetParamFirstLogin === '1';
 
   if (isFirstLogin) {
     const lineIconPath = utils.getSession('pictureUrl');

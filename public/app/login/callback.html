@@ -22,10 +22,9 @@
         $('#message').append('LINE 認証中...<br>');
 
         const redirectUri = utils.globalBaseUrl + '/app/login/callback.html';
-        const params = new URLSearchParams(window.location.search);
-        const code = params.get('code');
-        const state = params.get('state');
-        const error = params.get('error');
+        const code = utils.globalGetParamCode;
+        const state = utils.globalGetParamState;
+        const error = utils.globalGetParamError;
 
         if (error) {
           alert('LINEログインに失敗しました: ' + error);
@@ -149,7 +148,7 @@
           window.location.href =
             utils.globalBaseUrl +
             (userExists
-              ? '/app/top/top.html?first_login=1'
+              ? '/app/top/top.html?firstLogin=1'
               : '/app/login/consent.html');
         } catch (err) {
           console.error('エラー:', err);
