@@ -48,6 +48,8 @@ export {
 export const globalAppName = 'streakNavi';
 export const globalClientId = '2007808275';
 export const globalBaseUrl = window.location.origin; // 本番環境(firebase上で公開。publicのパス抜き)
+export const globalStrTrue = 'true';
+export const globalStrFalse = 'false';
 
 // JSONデータを取得する関数
 export function getJsonData(jsonUrl) {

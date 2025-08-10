@@ -13,7 +13,7 @@ $(document).ready(async function () {
   try {
     // 1. sections コレクションを取得
     const sectionSnapshot = await utils.getDocs(
-      utils.collection(utils.db, 'section')
+      utils.collection(utils.db, 'sections')
     );
 
     // sections をオブジェクトにマッピング（id => { name: "〇〇部門" }）

@@ -6,50 +6,122 @@ $(document).ready(function () {
   setupEventHandlers();
 });
 
-function setUpPage() {
-  const userData = {
-    name: 'カウント 太郎',
-    isUserAdmin: true,
-    isVoteAdmin: false,
-  };
+async function setUpPage() {
+  // GETパラメータからuid取得
+  const params = new URLSearchParams(window.location.search);
+  const uid = params.get('uid');
+  if (!uid) {
+    utils.showDialog('ユーザIDが指定されていません');
+    return;
+  }
 
-  $('#user-name').text(userData.name);
-  $('#is-user-admin').prop('checked', userData.isUserAdmin);
-  $('#is-vote-admin').prop('checked', userData.isVoteAdmin);
+  // usersコレクションから対象ユーザ取得
+  const userRef = utils.doc(utils.db, 'users', uid);
+  const userSnap = await utils.getDoc(userRef);
+  if (!userSnap.exists()) {
+    utils.showDialog('指定されたユーザが存在しません');
+    return;
+  }
+  const userData = userSnap.data();
+
+  // role名取得
+  let roleName = '';
+  if (userData.roleId != null) {
+    const roleRef = utils.doc(utils.db, 'roles', String(userData.roleId));
+    const roleSnap = await utils.getDoc(roleRef);
+    if (roleSnap.exists()) {
+      roleName = roleSnap.data().name || '';
+    }
+  }
+
+  // section名取得
+  let sectionName = '';
+  if (userData.sectionId != null) {
+    const sectionRef = utils.doc(
+      utils.db,
+      'sections',
+      String(userData.sectionId)
+    );
+    const sectionSnap = await utils.getDoc(sectionRef);
+    if (sectionSnap.exists()) {
+      sectionName = sectionSnap.data().name || '';
+    }
+  }
+
+  // 表示設定
+  $('#user-name').text(userData.displayName || '');
+  $('.user-icon').attr(
+    'src',
+    userData.pictureUrl || '../../images/favicon.png'
+  );
+
+  // 管理フラグ表示
+  $('label:contains("ユーザ管理者")').html(
+    `ユーザ管理者：${userData.userAdminFlg ? 'はい' : 'いいえ'}
+    <span class="tooltip-icon" data-tooltip="ユーザ管理者はユーザの権限編集・退会ができます。">？</span>`
+  );
+
+  $('label:contains("投票管理者")').html(
+    `投票管理者：${userData.voteAdminFlg ? 'はい' : 'いいえ'}
+    <span class="tooltip-icon" data-tooltip="投票管理者は投票内容の作成・編集・公開ができます。">？</span>`
+  );
+
+  // パート・役職
+  $('label:contains("パート")').html(
+    `パート：${sectionName || '未設定'}
+    <span class="tooltip-icon" data-tooltip="所属しているパート">？</span>`
+  );
+  $('label:contains("役職")').html(
+    `役職：${roleName || '未設定'}
+    <span class="tooltip-icon" data-tooltip="このユーザの役職">？</span>`
+  );
+
+  // 編集/退会/日付/uid表示条件チェック
+  const isAdmin = utils.getSession('userAdminFlg') === utils.globalStrTrue;
+  const isSelf = utils.getSession('userId') === uid;
+  if (isAdmin || isSelf) {
+    // 日付とUID表示
+    $('label:contains("アカウント作成日")').html(
+      `アカウント作成日：${formatDate(userData.createdAt)}
+      <span class="tooltip-icon" data-tooltip="このユーザが初めて登録された日です。">？</span>`
+    );
+    $('label:contains("最終ログイン日時")').html(
+      `最終ログイン日時：${formatDateTime(userData.lastLoginAt)}
+      <span class="tooltip-icon" data-tooltip="最後にログインした日時です。アクティブ状況の確認に使えます。">？</span>`
+    );
+    $('#confirm-buttons').show();
+  } else {
+    // 権限なしの場合は非表示
+    $('label:contains("アカウント作成日")').parent().remove();
+    $('label:contains("最終ログイン日時")').parent().remove();
+    $('label:contains("uid")').parent().remove();
+    $('#confirm-buttons').hide();
+  }
 }
 
 function setupEventHandlers() {
-  $('#save-button').on('click', function () {
-    const updatedData = {
-      isUserAdmin: $('#is-user-admin').is(':checked'),
-      isVoteAdmin: $('#is-vote-admin').is(':checked'),
-    };
-
-    console.log('更新内容:', updatedData);
-
-    utils.showDialog('ユーザ情報を更新しますか？').then((result) => {
-      if (result) {
-        alert('ユーザ情報を更新しました（仮）');
-      }
-    });
-  });
-
-  //ツールチップ
+  // ツールチップ
   $('.tooltip-icon').on('click touchstart', function (e) {
-    e.preventDefault(); // ← これを追加（クリック動作防止）
-    e.stopPropagation(); // 他のイベントをブロック
-
-    const $tooltip = $(this);
-
-    // 既存のツールチップをすべて非表示
+    e.preventDefault();
+    e.stopPropagation();
     $('.tooltip-icon').not(this).removeClass('show');
-
-    // トグル表示
-    $tooltip.toggleClass('show');
+    $(this).toggleClass('show');
   });
 
-  // 他の場所をタップしたら消す
   $(document).on('click touchstart', function () {
     $('.tooltip-icon').removeClass('show');
   });
+}
+
+// 日付フォーマット
+function formatDate(ts) {
+  if (!ts) return '';
+  const date = ts.toDate ? ts.toDate() : ts;
+  return date.toISOString().split('T')[0];
+}
+
+function formatDateTime(ts) {
+  if (!ts) return '';
+  const date = ts.toDate ? ts.toDate() : ts;
+  return date.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
 }
