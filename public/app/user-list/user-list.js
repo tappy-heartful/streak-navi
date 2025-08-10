@@ -48,10 +48,12 @@ $(document).ready(async function () {
       const $sectionList = $('<ul class="section-user-list"></ul>');
 
       users.forEach((user) => {
-        const isLeader = user.isPartLeader === true;
+        const isMaster = user.roleId === '1';
+        const isLeader = user.roleId === '2';
+        user.roleId;
         const li = $(`
         <li class="user-item ${
-          isLeader ? 'part-leader' : ''
+          isMaster || isLeader ? 'part-leader' : ''
         }" onclick="window.location.href = '../user-confirm/user-confirm.html?uid=${
           user.uid || ''
         }'">
@@ -59,7 +61,12 @@ $(document).ready(async function () {
           user.displayName || '名無し'
         }のアイコン">
             <span class="username">${user.displayName || '名無し'}</span>
-            ${isLeader ? '<span class="leader-badge">リーダー</span>' : ''}
+            ${
+              isMaster ? '<span class="leader-badge">バンドマスター</span>' : ''
+            }
+            ${
+              isLeader ? '<span class="leader-badge">パートリーダー</span>' : ''
+            }
         </li>
                     `);
         $sectionList.append(li);
