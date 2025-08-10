@@ -136,7 +136,9 @@
           // TOPまたは同意画面へ遷移
           window.location.href =
             utils.globalBaseUrl +
-            (userExists ? '/app/top/top.html' : '/app/login/consent.html');
+            (userExists
+              ? '/app/top/top.html?first_login=1'
+              : '/app/login/consent.html');
         } catch (err) {
           console.error('エラー:', err);
           $('#message').append('エラー: ' + err.message);
