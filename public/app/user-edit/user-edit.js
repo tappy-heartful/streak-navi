@@ -88,6 +88,7 @@ async function populateRoles(selectedId) {
 }
 
 function setupEventHandlers() {
+  // 登録/更新ボタン押下
   $('#save-button').on('click', async function () {
     const uid = utils.globalGetParamUid;
     const isInit = utils.globalGetParamIsInit;
@@ -111,14 +112,20 @@ function setupEventHandlers() {
       await utils.updateDoc(userRef, updatedData);
       await utils.showDialog((isInit ? '登録' : '更新') + 'しました', true);
 
-      // 画面遷移 (初回ログインの場合TOP, それ以外の場合画面リロード)
+      // 画面遷移 (初回ログインの場合TOP, それ以外の場合確認画面へ)
       window.location.href =
         isInit === utils.globalStrTrue
           ? '../top/top.html?firstLogin=1'
-          : window.location.href;
+          : '../user-confirm/user-confirm.html?uid=' + utils.globalGetParamUid;
     } catch (e) {
       console.error(e);
       alert('更新に失敗しました');
     }
+  });
+
+  // 確認画面に戻る
+  $(document).on('click', '.back-link', function (e) {
+    window.location.href =
+      '../user-confirm/user-confirm.html?uid=' + utils.globalGetParamUid;
   });
 }
