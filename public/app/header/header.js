@@ -7,8 +7,8 @@ $(document).ready(async function () {
   // ログイン情報反映
   const lineIconPath = utils.getSession('pictureUrl');
   const lineAccountName = utils.getSession('displayName');
-  $('#line-icon').attr('src', lineIconPath);
-  $('#line-name').text(lineAccountName);
+  $('#header-line-icon').attr('src', lineIconPath);
+  $('#header-line-name').text(lineAccountName);
 
   // バンドアイコンボタン制御
   // TOPへ遷移

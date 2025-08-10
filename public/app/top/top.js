@@ -15,8 +15,8 @@ $(document).ready(async function () {
     const lineIconPath = utils.getSession('pictureUrl');
     const lineAccountName = utils.getSession('displayName');
 
-    $('#line-icon').attr('src', lineIconPath);
-    $('#line-name').text(lineAccountName);
+    $('#welcome-line-icon').attr('src', lineIconPath);
+    $('#welcome-line-name').text(lineAccountName);
 
     const $overlay = $('#first-login-overlay');
     $overlay.removeClass('hidden');
