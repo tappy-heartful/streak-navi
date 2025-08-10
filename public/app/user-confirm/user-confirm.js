@@ -58,7 +58,7 @@ async function setUpPage() {
   // 管理フラグ表示
   $('label:contains("ユーザ管理者")').html(
     `ユーザ管理者：${userData.userAdminFlg ? 'はい' : 'いいえ'}
-    <span class="tooltip-icon" data-tooltip="ユーザ管理者はユーザの権限編集・退会ができます。">？</span>`
+    <span class="tooltip-icon" data-tooltip="ユーザ管理者はユーザの権限編集・削除ができます。">？</span>`
   );
 
   $('label:contains("投票管理者")').html(
