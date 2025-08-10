@@ -137,7 +137,7 @@
     <script type="module">
       import * as utils from '../common/functions.js';
       // フッター読み込み(しかしリンクは非表示)
-      utils.loadComponent('footer');
+      await utils.loadComponent('footer');
       $('.footer-note').addClass('hidden');
 
       const checkbox = document.getElementById('agreeCheckbox');
