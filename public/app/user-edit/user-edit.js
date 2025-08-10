@@ -19,10 +19,12 @@ async function setUpPage() {
 
   const userData = userSnap.data();
 
-  // 画面名
-  if (isInit) {
+  // 初回ログインの場合
+  if (isInit === utils.globalStrTrue) {
     $('#title').text('ユーザ登録');
     $('#page-title').text('ユーザ登録');
+    $('#save-button').text('登録する');
+    $('.page-footer').addClass('hidden');
   }
 
   // ユーザー名
@@ -47,11 +49,6 @@ async function setUpPage() {
   // パートと役職をプルダウンに反映
   await populateSections(userData.sectionId);
   await populateRoles(userData.roleId);
-
-  // 初回ログインの場合
-  if (isInit === utils.globalStrTrue) {
-    $('.page-footer').addClass('hidden');
-  }
 }
 
 async function populateSections(selectedId) {
