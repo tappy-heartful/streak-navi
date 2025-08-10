@@ -4,13 +4,14 @@ import * as utils from '../common/functions.js';
 // 初期表示
 ////////////////////////////
 $(document).ready(async function () {
-  //初回ログインかどうか
-  const isFirstLogin = utils.globalGetParamFirstLogin === '1';
-
   // 初期処理
-  await utils.initDisplay(!isFirstLogin);
+  await utils.initDisplay();
 
-  if (isFirstLogin) {
+  // スピナー非表示
+  utils.hideSpinner();
+
+  // 初回遷移時ウェルカム演出
+  if (utils.globalGetParamFirstLogin === '1') {
     const lineIconPath = utils.getSession('pictureUrl');
     const lineAccountName = utils.getSession('displayName');
 
@@ -33,7 +34,4 @@ $(document).ready(async function () {
       }, 500);
     }, 2000);
   }
-
-  // スピナー非表示
-  utils.hideSpinner();
 });
