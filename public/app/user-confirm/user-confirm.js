@@ -113,13 +113,6 @@ function setupEventHandlers() {
   });
 }
 
-// 日付フォーマット
-function formatDate(ts) {
-  if (!ts) return '';
-  const date = ts.toDate ? ts.toDate() : ts;
-  return date.toISOString().split('T')[0];
-}
-
 function formatDateTime(ts) {
   if (!ts) return '';
   const date = ts.toDate ? ts.toDate() : ts;
