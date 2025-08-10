@@ -9,6 +9,7 @@ $(document).ready(function () {
 async function setUpPage() {
   const params = new URLSearchParams(window.location.search);
   const uid = params.get('uid');
+  const isInit = params.get('isInit');
   const userRef = utils.doc(utils.db, 'users', uid);
   const userSnap = await utils.getDoc(userRef);
 
@@ -41,6 +42,11 @@ async function setUpPage() {
   // パートと役職をプルダウンに反映
   await populateSections(userData.sectionId);
   await populateRoles(userData.roleId);
+
+  // 初回ログインの場合
+  if (isInit === utils.globalStrTrue) {
+    $('.page-footer').addClass('hidden');
+  }
 }
 
 async function populateSections(selectedId) {
@@ -83,6 +89,7 @@ function setupEventHandlers() {
   $('#save-button').on('click', async function () {
     const params = new URLSearchParams(window.location.search);
     const uid = params.get('uid');
+    const isInit = params.get('isInit');
     const updatedData = {
       sectionId: $('#section-select').val(),
       roleId: $('#role-select').val(),
@@ -100,7 +107,12 @@ function setupEventHandlers() {
       // 更新処理
       await utils.updateDoc(userRef, updatedData);
       await utils.showDialog('更新しました', true);
-      window.location.href = '../user-list/user-list.html';
+
+      // 画面遷移 (初回ログインの場合TOP, それ以外の場合ユーザ一覧)
+      window.location.href =
+        isInit === utils.globalStrTrue
+          ? '../top/top.html?first_login=1'
+          : '../user-list/user-list.html';
     } catch (e) {
       console.error(e);
       alert('更新に失敗しました');
