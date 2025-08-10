@@ -111,6 +111,21 @@ function setupEventHandlers() {
   $(document).on('click touchstart', function () {
     $('.tooltip-icon').removeClass('show');
   });
+
+  // 編集するボタン
+  $('#confirm-buttons .edit-button').on('click', () => {
+    // 現在のURLのクエリパラメータからuidを取得
+    const params = new URLSearchParams(window.location.search);
+    const uid = params.get('uid');
+    if (!uid) {
+      alert('ユーザIDが見つかりません。');
+      return;
+    }
+
+    // 遷移先URL（固定パス）にuidを付加して遷移
+    const targetUrl = `../user-edit/user-edit.html?uid=${uid}`;
+    window.location.href = targetUrl;
+  });
 }
 
 function formatDateTime(ts) {

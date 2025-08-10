@@ -6,50 +6,93 @@ $(document).ready(function () {
   setupEventHandlers();
 });
 
-function setUpPage() {
-  const userData = {
-    name: 'カウント 太郎',
-    isUserAdmin: true,
-    isVoteAdmin: false,
-  };
+async function setUpPage() {
+  const params = new URLSearchParams(window.location.search);
+  const uid = params.get('uid');
+  const userRef = utils.doc(utils.db, 'users', uid);
+  const userSnap = await utils.getDoc(userRef);
 
-  $('#user-name').text(userData.name);
-  $('#is-user-admin').prop('checked', userData.isUserAdmin);
-  $('#is-vote-admin').prop('checked', userData.isVoteAdmin);
+  if (!userSnap.exists()) {
+    alert('ユーザーが見つかりません');
+    return;
+  }
+
+  const userData = userSnap.data();
+
+  // ユーザー名
+  $('#user-name').text(userData.displayName || '名無し');
+
+  // 管理者権限はラベル表示
+  $('#is-user-admin-label').text(userData.userAdminFlg ? 'はい' : 'いいえ');
+  $('#is-vote-admin-label').text(userData.voteAdminFlg ? 'はい' : 'いいえ');
+
+  // パートと役職をプルダウンに反映
+  await populateSections(userData.sectionId);
+  await populateRoles(userData.roleId);
+}
+
+async function populateSections(selectedId) {
+  const sectionSnapshot = await utils.getDocs(
+    utils.collection(utils.db, 'sections')
+  );
+  const $select = $('#section-select');
+  $select.empty();
+
+  sectionSnapshot.forEach((doc) => {
+    const data = doc.data();
+    const option = $('<option>')
+      .val(doc.id)
+      .text(data.name || '(名称なし)');
+    if (doc.id === selectedId) {
+      option.prop('selected', true);
+    }
+    $select.append(option);
+  });
+}
+
+async function populateRoles(selectedId) {
+  const roleSnapshot = await utils.getDocs(utils.collection(utils.db, 'roles'));
+  const $select = $('#role-select');
+  $select.empty();
+
+  roleSnapshot.forEach((doc) => {
+    const data = doc.data();
+    const option = $('<option>')
+      .val(doc.id)
+      .text(data.name || '(名称なし)');
+    if (doc.id === selectedId) {
+      option.prop('selected', true);
+    }
+    $select.append(option);
+  });
 }
 
 function setupEventHandlers() {
-  $('#save-button').on('click', function () {
+  $('#save-button').on('click', async function () {
+    const params = new URLSearchParams(window.location.search);
+    const uid = params.get('uid');
     const updatedData = {
-      isUserAdmin: $('#is-user-admin').is(':checked'),
-      isVoteAdmin: $('#is-vote-admin').is(':checked'),
+      sectionId: $('#section-select').val(),
+      roleId: $('#role-select').val(),
     };
 
-    console.log('更新内容:', updatedData);
+    const userRef = utils.doc(utils.db, 'users', uid);
+    let dialogResult = false;
+    try {
+      // showDialogの結果をawaitで受け取る
+      const dialogResult = await utils.showDialog('ユーザ情報を更新しますか？');
 
-    utils.showDialog('ユーザ情報を更新しますか？').then((result) => {
-      if (result) {
-        alert('ユーザ情報を更新しました（仮）');
+      if (!dialogResult) {
+        // ユーザがキャンセルしたら処理中断
+        return;
       }
-    });
-  });
-
-  //ツールチップ
-  $('.tooltip-icon').on('click touchstart', function (e) {
-    e.preventDefault(); // ← これを追加（クリック動作防止）
-    e.stopPropagation(); // 他のイベントをブロック
-
-    const $tooltip = $(this);
-
-    // 既存のツールチップをすべて非表示
-    $('.tooltip-icon').not(this).removeClass('show');
-
-    // トグル表示
-    $tooltip.toggleClass('show');
-  });
-
-  // 他の場所をタップしたら消す
-  $(document).on('click touchstart', function () {
-    $('.tooltip-icon').removeClass('show');
+      // 更新処理
+      await utils.updateDoc(userRef, updatedData);
+      alert('更新しました');
+      window.location.href = '../user-list/user-list.html'; // 拡張子はhtmlと思われるので修正
+    } catch (e) {
+      console.error(e);
+      alert('更新に失敗しました');
+    }
   });
 }

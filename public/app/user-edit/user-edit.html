@@ -26,29 +26,24 @@
         <div class="user-name" id="user-name">山田 太郎</div>
       </div>
 
-      <!-- 該当箇所のみ抜粋 -->
       <div class="form-group">
-        <label class="label-title">
-          <input type="checkbox" id="is-user-admin" />
-          ユーザ管理者にする
-          <span
-            class="tooltip-icon"
-            data-tooltip="ユーザ管理者はユーザ一の権限編集・退会ができます。"
-            >？</span
-          >
-        </label>
+        <label class="label-title">ユーザ管理者</label>
+        <span id="is-user-admin-label" class="status-label"></span>
       </div>
 
       <div class="form-group">
-        <label class="label-title">
-          <input type="checkbox" id="is-vote-admin" />
-          投票管理者にする
-          <span
-            class="tooltip-icon"
-            data-tooltip="投票管理者は投票内容の作成・編集・公開ができます。"
-            >？</span
-          >
-        </label>
+        <label class="label-title">投票管理者</label>
+        <span id="is-vote-admin-label" class="status-label"></span>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title" for="section-select">パート</label>
+        <select id="section-select"></select>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title" for="role-select">役職</label>
+        <select id="role-select"></select>
       </div>
 
       <div id="confirm-buttons" class="confirm-buttons">

@@ -44,6 +44,10 @@ export {
   serverTimestamp,
 };
 
+// ダイアログ関連
+import { showDialog } from '../dialog/dialog.js';
+export { showDialog };
+
 // グローバル定数
 export const globalAppName = 'streakNavi';
 export const globalClientId = '2007808275';
