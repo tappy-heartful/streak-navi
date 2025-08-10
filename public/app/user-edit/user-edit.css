@@ -163,9 +163,3 @@ select:disabled {
   font-weight: 600;
   color: #333;
 }
-
-/* status-label のスタイル（管理者表示用） */
-.status-label {
-  font-weight: 600;
-  color: #555;
-}

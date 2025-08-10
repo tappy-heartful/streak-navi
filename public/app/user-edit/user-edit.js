@@ -27,8 +27,12 @@ async function setUpPage() {
   );
 
   // 管理者権限はラベル表示
-  $('#is-user-admin-label').text(userData.userAdminFlg ? 'はい' : 'いいえ');
-  $('#is-vote-admin-label').text(userData.voteAdminFlg ? 'はい' : 'いいえ');
+  $('#is-user-admin-label').text(
+    'ユーザ管理者：' + (userData.userAdminFlg ? 'はい' : 'いいえ')
+  );
+  $('#is-vote-admin-label').text(
+    '投票管理者：' + (userData.voteAdminFlg ? 'はい' : 'いいえ')
+  );
 
   // パートと役職をプルダウンに反映
   await populateSections(userData.sectionId);
