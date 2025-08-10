@@ -142,9 +142,11 @@
       });
 
       button.addEventListener('click', async () => {
-        // 通常画面へリダイレクト
+        // ユーザ編集画面へ
         window.location.href =
-          utils.globalBaseUrl + '/app/top/top.html?first_login=1';
+          utils.globalBaseUrl +
+          '/app/user-edit/user-edit.html?isInit=true&uid=' +
+          utils.getSession('userId');
       });
     </script>
   </body>
