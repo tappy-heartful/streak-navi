@@ -126,14 +126,20 @@
       </p>
     </main>
 
+    <div class="page-footer">
+      <a href="../login/login.html" class="back-link">← ログインに戻る</a>
+    </div>
+
     <div id="footer-placeholder"></div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="module" src="../common/functions.js"></script>
     <script type="module">
       import * as utils from '../common/functions.js';
-      // フッター読み込み
+      // フッター読み込み(しかしリンクは非表示)
       utils.loadComponent('footer');
+      $('.footer-note').addClass('hidden');
+
       const checkbox = document.getElementById('agreeCheckbox');
       const button = document.getElementById('agreeButton');
 
