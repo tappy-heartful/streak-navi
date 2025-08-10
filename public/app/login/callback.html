@@ -109,6 +109,7 @@
               {
                 displayName: profile.displayName,
                 pictureUrl: profile.pictureUrl,
+                createdAt: utils.serverTimestamp(),
                 lastLoginAt: utils.serverTimestamp(),
               },
               { merge: true }
@@ -121,8 +122,8 @@
               pictureUrl: profile.pictureUrl,
               userAdminFlg: false,
               voteAdminFlg: false,
+              roleId: 99,
               sectionId: 99,
-              isPartLeader: false,
               lastLoginAt: utils.serverTimestamp(),
             });
           }
