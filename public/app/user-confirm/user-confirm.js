@@ -56,15 +56,19 @@ async function setUpPage() {
   );
 
   // 管理フラグ表示
-  $('label:contains("ユーザ管理者")').html(
-    `ユーザ管理者：${userData.userAdminFlg ? 'はい' : 'いいえ'}
-    <span class="tooltip-icon" data-tooltip="ユーザ管理者はユーザの権限編集・削除ができます。">？</span>`
-  );
+  if (userData.userAdminFlg) {
+    $('#is-user-admin-label').html(
+      `<label class="label-title">✅ユーザ管理者</label>
+      <span class="tooltip-icon" data-tooltip="ユーザ管理者はユーザの権限編集・削除ができます。">？</span>`
+    );
+  }
 
-  $('label:contains("投票管理者")').html(
-    `投票管理者：${userData.voteAdminFlg ? 'はい' : 'いいえ'}
+  if (userData.voteAdminFlg) {
+    $('#is-vote-admin-label').html(
+      `<label class="label-title">✅投票管理者</label>
     <span class="tooltip-icon" data-tooltip="投票管理者は投票内容の作成・編集・公開ができます。">？</span>`
-  );
+    );
+  }
 
   // パート・役職
   $('label:contains("パート")').html(

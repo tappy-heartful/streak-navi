@@ -27,12 +27,16 @@ async function setUpPage() {
   );
 
   // 管理者権限はラベル表示
-  $('#is-user-admin-label').text(
-    'ユーザ管理者：' + (userData.userAdminFlg ? 'はい' : 'いいえ')
-  );
-  $('#is-vote-admin-label').text(
-    '投票管理者：' + (userData.voteAdminFlg ? 'はい' : 'いいえ')
-  );
+  if (userData.userAdminFlg) {
+    $('#is-user-admin-label').html(
+      `<label class="label-title">✅ユーザ管理者</label>`
+    );
+  }
+  if (userData.voteAdminFlg) {
+    $('#is-vote-admin-label').html(
+      `<label class="label-title">✅投票管理者</label>`
+    );
+  }
 
   // パートと役職をプルダウンに反映
   await populateSections(userData.sectionId);
