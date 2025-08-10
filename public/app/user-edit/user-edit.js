@@ -93,7 +93,7 @@ async function populateRoles(selectedId) {
 function setupEventHandlers() {
   $('#save-button').on('click', async function () {
     const uid = utils.globalGetParamUid;
-    const isInit = globalGetParamIsInit;
+    const isInit = utils.globalGetParamIsInit;
     const updatedData = {
       sectionId: $('#section-select').val(),
       roleId: $('#role-select').val(),
