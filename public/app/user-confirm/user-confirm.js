@@ -76,7 +76,7 @@ async function setUpPage() {
     <span class="tooltip-icon" data-tooltip="このユーザの役職">？</span>`
   );
 
-  // 編集/退会/日付/uid表示条件チェック
+  // 編集/退会/日付/uid表示条件チェック TODO そもそも他人のユーザ情報はfirestoreのルールを工夫しないとできない。DB直編集でよくね？
   const isAdmin = utils.getSession('userAdminFlg') === utils.globalStrTrue;
   const isSelf = utils.getSession('userId') === uid;
   if (isAdmin || isSelf) {
