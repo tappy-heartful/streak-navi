@@ -84,7 +84,7 @@
               throw new Error('Firebaseログイン失敗: ' + JSON.stringify(error));
             });
           const user = userCredential.user;
-          utils.setSession('userId', user.uid); // 認証済みuidを保存
+          utils.setSession('uid', user.uid); // 認証済みuidを保存
           // ✅ ログイン成功
           $('#message').append('✅成功<br><br>');
 

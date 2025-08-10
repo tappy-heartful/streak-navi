@@ -81,7 +81,7 @@ async function setUpPage() {
 
   // 編集/退会/日付/uid表示条件チェック TODO そもそも他人のユーザ情報はfirestoreのルールを工夫しないとできない。DB直編集でよくね？
   const isAdmin = utils.getSession('userAdminFlg') === utils.globalStrTrue;
-  const isSelf = utils.getSession('userId') === uid;
+  const isSelf = utils.getSession('uid') === uid;
   if (isAdmin || isSelf) {
     // 日付とUID表示
     $('label:contains("アカウント作成日時")').html(
@@ -155,7 +155,7 @@ function setupEventHandlers() {
       // 他者削除の場合ユーザ一覧、自分削除の場合ログインページへ戻る
       await utils.showDialog('ユーザを削除しました', true);
       window.location.href =
-        uid === utils.getSession('userId')
+        uid === utils.getSession('uid')
           ? '../login/login.html'
           : '../user-list/user-list.html';
     } catch (error) {

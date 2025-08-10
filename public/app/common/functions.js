@@ -53,7 +53,7 @@ export { showDialog };
 // グローバル定数
 export const globalAppName = 'streakNavi';
 export const globalClientId = '2007808275';
-export const globalBaseUrl = window.location.origin; // 本番環境(firebase上で公開。publicのパス抜き)
+export const globalBaseUrl = window.location.origin;
 export const globalStrTrue = 'true';
 export const globalStrFalse = 'false';
 
@@ -168,15 +168,23 @@ export async function loadComponent(
 }
 
 // 画面共通初期処理
-export function initDisplay() {
-  if (!getSession('userId')) {
-    // 不正遷移の場合ログインページへ遷移(セッションが正しくセットされていない場合を考慮)
+export async function initDisplay() {
+  // 不正遷移チェック
+  if (!getSession('uid')) {
+    // ログインページへ遷移
     window.location.href = window.location.origin;
-  } else {
-    // ヘッダー、フッター
-    loadComponent('header');
-    loadComponent('footer');
-    // ダイアログ読み込み
-    loadComponent('dialog');
   }
+
+  // アカウント有効チェック
+  const userRef = doc(db, 'users', getSession('uid'));
+  const userSnap = await getDoc(userRef);
+  if (!userSnap.exists()) {
+    // ログインページへ遷移
+    window.location.href = window.location.origin;
+  }
+
+  // コンポーネント読み込み
+  loadComponent('header');
+  loadComponent('footer');
+  loadComponent('dialog');
 }
