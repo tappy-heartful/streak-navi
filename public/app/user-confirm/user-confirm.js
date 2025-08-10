@@ -2,7 +2,7 @@ import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
   await utils.initDisplay();
-  setUpPage();
+  await setUpPage();
   setupEventHandlers();
   // スピナー非表示
   utils.hideSpinner();
