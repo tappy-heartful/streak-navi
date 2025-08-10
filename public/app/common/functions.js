@@ -188,10 +188,10 @@ export async function initDisplay(isShowSpinner = true) {
     window.location.href = window.location.origin;
   }
 
-  // コンポーネント読み込み
-  loadComponent('header');
-  loadComponent('footer');
-  loadComponent('dialog');
+  // コンポーネント読み込み(終了を待つため非同期)
+  await loadComponent('header');
+  await loadComponent('footer');
+  await loadComponent('dialog');
 }
 
 // スピナー表示処理
