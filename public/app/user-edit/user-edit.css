@@ -114,43 +114,6 @@
   opacity: 1;
 }
 
-/* プルダウン */
-/* select全体のスタイル */
-select {
-  width: 100%;
-  max-width: 400px;       /* 必要に応じて調整 */
-  padding: 10px 40px 10px 15px; /* 右に余裕を持たせ矢印が見えるように */
-  font-size: 16px;
-  line-height: 1.4;
-  border: 1.5px solid #ccc;
-  border-radius: 6px;
-  background-color: #fff;
-  appearance: none;      /* ブラウザデフォルトの矢印非表示 */
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  cursor: pointer;
-  transition: border-color 0.3s ease;
-  box-sizing: border-box;
-  background-image: url("data:image/svg+xml,%3Csvg fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  background-size: 16px 16px;
-}
-
-/* フォーカス時の枠線 */
-select:focus {
-  border-color: #007bff;
-  outline: none;
-  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
-}
-
-/* disabled時の見た目 */
-select:disabled {
-  background-color: #eee;
-  color: #999;
-  cursor: not-allowed;
-}
-
 /* form-group内のlabelとselectの間隔調整 */
 .form-group {
   margin-bottom: 1.5em;
