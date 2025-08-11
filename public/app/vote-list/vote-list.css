@@ -69,3 +69,11 @@
 .add-button:hover {
   background-color: #45a049;
 }
+
+.empty-message .vote-link {
+  background-color: #f0f0f0;
+  color: #777;
+  font-size: 14px;
+  text-align: center;
+  box-shadow: none;
+}

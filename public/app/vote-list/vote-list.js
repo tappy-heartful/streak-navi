@@ -4,7 +4,7 @@ import * as utils from '../common/functions.js';
 // 初期表示
 ////////////////////////////
 $(document).ready(async function () {
-  // 初期処理
+  // 初期処理（スピナー表示、投票一覧取得、イベントハンドラ設定、スピナー非表示）
   await utils.initDisplay();
   await loadVotes();
   setupEventHandlers();
@@ -15,86 +15,97 @@ $(document).ready(async function () {
 // 投票一覧読み込み
 ////////////////////////////
 async function loadVotes() {
-  // votes を createdAt 順で取得
+  // FirestoreからvotesコレクションをcreatedAt降順で取得
   const votesRef = utils.collection(utils.db, 'votes');
   const qVotes = utils.query(votesRef, utils.orderBy('createdAt', 'desc'));
   const votesSnap = await utils.getDocs(qVotes);
 
-  // タブごとのUL（jQueryで取得）
-  const $pendingList = $('[data-tab-content="pending"]');
-  const $votedList = $('[data-tab-content="voted"]');
-  const $closedList = $('[data-tab-content="closed"]');
+  // 各タブのリスト要素を取得
+  const pendingList = $('[data-tab-content="pending"]');
+  const votedList = $('[data-tab-content="voted"]');
+  const closedList = $('[data-tab-content="closed"]');
 
-  // 初期化
-  $pendingList.empty();
-  $votedList.empty();
-  $closedList.empty();
+  // リストを初期化
+  pendingList.empty();
+  votedList.empty();
+  closedList.empty();
 
-  // 件数カウンター
-  let pendingCount = 0;
-  let votedCount = 0;
-  let closedCount = 0;
+  // 投票が1件もない場合は空メッセージを表示して終了
+  if (votesSnap.empty) {
+    showEmptyMessage(pendingList);
+    showEmptyMessage(votedList);
+    showEmptyMessage(closedList);
+    return;
+  }
 
+  // 各投票データを処理
   for (const voteDoc of votesSnap.docs) {
     const voteData = voteDoc.data();
     const voteId = voteDoc.id;
 
-    // isActive=false → 終了タブ
+    // isActive=falseの場合は「終了」タブに追加
     if (voteData.isActive === false) {
-      $closedList.append(makeVoteItem(voteId, voteData.name));
-      closedCount++;
+      closedList.append(makeVoteItem(voteId, voteData.name));
       continue;
     }
 
-    // 投票済みか確認
+    // 回答済みかどうかを判定
     const answerId = `${utils.getSession('uid')}_${voteId}`;
     const answerDocRef = utils.doc(utils.db, 'voteAnswers', answerId);
     const answerSnap = await utils.getDoc(answerDocRef);
 
+    // 回答済みなら「投票済み」タブ、未回答なら「未投票」タブに追加
     if (answerSnap.exists()) {
-      $votedList.append(makeVoteItem(voteId, voteData.name));
-      votedCount++;
+      votedList.append(makeVoteItem(voteId, voteData.name));
     } else {
-      $pendingList.append(makeVoteItem(voteId, voteData.name));
-      pendingCount++;
+      pendingList.append(makeVoteItem(voteId, voteData.name));
     }
   }
 
-  // 各タブに該当なしメッセージを追加
-  const noVoteMessage = '<li>💁‍♀️該当の投票はありません</li>';
-  if (pendingCount === 0) {
-    $pendingList.append(noVoteMessage);
-  }
-  if (votedCount === 0) {
-    $votedList.append(noVoteMessage);
-  }
-  if (closedCount === 0) {
-    $closedList.append(noVoteMessage);
-  }
+  // 各タブが空の場合は空メッセージを表示
+  if (!pendingList.children().length) showEmptyMessage(pendingList);
+  if (!votedList.children().length) showEmptyMessage(votedList);
+  if (!closedList.children().length) showEmptyMessage(closedList);
 }
 
 ////////////////////////////
-// 投票アイテム生成
+// 投票リストアイテム生成
 ////////////////////////////
 function makeVoteItem(voteId, name) {
-  return $('<li>').append(
-    $('<a>')
-      .attr('href', `../vote-confirm/vote-confirm.html?voteId=${voteId}`)
-      .addClass('vote-link')
-      .text('📝' + name)
-  );
+  // 投票詳細ページへのリンク付きリストアイテムを生成
+  return $(`
+    <li>
+      <a href="../vote-confirm/vote-confirm.html?voteId=${voteId}" class="vote-link">
+        📝 ${name}
+      </a>
+    </li>
+  `);
 }
 
 ////////////////////////////
-// タブ切り替え処理
+// 空リスト用メッセージ表示
+////////////////////////////
+function showEmptyMessage($list) {
+  // 「該当の投票はありません」メッセージをリストに追加
+  $list.append(`
+    <li class="empty-message">
+      <div class="vote-link" style="text-align:center; color:#777; font-size:14px; background-color:#f0f0f0;">
+        該当の投票はありません💦
+      </div>
+    </li>
+  `);
+}
+
+////////////////////////////
+// タブ切り替えイベント設定
 ////////////////////////////
 function setupEventHandlers() {
+  // タブクリック時の表示切り替え処理
   $('.tab').on('click', function () {
     $('.tab').removeClass('active');
     $('[data-tab-content]').addClass('hidden');
 
     $(this).addClass('active');
-    const target = $(this).data('tab');
-    $(`[data-tab-content="${target}"]`).removeClass('hidden');
+    $(`[data-tab-content="${$(this).data('tab')}"]`).removeClass('hidden');
   });
 }
