@@ -91,4 +91,15 @@ async function loadPendingVotesForAnnouncement() {
       hasPending = true;
     }
   }
+
+  // 未投票がなければ「お知らせはありません🍀」を表示
+  if (!hasPending) {
+    $announcementList.append(`
+      <li class="empty-message">
+        <div class="notification-link">
+          お知らせはありません🍀
+        </div>
+      </li>
+    `);
+  }
 }
