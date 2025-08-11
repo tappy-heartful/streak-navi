@@ -19,6 +19,9 @@
       import * as utils from '../common/functions.js';
 
       (async () => {
+        // スピナー表示
+        utils.showSpinner();
+
         $('#message').append('LINE 認証中...<br>');
 
         const redirectUri = utils.globalBaseUrl + '/app/login/callback.html';
@@ -27,26 +30,22 @@
         const error = utils.globalGetParamError;
 
         if (error) {
-          alert('LINEログインに失敗しました: ' + error);
-          return;
+          throw new Error('LINEログインに失敗しました: ' + error);
         }
 
         if (!code || !state) {
-          alert('無効なLINEログイン応答です');
-          return;
+          throw new Erro('無効なLINEログイン応答です');
         }
 
         // 保存されたstateを取り出して比較（CSRF対策）
         const savedState = utils.getSession('oauthState');
         if (!savedState) {
-          alert(
+          throw new Erro(
             '認証セッションが見つかりません。もう一度ログインしてください。'
           );
-          return;
         }
         if (savedState !== state) {
-          alert('不正なリクエストです（state不一致）。');
-          return;
+          throw new Erro('不正なリクエストです（state不一致）。');
         }
         // 一致したらstateは使い終わったので削除
         utils.removeSession('oauthState');
@@ -159,6 +158,9 @@
             // ログインページへ遷移
             window.location.href = window.location.origin;
           }
+        } finally {
+          // スピナー非表示
+          utils.hideSpinner();
         }
       })();
     </script>
