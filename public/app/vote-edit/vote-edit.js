@@ -22,7 +22,7 @@ $(document).ready(async function () {
 function setupPageMode(mode) {
   const title = document.getElementById('title');
   const pageTitle = document.getElementById('page-title');
-  const submitButton = document.getElementById('submit-button');
+  const submitButton = document.getElementById('answer-button');
 
   switch (mode) {
     case 'new':
@@ -85,7 +85,7 @@ function setupEventHandlers(mode) {
   });
 
   // 登録/更新ボタン
-  $('.submit-button').on('click', function () {
+  $('.answer-button').on('click', function () {
     utils
       .showDialog((mode === 'new' ? '登録' : '更新') + 'しますか？')
       .then((result) => {});
