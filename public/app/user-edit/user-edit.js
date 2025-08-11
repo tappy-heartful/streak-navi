@@ -27,6 +27,7 @@ async function setUpPage() {
     $('#page-title').text('ユーザ登録');
     $('#save-button').text('登録する');
     $('.page-footer').addClass('hidden');
+    $('#init-message').text('ℹ️以下を設定してください');
   }
 
   // ユーザー名
@@ -100,7 +101,7 @@ function setupEventHandlers() {
     };
 
     const dialogResult = await utils.showDialog(
-      'ユーザ情報を' + (isInit ? '登録' : '更新') + 'しますか？'
+      'この内容で' + (isInit ? '登録' : '更新') + 'しますか？'
     );
 
     if (!dialogResult) {
