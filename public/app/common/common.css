@@ -156,7 +156,7 @@ button {
 }
 
 /* カラー別ボタン */
-.answer-button {
+.save-button {
   display: block;
   width: 100%;
   padding: 12px 24px;
@@ -165,7 +165,7 @@ button {
   color: white;
 }
 
-.answer-button:hover {
+.save-button:hover {
   background-color: #45a049;
 }
 

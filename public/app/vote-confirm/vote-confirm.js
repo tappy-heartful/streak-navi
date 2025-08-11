@@ -50,7 +50,7 @@ function setupEventHandlers() {
     });
   });
 
-  $('.answer-button').on('click', function () {
+  $('.save-button').on('click', function () {
     window.location.href = '../vote-answer/vote-answer.html';
   });
 }
