@@ -125,7 +125,7 @@ function setupEventHandlers() {
       // 画面遷移 (初回ログインの場合TOP, それ以外の場合確認画面へ)
       window.location.href =
         isInit === utils.globalStrTrue
-          ? '../top/top.html?firstLogin=1'
+          ? '../top/top.html?isInit=1'
           : '../user-confirm/user-confirm.html?uid=' + utils.globalGetParamUid;
     } catch (e) {
       console.error(e);

@@ -64,7 +64,7 @@ export const globalGetParamState = globalGetparams.get('state');
 export const globalGetParamError = globalGetparams.get('error');
 export const globalGetParamUid = globalGetparams.get('uid');
 export const globalGetParamIsInit = globalGetparams.get('isInit');
-export const globalGetParamFirstLogin = globalGetparams.get('firstLogin');
+export const globalGetParamFromLogin = globalGetparams.get('fromLogin');
 export const globalGetParamMode = globalGetparams.get('mode');
 
 // データをセッションストレージからクリアする関数
