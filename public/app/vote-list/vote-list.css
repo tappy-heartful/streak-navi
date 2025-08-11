@@ -24,17 +24,17 @@
 }
 
 /* リスト */
-.notification-list {
+.vote-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.notification-list li {
+.vote-list li {
   margin-bottom: 15px;
 }
 
-.notification-link {
+.vote-link {
   display: block;
   text-decoration: none;
   color: #333;
@@ -46,7 +46,7 @@
   transition: background-color 0.3s ease;
 }
 
-.notification-link:hover {
+.vote-link:hover {
   background-color: #e0f5e9;
 }
 
