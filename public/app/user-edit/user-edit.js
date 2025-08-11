@@ -27,7 +27,7 @@ async function setUpPage() {
     $('#page-title').text('ユーザ登録');
     $('#save-button').text('登録する');
     $('.page-footer').addClass('hidden');
-    $('#init-message').text('ℹ️以下を設定してください');
+    $('#init-message').text('✅以下を設定してください');
   }
 
   // ユーザー名
