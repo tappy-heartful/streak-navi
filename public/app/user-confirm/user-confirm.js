@@ -141,7 +141,7 @@ function setupEventHandlers() {
 
     // 確認ダイアログ
     const dialogResult = await utils.showDialog(
-      'このユーザを削除してもよろしいですか？\n削除すると元に戻せません。'
+      '⚠️このユーザを削除してもよろしいですか？\n削除すると元に戻せません。'
     );
 
     if (!dialogResult) {
