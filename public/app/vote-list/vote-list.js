@@ -61,7 +61,7 @@ async function loadVotes() {
   }
 
   // 各タブに該当なしメッセージを追加
-  const noVoteMessage = '<li>該当の投票はありません💦</li>';
+  const noVoteMessage = '<li>💁‍♀️該当の投票はありません</li>';
   if (pendingCount === 0) {
     $pendingList.append(noVoteMessage);
   }
