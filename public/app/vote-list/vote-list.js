@@ -51,7 +51,7 @@ async function setUpPage() {
     }
 
     // 回答済みかどうかを判定
-    const answerId = `${utils.getSession('uid')}_${voteId}`;
+    const answerId = `${voteId}_${utils.getSession('uid')}`;
     const answerDocRef = utils.doc(utils.db, 'voteAnswers', answerId);
     const answerSnap = await utils.getDoc(answerDocRef);
 
