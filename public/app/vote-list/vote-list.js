@@ -6,15 +6,16 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   // 初期処理（スピナー表示、投票一覧取得、イベントハンドラ設定、スピナー非表示）
   await utils.initDisplay();
-  await loadVotes();
+  await setUpPage();
   setupEventHandlers();
   utils.hideSpinner();
 });
 
 ////////////////////////////
-// 投票一覧読み込み
+// ページセットアップ処理
 ////////////////////////////
-async function loadVotes() {
+async function setUpPage() {
+  // 投票一覧読み込み
   // FirestoreからvotesコレクションをcreatedAt降順で取得
   const votesRef = utils.collection(utils.db, 'votes');
   const qVotes = utils.query(votesRef, utils.orderBy('createdAt', 'desc'));
@@ -60,6 +61,11 @@ async function loadVotes() {
     } else {
       pendingList.append(makeVoteItem(voteId, voteData.name));
     }
+
+    // 新規作成ボタン制御
+    utils.getSession('voteAdminFlg') === utils.globalStrTrue
+      ? $('#add-button').show()
+      : $('#add-button').hide();
   }
 
   // 各タブが空の場合は空メッセージを表示
