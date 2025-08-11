@@ -22,6 +22,8 @@ export { app, auth, signInWithCustomToken };
 // Firestore
 import {
   getFirestore,
+  query,
+  orderBy,
   doc,
   getDoc,
   getDocs,
@@ -36,6 +38,8 @@ const db = getFirestore();
 export {
   db,
   doc,
+  query,
+  orderBy,
   getDoc,
   getDocs,
   updateDoc,
@@ -180,10 +184,17 @@ export async function initDisplay(isShowSpinner = true) {
     window.location.href = window.location.origin;
   }
 
-  // アカウント有効チェック
+  // アカウント存在チェック
   const userRef = doc(db, 'users', getSession('uid'));
   const userSnap = await getDoc(userRef);
   if (!userSnap.exists()) {
+    // ログインページへ遷移
+    window.location.href = window.location.origin;
+  }
+
+  // ログイン済みチェック
+  const user = auth.currentUser;
+  if (!user) {
     // ログインページへ遷移
     window.location.href = window.location.origin;
   }
