@@ -121,7 +121,7 @@ function setupEventHandlers() {
       // スピナー非表示
       utils.hideSpinner();
 
-      await utils.showDialog((isInit ? '登録' : '更新') + 'しました✅', true);
+      await utils.showDialog((isInit ? '登録' : '更新') + 'しました', true);
 
       // 画面遷移 (初回ログインの場合TOP, それ以外の場合確認画面へ)
       window.location.href =

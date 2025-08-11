@@ -161,7 +161,7 @@ function setupEventHandlers() {
       utils.hideSpinner();
 
       // 他者削除の場合ユーザ一覧、自分削除の場合ログインページへ戻る
-      await utils.showDialog('ユーザを削除しました✅', true);
+      await utils.showDialog('ユーザを削除しました', true);
       window.location.href =
         uid === utils.getSession('uid')
           ? '../login/login.html'
