@@ -149,10 +149,16 @@ function setupEventHandlers() {
       return;
     }
 
+    // スピナー表示
+    utils.showSpinner();
+
     try {
       // Firestoreの該当ユーザを削除
       const userRef = utils.doc(utils.db, 'users', uid);
       await utils.deleteDoc(userRef);
+
+      // スピナー非表示
+      utils.hideSpinner();
 
       // 他者削除の場合ユーザ一覧、自分削除の場合ログインページへ戻る
       await utils.showDialog('ユーザを削除しました', true);
@@ -163,6 +169,9 @@ function setupEventHandlers() {
     } catch (error) {
       console.error('ユーザ削除エラー:', error);
       alert('削除に失敗しました。');
+    } finally {
+      // スピナー非表示
+      utils.hideSpinner();
     }
   });
 }

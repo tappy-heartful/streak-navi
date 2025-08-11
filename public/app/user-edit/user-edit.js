@@ -99,19 +99,27 @@ function setupEventHandlers() {
       roleId: $('#role-select').val(),
     };
 
-    const userRef = utils.doc(utils.db, 'users', uid);
-    try {
-      // showDialogの結果をawaitで受け取る
-      const dialogResult = await utils.showDialog(
-        'ユーザ情報を' + (isInit ? '登録' : '更新') + 'しますか？'
-      );
+    const dialogResult = await utils.showDialog(
+      'ユーザ情報を' + (isInit ? '登録' : '更新') + 'しますか？'
+    );
 
-      if (!dialogResult) {
-        // ユーザがキャンセルしたら処理中断
-        return;
-      }
+    if (!dialogResult) {
+      // ユーザがキャンセルしたら処理中断
+      return;
+    }
+
+    // スピナー表示
+    utils.showSpinner();
+
+    try {
+      const userRef = utils.doc(utils.db, 'users', uid);
+
       // 更新処理
       await utils.updateDoc(userRef, updatedData);
+
+      // スピナー非表示
+      utils.hideSpinner();
+
       await utils.showDialog((isInit ? '登録' : '更新') + 'しました', true);
 
       // 画面遷移 (初回ログインの場合TOP, それ以外の場合確認画面へ)
@@ -122,6 +130,9 @@ function setupEventHandlers() {
     } catch (e) {
       console.error(e);
       alert('更新に失敗しました');
+    } finally {
+      // スピナー非表示
+      utils.hideSpinner();
     }
   });
 
