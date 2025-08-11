@@ -96,7 +96,7 @@ function showEmptyMessage($list) {
   $list.append(`
     <li class="empty-message">
       <div class="vote-link" style="text-align:center; color:#777; font-size:14px; background-color:#f0f0f0;">
-        該当の投票はありません💦
+        該当の投票はありません🍀
       </div>
     </li>
   `);
