@@ -16,11 +16,17 @@ $(document).ready(async function () {
     window.location.href = '../top/top.html';
   });
 
-  // ログアウトボタン制御
+  // メニューボタン制御
   // トグル表示
   $('.header-right').on('click', function (e) {
     e.stopPropagation(); // 外側のクリックイベントを防ぐ
     $('#logout-menu').slideToggle(200);
+  });
+
+  // プロフィールボタンクリック時にユーザ確認画面に遷移
+  $('#profile-button').on('click', function () {
+    window.location.href =
+      '../user-confirm/user-confirm.html?uid=' + utils.getSession('uid');
   });
 
   // ログアウトボタンクリック時にログイン画面へ遷移
