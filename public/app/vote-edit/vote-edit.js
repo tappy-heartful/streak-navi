@@ -128,15 +128,18 @@ function setupEventHandlers(mode) {
             });
 
             // Firestoreに追加
-            await utils.addDoc(utils.collection(utils.db, 'votes'), voteData);
+            const docRef = await utils.addDoc(
+              utils.collection(utils.db, 'votes'),
+              voteData
+            );
 
             // スピナー非表示
             utils.hideSpinner();
 
             await utils.showDialog('登録しました', true);
 
-            // TODO 登録後 確認画面へ
-            // window.location.href = '../vote-confirm/vote-confirm.html?voteId=' + voteData.id;
+            // 登録後 確認画面へ
+            window.location.href = `../vote-confirm/vote-confirm.html?voteId=${docRef.id}`;
           } catch (e) {
             utils.showError('error:', e);
           } finally {
