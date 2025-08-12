@@ -62,7 +62,7 @@ function setupEventHandlers(mode) {
       const index = $choices.find('.choice-wrapper').length + 1;
       const choice = $(`
         <div class="choice-wrapper">
-          <input type="text" class="vote-choice" placeholder="選択肢${index}" />
+          ・<input type="text" class="vote-choice" placeholder="選択肢${index}" />
           <button class="remove-choice">×</button>
         </div>
       `);
@@ -172,11 +172,11 @@ function createVoteItemTemplate() {
       <input type="text" class="vote-item-title" placeholder="項目名（例：演目候補）" />
       <div class="vote-choices">
         <div class="choice-wrapper">
-          <input type="text" class="vote-choice" placeholder="選択肢1" />
+          ・<input type="text" class="vote-choice" placeholder="選択肢1" />
           <button class="remove-choice">×</button>
         </div>
         <div class="choice-wrapper">
-          <input type="text" class="vote-choice" placeholder="選択肢2" />
+          ・<input type="text" class="vote-choice" placeholder="選択肢2" />
           <button class="remove-choice">×</button>
         </div>
       </div>
