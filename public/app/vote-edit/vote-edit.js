@@ -76,8 +76,8 @@ function setupEventHandlers(mode) {
     });
 
   // クリアボタン：初期状態に戻す
-  $('.clear-button').on('click', function () {
-    utils.showDialog('クリアしますか？').then((result) => {
+  $('.clear-button').on('click', async function () {
+    await utils.showDialog('クリアしますか？').then((result) => {
       if (result) {
         restoreInitialState();
       }
@@ -86,6 +86,13 @@ function setupEventHandlers(mode) {
 
   // 登録/更新ボタン
   $('.save-button').on('click', async function () {
+    // 入力チェック
+    if (!validateVoteData()) {
+      utils.showDialog('入力内容を確認してください', true);
+      return;
+    }
+
+    // 確認ダイアログ
     await utils
       .showDialog((mode === 'new' ? '登録' : '更新') + 'しますか？')
       .then(async (result) => {
@@ -94,8 +101,8 @@ function setupEventHandlers(mode) {
         // スピナー表示
         utils.showSpinner();
 
-        if (mode === 'new') {
-          try {
+        try {
+          if (mode === 'new') {
             // 入力データ取得
             const voteData = {
               name: $('#vote-title').val().trim(),
@@ -140,12 +147,12 @@ function setupEventHandlers(mode) {
 
             // 登録後 確認画面へ
             window.location.href = `../vote-confirm/vote-confirm.html?voteId=${docRef.id}`;
-          } catch (e) {
-            utils.showError('error:', e);
-          } finally {
-            // スピナー非表示
-            utils.hideSpinner();
           }
+        } catch (e) {
+          utils.showError('error:', e);
+        } finally {
+          // スピナー非表示
+          utils.hideSpinner();
         }
       });
   });
@@ -191,4 +198,93 @@ function restoreInitialState() {
   $('#vote-description').val(initialStateHtml.description);
   $('#is-open').prop('checked', initialStateHtml.isOpen);
   $('#vote-items-container').html(initialStateHtml.voteItemsHtml);
+}
+
+// 入力チェック関数
+function validateVoteData() {
+  let isValid = true;
+  $('.error-message').remove(); // 前回エラーを消す
+
+  const title = $('#vote-title').val().trim();
+  const description = $('#vote-description').val().trim();
+
+  // 投票名必須
+  if (!title) {
+    $('#vote-title').after(
+      '<div class="error-message" style="color:red;">必須項目です</div>'
+    );
+    isValid = false;
+  }
+
+  // 説明必須
+  if (!description) {
+    $('#vote-description').after(
+      '<div class="error-message" style="color:red;">必須項目です</div>'
+    );
+    isValid = false;
+  }
+
+  // 項目チェック
+  const itemNames = [];
+  let hasItem = false;
+  let itemNamesUnique = true;
+
+  $('#vote-items-container .vote-item').each(function () {
+    const itemName = $(this).find('.vote-item-title').val().trim();
+    if (itemName) {
+      hasItem = true;
+      if (itemNames.includes(itemName)) {
+        $(this)
+          .find('.vote-item-title')
+          .after(
+            '<div class="error-message" style="color:red;">項目名が重複しています</div>'
+          );
+        itemNamesUnique = false;
+      }
+      itemNames.push(itemName);
+    }
+  });
+
+  if (!hasItem) {
+    $('#vote-items-container').before(
+      '<div class="error-message" style="color:red;">項目を1つ以上追加してください</div>'
+    );
+    isValid = false;
+  }
+  if (!itemNamesUnique) isValid = false;
+
+  // 各項目の選択肢チェック
+  $('#vote-items-container .vote-item').each(function () {
+    const choiceNames = [];
+    let hasChoice = false;
+    let choiceUnique = true;
+
+    $(this)
+      .find('.vote-choice')
+      .each(function () {
+        const choiceName = $(this).val().trim();
+        if (choiceName) {
+          hasChoice = true;
+          if (choiceNames.includes(choiceName)) {
+            $(this).after(
+              '<div class="error-message" style="color:red;">選択肢が重複しています</div>'
+            );
+            choiceUnique = false;
+          }
+          choiceNames.push(choiceName);
+        }
+      });
+
+    if (!hasChoice) {
+      $(this)
+        .find('.vote-choices')
+        .after(
+          '<div class="error-message" style="color:red;">選択肢を1つ以上入力してください</div>'
+        );
+      isValid = false;
+    }
+    if (!choiceUnique) isValid = false;
+  });
+
+  return isValid;
 }
