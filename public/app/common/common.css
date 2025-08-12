@@ -138,6 +138,11 @@ input[type="text"], textarea {
   background-color: #ffecec;
 }
 
+.error-message
+{
+  color:red;
+}
+
 /* データ操作ボタン */
 /* ボタン共通 */
 button {

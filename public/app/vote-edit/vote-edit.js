@@ -203,13 +203,17 @@ function restoreInitialState() {
   $('#vote-description').val(initialStateHtml.description);
   $('#is-open').prop('checked', initialStateHtml.isOpen);
   $('#vote-items-container').html(initialStateHtml.voteItemsHtml);
+
+  // エラー状態を解除
+  $('.error-message').remove();
+  $('.error-field').removeClass('error-field');
 }
 
 // 入力チェック関数
 function validateVoteData() {
   let isValid = true;
   $('.error-message').remove();
-  $('.error-field').removeClass('error-field'); // 前回エラー枠を消す
+  $('.error-field').removeClass('error-field'); // 前回のエラー状態クリア
 
   const title = $('#vote-title').val().trim();
   const description = $('#vote-description').val().trim();
@@ -217,7 +221,7 @@ function validateVoteData() {
   // 投票名必須
   if (!title) {
     $('#vote-title')
-      .after('<div class="error-message" style="color:red;">必須項目です</div>')
+      .after('<div class="error-message">必須項目です</div>')
       .addClass('error-field');
     isValid = false;
   }
@@ -225,7 +229,7 @@ function validateVoteData() {
   // 説明必須
   if (!description) {
     $('#vote-description')
-      .after('<div class="error-message" style="color:red;">必須項目です</div>')
+      .after('<div class="error-message">必須項目です</div>')
       .addClass('error-field');
     isValid = false;
   }
@@ -243,18 +247,14 @@ function validateVoteData() {
       hasItem = true;
       if (itemNames.includes(itemName)) {
         $itemInput
-          .after(
-            '<div class="error-message" style="color:red;">項目名が重複しています</div>'
-          )
+          .after('<div class="error-message">項目名が重複しています</div>')
           .addClass('error-field');
         itemNamesUnique = false;
       }
       itemNames.push(itemName);
     } else {
       $itemInput
-        .after(
-          '<div class="error-message" style="color:red;">必須項目です</div>'
-        )
+        .after('<div class="error-message">必須項目です</div>')
         .addClass('error-field');
       isValid = false;
     }
@@ -262,7 +262,7 @@ function validateVoteData() {
 
   if (!hasItem) {
     $('#vote-items-container').before(
-      '<div class="error-message" style="color:red;">項目を1つ以上追加してください</div>'
+      '<div class="error-message">項目を1つ以上追加してください</div>'
     );
     isValid = false;
   }
