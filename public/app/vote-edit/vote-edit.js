@@ -85,10 +85,66 @@ function setupEventHandlers(mode) {
   });
 
   // 登録/更新ボタン
-  $('.save-button').on('click', function () {
-    utils
+  $('.save-button').on('click', async function () {
+    await utils
       .showDialog((mode === 'new' ? '登録' : '更新') + 'しますか？')
-      .then((result) => {});
+      .then(async (result) => {
+        if (!result) return;
+
+        // スピナー表示
+        utils.showSpinner();
+
+        if (mode === 'new') {
+          try {
+            // 入力データ取得
+            const voteData = {
+              name: $('#vote-title').val().trim(),
+              explain: $('#vote-description').val().trim(),
+              isActive: $('#is-open').prop('checked'),
+              createdAt: utils.serverTimestamp(),
+              items: [],
+            };
+
+            // 項目ごとにitemsを作成
+            $('#vote-items-container .vote-item').each(function () {
+              const itemName = $(this).find('.vote-item-title').val().trim();
+              if (!itemName) return;
+
+              const itemObj = {
+                name: itemName,
+                choices: [],
+              };
+
+              // 選択肢
+              $(this)
+                .find('.vote-choice')
+                .each(function () {
+                  const choiceName = $(this).val().trim();
+                  if (!choiceName) return;
+                  itemObj.choices.push({ name: choiceName });
+                });
+
+              voteData.items.push(itemObj);
+            });
+
+            // Firestoreに追加
+            await utils.addDoc(utils.collection(utils.db, 'votes'), voteData);
+
+            // スピナー非表示
+            utils.hideSpinner();
+
+            await utils.showDialog('登録しました', true);
+
+            // TODO 登録後 確認画面へ
+            // window.location.href = '../vote-confirm/vote-confirm.html?voteId=' + voteData.id;
+          } catch (e) {
+            utils.showError('error:', e);
+          } finally {
+            // スピナー非表示
+            utils.hideSpinner();
+          }
+        }
+      });
   });
 }
 
