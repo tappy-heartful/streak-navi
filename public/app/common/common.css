@@ -141,6 +141,7 @@ input[type="text"], textarea {
 .error-message
 {
   color:red;
+  margin-bottom: 10px;
 }
 
 /* データ操作ボタン */

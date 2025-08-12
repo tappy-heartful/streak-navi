@@ -283,11 +283,6 @@ function validateVoteData() {
         if (choiceName) {
           hasChoice = true;
           if (choiceNames.includes(choiceName)) {
-            $choiceInput
-              .after(
-                '<div class="error-message" style="color:red;">選択肢が重複しています</div>'
-              )
-              .addClass('error-field');
             choiceUnique = false;
           }
           choiceNames.push(choiceName);
@@ -298,12 +293,28 @@ function validateVoteData() {
       $(this)
         .find('.vote-choices')
         .after(
-          '<div class="error-message" style="color:red;">選択肢を1つ以上入力してください</div>'
-        )
-        .addClass('error-field');
+          '<div class="error-message">選択肢を1つ以上入力してください</div>'
+        );
+      $(this)
+        .find('.vote-choice')
+        .each(function () {
+          const $choiceInput = $(this);
+          $choiceInput.addClass('error-field');
+        });
       isValid = false;
     }
-    if (!choiceUnique) isValid = false;
+    if (!choiceUnique) {
+      $(this)
+        .find('.vote-choices')
+        .after('<div class="error-message">選択肢が重複しています</div>');
+      $(this)
+        .find('.vote-choice')
+        .each(function () {
+          const $choiceInput = $(this);
+          $choiceInput.addClass('error-field');
+        });
+      isValid = false;
+    }
   });
 
   return isValid;
