@@ -133,6 +133,11 @@ input[type="text"], textarea {
   box-sizing: border-box;
 }
 
+/* エラー */
+.error-field {
+  background-color: #ffecec;
+}
+
 /* データ操作ボタン */
 /* ボタン共通 */
 button {

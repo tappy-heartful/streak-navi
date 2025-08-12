@@ -102,51 +102,56 @@ function setupEventHandlers(mode) {
         utils.showSpinner();
 
         try {
-          if (mode === 'new') {
-            // 入力データ取得
-            const voteData = {
-              name: $('#vote-title').val().trim(),
-              explain: $('#vote-description').val().trim(),
-              isActive: $('#is-open').prop('checked'),
-              createdAt: utils.serverTimestamp(),
-              items: [],
+          // 入力データ取得
+          const voteData = {
+            name: $('#vote-title').val().trim(),
+            explain: $('#vote-description').val().trim(),
+            isActive: $('#is-open').prop('checked'),
+            createdAt: utils.serverTimestamp(),
+            items: [],
+          };
+
+          // 項目ごとにitemsを作成
+          $('#vote-items-container .vote-item').each(function () {
+            const itemName = $(this).find('.vote-item-title').val().trim();
+            if (!itemName) return;
+
+            const itemObj = {
+              name: itemName,
+              choices: [],
             };
 
-            // 項目ごとにitemsを作成
-            $('#vote-items-container .vote-item').each(function () {
-              const itemName = $(this).find('.vote-item-title').val().trim();
-              if (!itemName) return;
+            // 選択肢
+            $(this)
+              .find('.vote-choice')
+              .each(function () {
+                const choiceName = $(this).val().trim();
+                if (!choiceName) return;
+                itemObj.choices.push({ name: choiceName });
+              });
 
-              const itemObj = {
-                name: itemName,
-                choices: [],
-              };
+            voteData.items.push(itemObj);
+          });
 
-              // 選択肢
-              $(this)
-                .find('.vote-choice')
-                .each(function () {
-                  const choiceName = $(this).val().trim();
-                  if (!choiceName) return;
-                  itemObj.choices.push({ name: choiceName });
-                });
-
-              voteData.items.push(itemObj);
-            });
-
-            // Firestoreに追加
+          if (mode === 'new') {
+            // 新規登録
             const docRef = await utils.addDoc(
               utils.collection(utils.db, 'votes'),
               voteData
             );
-
-            // スピナー非表示
             utils.hideSpinner();
-
             await utils.showDialog('登録しました', true);
-
-            // 登録後 確認画面へ
             window.location.href = `../vote-confirm/vote-confirm.html?voteId=${docRef.id}`;
+          } else if (mode === 'edit') {
+            // 更新
+            const voteId = utils.globalGetParamVoteId;
+            await utils.updateDoc(utils.doc(utils.db, 'votes', voteId), {
+              ...voteData,
+              updatedAt: utils.serverTimestamp(),
+            });
+            utils.hideSpinner();
+            await utils.showDialog('更新しました', true);
+            window.location.href = `../vote-confirm/vote-confirm.html?voteId=${voteId}`;
           }
         } catch (e) {
           utils.showError('error:', e);
@@ -203,24 +208,25 @@ function restoreInitialState() {
 // 入力チェック関数
 function validateVoteData() {
   let isValid = true;
-  $('.error-message').remove(); // 前回エラーを消す
+  $('.error-message').remove();
+  $('.error-field').removeClass('error-field'); // 前回エラー枠を消す
 
   const title = $('#vote-title').val().trim();
   const description = $('#vote-description').val().trim();
 
   // 投票名必須
   if (!title) {
-    $('#vote-title').after(
-      '<div class="error-message" style="color:red;">必須項目です</div>'
-    );
+    $('#vote-title')
+      .after('<div class="error-message" style="color:red;">必須項目です</div>')
+      .addClass('error-field');
     isValid = false;
   }
 
   // 説明必須
   if (!description) {
-    $('#vote-description').after(
-      '<div class="error-message" style="color:red;">必須項目です</div>'
-    );
+    $('#vote-description')
+      .after('<div class="error-message" style="color:red;">必須項目です</div>')
+      .addClass('error-field');
     isValid = false;
   }
 
@@ -230,18 +236,27 @@ function validateVoteData() {
   let itemNamesUnique = true;
 
   $('#vote-items-container .vote-item').each(function () {
-    const itemName = $(this).find('.vote-item-title').val().trim();
+    const $itemInput = $(this).find('.vote-item-title');
+    const itemName = $itemInput.val().trim();
+
     if (itemName) {
       hasItem = true;
       if (itemNames.includes(itemName)) {
-        $(this)
-          .find('.vote-item-title')
+        $itemInput
           .after(
             '<div class="error-message" style="color:red;">項目名が重複しています</div>'
-          );
+          )
+          .addClass('error-field');
         itemNamesUnique = false;
       }
       itemNames.push(itemName);
+    } else {
+      $itemInput
+        .after(
+          '<div class="error-message" style="color:red;">必須項目です</div>'
+        )
+        .addClass('error-field');
+      isValid = false;
     }
   });
 
@@ -262,13 +277,17 @@ function validateVoteData() {
     $(this)
       .find('.vote-choice')
       .each(function () {
-        const choiceName = $(this).val().trim();
+        const $choiceInput = $(this);
+        const choiceName = $choiceInput.val().trim();
+
         if (choiceName) {
           hasChoice = true;
           if (choiceNames.includes(choiceName)) {
-            $(this).after(
-              '<div class="error-message" style="color:red;">選択肢が重複しています</div>'
-            );
+            $choiceInput
+              .after(
+                '<div class="error-message" style="color:red;">選択肢が重複しています</div>'
+              )
+              .addClass('error-field');
             choiceUnique = false;
           }
           choiceNames.push(choiceName);
@@ -280,7 +299,8 @@ function validateVoteData() {
         .find('.vote-choices')
         .after(
           '<div class="error-message" style="color:red;">選択肢を1つ以上入力してください</div>'
-        );
+        )
+        .addClass('error-field');
       isValid = false;
     }
     if (!choiceUnique) isValid = false;

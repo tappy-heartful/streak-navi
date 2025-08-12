@@ -70,6 +70,7 @@ export const globalGetParamUid = globalGetparams.get('uid');
 export const globalGetParamIsInit = globalGetparams.get('isInit');
 export const globalGetParamFromLogin = globalGetparams.get('fromLogin');
 export const globalGetParamMode = globalGetparams.get('mode');
+export const globalGetParamVoteId = globalGetparams.get('voteId');
 
 // データをセッションストレージからクリアする関数
 export function removeSession(key) {
