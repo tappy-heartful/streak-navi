@@ -11,20 +11,21 @@ let initialStateHtml; // 初期表示状態の保存用
 $(document).ready(async function () {
   await utils.initDisplay(); // 共通初期化
   const mode = utils.globalGetParamMode; // URLパラメータからモード取得
-  setupPageMode(mode); // モードに応じたUI設定
+  setupPage(mode); // モードに応じたUI設定
+  captureInitialState(); // 現在の状態を保存（クリア用）
   setupEventHandlers(mode); // 各種イベント登録
   utils.hideSpinner(); // スピナー非表示
 });
 
 //==================================
-// ページモードの設定（新規 / 編集）
+// ページの設定
 //==================================
-function setupPageMode(mode) {
+async function setupPage(mode) {
   const pageTitle = $('#page-title');
   const title = $('#title');
   const submitButton = $('#save-button');
 
-  if (mode === 'new') {
+  if (mode === 'new' || mode === 'copy') {
     pageTitle.text('投票新規作成');
     title.text('投票新規作成');
     submitButton.text('登録');
@@ -37,11 +38,60 @@ function setupPageMode(mode) {
     throw new Error('モード不正です');
   }
 
-  // 初期表示項目を1つ追加
-  $('#vote-items-container').append(createVoteItemTemplate());
+  if (mode === 'copy' || mode === 'edit') {
+    // 既存データ取得
+    await loadVoteData(utils.globalGetParamVoteId, mode);
+  } else if (mode === 'new') {
+    // 初期表示で投票項目一つ表示
+    $('#vote-items-container').append(createVoteItemTemplate());
+  }
+}
 
-  // 現在の状態を保存（クリア用）
-  captureInitialState();
+//==================================
+// 投票データ取得＆画面反映
+//==================================
+async function loadVoteData(voteId, mode) {
+  try {
+    const docSnap = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
+    if (!docSnap.exists()) {
+      await utils.showDialog('該当の投票データが見つかりません', true);
+      window.location.href = '../vote-list/vote-list.html';
+      return;
+    }
+    const data = docSnap.data();
+
+    // 投票名・説明・公開状態
+    $('#vote-title').val(data.name);
+    $('#vote-description').val(data.explain);
+    $('#is-open').prop('checked', !!data.isActive);
+
+    // 項目表示
+    $('#vote-items-container').empty();
+    data.items.forEach((item) => {
+      const $item = createVoteItemTemplate();
+      $item.find('.vote-item-title').val(item.name);
+      const $choices = $item.find('.vote-choices').empty();
+      item.choices.forEach((choice, idx) => {
+        $choices.append(`
+          <div class="choice-wrapper">
+            ・<input type="text" class="vote-choice" placeholder="選択肢${
+              idx + 1
+            }" value="${choice.name}" />
+            <button class="remove-choice">×</button>
+          </div>
+        `);
+      });
+      $('#vote-items-container').append($item);
+    });
+
+    // copyモードなら公開状態を初期化
+    if (mode === 'copy') {
+      $('#is-open').prop('checked', false);
+    }
+  } catch (e) {
+    console.error(e);
+    await utils.showDialog('データ取得に失敗しました', true);
+  }
 }
 
 //==================================
