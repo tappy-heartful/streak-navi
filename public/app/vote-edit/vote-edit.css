@@ -12,6 +12,10 @@
   background: #f9f9f9;
 }
 
+.vote-item-title {
+  margin-bottom: 10px;
+}
+
 .vote-choices input {
   margin-bottom: 8px;
 }
