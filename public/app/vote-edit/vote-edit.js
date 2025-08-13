@@ -148,6 +148,8 @@ function setupEventHandlers(mode) {
           utils.collection(utils.db, 'votes'),
           voteData
         );
+
+        utils.hideSpinner();
         await utils.showDialog('登録しました', true);
         window.location.href = `../vote-confirm/vote-confirm.html?voteId=${docRef.id}`;
       } else {
@@ -157,6 +159,7 @@ function setupEventHandlers(mode) {
           ...voteData,
           updatedAt: utils.serverTimestamp(),
         });
+        utils.hideSpinner();
         await utils.showDialog('更新しました', true);
         window.location.href = `../vote-confirm/vote-confirm.html?voteId=${voteId}`;
       }
