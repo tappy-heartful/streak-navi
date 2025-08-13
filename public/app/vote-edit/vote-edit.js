@@ -11,10 +11,15 @@ let initialStateHtml; // 初期表示状態の保存用
 $(document).ready(async function () {
   await utils.initDisplay(); // 共通初期化
   const mode = utils.globalGetParamMode; // URLパラメータからモード取得
-  setupPage(mode); // モードに応じたUI設定
-  captureInitialState(); // 現在の状態を保存（クリア用）
-  setupEventHandlers(mode); // 各種イベント登録
-  utils.hideSpinner(); // スピナー非表示
+
+  // データ取得や初期表示の完了を待つ
+  await setupPage(mode);
+
+  // データ反映後に初期状態を保存
+  captureInitialState();
+
+  setupEventHandlers(mode);
+  utils.hideSpinner();
 });
 
 //==================================
@@ -208,7 +213,19 @@ function captureInitialState() {
     title: $('#vote-title').val(),
     description: $('#vote-description').val(),
     isOpen: $('#is-open').prop('checked'),
-    voteItemsHtml: $('#vote-items-container').html(),
+    items: $('#vote-items-container .vote-item')
+      .map(function () {
+        return {
+          name: $(this).find('.vote-item-title').val(),
+          choices: $(this)
+            .find('.vote-choice')
+            .map(function () {
+              return $(this).val();
+            })
+            .get(),
+        };
+      })
+      .get(),
   };
 }
 
@@ -216,7 +233,21 @@ function restoreInitialState() {
   $('#vote-title').val(initialStateHtml.title);
   $('#vote-description').val(initialStateHtml.description);
   $('#is-open').prop('checked', initialStateHtml.isOpen);
-  $('#vote-items-container').html(initialStateHtml.voteItemsHtml);
+
+  $('#vote-items-container').empty();
+  initialStateHtml.items.forEach((item) => {
+    const $item = createVoteItemTemplate();
+    $item.find('.vote-item-title').val(item.name);
+
+    const $choices = $item.find('.vote-choices').empty();
+    item.choices.forEach((choice, idx) => {
+      $choices.append(choiceTemplate(idx + 1));
+      $choices.find('.vote-choice').last().val(choice);
+    });
+
+    $('#vote-items-container').append($item);
+  });
+
   clearErrors();
 }
 
