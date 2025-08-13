@@ -66,7 +66,7 @@ async function loadVoteData(voteId, mode) {
     const data = docSnap.data();
 
     // 投票名・説明・公開状態
-    $('#vote-title').val(data.name);
+    $('#vote-title').val(data.name + (mode === 'copy' ? '（コピー）' : ''));
     $('#vote-description').val(data.explain);
     $('#is-open').prop('checked', !!data.isActive);
 
