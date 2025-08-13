@@ -131,7 +131,7 @@ function setupEventHandlers(mode) {
     // 確認ダイアログ
     if (
       !(await utils.showDialog(
-        (mode === 'new' ? '登録' : '更新') + 'しますか？'
+        (['new', 'copy'].includes(mode) ? '登録' : '更新') + 'しますか？'
       ))
     )
       return;
@@ -142,7 +142,7 @@ function setupEventHandlers(mode) {
       // 入力データ取得
       const voteData = collectVoteData();
 
-      if (mode === 'new') {
+      if (['new', 'copy'].includes(mode)) {
         // 新規登録
         const docRef = await utils.addDoc(
           utils.collection(utils.db, 'votes'),
