@@ -156,7 +156,7 @@ button {
 .confirm-buttons {
   display: flex;
   gap: 15px;
-  margin-top: 30px;
+  margin-top: 10px;
   justify-content: space-between;
 }
 
