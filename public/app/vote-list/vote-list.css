@@ -44,6 +44,19 @@
   font-size: 16px;
   box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.05);
   transition: background-color 0.3s ease;
+  cursor: pointer; /* クリックできることを示す */
+  position: relative;
+}
+
+.vote-link::after {
+  content: "›"; /* 矢印アイコン */
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+  color: #999;
+  transition: transform 0.2s ease;
 }
 
 .vote-link:hover {
