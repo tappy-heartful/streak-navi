@@ -85,7 +85,7 @@ async function loadPendingVotesForAnnouncement() {
       $announcementList.append(`
         <li>
           <a href="../vote-confirm/vote-confirm.html?voteId=${voteId}" class="notification-link">
-            📝 ${voteData.name}
+            📝${voteData.name}
           </a>
         </li>
       `);

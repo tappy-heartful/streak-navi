@@ -82,7 +82,7 @@ function makeVoteItem(voteId, name) {
   return $(`
     <li>
       <a href="../vote-confirm/vote-confirm.html?voteId=${voteId}" class="vote-link">
-        📝 ${name}
+        📝${name}
       </a>
     </li>
   `);
