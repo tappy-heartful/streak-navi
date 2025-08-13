@@ -1,11 +1,28 @@
+// vote-answer.js
 import * as utils from '../common/functions.js';
+
 $(document).ready(async function () {
   const mode = utils.globalGetParamMode;
+  const voteId = utils.globalGetParamVoteId;
+  const uid = utils.getSession('uid');
+
   await utils.initDisplay();
+
   setupPageMode(mode);
-  renderVote();
-  setupEventHandlers(mode);
-  // スピナー非表示
+
+  // 投票データ取得
+  const voteData = await fetchVoteData(voteId);
+
+  // 回答データ取得（editモード時のみ）
+  let answerData = {};
+  if (mode === 'edit') {
+    answerData = (await fetchAnswerData(voteId, uid)) || {};
+  }
+
+  renderVote(voteData, answerData);
+
+  setupEventHandlers(mode, voteId, uid);
+
   utils.hideSpinner();
 });
 
@@ -17,39 +34,53 @@ function setupPageMode(mode) {
   $('#answer-submit').text(buttonText);
 }
 
-function renderVote() {
-  // 仮データ
-  const voteData = {
-    title: '2026年3月 曲投票',
-    description: 'ラテンと4beatの曲投票です。',
-    isOpen: true,
-    items: [
-      {
-        title: 'ラテン',
-        choices: ['Alianza', 'Obatala', 'Caraban'],
-      },
-      {
-        title: '4beat',
-        choices: ['Hay Burner', 'Tall Cotton', 'Queen Bee'],
-      },
-    ],
-  };
+async function fetchVoteData(voteId) {
+  try {
+    const voteDoc = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
+    if (!voteDoc.exists()) {
+      await utils.showDialog('該当する投票が見つかりません', true);
+      throw new Error('Vote not found');
+    }
+    return voteDoc.data();
+  } catch (e) {
+    console.error(e);
+    await utils.showDialog('投票データの取得に失敗しました', true);
+    throw e;
+  }
+}
 
-  $('#vote-title').text(voteData.title);
-  $('#vote-description').text(voteData.description);
+async function fetchAnswerData(voteId, uid) {
+  try {
+    const ansDoc = await utils.getDoc(
+      utils.doc(utils.db, 'voteAnswers', `${voteId}_${uid}`)
+    );
+    if (ansDoc.exists()) {
+      return ansDoc.data().answers;
+    }
+    return null;
+  } catch (e) {
+    console.error(e);
+    await utils.showDialog('回答データの取得に失敗しました', true);
+    return null;
+  }
+}
 
-  const container = $('#vote-items-container');
-  container.empty();
+function renderVote(voteData, answerData = {}) {
+  $('#vote-title').text(voteData.name);
+  $('#vote-description').text(voteData.explain);
+
+  const container = $('#vote-items-container').empty();
 
   voteData.items.forEach((item, index) => {
     const groupName = `question-${index}`;
     const choicesHtml = item.choices
       .map((choice, i) => {
         const choiceId = `${groupName}-choice-${i}`;
+        const checked = answerData[item.name] === choice.name ? 'checked' : '';
         return `
           <label class="vote-choice-label" for="${choiceId}">
-            <input type="radio" name="${groupName}" id="${choiceId}" value="${choice}" />
-            ${choice}
+            <input type="radio" name="${groupName}" id="${choiceId}" value="${choice.name}" ${checked}/>
+            ${choice.name}
           </label>
         `;
       })
@@ -57,7 +88,7 @@ function renderVote() {
 
     const itemHtml = $(`
       <div class="vote-item">
-        <div class="vote-item-title">${item.title}</div>
+        <div class="vote-item-title">${item.name}</div>
         <div class="vote-choices">${choicesHtml}</div>
       </div>
     `);
@@ -65,25 +96,48 @@ function renderVote() {
   });
 }
 
-function setupEventHandlers(mode) {
-  $('#answer-submit').on('click', function () {
+function setupEventHandlers(mode, voteId, uid) {
+  $('#answer-submit').on('click', async function () {
     const answers = {};
 
-    $('.vote-item').each(function (index) {
+    $('.vote-item').each(function () {
       const questionTitle = $(this).find('.vote-item-title').text();
       const selected = $(this).find('input[type="radio"]:checked').val();
       answers[questionTitle] = selected || null;
     });
 
-    console.log('選択結果:', answers);
+    const confirmed = await utils.showDialog(
+      `回答を${mode === 'edit' ? '修正' : '登録'}しますか？`
+    );
+    if (!confirmed) return;
 
-    // 今後ここでAPI送信などに接続可能
-    utils
-      .showDialog(`回答を${mode === 'edit' ? '修正' : '登録'}しますか？`)
-      .then((result) => {
-        if (result) {
-          alert(`回答を${mode === 'edit' ? '修正' : '登録'}しました（仮）`);
-        }
-      });
+    try {
+      // スピナー表示
+      utils.showSpinner();
+
+      await utils.setDoc(
+        utils.doc(utils.db, 'voteAnswers', `${voteId}_${uid}`),
+        {
+          voteId,
+          uid,
+          answers,
+          updatedAt: utils.serverTimestamp(),
+        },
+        { merge: true }
+      );
+
+      // スピナー非表示
+      utils.hideSpinner();
+
+      await utils.showDialog(
+        `回答を${mode === 'edit' ? '修正' : '登録'}しました`,
+        true
+      );
+      window.location.href =
+        '../vote-confirm/vote-confirm.html?voteId=' + voteId;
+    } catch (e) {
+      console.error(e);
+      await utils.showDialog('回答の保存に失敗しました', true);
+    }
   });
 }
