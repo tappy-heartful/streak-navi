@@ -29,15 +29,23 @@ async function setupPage(mode) {
   const pageTitle = $('#page-title');
   const title = $('#title');
   const submitButton = $('#save-button');
+  const backLink = $('.back-link');
 
-  if (mode === 'new' || mode === 'copy') {
+  if (mode === 'new') {
     pageTitle.text('投票新規作成');
     title.text('投票新規作成');
     submitButton.text('登録');
+    backLink.text('← 投票一覧に戻る');
+  } else if (mode === 'copy') {
+    pageTitle.text('投票新規作成');
+    title.text('投票新規作成');
+    submitButton.text('登録');
+    backLink.text('← 投票確認に戻る');
   } else if (mode === 'edit') {
     pageTitle.text('投票編集');
     title.text('投票編集');
     submitButton.text('更新');
+    backLink.text('← 投票確認に戻る');
   } else {
     pageTitle.text('投票管理');
     throw new Error('モード不正です');
@@ -173,6 +181,13 @@ function setupEventHandlers(mode) {
     } finally {
       utils.hideSpinner();
     }
+  });
+
+  // 確認/一覧画面に戻る
+  $(document).on('click', '.back-link', function (e) {
+    window.location.href = ['edit', 'copy'].includes(mode)
+      ? `../vote-confirm/vote-confirm.html?voteId=${utils.globalGetParamVoteId}`
+      : '../vote-list/vote-list.html';
   });
 }
 

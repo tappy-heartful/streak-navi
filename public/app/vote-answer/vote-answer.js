@@ -142,4 +142,9 @@ function setupEventHandlers(mode, voteId, uid) {
       await utils.showDialog('回答の保存に失敗しました', true);
     }
   });
+
+  // 確認画面に戻る
+  $(document).on('click', '.back-link', function (e) {
+    window.location.href = '../vote-confirm/vote-confirm.html?voteId=' + voteId;
+  });
 }
