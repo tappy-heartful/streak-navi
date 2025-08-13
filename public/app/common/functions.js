@@ -60,6 +60,7 @@ export const globalClientId = '2007808275';
 export const globalBaseUrl = window.location.origin;
 export const globalStrTrue = 'true';
 export const globalStrFalse = 'false';
+export const globalStrUnset = '99';
 
 // GETパラメータたち
 export const globalGetparams = new URLSearchParams(window.location.search);
