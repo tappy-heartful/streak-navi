@@ -1,23 +1,25 @@
-// vote-answer.js
 import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
-  const mode = utils.globalGetParamMode;
   const voteId = utils.globalGetParamVoteId;
   const uid = utils.getSession('uid');
 
   await utils.initDisplay();
+
+  // 回答データがあるか確認してモード判定
+  let mode = 'new';
+  let answerData = await fetchAnswerData(voteId, uid);
+  if (answerData) {
+    mode = 'edit';
+  }
 
   setupPageMode(mode);
 
   // 投票データ取得
   const voteData = await fetchVoteData(voteId);
 
-  // 回答データ取得（editモード時のみ）
-  let answerData = {};
-  if (mode === 'edit') {
-    answerData = (await fetchAnswerData(voteId, uid)) || {};
-  }
+  // 回答データがなければ空オブジェクト
+  answerData = answerData || {};
 
   renderVote(voteData, answerData);
 
