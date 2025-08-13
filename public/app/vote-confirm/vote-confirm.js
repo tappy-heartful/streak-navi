@@ -3,7 +3,6 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   await utils.initDisplay();
   await renderVote();
-  setupEventHandlers();
   utils.hideSpinner();
 });
 
@@ -42,6 +41,9 @@ async function renderVote() {
       // 一般向け表示
       renderGeneralView(voteData.items, container);
     }
+
+    // ボタン制御をセットアップ
+    setupEventHandlers(voteId, isAdmin, voteData.isActive);
   } catch (e) {
     console.error(e);
     utils.showError('投票データ取得に失敗しました', e);
@@ -65,9 +67,7 @@ async function getVoteResults(voteId, items) {
     utils.collection(utils.db, 'voteAnswers')
   );
   answersSnap.forEach((doc) => {
-    const docId = doc.id;
-    if (!docId.startsWith(voteId + '_')) return;
-
+    if (!doc.id.startsWith(voteId + '_')) return;
     const answerData = doc.data();
     answerData.items.forEach((itemAns) => {
       const itemTitle = itemAns.name;
@@ -142,19 +142,65 @@ function renderAdminView(items, voteResults, container) {
 }
 
 ////////////////////////////
-// イベント
+// イベント & 表示制御
 ////////////////////////////
-function setupEventHandlers() {
-  $('.delete-button').on('click', function () {
-    utils.showDialog('削除しますか？').then((result) => {
-      if (result) {
-        alert('削除処理（未実装）');
+function setupEventHandlers(voteId, isAdmin, isOpen) {
+  // --- 表示制御 ---
+  if (!isOpen) $('.save-button').hide(); // 回答するボタンは受付中のみ
+  if (!isAdmin) {
+    // 管理者のみ表示
+    $('.delete-button').hide();
+    $('.edit-button').hide();
+    $('.copy-button').hide();
+  }
+
+  // --- 回答する ---
+  $('.save-button')
+    .off('click')
+    .on('click', function () {
+      window.location.href = `../vote-answer/vote-answer.html?voteId=${voteId}`;
+    });
+
+  // --- 削除する ---
+  $('.delete-button')
+    .off('click')
+    .on('click', async function () {
+      const confirmed = await utils.showDialog('投票と回答を削除しますか？');
+      if (!confirmed) return;
+
+      try {
+        // 投票削除
+        await utils.deleteDoc(utils.doc(utils.db, 'votes', voteId));
+
+        // 関連回答削除
+        const answersSnap = await utils.getDocs(
+          utils.collection(utils.db, 'voteAnswers')
+        );
+        for (const doc of answersSnap.docs) {
+          if (doc.id.startsWith(voteId + '_')) {
+            await utils.deleteDoc(utils.doc(utils.db, 'voteAnswers', doc.id));
+          }
+        }
+
+        await utils.showDialog('削除しました', true);
+        window.location.href = '../vote-list/vote-list.html';
+      } catch (err) {
+        console.error(err);
+        await utils.showDialog('削除しました', true);
       }
     });
-  });
 
-  $('.save-button').on('click', function () {
-    window.location.href =
-      '../vote-answer/vote-answer.html?voteId=' + utils.globalGetParamVoteId;
-  });
+  // --- 編集する ---
+  $('.edit-button')
+    .off('click')
+    .on('click', function () {
+      window.location.href = `../vote-edit/vote-edit.html?mode=edit&voteId=${voteId}`;
+    });
+
+  // --- コピーする ---
+  $('.copy-button')
+    .off('click')
+    .on('click', function () {
+      window.location.href = `../vote-edit/vote-edit.html?mode=copy&voteId=${voteId}`;
+    });
 }
