@@ -164,8 +164,20 @@ function setupEventHandlers(voteId, isAdmin, isOpen) {
   $('.delete-button')
     .off('click')
     .on('click', async function () {
-      const confirmed = await utils.showDialog('投票と回答を削除しますか？');
+      const confirmed = await utils.showDialog(
+        '投票と回答を削除しますか？\nこの操作は元に戻せません'
+      );
       if (!confirmed) return;
+
+      // 削除のためもう一度確認
+      const dialogResultAgain = await utils.showDialog(
+        '本当によろしいですね？'
+      );
+
+      if (!dialogResultAgain) {
+        // ユーザがキャンセルしたら処理中断
+        return;
+      }
 
       try {
         // スピナー表示
