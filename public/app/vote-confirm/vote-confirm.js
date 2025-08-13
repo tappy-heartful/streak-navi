@@ -169,6 +169,9 @@ function setupEventHandlers(voteId, isAdmin, isOpen) {
       if (!confirmed) return;
 
       try {
+        // スピナー表示
+        utils.showSpinner();
+
         // 投票削除
         await utils.deleteDoc(utils.doc(utils.db, 'votes', voteId));
 
@@ -181,6 +184,9 @@ function setupEventHandlers(voteId, isAdmin, isOpen) {
             await utils.deleteDoc(utils.doc(utils.db, 'voteAnswers', doc.id));
           }
         }
+
+        // スピナー表示
+        utils.hideSpinner();
 
         await utils.showDialog('削除しました', true);
         window.location.href = '../vote-list/vote-list.html';
