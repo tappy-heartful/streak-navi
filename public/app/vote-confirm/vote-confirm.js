@@ -66,19 +66,18 @@ async function getVoteResults(voteId, items) {
   const answersSnap = await utils.getDocs(
     utils.collection(utils.db, 'voteAnswers')
   );
+
   answersSnap.forEach((doc) => {
     if (!doc.id.startsWith(voteId + '_')) return;
     const answerData = doc.data();
-    answerData.items.forEach((itemAns) => {
-      const itemTitle = itemAns.name;
-      itemAns.choices.forEach((choiceName) => {
-        if (
-          results[itemTitle] &&
-          results[itemTitle][choiceName] !== undefined
-        ) {
-          results[itemTitle][choiceName] += 1;
-        }
-      });
+
+    if (!answerData.answers) return; // 回答データなし
+
+    // answers オブジェクト形式に対応
+    Object.entries(answerData.answers).forEach(([itemTitle, choiceName]) => {
+      if (results[itemTitle] && results[itemTitle][choiceName] !== undefined) {
+        results[itemTitle][choiceName] += 1;
+      }
     });
   });
 
