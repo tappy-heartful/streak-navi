@@ -83,11 +83,6 @@ async function loadVoteData(voteId, mode) {
       });
       $('#vote-items-container').append($item);
     });
-
-    // copyモードなら公開状態を初期化
-    if (mode === 'copy') {
-      $('#is-open').prop('checked', false);
-    }
   } catch (e) {
     console.error(e);
     await utils.showDialog('データ取得に失敗しました', true);
