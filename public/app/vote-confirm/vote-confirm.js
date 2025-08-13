@@ -34,7 +34,7 @@ async function renderVote() {
     if (isAdmin) {
       const voteResults = await getVoteResults(voteId, voteData.items);
       container.append(
-        '<div class="section-label">※以下情報は投票管理者のみ閲覧できます</div>'
+        '<div class="section-label">※投票結果は投票管理者のみ閲覧できます</div>'
       );
       renderAdminView(voteData.items, voteResults, container);
     } else {
