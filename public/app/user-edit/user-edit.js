@@ -27,7 +27,7 @@ async function setUpPage() {
     $('#page-title').text('ユーザ登録');
     $('#save-button').text('登録する');
     $('.page-footer').addClass('hidden');
-    $('#init-message').text('✅以下を設定してください');
+    $('#init-message').text('以下を設定してください');
   }
 
   // ユーザー名
@@ -121,10 +121,7 @@ function setupEventHandlers() {
       // スピナー非表示
       utils.hideSpinner();
 
-      await utils.showDialog(
-        '✅' + (isInit ? '登録' : '更新') + 'しました',
-        true
-      );
+      await utils.showDialog((isInit ? '登録' : '更新') + 'しました', true);
 
       // 画面遷移 (初回ログインの場合TOP, それ以外の場合確認画面へ)
       window.location.href =
