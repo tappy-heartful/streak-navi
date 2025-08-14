@@ -56,19 +56,17 @@ async function setUpPage() {
     userData.pictureUrl || '../../images/favicon.png'
   );
 
-  // 管理フラグ表示
-  if (userData.userAdminFlg) {
-    $('#is-user-admin-label').html(
-      `<label class="label-title">✅ユーザ管理者</label>
-      <span class="tooltip-icon" data-tooltip="ユーザ管理者はユーザの権限編集・削除ができます。">？</span>`
+  // 管理者権限(管理者権限がある場合のみ表示)
+  let adminList = [];
+  if (userData.userAdminFlg) adminList.push('ユーザ管理者');
+  if (userData.voteAdminFlg) adminList.push('投票管理者');
+  if (adminList.length > 0) {
+    $('label:contains("管理者権限")').html(
+      `管理者権限：${adminList.join('、')}
+       <span class="tooltip-icon" data-tooltip="管理者はデータ操作ができます。" >？</span>`
     );
-  }
-
-  if (userData.voteAdminFlg) {
-    $('#is-vote-admin-label').html(
-      `<label class="label-title">✅投票管理者</label>
-    <span class="tooltip-icon" data-tooltip="投票管理者は投票内容の作成・編集・公開ができます。">？</span>`
-    );
+  } else {
+    $('label:contains("管理者権限")').remove();
   }
 
   // パート・役職

@@ -37,16 +37,16 @@ async function setUpPage() {
     userData.pictureUrl || '../../images/favicon.png'
   );
 
-  // 管理者権限はラベル表示
-  if (userData.userAdminFlg) {
-    $('#is-user-admin-label').html(
-      `<label class="label-title">✅ユーザ管理者</label>`
+  // 管理者権限
+  let adminList = [];
+  if (userData.userAdminFlg) adminList.push('ユーザ管理者');
+  if (userData.voteAdminFlg) adminList.push('投票管理者');
+  if (adminList.length > 0) {
+    $('label:contains("管理者権限")').html(
+      `管理者権限：${adminList.join('、')}`
     );
-  }
-  if (userData.voteAdminFlg) {
-    $('#is-vote-admin-label').html(
-      `<label class="label-title">✅投票管理者</label>`
-    );
+  } else {
+    $('label:contains("管理者権限")').remove();
   }
 
   // パートと役職をプルダウンに反映
