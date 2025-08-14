@@ -148,7 +148,7 @@ function setupEventHandlers() {
     }
 
     // 削除のためもう一度確認
-    const dialogResultAgain = await utils.showDialog('本当によろしいですね？');
+    const dialogResultAgain = await utils.showDialog('本当に削除しますか？');
 
     if (!dialogResultAgain) {
       // ユーザがキャンセルしたら処理中断

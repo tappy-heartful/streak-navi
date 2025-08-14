@@ -147,9 +147,7 @@ function setupEventHandlers(voteId, isAdmin, isOpen) {
       );
       if (!confirmed) return;
 
-      const dialogResultAgain = await utils.showDialog(
-        '本当によろしいですね？'
-      );
+      const dialogResultAgain = await utils.showDialog('本当に削除しますか？');
       if (!dialogResultAgain) return;
 
       try {
