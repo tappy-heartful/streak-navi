@@ -101,7 +101,7 @@ function renderView(items, voteResults, container, myAnswer, myProfileUrl) {
 
         return `
           <div class="result-bar ${isMyChoice ? 'my-choice' : ''}">
-            <div class="label">${iconHtml ?? '・'}${choice.name}</div>
+            <div class="label">${iconHtml}${choice.name}</div>
             <div class="bar-container">
               <div class="bar" style="width: ${percent}%"></div>
             </div>
