@@ -1,18 +1,25 @@
-import * as utils from '../common/functions.js';
-
-export function showDialog(message, isconfirm = false) {
+export function showDialog(message, isConfirm = false) {
   return new Promise((resolve) => {
     const overlay = document.getElementById('custom-dialog');
     const msg = document.getElementById('dialog-message');
     const okBtn = document.getElementById('dialog-ok');
     const cancelBtn = document.getElementById('dialog-cancel');
 
+    // メッセージ更新
     msg.textContent = message;
-    overlay.classList.remove('hidden');
-    if (isconfirm) {
+
+    // ボタン表示を毎回リセット
+    if (isConfirm) {
       okBtn.textContent = 'OK';
       cancelBtn.classList.add('hidden');
+    } else {
+      okBtn.textContent = 'はい';
+      cancelBtn.textContent = 'いいえ';
+      cancelBtn.classList.remove('hidden');
     }
+
+    // オーバーレイ表示
+    overlay.classList.remove('hidden');
 
     const cleanup = () => {
       overlay.classList.add('hidden');
