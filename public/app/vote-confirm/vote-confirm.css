@@ -69,3 +69,15 @@
   border-bottom: 1px solid #ccc;
   padding-bottom: 4px;
 }
+
+.my-choice-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 4px;
+}
+.my-choice .label {
+  font-weight: bold;
+  color: #FF9800; /* 任意で強調色 */
+}

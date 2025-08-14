@@ -13,6 +13,8 @@ async function renderVote() {
   try {
     const voteId = utils.globalGetParamVoteId;
     const isAdmin = utils.getSession('voteAdminFlg') === utils.globalStrTrue;
+    const uid = utils.getSession('uid');
+    const myProfileUrl = utils.getSession('pictureUrl') || ''; // LINEプロフィール画像URL
 
     // votes から投票情報を取得
     const voteSnap = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
@@ -23,6 +25,12 @@ async function renderVote() {
     }
     const voteData = voteSnap.data();
 
+    // voteAnswers から自分の回答取得
+    const myAnswerData = await utils.getDoc(
+      utils.doc(utils.db, 'voteAnswers', `${voteId}_${uid}`)
+    );
+    const myAnswer = myAnswerData?.data()?.answers || {};
+
     // 画面に反映
     $('#vote-title').text(voteData.name);
     $('#vote-description').text(voteData.explain);
@@ -32,7 +40,7 @@ async function renderVote() {
 
     // 集計結果表示
     const voteResults = await getVoteResults(voteId, voteData.items);
-    renderView(voteData.items, voteResults, container);
+    renderView(voteData.items, voteResults, container, myAnswer, myProfileUrl);
 
     // ボタン制御をセットアップ
     setupEventHandlers(voteId, isAdmin, voteData.isActive);
@@ -54,7 +62,6 @@ async function getVoteResults(voteId, items) {
     });
   });
 
-  // voteAnswers は [投票ID]_[uid] がドキュメントID
   const answersSnap = await utils.getDocs(
     utils.collection(utils.db, 'voteAnswers')
   );
@@ -62,10 +69,8 @@ async function getVoteResults(voteId, items) {
   answersSnap.forEach((doc) => {
     if (!doc.id.startsWith(voteId + '_')) return;
     const answerData = doc.data();
+    if (!answerData.answers) return;
 
-    if (!answerData.answers) return; // 回答データなし
-
-    // answers オブジェクト形式に対応
     Object.entries(answerData.answers).forEach(([itemTitle, choiceName]) => {
       if (results[itemTitle] && results[itemTitle][choiceName] !== undefined) {
         results[itemTitle][choiceName] += 1;
@@ -79,7 +84,7 @@ async function getVoteResults(voteId, items) {
 ////////////////////////////
 // 投票結果表示
 ////////////////////////////
-function renderView(items, voteResults, container) {
+function renderView(items, voteResults, container, myAnswer, myProfileUrl) {
   items.forEach((item) => {
     const results = voteResults[item.name] || {};
     const maxVotes = Math.max(...Object.values(results), 1);
@@ -88,10 +93,15 @@ function renderView(items, voteResults, container) {
       .map((choice) => {
         const count = results[choice.name] ?? 0;
         const percent = (count / maxVotes) * 100;
+        const isMyChoice = myAnswer[item.name] === choice.name;
+
+        const iconHtml = isMyChoice
+          ? `<img src="${myProfileUrl}" alt="あなたの選択" class="my-choice-icon"/>`
+          : '';
 
         return `
-          <div class="result-bar">
-            <div class="label">・${choice.name}</div>
+          <div class="result-bar ${isMyChoice ? 'my-choice' : ''}">
+            <div class="label">${iconHtml ?? '・'}${choice.name}</div>
             <div class="bar-container">
               <div class="bar" style="width: ${percent}%"></div>
             </div>
@@ -116,23 +126,19 @@ function renderView(items, voteResults, container) {
 // イベント & 表示制御
 ////////////////////////////
 function setupEventHandlers(voteId, isAdmin, isOpen) {
-  // --- 表示制御 ---
-  if (!isOpen) $('.save-button').hide(); // 回答するボタンは受付中のみ
+  if (!isOpen) $('.save-button').hide();
   if (!isAdmin) {
-    // 管理者のみ表示
     $('.delete-button').hide();
     $('.edit-button').hide();
     $('.copy-button').hide();
   }
 
-  // --- 回答する ---
   $('.save-button')
     .off('click')
     .on('click', function () {
       window.location.href = `../vote-answer/vote-answer.html?voteId=${voteId}`;
     });
 
-  // --- 削除する ---
   $('.delete-button')
     .off('click')
     .on('click', async function () {
@@ -141,24 +147,15 @@ function setupEventHandlers(voteId, isAdmin, isOpen) {
       );
       if (!confirmed) return;
 
-      // 削除のためもう一度確認
       const dialogResultAgain = await utils.showDialog(
         '本当によろしいですね？'
       );
-
-      if (!dialogResultAgain) {
-        // ユーザがキャンセルしたら処理中断
-        return;
-      }
+      if (!dialogResultAgain) return;
 
       try {
-        // スピナー表示
         utils.showSpinner();
-
-        // 投票削除
         await utils.deleteDoc(utils.doc(utils.db, 'votes', voteId));
 
-        // 関連回答削除
         const answersSnap = await utils.getDocs(
           utils.collection(utils.db, 'voteAnswers')
         );
@@ -168,9 +165,7 @@ function setupEventHandlers(voteId, isAdmin, isOpen) {
           }
         }
 
-        // スピナー表示
         utils.hideSpinner();
-
         await utils.showDialog('削除しました', true);
         window.location.href = '../vote-list/vote-list.html';
       } catch (err) {
@@ -179,14 +174,12 @@ function setupEventHandlers(voteId, isAdmin, isOpen) {
       }
     });
 
-  // --- 編集する ---
   $('.edit-button')
     .off('click')
     .on('click', function () {
       window.location.href = `../vote-edit/vote-edit.html?mode=edit&voteId=${voteId}`;
     });
 
-  // --- コピーする ---
   $('.copy-button')
     .off('click')
     .on('click', function () {
