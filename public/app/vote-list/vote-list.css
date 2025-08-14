@@ -18,30 +18,29 @@
 }
 
 .vote-link {
-  display: block;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 14px 18px;
   border-radius: 8px;
   background-color: #f9f9f9;
   font-size: 16px;
   box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.05);
   transition: background-color 0.3s ease;
-  cursor: pointer; /* クリックできることを示す */
-  position: relative;
-}
-
-.vote-link::after {
-  content: "›"; /* 矢印アイコン */
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 20px;
-  color: #999;
-  transition: transform 0.2s ease;
+  text-decoration: none;
+  color: inherit;
 }
 
 .vote-link:hover {
   background-color: #e0f5e9;
+}
+
+.vote-status {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 2px 8px;
+  border-radius: 12px;
+  white-space: nowrap;
 }
 
 .vote-link.empty {
@@ -50,6 +49,21 @@
   background-color: #f0f0f0;
   box-shadow: none;
   font-size: 14px;
+}
+
+.vote-status.pending {
+  background-color: #ffeb3b;
+  color: #555;
+}
+
+.vote-status.voted {
+  background-color: #4caf50;
+  color: #fff;
+}
+
+.vote-status.closed {
+  background-color: #e0e0e0;
+  color: #777;
 }
 
 /* 追加ボタン（カード内） */

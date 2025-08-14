@@ -9,17 +9,6 @@ $(document).ready(async function () {
 async function setUpPage() {
   const $list = $('#vote-list').empty();
 
-  // セクション作成
-  const $pendingSection = $('<div class="vote-section"></div>').append(
-    '<h2 class="section-title">📌未投票</h2>'
-  );
-  const $votedSection = $('<div class="vote-section"></div>').append(
-    '<h2 class="section-title">✅投票済</h2>'
-  );
-  const $closedSection = $('<div class="vote-section"></div>').append(
-    '<h2 class="section-title">⏳終了</h2>'
-  );
-
   const votesRef = utils.collection(utils.db, 'votes');
   const qVotes = utils.query(votesRef, utils.orderBy('createdAt', 'desc'));
   const votesSnap = await utils.getDocs(qVotes);
@@ -29,41 +18,61 @@ async function setUpPage() {
     return;
   }
 
+  // 各ステータスごとの配列に振り分け
+  const pendingItems = [];
+  const votedItems = [];
+  const closedItems = [];
+
   for (const voteDoc of votesSnap.docs) {
     const voteData = voteDoc.data();
     const voteId = voteDoc.id;
-    const $item = makeVoteItem(voteId, voteData.name);
+
+    let status = '';
+    let statusClass = '';
 
     if (voteData.isActive === false) {
-      $closedSection.append($item);
+      status = '終了';
+      statusClass = 'closed';
+      closedItems.push(
+        makeVoteItem(voteId, voteData.name, status, statusClass)
+      );
     } else {
       const answerId = `${voteId}_${utils.getSession('uid')}`;
       const answerDocRef = utils.doc(utils.db, 'voteAnswers', answerId);
       const answerSnap = await utils.getDoc(answerDocRef);
 
       if (answerSnap.exists()) {
-        $votedSection.append($item);
+        status = '投票済';
+        statusClass = 'voted';
+        votedItems.push(
+          makeVoteItem(voteId, voteData.name, status, statusClass)
+        );
       } else {
-        $pendingSection.append($item);
+        status = '未投票';
+        statusClass = 'pending';
+        pendingItems.push(
+          makeVoteItem(voteId, voteData.name, status, statusClass)
+        );
       }
     }
   }
 
-  // 各セクションが空でなければ追加
-  if ($pendingSection.find('li').length) $list.append($pendingSection);
-  if ($votedSection.find('li').length) $list.append($votedSection);
-  if ($closedSection.find('li').length) $list.append($closedSection);
+  // 表示順: 未投票 → 投票済 → 終了
+  pendingItems.forEach((item) => $list.append(item));
+  votedItems.forEach((item) => $list.append(item));
+  closedItems.forEach((item) => $list.append(item));
 
   utils.getSession('voteAdminFlg') === utils.globalStrTrue
     ? $('#add-button').show()
     : $('#add-button').hide();
 }
 
-function makeVoteItem(voteId, name) {
+function makeVoteItem(voteId, name, status, statusClass) {
   return $(`
     <li>
       <a href="../vote-confirm/vote-confirm.html?voteId=${voteId}" class="vote-link">
-        📝${name}
+        📝 ${name}
+        <span class="vote-status ${statusClass}">${status}</span>
       </a>
     </li>
   `);
