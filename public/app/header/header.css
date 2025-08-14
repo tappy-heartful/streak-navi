@@ -48,11 +48,12 @@
   white-space: nowrap;
   margin-bottom: 6px;
   border: none;
-  background-color: #eee;
+  background-color: #4CAF50;
+  color: white;
 }
 
 .side-menu button:hover {
-  background-color: #ddd;
+  background-color: #45a049;
 }
 
 .header-left {
@@ -104,20 +105,20 @@
   border: none;
 }
 
-.profile-btn {
+.profile-button {
   background-color: #2196f3;
   color: white;
 }
 
-.profile-btn:hover {
+.profile-button:hover {
   background-color: #1976d2;
 }
 
-#logout-button {
+.logout-button {
   background-color: #f44336;
   color: white;
 }
 
-#logout-button:hover {
+.logout-button:hover {
   background-color: #d32f2f;
 }
