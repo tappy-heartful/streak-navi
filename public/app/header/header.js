@@ -10,14 +10,32 @@ $(document).ready(async function () {
   $('#header-line-icon').attr('src', lineIconPath);
   $('#header-line-name').text(lineAccountName);
 
-  // バンドアイコンボタン制御
-  // TOPへ遷移
+  // 管理者なら新規作成ボタン表示
+  if (utils.getSession('voteAdminFlg') === utils.globalStrTrue) {
+    $('#menu-vote-new').show();
+  }
+
+  // --- 左ロゴクリックでサイドメニュー表示 ---
   $('.header-left').on('click', function (e) {
-    window.location.href = '../top/top.html';
+    e.stopPropagation();
+    $('#side-menu').slideToggle(200);
   });
 
-  // メニューボタン制御
-  // トグル表示
+  // サイドメニュー項目クリック
+  $('#menu-top').on('click', function () {
+    window.location.href = '../top/top.html';
+  });
+  $('#menu-vote-list').on('click', function () {
+    window.location.href = '../vote-list/vote-list.html';
+  });
+  $('#menu-vote-new').on('click', function () {
+    window.location.href = '../vote-edit/vote-edit.html?mode=new';
+  });
+  $('#menu-user-list').on('click', function () {
+    window.location.href = '../user-list/user-list.html';
+  });
+
+  // --- 右側メニュー制御 ---
   $('.header-right').on('click', function (e) {
     e.stopPropagation(); // 外側のクリックイベントを防ぐ
     $('#logout-menu').slideToggle(200);
@@ -38,5 +56,6 @@ $(document).ready(async function () {
   // 外部クリックで閉じる
   $(document).on('click', function () {
     $('#logout-menu').slideUp(200);
+    $('#side-menu').slideUp(200);
   });
 });
