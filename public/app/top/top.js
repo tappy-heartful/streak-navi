@@ -25,9 +25,9 @@ $(document).ready(async function () {
 
     // 挨拶メッセージ
     const greetingMessage = isInit
-      ? 'ようこそ🌸'
+      ? 'はじめまして🌸'
       : fromLogin
-      ? getGreetingMessage()
+      ? 'おかえりなさい🎵'
       : '';
     $('#greeting-message').text(greetingMessage);
 
@@ -48,15 +48,6 @@ $(document).ready(async function () {
     }, 2000);
   }
 });
-
-// 挨拶メッセージを取得する関数
-function getGreetingMessage() {
-  const now = new Date();
-  const hour = now.getHours();
-  if (hour >= 5 && hour < 11) return 'おはようございます🌄';
-  if (hour >= 11 && hour < 17) return 'こんにちは🎵';
-  return 'こんばんは🌙';
-}
 
 // 未投票の投票を取得して「お知らせ」に表示
 async function loadPendingVotesForAnnouncement() {
