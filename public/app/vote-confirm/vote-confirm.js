@@ -30,17 +30,9 @@ async function renderVote() {
 
     const container = $('#vote-items-container').empty();
 
-    // 管理者向け表示
-    if (isAdmin) {
-      const voteResults = await getVoteResults(voteId, voteData.items);
-      container.append(
-        '<div class="section-label">※投票結果は投票管理者のみ閲覧できます</div>'
-      );
-      renderAdminView(voteData.items, voteResults, container);
-    } else {
-      // 一般向け表示
-      renderGeneralView(voteData.items, container);
-    }
+    // 集計結果表示
+    const voteResults = await getVoteResults(voteId, voteData.items);
+    renderView(voteData.items, voteResults, container);
 
     // ボタン制御をセットアップ
     setupEventHandlers(voteId, isAdmin, voteData.isActive);
@@ -85,29 +77,9 @@ async function getVoteResults(voteId, items) {
 }
 
 ////////////////////////////
-// 一般向け表示
+// 投票結果表示
 ////////////////////////////
-function renderGeneralView(items, container) {
-  items.forEach((item) => {
-    const choicesHtml = item.choices
-      .map((choice) => `<div class="vote-choice">・${choice.name}</div>`)
-      .join('');
-
-    const html = `
-      <div class="vote-item">
-        <div class="vote-item-title">${item.name}</div>
-        <div class="vote-choices">${choicesHtml}</div>
-      </div>
-    `;
-
-    container.append(html);
-  });
-}
-
-////////////////////////////
-// 管理者向け表示
-////////////////////////////
-function renderAdminView(items, voteResults, container) {
+function renderView(items, voteResults, container) {
   items.forEach((item) => {
     const results = voteResults[item.name] || {};
     const maxVotes = Math.max(...Object.values(results), 1);
