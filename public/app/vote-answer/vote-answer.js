@@ -115,10 +115,6 @@ function setupEventHandlers(mode, voteId, uid) {
     });
 
     if (firstErrorItem) {
-      $('html, body').animate(
-        { scrollTop: firstErrorItem.offset().top - 50 },
-        200
-      );
       await utils.showDialog(
         `「${firstErrorItem
           .find('.vote-item-title')
