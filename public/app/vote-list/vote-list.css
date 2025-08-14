@@ -1,29 +1,3 @@
-/* タブ */
-.tabs {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  margin-bottom: 20px;
-  flex-wrap: wrap;
-}
-
-.tab {
-  padding: 10px 20px;
-  border: 1px solid #4CAF50;
-  background-color: #fff;
-  color: #4CAF50;
-  border-radius: 20px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.2s ease;
-}
-
-.tab.active {
-  background-color: #4CAF50;
-  color: #fff;
-}
-
-/* リスト */
 .vote-list {
   list-style: none;
   padding: 0;
@@ -59,6 +33,14 @@
 
 .vote-link:hover {
   background-color: #e0f5e9;
+}
+
+.vote-link.empty {
+  text-align: center;
+  color: #777;
+  background-color: #f0f0f0;
+  box-shadow: none;
+  font-size: 14px;
 }
 
 /* 追加ボタン（カード内） */
