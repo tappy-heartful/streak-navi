@@ -17,7 +17,7 @@ async function setUpPage() {
     '<h2 class="section-title">✅投票済</h2>'
   );
   const $closedSection = $('<div class="vote-section"></div>').append(
-    '<h2 class="section-title">⏳期間外</h2>'
+    '<h2 class="section-title">⏳終了</h2>'
   );
 
   const votesRef = utils.collection(utils.db, 'votes');

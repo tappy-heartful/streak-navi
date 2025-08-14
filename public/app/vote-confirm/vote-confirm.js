@@ -26,7 +26,7 @@ async function renderVote() {
     // 画面に反映
     $('#vote-title').text(voteData.name);
     $('#vote-description').text(voteData.explain);
-    $('#vote-status').text(voteData.isActive ? '受付中' : '期間外');
+    $('#vote-status').text(voteData.isActive ? '受付中' : '終了');
 
     const container = $('#vote-items-container').empty();
 
