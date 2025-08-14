@@ -101,12 +101,32 @@ function renderVote(voteData, answerData = {}) {
 function setupEventHandlers(mode, voteId, uid) {
   $('#answer-submit').on('click', async function () {
     const answers = {};
+    let firstErrorItem = null;
 
     $('.vote-item').each(function () {
       const questionTitle = $(this).find('.vote-item-title').text();
       const selected = $(this).find('input[type="radio"]:checked').val();
       answers[questionTitle] = selected || null;
+
+      // 未回答の場合、最初の要素を保持
+      if (!selected && !firstErrorItem) {
+        firstErrorItem = $(this);
+      }
     });
+
+    if (firstErrorItem) {
+      $('html, body').animate(
+        { scrollTop: firstErrorItem.offset().top - 50 },
+        200
+      );
+      await utils.showDialog(
+        `「${firstErrorItem
+          .find('.vote-item-title')
+          .text()}」の回答を選択してください。`,
+        true
+      );
+      return; // ここで送信処理中断
+    }
 
     const confirmed = await utils.showDialog(
       `回答を${mode === 'edit' ? '修正' : '登録'}しますか？`
@@ -114,7 +134,6 @@ function setupEventHandlers(mode, voteId, uid) {
     if (!confirmed) return;
 
     try {
-      // スピナー表示
       utils.showSpinner();
 
       await utils.setDoc(
@@ -128,9 +147,7 @@ function setupEventHandlers(mode, voteId, uid) {
         { merge: true }
       );
 
-      // スピナー非表示
       utils.hideSpinner();
-
       await utils.showDialog(
         `回答を${mode === 'edit' ? '修正' : '登録'}しました`,
         true
@@ -143,8 +160,7 @@ function setupEventHandlers(mode, voteId, uid) {
     }
   });
 
-  // 確認画面に戻る
-  $(document).on('click', '.back-link', function (e) {
+  $(document).on('click', '.back-link', function () {
     window.location.href = '../vote-confirm/vote-confirm.html?voteId=' + voteId;
   });
 }
