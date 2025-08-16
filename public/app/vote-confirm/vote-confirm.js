@@ -175,6 +175,12 @@ function setupEventHandlers(voteId, isAdmin, isOpen) {
           }
         }
 
+        // ログ登録
+        await utils.writeLog({
+          dataId: voteId,
+          action: '削除',
+        });
+
         utils.hideSpinner();
         await utils.showDialog('削除しました', true);
         window.location.href = '../vote-list/vote-list.html';

@@ -174,6 +174,12 @@ function setupEventHandlers() {
       const userRef = utils.doc(utils.db, 'users', uid);
       await utils.deleteDoc(userRef);
 
+      // ログ登録
+      await utils.writeLog({
+        dataId: uid,
+        action: '削除',
+      });
+
       // スピナー非表示
       utils.hideSpinner();
 

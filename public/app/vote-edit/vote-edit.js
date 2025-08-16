@@ -9,17 +9,29 @@ let initialStateHtml; // 初期表示状態の保存用
 // 初期化処理（ページ読込時）
 //==================================
 $(document).ready(async function () {
-  await utils.initDisplay(); // 共通初期化
-  const mode = utils.globalGetParamMode; // URLパラメータからモード取得
+  try {
+    await utils.initDisplay(); // 共通初期化
+    const mode = utils.globalGetParamMode; // URLパラメータからモード取得
 
-  // データ取得や初期表示の完了を待つ
-  await setupPage(mode);
+    // データ取得や初期表示の完了を待つ
+    await setupPage(mode);
 
-  // データ反映後に初期状態を保存
-  captureInitialState();
+    // データ反映後に初期状態を保存
+    captureInitialState();
 
-  setupEventHandlers(mode);
-  utils.hideSpinner();
+    setupEventHandlers(mode);
+  } catch (e) {
+    // ログ登録
+    await utils.writeLog({
+      dataId: utils.globalGetParamVoteId,
+      action: '初期表示',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+  } finally {
+    // スピナー非表示
+    utils.hideSpinner();
+  }
 });
 
 //==================================
@@ -164,6 +176,12 @@ function setupEventHandlers(mode) {
 
         utils.hideSpinner();
         await utils.showDialog('登録しました', true);
+
+        // ログ登録
+        await utils.writeLog({
+          dataId: voteId,
+          action: '登録',
+        });
         window.location.href = `../vote-confirm/vote-confirm.html?voteId=${docRef.id}`;
       } else {
         // 更新
@@ -172,13 +190,26 @@ function setupEventHandlers(mode) {
           ...voteData,
           updatedAt: utils.serverTimestamp(),
         });
+
+        // ログ登録
+        await utils.writeLog({
+          dataId: voteId,
+          action: '更新',
+        });
         utils.hideSpinner();
         await utils.showDialog('更新しました', true);
         window.location.href = `../vote-confirm/vote-confirm.html?voteId=${voteId}`;
       }
     } catch (e) {
-      utils.showError('error:', e);
+      // ログ登録
+      await utils.writeLog({
+        dataId: utils.globalGetParamVoteId,
+        action: ['new', 'copy'].includes(mode) ? '登録' : '更新',
+        status: 'error',
+        errorDetail: { message: e.message, stack: e.stack },
+      });
     } finally {
+      // スピナー非表示
       utils.hideSpinner();
     }
   });

@@ -1,9 +1,21 @@
 import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
-  await utils.initDisplay();
-  await setUpPage();
-  utils.hideSpinner();
+  try {
+    await utils.initDisplay();
+    await setUpPage();
+  } catch (e) {
+    // ログ登録
+    await utils.writeLog({
+      dataId: 'none',
+      action: '初期表示',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+  } finally {
+    // スピナー非表示
+    utils.hideSpinner();
+  }
 });
 
 async function setUpPage() {

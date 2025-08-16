@@ -142,6 +142,12 @@ function setupEventHandlers(mode, voteId, uid) {
         { merge: true }
       );
 
+      // ログ登録
+      await utils.writeLog({
+        dataId: utils.globalGetParamUid,
+        action: mode === 'edit' ? '修正' : '登録',
+      });
+
       utils.hideSpinner();
       await utils.showDialog(
         `回答を${mode === 'edit' ? '修正' : '登録'}しました`,

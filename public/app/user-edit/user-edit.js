@@ -128,6 +128,12 @@ function setupEventHandlers() {
       // 更新処理
       await utils.updateDoc(userRef, updatedData);
 
+      // ログ登録
+      await utils.writeLog({
+        dataId: utils.globalGetParamUid,
+        action: isInit ? '登録' : '更新',
+      });
+
       // スピナー非表示
       utils.hideSpinner();
 
