@@ -78,6 +78,10 @@ async function loadVoteData(voteId, mode) {
     $('#vote-description').val(data.explain);
     $('#is-open').prop('checked', !!data.isActive);
 
+    // 複数回答許可・匿名投票
+    $('#allow-multiple').prop('checked', !!data.allowMultiple);
+    $('#anonymous').prop('checked', !!data.anonymous);
+
     // 項目表示
     $('#vote-items-container').empty();
     data.items.forEach((item) => {
@@ -228,6 +232,8 @@ function captureInitialState() {
     title: $('#vote-title').val(),
     description: $('#vote-description').val(),
     isOpen: $('#is-open').prop('checked'),
+    allowMultiple: $('#allow-multiple').prop('checked'),
+    anonymous: $('#anonymous').prop('checked'),
     items: $('#vote-items-container .vote-item')
       .map(function () {
         return {
@@ -248,7 +254,10 @@ function restoreInitialState() {
   $('#vote-title').val(initialStateHtml.title);
   $('#vote-description').val(initialStateHtml.description);
   $('#is-open').prop('checked', initialStateHtml.isOpen);
+  $('#allow-multiple').prop('checked', initialStateHtml.allowMultiple);
+  $('#anonymous').prop('checked', initialStateHtml.anonymous);
 
+  // 項目復元処理はそのまま
   $('#vote-items-container').empty();
   initialStateHtml.items.forEach((item) => {
     const $item = createVoteItemTemplate();
@@ -274,6 +283,8 @@ function collectVoteData() {
     name: $('#vote-title').val().trim(),
     explain: $('#vote-description').val().trim(),
     isActive: $('#is-open').prop('checked'),
+    allowMultiple: $('#allow-multiple').prop('checked'), // 追加
+    anonymous: $('#anonymous').prop('checked'), // 追加
     createdAt: utils.serverTimestamp(),
     items: [],
   };
