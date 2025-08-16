@@ -73,6 +73,9 @@ export const globalGetParamFromLogin = globalGetparams.get('fromLogin');
 export const globalGetParamMode = globalGetparams.get('mode');
 export const globalGetParamVoteId = globalGetparams.get('voteId');
 
+// 画面名
+export const globalScreenName = document.title || 'Streak Navi';
+
 // データをセッションストレージからクリアする関数
 export function removeSession(key) {
   sessionStorage.removeItem(globalAppName + '.' + key);
@@ -228,4 +231,46 @@ export async function showSpinner() {
 // スピナー非表示処理
 export async function hideSpinner() {
   $('#spinner-overlay')?.hide();
+}
+
+// ログ
+export async function writeLog({
+  dataId,
+  action,
+  status = 'success',
+  errorDetail = {},
+}) {
+  try {
+    const uid = getSession('uid') || 'unknown';
+    // 正常/異常ログ登録
+    await setDoc(doc(db, 'logs', `${Date.now()}_${uid}`), {
+      uid,
+      screen: globalScreenName,
+      action,
+      dataId,
+      status, // "success" or "error"
+      errorDetail,
+      createdAt: serverTimestamp(),
+    });
+    // エラーの場合
+    if (status === 'error')
+      errorHandler(errorDetail.message || 'Unknown error');
+  } catch (e) {
+    errorHandler(e.message || 'Unknown error');
+  }
+}
+
+// エラーハンドラ
+export function errorHandler(error) {
+  // スピナー非表示
+  utils.hideSpinner();
+  console.error('Error:', error);
+  if (
+    confirm(
+      `エラーが発生しました: ${error.message}\nログイン画面に戻りますか？`
+    )
+  ) {
+    // ログインページへ遷移
+    window.location.href = window.location.origin;
+  }
 }

@@ -19,41 +19,41 @@
       import * as utils from '../common/functions.js';
 
       (async () => {
-        // スピナー表示
-        utils.showSpinner();
-
-        $('#message').append('LINE 認証中...<br>');
-
-        const redirectUri = utils.globalBaseUrl + '/app/login/callback.html';
-        const code = utils.globalGetParamCode;
-        const state = utils.globalGetParamState;
-        const error = utils.globalGetParamError;
-
-        if (error) {
-          throw new Error('LINEログインに失敗しました: ' + error);
-        }
-
-        if (!code || !state) {
-          throw new Error('無効なLINEログイン応答です');
-        }
-
-        // 保存されたstateを取り出して比較（CSRF対策）
-        const savedState = utils.getSession('oauthState');
-        if (!savedState) {
-          throw new Error(
-            '認証セッションが見つかりません。もう一度ログインしてください。'
-          );
-        }
-        if (savedState !== state) {
-          throw new Error('不正なリクエストです（state不一致）。');
-        }
-        // 一致したらstateは使い終わったので削除
-        utils.removeSession('oauthState');
-
-        // メッセージ表示
-        $('#message').append('✅成功<br><br>');
-
         try {
+          // スピナー表示
+          utils.showSpinner();
+
+          $('#message').append('LINE 認証中...<br>');
+
+          const redirectUri = utils.globalBaseUrl + '/app/login/callback.html';
+          const code = utils.globalGetParamCode;
+          const state = utils.globalGetParamState;
+          const error = utils.globalGetParamError;
+
+          if (error) {
+            throw new Error('LINEログインに失敗しました: ' + error);
+          }
+
+          if (!code || !state) {
+            throw new Error('無効なLINEログイン応答です');
+          }
+
+          // 保存されたstateを取り出して比較（CSRF対策）
+          const savedState = utils.getSession('oauthState');
+          if (!savedState) {
+            throw new Error(
+              '認証セッションが見つかりません。もう一度ログインしてください。'
+            );
+          }
+          if (savedState !== state) {
+            throw new Error('不正なリクエストです（state不一致）。');
+          }
+          // 一致したらstateは使い終わったので削除
+          utils.removeSession('oauthState');
+
+          // メッセージ表示
+          $('#message').append('✅成功<br><br>');
+
           $('#message').append(
             'LINE プロフィール情報・カスタムトークン取得中...<br>'
           );
@@ -143,21 +143,28 @@
           // ✅ ログイン成功
           $('#message').append('<br>✅All Processes OK (〜￣▽￣)〜');
 
+          // ログ登録
+          await utils.writeLog({
+            dataId: user.uid,
+            action: 'ログイン完了',
+          });
+
           // TOPまたは同意画面へ遷移
           window.location.href =
             utils.globalBaseUrl +
             (userExists
               ? '/app/top/top.html?fromLogin=1'
               : '/app/login/consent.html');
-        } catch (err) {
-          console.error('エラー:', err);
-          $('#message').append('エラー: ' + err.message);
-          if (
-            confirm('ログイン処理に失敗しました\nログイン画面に戻りますか？')
-          ) {
-            // ログインページへ遷移
-            window.location.href = window.location.origin;
-          }
+        } catch (e) {
+          $('#message').append('エラー: ' + e.message);
+
+          // ログ登録
+          await utils.writeLog({
+            dataId: user.uid,
+            action: 'ログイン完了',
+            status: 'error',
+            errorDetail: { message: e.message, stack: e.stack },
+          });
         } finally {
           // スピナー非表示
           utils.hideSpinner();
