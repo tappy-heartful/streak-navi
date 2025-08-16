@@ -5,8 +5,11 @@ $(document).ready(async function () {
     await utils.initDisplay();
     await setUpPage();
     setupEventHandlers();
-    // スピナー非表示
-    utils.hideSpinner();
+    // ログ登録
+    await utils.writeLog({
+      dataId: utils.globalGetParamUid,
+      action: '初期表示',
+    });
   } catch (e) {
     // ログ登録
     await utils.writeLog({
@@ -15,6 +18,9 @@ $(document).ready(async function () {
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
     });
+  } finally {
+    // スピナー非表示
+    utils.hideSpinner();
   }
 });
 

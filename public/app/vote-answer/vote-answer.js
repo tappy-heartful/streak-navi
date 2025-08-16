@@ -25,6 +25,12 @@ $(document).ready(async function () {
     renderVote(voteData, answerData);
 
     setupEventHandlers(mode, voteId, uid);
+
+    // ログ登録
+    await utils.writeLog({
+      dataId: utils.globalGetParamVoteId,
+      action: '初期表示',
+    });
   } catch (e) {
     // ログ登録
     await utils.writeLog({

@@ -20,6 +20,12 @@ $(document).ready(async function () {
     captureInitialState();
 
     setupEventHandlers(mode);
+
+    // ログ登録
+    await utils.writeLog({
+      dataId: utils.globalGetParamVoteId,
+      action: '初期表示',
+    });
   } catch (e) {
     // ログ登録
     await utils.writeLog({
@@ -169,14 +175,14 @@ function setupEventHandlers(mode) {
           voteData
         );
 
-        utils.hideSpinner();
-        await utils.showDialog('登録しました', true);
-
         // ログ登録
         await utils.writeLog({
           dataId: voteId,
           action: '登録',
         });
+        utils.hideSpinner();
+        await utils.showDialog('登録しました', true);
+
         window.location.href = `../vote-confirm/vote-confirm.html?voteId=${docRef.id}`;
       } else {
         // 更新

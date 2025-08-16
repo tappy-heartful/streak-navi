@@ -87,6 +87,11 @@ $(document).ready(async function () {
       $sectionContainer.append($sectionTitle).append($sectionList);
       $list.append($sectionContainer);
     }
+    // ログ登録
+    await utils.writeLog({
+      dataId: 'none',
+      action: '初期表示',
+    });
   } catch (e) {
     // ログ登録
     await utils.writeLog({
