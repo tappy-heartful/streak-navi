@@ -87,10 +87,16 @@ $(document).ready(async function () {
       $sectionContainer.append($sectionTitle).append($sectionList);
       $list.append($sectionContainer);
     }
-  } catch (error) {
-    console.error('ユーザーの取得に失敗しました:', error);
-    $list.append('<li>ユーザーの取得に失敗しました</li>');
+  } catch (e) {
+    // ログ登録
+    await utils.writeLog({
+      dataId: 'none',
+      action: '初期表示',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+  } finally {
+    // スピナー非表示
+    utils.hideSpinner();
   }
-  // スピナー非表示
-  utils.hideSpinner();
 });

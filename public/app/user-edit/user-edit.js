@@ -1,11 +1,21 @@
 import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
-  await utils.initDisplay();
-  await setUpPage();
-  setupEventHandlers();
-  // スピナー非表示
-  utils.hideSpinner();
+  try {
+    await utils.initDisplay();
+    await setUpPage();
+    setupEventHandlers();
+    // スピナー非表示
+    utils.hideSpinner();
+  } catch (e) {
+    // ログ登録
+    await utils.writeLog({
+      dataId: utils.globalGetParamUid,
+      action: '初期表示',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+  }
 });
 
 async function setUpPage() {
@@ -129,8 +139,13 @@ function setupEventHandlers() {
           ? '../top/top.html?isInit=1'
           : '../user-confirm/user-confirm.html?uid=' + utils.globalGetParamUid;
     } catch (e) {
-      console.error(e);
-      alert('更新に失敗しました');
+      // ログ登録
+      await utils.writeLog({
+        dataId: utils.globalGetParamUid,
+        action: isInit ? '登録' : '更新',
+        status: 'error',
+        errorDetail: { message: e.message, stack: e.stack },
+      });
     } finally {
       // スピナー非表示
       utils.hideSpinner();
