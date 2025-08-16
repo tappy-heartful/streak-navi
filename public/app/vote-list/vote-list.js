@@ -7,7 +7,7 @@ $(document).ready(async function () {
 
     // ログ登録
     await utils.writeLog({
-      dataId: utils.globalGetParamVoteId,
+      dataId: 'none',
       action: '初期表示',
     });
   } catch (e) {
