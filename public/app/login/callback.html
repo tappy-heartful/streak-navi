@@ -143,12 +143,6 @@
           // ✅ ログイン成功
           $('#message').append('<br>✅All Processes OK (〜￣▽￣)〜');
 
-          // ログ登録
-          await utils.writeLog({
-            dataId: 'none',
-            action: 'ログイン',
-          });
-
           // TOPまたは同意画面へ遷移
           window.location.href =
             utils.globalBaseUrl +
