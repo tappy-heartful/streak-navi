@@ -144,7 +144,7 @@ function setupEventHandlers(mode, voteId, uid) {
 
       // ログ登録
       await utils.writeLog({
-        dataId: utils.globalGetParamUid,
+        dataId: utils.globalGetParamVoteId,
         action: mode === 'edit' ? '修正' : '登録',
       });
 
