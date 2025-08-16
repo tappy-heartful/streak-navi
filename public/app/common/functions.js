@@ -233,6 +233,13 @@ export async function hideSpinner() {
   $('#spinner-overlay')?.hide();
 }
 
+// 日付フォーマット関数
+export function formatDateTime(ts) {
+  if (!ts) return '';
+  const date = ts.toDate ? ts.toDate() : ts;
+  return date.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
+}
+
 // ログ
 export async function writeLog({
   dataId,
@@ -242,19 +249,21 @@ export async function writeLog({
 }) {
   try {
     const uid = getSession('uid') || 'unknown';
-    // 正常/異常ログ登録
-    await setDoc(doc(db, 'logs', `${Date.now()}_${uid}`), {
+    const id = `${formatDateForId()}_${uid}`; // ← ここで使う
+
+    await setDoc(doc(db, 'logs', id), {
       uid,
       screen: globalScreenName,
       action,
       dataId,
       status, // "success" or "error"
       errorDetail,
-      createdAt: serverTimestamp(),
+      createdAt: serverTimestamp(), // Firestoreサーバ時刻
     });
     // エラーの場合
-    if (status === 'error')
+    if (status === 'error') {
       errorHandler(errorDetail.message || 'Unknown error');
+    }
   } catch (e) {
     errorHandler(e.message || 'Unknown error');
   }
@@ -273,4 +282,18 @@ export function errorHandler(error) {
     // ログインページへ遷移
     window.location.href = window.location.origin;
   }
+}
+
+// 日時を "yyyyMMdd_HHmmss" に整形する関数
+function formatDateForId(date = new Date()) {
+  const pad = (n) => n.toString().padStart(2, '0');
+  return (
+    date.getFullYear().toString() +
+    pad(date.getMonth() + 1) +
+    pad(date.getDate()) +
+    '_' +
+    pad(date.getHours()) +
+    pad(date.getMinutes()) +
+    pad(date.getSeconds())
+  );
 }

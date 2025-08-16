@@ -1,11 +1,21 @@
 import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
-  await utils.initDisplay();
-  await setUpPage();
-  setupEventHandlers();
-  // スピナー非表示
-  utils.hideSpinner();
+  try {
+    await utils.initDisplay();
+    await setUpPage();
+    setupEventHandlers();
+    // スピナー非表示
+    utils.hideSpinner();
+  } catch (e) {
+    // ログ登録
+    await utils.writeLog({
+      dataId: utils.globalGetParamUid,
+      action: '初期表示',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+  }
 });
 
 async function setUpPage() {
@@ -85,11 +95,11 @@ async function setUpPage() {
   if (isAdmin || isSelf) {
     // 日付とUID表示
     $('label:contains("アカウント作成日時")').html(
-      `アカウント作成日時：${formatDateTime(userData.createdAt)}
+      `アカウント作成日時：${utils.formatDateTime(userData.createdAt)}
       <span class="tooltip-icon" data-tooltip="このユーザが初めて登録された日時です。">？</span>`
     );
     $('label:contains("最終ログイン日時")').html(
-      `最終ログイン日時：${formatDateTime(userData.lastLoginAt)}
+      `最終ログイン日時：${utils.formatDateTime(userData.lastLoginAt)}
       <span class="tooltip-icon" data-tooltip="最後にログインした日時です。アクティブ状況の確認に使えます。">？</span>`
     );
     $('#confirm-buttons').show();
@@ -131,34 +141,34 @@ function setupEventHandlers() {
 
   // 削除するボタン
   $('#confirm-buttons .delete-button').on('click', async () => {
-    const uid = utils.globalGetParamUid;
-    if (!uid) {
-      alert('ユーザIDが見つかりません。');
-      return;
-    }
-
-    // 確認ダイアログ
-    const dialogResult = await utils.showDialog(
-      'このユーザを削除してもよろしいですか？\nこの操作は元に戻せません'
-    );
-
-    if (!dialogResult) {
-      // ユーザがキャンセルしたら処理中断
-      return;
-    }
-
-    // 削除のためもう一度確認
-    const dialogResultAgain = await utils.showDialog('本当に削除しますか？');
-
-    if (!dialogResultAgain) {
-      // ユーザがキャンセルしたら処理中断
-      return;
-    }
-
-    // スピナー表示
-    utils.showSpinner();
-
     try {
+      const uid = utils.globalGetParamUid;
+      if (!uid) {
+        alert('ユーザIDが見つかりません。');
+        return;
+      }
+
+      // 確認ダイアログ
+      const dialogResult = await utils.showDialog(
+        'このユーザを削除してもよろしいですか？\nこの操作は元に戻せません'
+      );
+
+      if (!dialogResult) {
+        // ユーザがキャンセルしたら処理中断
+        return;
+      }
+
+      // 削除のためもう一度確認
+      const dialogResultAgain = await utils.showDialog('本当に削除しますか？');
+
+      if (!dialogResultAgain) {
+        // ユーザがキャンセルしたら処理中断
+        return;
+      }
+
+      // スピナー表示
+      utils.showSpinner();
+
       // Firestoreの該当ユーザを削除
       const userRef = utils.doc(utils.db, 'users', uid);
       await utils.deleteDoc(userRef);
@@ -172,18 +182,17 @@ function setupEventHandlers() {
         uid === utils.getSession('uid')
           ? '../login/login.html'
           : '../user-list/user-list.html';
-    } catch (error) {
-      console.error('ユーザ削除エラー:', error);
-      alert('削除に失敗しました。');
+    } catch (e) {
+      // ログ登録
+      await utils.writeLog({
+        dataId: utils.globalGetParamUid,
+        action: '削除',
+        status: 'error',
+        errorDetail: { message: e.message, stack: e.stack },
+      });
     } finally {
       // スピナー非表示
       utils.hideSpinner();
     }
   });
-}
-
-function formatDateTime(ts) {
-  if (!ts) return '';
-  const date = ts.toDate ? ts.toDate() : ts;
-  return date.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
 }
