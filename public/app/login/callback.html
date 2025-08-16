@@ -146,7 +146,7 @@
           // ログ登録
           await utils.writeLog({
             dataId: 'none',
-            action: 'ログイン完了',
+            action: 'ログイン',
           });
 
           // TOPまたは同意画面へ遷移
@@ -161,7 +161,7 @@
           // ログ登録
           await utils.writeLog({
             dataId: 'none',
-            action: 'ログイン完了',
+            action: 'ログイン',
             status: 'error',
             errorDetail: { message: e.message, stack: e.stack },
           });
