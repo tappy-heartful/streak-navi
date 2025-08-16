@@ -1,9 +1,21 @@
 import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
-  await utils.initDisplay();
-  await renderVote();
-  utils.hideSpinner();
+  try {
+    await utils.initDisplay();
+    await renderVote();
+  } catch (e) {
+    // ログ登録
+    await utils.writeLog({
+      dataId: utils.globalGetParamVoteId,
+      action: '初期表示',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+  } finally {
+    // スピナー非表示
+    utils.hideSpinner();
+  }
 });
 
 ////////////////////////////
@@ -166,9 +178,17 @@ function setupEventHandlers(voteId, isAdmin, isOpen) {
         utils.hideSpinner();
         await utils.showDialog('削除しました', true);
         window.location.href = '../vote-list/vote-list.html';
-      } catch (err) {
-        console.error(err);
-        await utils.showDialog('削除しました', true);
+      } catch (e) {
+        // ログ登録
+        await utils.writeLog({
+          dataId: utils.globalGetParamVoteId,
+          action: '削除',
+          status: 'error',
+          errorDetail: { message: e.message, stack: e.stack },
+        });
+      } finally {
+        // スピナー非表示
+        utils.hideSpinner();
       }
     });
 
