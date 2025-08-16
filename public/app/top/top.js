@@ -48,12 +48,6 @@ $(document).ready(async function () {
         }, 500);
       }, 2000);
     }
-
-    // ログ登録
-    await utils.writeLog({
-      dataId: 'none',
-      action: '初期表示',
-    });
   } catch (e) {
     // ログ登録
     await utils.writeLog({
