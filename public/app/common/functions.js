@@ -272,7 +272,7 @@ export async function writeLog({
 // エラーハンドラ
 export function errorHandler(error) {
   // スピナー非表示
-  utils.hideSpinner();
+  hideSpinner();
   console.error('Error:', error);
   if (
     confirm(
