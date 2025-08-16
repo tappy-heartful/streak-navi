@@ -145,7 +145,7 @@
 
           // ログ登録
           await utils.writeLog({
-            dataId: user.uid,
+            dataId: 'none',
             action: 'ログイン完了',
           });
 
@@ -160,7 +160,7 @@
 
           // ログ登録
           await utils.writeLog({
-            dataId: user.uid,
+            dataId: 'none',
             action: 'ログイン完了',
             status: 'error',
             errorDetail: { message: e.message, stack: e.stack },
