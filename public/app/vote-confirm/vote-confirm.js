@@ -36,10 +36,6 @@ async function renderVote() {
     $('#vote-description').text(voteData.explain);
     $('#vote-status').text(voteData.isActive ? '受付中' : '終了');
 
-    // 複数回答・匿名投票表示
-    $('#vote-allow-multiple').text(voteData.allowMultiple ? 'はい' : 'いいえ');
-    $('#vote-anonymous').text(voteData.anonymous ? 'はい' : 'いいえ');
-
     const container = $('#vote-items-container').empty();
 
     // 集計結果表示
