@@ -76,28 +76,27 @@ async function setupPage(mode) {
 // 投票データ取得＆画面反映
 //==================================
 async function loadVoteData(voteId, mode) {
-  try {
-    const docSnap = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
-    if (!docSnap.exists()) {
-      await utils.showDialog('該当の投票データが見つかりません', true);
-      window.location.href = '../vote-list/vote-list.html';
-      return;
-    }
-    const data = docSnap.data();
+  const docSnap = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
+  if (!docSnap.exists()) {
+    await utils.showDialog('該当の投票データが見つかりません', true);
+    window.location.href = '../vote-list/vote-list.html';
+    return;
+  }
+  const data = docSnap.data();
 
-    // 投票名・説明・公開状態
-    $('#vote-title').val(data.name + (mode === 'copy' ? '（コピー）' : ''));
-    $('#vote-description').val(data.explain);
-    $('#is-open').prop('checked', !!data.isActive);
+  // 投票名・説明・公開状態
+  $('#vote-title').val(data.name + (mode === 'copy' ? '（コピー）' : ''));
+  $('#vote-description').val(data.explain);
+  $('#is-open').prop('checked', !!data.isActive);
 
-    // 項目表示
-    $('#vote-items-container').empty();
-    data.items.forEach((item) => {
-      const $item = createVoteItemTemplate();
-      $item.find('.vote-item-title').val(item.name);
-      const $choices = $item.find('.vote-choices').empty();
-      item.choices.forEach((choice, idx) => {
-        $choices.append(`
+  // 項目表示
+  $('#vote-items-container').empty();
+  data.items.forEach((item) => {
+    const $item = createVoteItemTemplate();
+    $item.find('.vote-item-title').val(item.name);
+    const $choices = $item.find('.vote-choices').empty();
+    item.choices.forEach((choice, idx) => {
+      $choices.append(`
           <div class="choice-wrapper">
             ・<input type="text" class="vote-choice" placeholder="選択肢${
               idx + 1
@@ -105,13 +104,9 @@ async function loadVoteData(voteId, mode) {
             <button class="remove-choice">×</button>
           </div>
         `);
-      });
-      $('#vote-items-container').append($item);
     });
-  } catch (e) {
-    console.error(e);
-    await utils.showDialog('データ取得に失敗しました', true);
-  }
+    $('#vote-items-container').append($item);
+  });
 }
 
 //==================================
