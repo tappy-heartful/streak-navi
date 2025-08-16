@@ -1,31 +1,42 @@
 import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
-  const voteId = utils.globalGetParamVoteId;
-  const uid = utils.getSession('uid');
+  try {
+    const voteId = utils.globalGetParamVoteId;
+    const uid = utils.getSession('uid');
 
-  await utils.initDisplay();
+    await utils.initDisplay();
 
-  // 回答データがあるか確認してモード判定
-  let mode = 'new';
-  let answerData = await fetchAnswerData(voteId, uid);
-  if (answerData) {
-    mode = 'edit';
+    // 回答データがあるか確認してモード判定
+    let mode = 'new';
+    let answerData = await fetchAnswerData(voteId, uid);
+    if (answerData) {
+      mode = 'edit';
+    }
+
+    setupPageMode(mode);
+
+    // 投票データ取得
+    const voteData = await fetchVoteData(voteId);
+
+    // 回答データがなければ空オブジェクト
+    answerData = answerData || {};
+
+    renderVote(voteData, answerData);
+
+    setupEventHandlers(mode, voteId, uid);
+  } catch (e) {
+    // ログ登録
+    await utils.writeLog({
+      dataId: utils.globalGetParamVoteId,
+      action: '初期表示',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+  } finally {
+    // スピナー非表示
+    utils.hideSpinner();
   }
-
-  setupPageMode(mode);
-
-  // 投票データ取得
-  const voteData = await fetchVoteData(voteId);
-
-  // 回答データがなければ空オブジェクト
-  answerData = answerData || {};
-
-  renderVote(voteData, answerData);
-
-  setupEventHandlers(mode, voteId, uid);
-
-  utils.hideSpinner();
 });
 
 function setupPageMode(mode) {
@@ -37,34 +48,22 @@ function setupPageMode(mode) {
 }
 
 async function fetchVoteData(voteId) {
-  try {
-    const voteDoc = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
-    if (!voteDoc.exists()) {
-      await utils.showDialog('該当する投票が見つかりません', true);
-      throw new Error('Vote not found');
-    }
-    return voteDoc.data();
-  } catch (e) {
-    console.error(e);
-    await utils.showDialog('投票データの取得に失敗しました', true);
-    throw e;
+  const voteDoc = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
+  if (!voteDoc.exists()) {
+    await utils.showDialog('該当する投票が見つかりません', true);
+    throw new Error('Vote not found');
   }
+  return voteDoc.data();
 }
 
 async function fetchAnswerData(voteId, uid) {
-  try {
-    const ansDoc = await utils.getDoc(
-      utils.doc(utils.db, 'voteAnswers', `${voteId}_${uid}`)
-    );
-    if (ansDoc.exists()) {
-      return ansDoc.data().answers;
-    }
-    return null;
-  } catch (e) {
-    console.error(e);
-    await utils.showDialog('回答データの取得に失敗しました', true);
-    return null;
+  const ansDoc = await utils.getDoc(
+    utils.doc(utils.db, 'voteAnswers', `${voteId}_${uid}`)
+  );
+  if (ansDoc.exists()) {
+    return ansDoc.data().answers;
   }
+  return null;
 }
 
 function renderVote(voteData, answerData = {}) {
@@ -151,8 +150,16 @@ function setupEventHandlers(mode, voteId, uid) {
       window.location.href =
         '../vote-confirm/vote-confirm.html?voteId=' + voteId;
     } catch (e) {
-      console.error(e);
-      await utils.showDialog('回答の保存に失敗しました', true);
+      // ログ登録
+      await utils.writeLog({
+        dataId: utils.globalGetParamVoteId,
+        action: mode === 'edit' ? '修正' : '登録',
+        status: 'error',
+        errorDetail: { message: e.message, stack: e.stack },
+      });
+    } finally {
+      // スピナー非表示
+      utils.hideSpinner();
     }
   });
 
