@@ -121,14 +121,6 @@ export function setSessionArray(key, array) {
   );
 }
 
-// エラー時処理
-export function showError(errorMsg1, errorMsg2) {
-  // コンソールに表示
-  console.error(errorMsg1, errorMsg2);
-  // 画面に表示
-  alert(errorMsg2);
-}
-
 export function scrollToTop() {
   // 一番上にスクロール
   window.scrollTo({

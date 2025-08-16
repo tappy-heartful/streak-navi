@@ -22,44 +22,39 @@ $(document).ready(async function () {
 // 投票データ表示
 ////////////////////////////
 async function renderVote() {
-  try {
-    const voteId = utils.globalGetParamVoteId;
-    const isAdmin = utils.getSession('voteAdminFlg') === utils.globalStrTrue;
-    const uid = utils.getSession('uid');
-    const myProfileUrl = utils.getSession('pictureUrl') || ''; // LINEプロフィール画像URL
+  const voteId = utils.globalGetParamVoteId;
+  const isAdmin = utils.getSession('voteAdminFlg') === utils.globalStrTrue;
+  const uid = utils.getSession('uid');
+  const myProfileUrl = utils.getSession('pictureUrl') || ''; // LINEプロフィール画像URL
 
-    // votes から投票情報を取得
-    const voteSnap = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
-    if (!voteSnap.exists()) {
-      await utils.showDialog('該当の投票が見つかりません', true);
-      window.location.href = '../vote-list/vote-list.html';
-      return;
-    }
-    const voteData = voteSnap.data();
-
-    // voteAnswers から自分の回答取得
-    const myAnswerData = await utils.getDoc(
-      utils.doc(utils.db, 'voteAnswers', `${voteId}_${uid}`)
-    );
-    const myAnswer = myAnswerData?.data()?.answers || {};
-
-    // 画面に反映
-    $('#vote-title').text(voteData.name);
-    $('#vote-description').text(voteData.explain);
-    $('#vote-status').text(voteData.isActive ? '受付中' : '終了');
-
-    const container = $('#vote-items-container').empty();
-
-    // 集計結果表示
-    const voteResults = await getVoteResults(voteId, voteData.items);
-    renderView(voteData.items, voteResults, container, myAnswer, myProfileUrl);
-
-    // ボタン制御をセットアップ
-    setupEventHandlers(voteId, isAdmin, voteData.isActive);
-  } catch (e) {
-    console.error(e);
-    utils.showError('投票データ取得に失敗しました', e);
+  // votes から投票情報を取得
+  const voteSnap = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
+  if (!voteSnap.exists()) {
+    await utils.showDialog('該当の投票が見つかりません', true);
+    window.location.href = '../vote-list/vote-list.html';
+    return;
   }
+  const voteData = voteSnap.data();
+
+  // voteAnswers から自分の回答取得
+  const myAnswerData = await utils.getDoc(
+    utils.doc(utils.db, 'voteAnswers', `${voteId}_${uid}`)
+  );
+  const myAnswer = myAnswerData?.data()?.answers || {};
+
+  // 画面に反映
+  $('#vote-title').text(voteData.name);
+  $('#vote-description').text(voteData.explain);
+  $('#vote-status').text(voteData.isActive ? '受付中' : '終了');
+
+  const container = $('#vote-items-container').empty();
+
+  // 集計結果表示
+  const voteResults = await getVoteResults(voteId, voteData.items);
+  renderView(voteData.items, voteResults, container, myAnswer, myProfileUrl);
+
+  // ボタン制御をセットアップ
+  setupEventHandlers(voteId, isAdmin, voteData.isActive);
 }
 
 ////////////////////////////
