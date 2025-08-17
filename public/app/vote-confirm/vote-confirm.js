@@ -149,40 +149,65 @@ function setupEventHandlers(voteId, isAdmin, isOpen) {
   // 投票結果のクリックイベント
   $(document).on('click', '.vote-count-link', async function (e) {
     e.preventDefault();
+    utils.showSpinner();
+
     const itemName = $(this).data('item');
     const choiceName = $(this).data('choice');
 
-    // Firestore から該当回答者を取得
-    const voters = [];
-    const answersSnap = await utils.getDocs(
-      utils.collection(utils.db, 'voteAnswers')
-    );
-    answersSnap.forEach((doc) => {
-      if (!doc.id.startsWith(voteId + '_')) return;
-      const data = doc.data();
-      if (data.answers?.[itemName] === choiceName) {
-        voters.push({
-          name: data.displayName || '名無し',
-          pictureUrl: data.pictureUrl || '',
-        });
-      }
-    });
+    try {
+      // 該当投票の回答者 UID を収集
+      const voterUids = [];
+      const answersSnap = await utils.getDocs(
+        utils.collection(utils.db, 'voteAnswers')
+      );
+      answersSnap.forEach((doc) => {
+        if (!doc.id.startsWith(voteId + '_')) return;
+        const data = doc.data();
+        if (data.answers?.[itemName] === choiceName) {
+          const uid = doc.id.split('_')[1];
+          voterUids.push(uid);
+        }
+      });
 
-    // モーダルに描画
-    const modalBody = voters
-      .map(
-        (v) => `
+      // users コレクションから情報取得
+      const voters = [];
+      for (const uid of voterUids) {
+        const userSnap = await utils.getDoc(utils.doc(utils.db, 'users', uid));
+        if (userSnap.exists()) {
+          const userData = userSnap.data();
+          voters.push({
+            name: userData.displayName || '名無し',
+            pictureUrl: userData.pictureUrl || '',
+          });
+        }
+      }
+
+      // モーダルに描画
+      const modalBody = voters
+        .map(
+          (v) => `
         <div class="voter">
           <img src="${v.pictureUrl}" alt="${v.name}" class="voter-icon"/>
           <span>${v.name}</span>
         </div>
       `
-      )
-      .join('');
+        )
+        .join('');
 
-    $('#vote-detail-modal .modal-title').text(`${choiceName} に投票した人`);
-    $('#vote-detail-modal .modal-body').html(modalBody);
-    $('#vote-detail-modal').removeClass('hidden');
+      $('#vote-detail-modal .modal-title').text(`${choiceName} に投票した人`);
+      $('#vote-detail-modal .modal-body').html(modalBody);
+      $('#vote-detail-modal').removeClass('hidden');
+    } catch (e) {
+      // ログ登録
+      await utils.writeLog({
+        dataId: voteId,
+        action: '投票者確認',
+        status: 'error',
+        errorDetail: { message: e.message, stack: e.stack },
+      });
+    } finally {
+      utils.hideSpinner();
+    }
   });
 
   // 閉じるボタン押下でモーダルを非表示にする
