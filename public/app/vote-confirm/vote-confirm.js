@@ -106,13 +106,19 @@ function renderView(items, voteResults, container, myAnswer, myProfileUrl) {
           ? `<img src="${myProfileUrl}" alt="あなたの選択" class="my-choice-icon"/>`
           : '';
 
+        const voteCountView =
+          count > 0
+            ? `<a href="#" class="vote-count-link" data-item="${item.name}" data-choice="${choice.name}">${count}票</a>`
+            : `${count}票`;
         return `
           <div class="result-bar ${isMyChoice ? 'my-choice' : ''}">
             <div class="label">${iconHtml}${choice.name}</div>
             <div class="bar-container">
               <div class="bar" style="width: ${percent}%"></div>
             </div>
-            <div class="vote-count">${count}票</div>
+            <div class="vote-count">
+                ${voteCountView}
+            </div>
           </div>
         `;
       })
@@ -139,6 +145,57 @@ function setupEventHandlers(voteId, isAdmin, isOpen) {
     $('.edit-button').hide();
     $('.copy-button').hide();
   }
+
+  // 投票結果のクリックイベント
+  $(document).on('click', '.vote-count-link', async function (e) {
+    e.preventDefault();
+    const itemName = $(this).data('item');
+    const choiceName = $(this).data('choice');
+
+    // Firestore から該当回答者を取得
+    const voters = [];
+    const answersSnap = await utils.getDocs(
+      utils.collection(utils.db, 'voteAnswers')
+    );
+    answersSnap.forEach((doc) => {
+      if (!doc.id.startsWith(voteId + '_')) return;
+      const data = doc.data();
+      if (data.answers?.[itemName] === choiceName) {
+        voters.push({
+          name: data.displayName || '名無し',
+          pictureUrl: data.pictureUrl || '',
+        });
+      }
+    });
+
+    // モーダルに描画
+    const modalBody = voters
+      .map(
+        (v) => `
+        <div class="voter">
+          <img src="${v.pictureUrl}" alt="${v.name}" class="voter-icon"/>
+          <span>${v.name}</span>
+        </div>
+      `
+      )
+      .join('');
+
+    $('#vote-detail-modal .modal-title').text(`${choiceName} に投票した人`);
+    $('#vote-detail-modal .modal-body').html(modalBody);
+    $('#vote-detail-modal').removeClass('hidden');
+  });
+
+  // 閉じるボタン押下でモーダルを非表示にする
+  $(document).on('click', '.modal-close', function () {
+    $(this).closest('.modal').addClass('hidden');
+  });
+
+  // モーダルの外側をクリックした場合も閉じる
+  $(document).on('click', '.modal', function (e) {
+    if ($(e.target).hasClass('modal')) {
+      $(this).addClass('hidden');
+    }
+  });
 
   $('.save-button')
     .off('click')
