@@ -171,7 +171,7 @@ function setupEventHandlers(mode) {
 
         // ログ登録
         await utils.writeLog({
-          dataId: voteId,
+          dataId: docRef.id,
           action: '登録',
         });
         utils.hideSpinner();
