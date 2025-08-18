@@ -151,7 +151,7 @@ function setupEventHandlers() {
 
       // 確認ダイアログ
       const dialogResult = await utils.showDialog(
-        'このユーザを削除してもよろしいですか？\nこの操作は元に戻せません'
+        'このユーザを退会してもよろしいですか？\nこの操作は元に戻せません'
       );
 
       if (!dialogResult) {
@@ -160,7 +160,7 @@ function setupEventHandlers() {
       }
 
       // 削除のためもう一度確認
-      const dialogResultAgain = await utils.showDialog('本当に削除しますか？');
+      const dialogResultAgain = await utils.showDialog('本当に退会しますか？');
 
       if (!dialogResultAgain) {
         // ユーザがキャンセルしたら処理中断
