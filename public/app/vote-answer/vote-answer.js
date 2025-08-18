@@ -120,6 +120,7 @@ function setupEventHandlers(mode, voteId, uid) {
     });
 
     if (hasError) {
+      await utils.showDialog(`すべての質問に回答してください。`, true);
       // エラーがある場合は送信処理中断
       return;
     }
