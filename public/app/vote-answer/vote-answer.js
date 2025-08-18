@@ -100,27 +100,28 @@ function renderVote(voteData, answerData = {}) {
 function setupEventHandlers(mode, voteId, uid) {
   $('#answer-submit').on('click', async function () {
     const answers = {};
-    let firstErrorItem = null;
+    let hasError = false;
+
+    // 既存のエラーメッセージをクリア
+    $('.error-message').remove();
 
     $('.vote-item').each(function () {
       const questionTitle = $(this).find('.vote-item-title').text();
       const selected = $(this).find('input[type="radio"]:checked').val();
       answers[questionTitle] = selected || null;
 
-      // 未回答の場合、最初の要素を保持
-      if (!selected && !firstErrorItem) {
-        firstErrorItem = $(this);
+      // 未回答ならエラーメッセージ追加
+      if (!selected) {
+        hasError = true;
+        $(this)
+          .find('.vote-choices')
+          .after(`<div class="error-message">回答を選択してください。</div>`);
       }
     });
 
-    if (firstErrorItem) {
-      await utils.showDialog(
-        `「${firstErrorItem
-          .find('.vote-item-title')
-          .text()}」の回答を選択してください。`,
-        true
-      );
-      return; // ここで送信処理中断
+    if (hasError) {
+      // エラーがある場合は送信処理中断
+      return;
     }
 
     const confirmed = await utils.showDialog(
