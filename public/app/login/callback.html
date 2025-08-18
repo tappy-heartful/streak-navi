@@ -91,18 +91,21 @@
           const userRef = utils.doc(utils.db, 'users', user.uid);
           const docSnap = await utils.getDoc(userRef);
           const userExists = docSnap.exists();
+          const displayName = profile.displayName || '名無し';
+          const pictureUrl =
+            profile.pictureUrl || '../../images/line-profile-unset.png';
           $('#message').append(
             'ユーザデータ' + (userExists ? '更新' : '登録') + '中...<br>'
           );
 
           if (userExists) {
             // ユーザーデータ存在
-            // ユーザー情報更新(表示名やプロフィール画像が変わっていることを考慮)
+            // ユーザー情報更新
             await utils.setDoc(
               userRef,
               {
-                displayName: profile.displayName,
-                pictureUrl: profile.pictureUrl,
+                displayName,
+                pictureUrl,
                 lastLoginAt: utils.serverTimestamp(),
               },
               { merge: true }
@@ -111,8 +114,8 @@
             // ユーザーデータ非存在
             // ユーザー新規登録
             await utils.setDoc(userRef, {
-              displayName: profile.displayName,
-              pictureUrl: profile.pictureUrl,
+              displayName,
+              pictureUrl,
               lastLoginAt: utils.serverTimestamp(),
               createdAt: utils.serverTimestamp(),
               userAdminFlg: false,
