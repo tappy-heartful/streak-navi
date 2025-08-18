@@ -77,7 +77,7 @@ $(document).ready(async function () {
             <img src="${user.pictureUrl || '../../images/favicon.png'}" alt="${
           user.displayName || '名無し'
         }のアイコン">
-            <span class="username">${user.displayName || '名無し'}</span>
+            <a class="username">${user.displayName || '名無し'}</a>
             ${roleBadgeHtml}
           </li>
         `);
