@@ -106,8 +106,15 @@ async function loadPendingVotesForAnnouncement() {
     }
   }
 
-  // 未投票がなければ「お知らせはありません🍀」を表示
-  if (!hasPending) {
+  if (hasPending) {
+    // ✅ 未回答があるとき冒頭にメッセージを追加
+    $announcementList.prepend(`
+      <li class="pending-message">
+          📌未回答の投票があります
+      </li>
+    `);
+  } else {
+    // 未投票がなければ「お知らせはありません🍀」を表示
     $announcementList.append(`
       <li class="empty-message">
         <div class="notification-link">

@@ -43,6 +43,12 @@
   background-color: #e0f5e9;
 }
 
+.pending-message {
+  font-weight: bold;
+  color: #d9534f;
+  padding-left: 16px;
+}
+
 .empty-message .notification-link {
   background-color: #f0f0f0;
   color: #777;
