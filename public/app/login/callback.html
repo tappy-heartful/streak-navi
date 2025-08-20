@@ -89,8 +89,7 @@
           const docSnap = await utils.getDoc(userRef);
           const userExists = docSnap.exists();
           const displayName = profile.displayName || '名無し';
-          const pictureUrl =
-            profile.pictureUrl || '../../images/line-profile-unset.png';
+          const pictureUrl = profile.pictureUrl || utils.globalLineDefaultImage;
           $('#message').append(
             'ユーザデータ' + (userExists ? '更新' : '登録') + '中...<br>'
           );

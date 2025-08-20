@@ -61,6 +61,7 @@ export const globalBaseUrl = window.location.origin;
 export const globalStrTrue = 'true';
 export const globalStrFalse = 'false';
 export const globalStrUnset = '99';
+export const globalLineDefaultImage = '../../images/line-profile-unset.png';
 export const globalAuthServerRailway =
   'https://streak-navi-auth-server-production.up.railway.app/line-login'; // railwayの認証サーバーURL
 export const globalAuthServerRender =
