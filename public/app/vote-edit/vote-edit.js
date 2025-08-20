@@ -78,9 +78,7 @@ async function setupPage(mode) {
 async function loadVoteData(voteId, mode) {
   const docSnap = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
   if (!docSnap.exists()) {
-    await utils.showDialog('該当の投票データが見つかりません', true);
-    window.location.href = '../vote-list/vote-list.html';
-    return;
+    throw new Error('投票が見つかりません：' + voteId);
   }
   const data = docSnap.data();
 

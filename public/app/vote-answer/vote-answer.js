@@ -50,8 +50,7 @@ function setupPageMode(mode) {
 async function fetchVoteData(voteId) {
   const voteDoc = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
   if (!voteDoc.exists()) {
-    await utils.showDialog('該当する投票が見つかりません', true);
-    throw new Error('Vote not found');
+    throw new Error('投票が見つかりません：' + voteId);
   }
   return voteDoc.data();
 }

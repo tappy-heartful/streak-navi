@@ -26,8 +26,7 @@ async function setUpPage() {
   const userSnap = await utils.getDoc(userRef);
 
   if (!userSnap.exists()) {
-    alert('ユーザーが見つかりません');
-    return;
+    throw new Error('ユーザが見つかりません：' + uid);
   }
 
   const userData = userSnap.data();

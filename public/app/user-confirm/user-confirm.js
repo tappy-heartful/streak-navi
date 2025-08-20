@@ -23,16 +23,14 @@ async function setUpPage() {
   // GETパラメータからuid取得
   const uid = utils.globalGetParamUid;
   if (!uid) {
-    utils.showDialog('ユーザIDが指定されていません');
-    return;
+    throw new Error('ユーザが見つかりません：' + uid);
   }
 
   // usersコレクションから対象ユーザ取得
   const userRef = utils.doc(utils.db, 'users', uid);
   const userSnap = await utils.getDoc(userRef);
   if (!userSnap.exists()) {
-    utils.showDialog('指定されたユーザが存在しません');
-    return;
+    throw new Error('ユーザが見つかりません：' + uid);
   }
   const userData = userSnap.data();
 
@@ -114,8 +112,7 @@ function setupEventHandlers() {
     // 現在のURLのクエリパラメータからuidを取得
     const uid = utils.globalGetParamUid;
     if (!uid) {
-      alert('ユーザIDが見つかりません。');
-      return;
+      throw new Error('ユーザが見つかりません：' + uid);
     }
 
     // 遷移先URL（固定パス）にuidを付加して遷移
@@ -128,8 +125,7 @@ function setupEventHandlers() {
     try {
       const uid = utils.globalGetParamUid;
       if (!uid) {
-        alert('ユーザIDが見つかりません。');
-        return;
+        throw new Error('ユーザが見つかりません：' + uid);
       }
 
       // 確認ダイアログ

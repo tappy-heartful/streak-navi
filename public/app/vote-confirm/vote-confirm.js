@@ -30,9 +30,7 @@ async function renderVote() {
   // votes から投票情報を取得
   const voteSnap = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
   if (!voteSnap.exists()) {
-    await utils.showDialog('該当の投票が見つかりません', true);
-    window.location.href = '../vote-list/vote-list.html';
-    return;
+    throw new Error('投票が見つかりません：' + voteId);
   }
   const voteData = voteSnap.data();
 
