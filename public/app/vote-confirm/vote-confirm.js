@@ -184,6 +184,12 @@ function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
             name: userData.displayName || '名無し',
             pictureUrl: userData.pictureUrl || '',
           });
+        } else {
+          // 退会済みユーザ
+          voters.push({
+            name: '退会済みユーザ',
+            pictureUrl: utils.globalBandLogoImage,
+          });
         }
       }
 

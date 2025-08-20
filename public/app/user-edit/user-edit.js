@@ -42,10 +42,7 @@ async function setUpPage() {
 
   // ユーザー名
   $('#user-name').text(userData.displayName || '名無し');
-  $('.user-icon').attr(
-    'src',
-    userData.pictureUrl || '../../images/favicon.png'
-  );
+  $('.user-icon').attr('src', userData.pictureUrl || utils.globalBandLogoImage);
 
   // 管理者権限
   let adminList = [];

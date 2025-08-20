@@ -60,10 +60,7 @@ async function setUpPage() {
 
   // 表示設定
   $('#user-name').text(userData.displayName || '');
-  $('.user-icon').attr(
-    'src',
-    userData.pictureUrl || '../../images/favicon.png'
-  );
+  $('.user-icon').attr('src', userData.pictureUrl || utils.globalBandLogoImage);
 
   // 管理者権限(管理者権限がある場合のみ表示)
   let adminList = [];
