@@ -59,14 +59,11 @@
           );
 
           // 認証サーバーのlineログインAPI実行
-          const loginResponse = await fetch(
-            'https://streak-navi-auth-server.onrender.com/line-login',
-            {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({ code, redirectUri }),
-            }
-          );
+          const loginResponse = await fetch(utils.globalAuthServer, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ code, redirectUri }),
+          });
 
           const { customToken, profile } = await loginResponse.json();
 
