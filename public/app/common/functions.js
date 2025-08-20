@@ -266,14 +266,12 @@ export async function writeLog({
 }
 
 // エラーハンドラ
-export function errorHandler(error) {
+export function errorHandler(errorMessage) {
   // スピナー非表示
   hideSpinner();
-  console.error('Error:', error);
+  console.error('Error:', errorMessage);
   if (
-    confirm(
-      `エラーが発生しました: ${error.message}\nログイン画面に戻りますか？`
-    )
+    confirm(`エラーが発生しました: ${errorMessage}\nログイン画面に戻りますか？`)
   ) {
     // ログインページへ遷移
     window.location.href = window.location.origin;
