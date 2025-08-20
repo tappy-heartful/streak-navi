@@ -115,7 +115,7 @@
               lastLoginAt: utils.serverTimestamp(),
               createdAt: utils.serverTimestamp(),
               userAdminFlg: false,
-              voteAdminFlg: false,
+              voteAdminFlg: true, // TODO 投票管理者フラグはどうやって制御しよう
               roleId: utils.globalStrUnset,
               sectionId: utils.globalStrUnset,
             });
