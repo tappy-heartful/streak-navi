@@ -146,7 +146,9 @@ function renderView(items, voteResults, container, myAnswer, myProfileUrl) {
 // イベント & 表示制御
 ////////////////////////////
 function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
-  if (!isOpen) $('#answer-save-button').hide();
+  if (!isOpen) {
+    $('#answer-menu').hide();
+  }
   if (!isAdmin) {
     $('#vote-menu').hide();
   }
