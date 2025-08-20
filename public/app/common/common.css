@@ -145,6 +145,19 @@ input[type="text"], textarea {
 }
 
 /* データ操作ボタン */
+/* ボタンタイトル */
+.menu-section {
+  margin-top: 1.5em;
+}
+
+.menu-title {
+  font-size: 16px;
+  color: #666;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 0.5em;
+  padding-bottom: 0.2em;
+}
+
 /* ボタン共通 */
 button {
   border: none;
