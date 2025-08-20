@@ -148,9 +148,7 @@ function renderView(items, voteResults, container, myAnswer, myProfileUrl) {
 function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
   if (!isOpen) $('#answer-save-button').hide();
   if (!isAdmin) {
-    $('#vote-delete-button').hide();
-    $('#vote-edit-button').hide();
-    $('#vote-copy-button').hide();
+    $('#vote-menu').hide();
   }
 
   // 投票結果のクリックイベント
