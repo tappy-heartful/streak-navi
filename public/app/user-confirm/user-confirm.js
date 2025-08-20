@@ -90,27 +90,10 @@ async function setUpPage() {
     <span class="tooltip-icon" data-tooltip="このユーザの役職">？</span>`
   );
 
-  // 編集/退会/日付/uid表示条件チェック TODO そもそも他人のユーザ情報はfirestoreのルールを工夫しないとできない。DB直編集でよくね？
-  const isAdmin = utils.getSession('userAdminFlg') === utils.globalStrTrue;
-  const isSelf = utils.getSession('uid') === uid;
-  if (isAdmin || isSelf) {
-    // 日付とUID表示
-    $('label:contains("アカウント作成日時")').html(
-      `アカウント作成日時：${utils.formatDateTime(userData.createdAt)}
-      <span class="tooltip-icon" data-tooltip="このユーザが初めて登録された日時です。">？</span>`
-    );
-    $('label:contains("最終ログイン日時")').html(
-      `最終ログイン日時：${utils.formatDateTime(userData.lastLoginAt)}
-      <span class="tooltip-icon" data-tooltip="最後にログインした日時です。アクティブ状況の確認に使えます。">？</span>`
-    );
-    $('#confirm-buttons').show();
-  } else {
-    // 権限なしの場合は非表示
-    $('label:contains("アカウント作成日")').parent().remove();
-    $('label:contains("最終ログイン日時")').parent().remove();
-    $('label:contains("uid")').parent().remove();
-    $('#confirm-buttons').hide();
-  }
+  // 編集/退会/日付/uid表示条件チェック
+  utils.getSession('uid') === uid
+    ? $('#confirm-buttons').show()
+    : $('#confirm-buttons').hide();
 }
 
 function setupEventHandlers() {
