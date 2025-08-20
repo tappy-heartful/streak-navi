@@ -59,7 +59,7 @@
           );
 
           // 認証サーバーのlineログインAPI実行
-          const loginResponse = await fetch(utils.globalAuthServer, {
+          const loginResponse = await fetch(utils.globalAuthServerRailway, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ code, redirectUri }),

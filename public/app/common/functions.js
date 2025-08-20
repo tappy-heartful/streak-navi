@@ -61,8 +61,10 @@ export const globalBaseUrl = window.location.origin;
 export const globalStrTrue = 'true';
 export const globalStrFalse = 'false';
 export const globalStrUnset = '99';
-export const globalAuthServer =
-  'https://streak-navi-auth-server-production.up.railway.app/line-login';
+export const globalAuthServerRailway =
+  'https://streak-navi-auth-server-production.up.railway.app/line-login'; // railwayの認証サーバーURL
+export const globalAuthServerRender =
+  'https://streak-navi-auth-server.onrender.com/line-login'; // renderの認証サーバーURL
 
 // GETパラメータたち
 export const globalGetparams = new URLSearchParams(window.location.search);
