@@ -177,14 +177,14 @@ function setupEventHandlers() {
       // ログ登録
       await utils.writeLog({
         dataId: uid,
-        action: '削除',
+        action: '退会',
       });
 
       // スピナー非表示
       utils.hideSpinner();
 
       // 他者削除の場合ユーザ一覧、自分削除の場合ログインページへ戻る
-      await utils.showDialog('削除しました', true);
+      await utils.showDialog('退会しました', true);
       window.location.href =
         uid === utils.getSession('uid')
           ? '../login/login.html'
@@ -193,7 +193,7 @@ function setupEventHandlers() {
       // ログ登録
       await utils.writeLog({
         dataId: utils.globalGetParamUid,
-        action: '削除',
+        action: '退会',
         status: 'error',
         errorDetail: { message: e.message, stack: e.stack },
       });
