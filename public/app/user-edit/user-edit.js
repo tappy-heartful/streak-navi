@@ -44,18 +44,6 @@ async function setUpPage() {
   $('#user-name').text(userData.displayName || '名無し');
   $('.user-icon').attr('src', userData.pictureUrl || utils.globalBandLogoImage);
 
-  // 管理者権限
-  let adminList = [];
-  if (userData.userAdminFlg) adminList.push('ユーザ管理者');
-  if (userData.voteAdminFlg) adminList.push('投票管理者');
-  if (adminList.length > 0) {
-    $('label:contains("管理者権限")').html(
-      `管理者権限：${adminList.join('、')}`
-    );
-  } else {
-    $('label:contains("管理者権限")').remove();
-  }
-
   // パートと役職をプルダウンに反映
   await populateSections(userData.sectionId);
   await populateRoles(userData.roleId);
