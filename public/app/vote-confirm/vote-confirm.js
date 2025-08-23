@@ -280,7 +280,7 @@ function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
     .off('click')
     .on('click', async function () {
       const confirmed = await utils.showDialog(
-        'この投票と全員の回答を削除しますか？\nこの操作は元に戻せません'
+        '投票と全員の回答を削除しますか？\nこの操作は元に戻せません'
       );
       if (!confirmed) return;
 
