@@ -299,6 +299,7 @@ function collectVoteData() {
     explain: $('#vote-description').val().trim(),
     isActive: $('#is-open').prop('checked'),
     createdAt: utils.serverTimestamp(),
+    createdBy: utils.getSession('displayName'),
     items: [],
   };
 

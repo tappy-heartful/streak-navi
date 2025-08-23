@@ -44,6 +44,7 @@ async function renderVote() {
   $('#vote-title').text(voteData.name);
   $('#vote-description').text(voteData.explain);
   $('#vote-status').text(voteData.isActive ? '受付中' : '終了');
+  $('#created-by').text(voteData.createdBy);
   if (myAnswer && Object.keys(myAnswer).length > 0) {
     // 回答がある場合、回答するボタンを「再回答する」に変更
     $('#answer-save-button').text('再回答する');
