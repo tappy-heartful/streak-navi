@@ -90,19 +90,24 @@ function setupEventHandlers() {
   $('#save-button').on('click', async function () {
     const uid = utils.globalGetParamUid;
     const isInit = utils.globalGetParamIsInit;
+
+    // 入力チェック
+    if (!validateUserData()) {
+      await utils.showDialog('入力内容を確認してください', true);
+      return;
+    }
+
     const updatedData = {
       sectionId: $('#section-select').val(),
       roleId: $('#role-select').val(),
+      // TODO:合言葉も保存対象ならここに含める
     };
 
     const dialogResult = await utils.showDialog(
       'この内容で' + (isInit ? '登録' : '更新') + 'しますか？'
     );
 
-    if (!dialogResult) {
-      // ユーザがキャンセルしたら処理中断
-      return;
-    }
+    if (!dialogResult) return;
 
     // スピナー表示
     utils.showSpinner();
@@ -115,7 +120,7 @@ function setupEventHandlers() {
 
       // ログ登録
       await utils.writeLog({
-        dataId: utils.globalGetParamUid,
+        dataId: uid,
         action: isInit ? '登録' : '更新',
       });
 
@@ -128,7 +133,7 @@ function setupEventHandlers() {
       window.location.href =
         isInit === utils.globalStrTrue
           ? '../top/top.html?isInit=1'
-          : '../user-confirm/user-confirm.html?uid=' + utils.globalGetParamUid;
+          : '../user-confirm/user-confirm.html?uid=' + uid;
     } catch (e) {
       // ログ登録
       await utils.writeLog({
@@ -148,4 +153,43 @@ function setupEventHandlers() {
     window.location.href =
       '../user-confirm/user-confirm.html?uid=' + utils.globalGetParamUid;
   });
+}
+
+function validateUserData() {
+  let isValid = true;
+  clearErrors();
+
+  const sectionId = $('#section-select').val();
+  const roleId = $('#role-select').val();
+  const secretWord = $('#secret-word').val()?.trim();
+
+  if (!sectionId) {
+    markError($('#section-select'), 'パートを選択してください');
+    isValid = false;
+  }
+  if (!roleId) {
+    markError($('#role-select'), '役職を選択してください');
+    isValid = false;
+  }
+  // TODO: 合言葉も保存対象にする場合はコメントアウトを外す
+  // if (!secretWord) {
+  //   markError($('#secret-word'), '合言葉を入力してください');
+  //   isValid = false;
+  // }
+
+  return isValid;
+}
+
+//==================================
+// エラー表示ユーティリティ
+//==================================
+function clearErrors() {
+  $('.error-message').remove();
+  $('.error-field').removeClass('error-field');
+}
+
+function markError($field, message) {
+  $field
+    .after(`<div class="error-message">${message}</div>`)
+    .addClass('error-field');
 }
