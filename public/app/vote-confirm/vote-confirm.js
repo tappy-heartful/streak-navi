@@ -245,7 +245,7 @@ function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
   $('#answer-delete-button')
     .off('click')
     .on('click', async function () {
-      const confirmed = await utils.showDialog('自分の回答を削除しますか？');
+      const confirmed = await utils.showDialog('自分の回答を取り消しますか？');
       if (!confirmed) return;
 
       try {
@@ -261,7 +261,7 @@ function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
         });
 
         utils.hideSpinner();
-        await utils.showDialog('回答を削除しました', true);
+        await utils.showDialog('回答を取り消しました', true);
         window.location.reload();
       } catch (e) {
         await utils.writeLog({
