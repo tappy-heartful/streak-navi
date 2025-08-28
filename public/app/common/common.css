@@ -133,6 +133,30 @@ input[type="text"], textarea {
   box-sizing: border-box;
 }
 
+/* 投票ステータス */
+.vote-status {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-right: 8px;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.vote-status.pending {
+  background-color: #ff9800; /* オレンジ */
+}
+
+.vote-status.voted {
+  background-color: #4caf50; /* 緑 */
+}
+
+.vote-status.closed {
+  background-color: #9e9e9e; /* グレー */
+}
+
 /* エラー */
 .error-field {
   background-color: #ffecec;

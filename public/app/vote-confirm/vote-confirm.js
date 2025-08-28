@@ -49,6 +49,22 @@ async function renderVote() {
   ).length;
 
   // 画面に反映
+  let statusClass = '';
+  let statusText = '';
+  if (!voteData.isActive) {
+    statusClass = 'closed';
+    statusText = '終了';
+  } else if (myAnswer && Object.keys(myAnswer).length > 0) {
+    statusClass = 'voted';
+    statusText = '回答済';
+  } else {
+    statusClass = 'pending';
+    statusText = '未回答';
+  }
+  $('#vote-status-label')
+    .removeClass('pending voted closed')
+    .addClass(statusClass)
+    .text(statusText);
   $('#vote-title').text(voteData.name);
   $('#vote-description').text(voteData.explain);
   $('#vote-status').text(
