@@ -167,7 +167,7 @@ function setupEventHandlers(mode) {
 
     try {
       // 入力データ取得
-      const voteData = collectVoteData();
+      const voteData = collectVoteData(mode);
 
       if (['new', 'copy'].includes(mode)) {
         // 新規登録
@@ -306,7 +306,7 @@ function restoreInitialState() {
 //==================================
 // 投票データ収集
 //==================================
-function collectVoteData() {
+function collectVoteData(mode) {
   const voteData = {
     name: $('#vote-title').val().trim(),
     explain: $('#vote-description').val().trim(),
@@ -314,9 +314,13 @@ function collectVoteData() {
     isAnonymous: $('#is-anonymous').prop('checked'),
     hideVotes: $('#hide-votes').prop('checked'),
     createdAt: utils.serverTimestamp(),
-    createdBy: utils.getSession('displayName'),
     items: [],
   };
+
+  // 作成者は新規作成とコピー時のみ設定
+  if (['new', 'copy'].includes(mode)) {
+    voteData.createdBy = utils.getSession('displayName');
+  }
 
   $('#vote-items-container .vote-item').each(function () {
     const itemName = $(this).find('.vote-item-title').val().trim();
