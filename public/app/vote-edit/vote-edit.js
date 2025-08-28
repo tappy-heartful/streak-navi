@@ -137,7 +137,12 @@ function setupEventHandlers(mode) {
 
   // 【クリアボタン】初期状態に戻す
   $('.clear-button').on('click', async () => {
-    if (await utils.showDialog('クリアしますか？')) restoreInitialState();
+    if (
+      await utils.showDialog(
+        mode === 'new' ? '入力内容をクリアしますか？' : '編集前に戻しますか？'
+      )
+    )
+      restoreInitialState();
   });
 
   // 【登録/更新ボタン】
