@@ -54,13 +54,13 @@ async function setUpPage() {
       const answerSnap = await utils.getDoc(answerDocRef);
 
       if (answerSnap.exists()) {
-        status = '投票済';
+        status = '回答済';
         statusClass = 'voted';
         votedItems.push(
           makeVoteItem(voteId, voteData.name, status, statusClass)
         );
       } else {
-        status = '未投票';
+        status = '未回答';
         statusClass = 'pending';
         pendingItems.push(
           makeVoteItem(voteId, voteData.name, status, statusClass)
@@ -69,7 +69,7 @@ async function setUpPage() {
     }
   }
 
-  // 表示順: 未投票 → 投票済 → 終了
+  // 表示順: 未回答 → 回答済 → 終了
   pendingItems.forEach((item) => $list.append(item));
   votedItems.forEach((item) => $list.append(item));
   closedItems.forEach((item) => $list.append(item));

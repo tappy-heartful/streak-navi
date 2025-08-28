@@ -71,7 +71,7 @@ function getGreetingMessage() {
   return 'こんばんは🌙';
 }
 
-// 未投票の投票を取得して「お知らせ」に表示
+// 未回答の投票を取得して「お知らせ」に表示
 async function loadPendingVotesForAnnouncement() {
   const votesRef = utils.collection(utils.db, 'votes');
   const qVotes = utils.query(votesRef, utils.orderBy('createdAt', 'desc'));
@@ -94,7 +94,7 @@ async function loadPendingVotesForAnnouncement() {
     const answerSnap = await utils.getDoc(answerDocRef);
 
     if (!answerSnap.exists()) {
-      // 未投票ならお知らせに追加
+      // 未回答ならお知らせに追加
       $announcementList.append(`
         <li>
           <a href="../vote-confirm/vote-confirm.html?voteId=${voteId}" class="notification-link">
@@ -114,7 +114,7 @@ async function loadPendingVotesForAnnouncement() {
       </li>
     `);
   } else {
-    // 未投票がなければ「お知らせはありません🍀」を表示
+    // 未回答がなければ「お知らせはありません🍀」を表示
     $announcementList.append(`
       <li class="empty-message">
         <div class="notification-link">
