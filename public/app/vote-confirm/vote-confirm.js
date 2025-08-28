@@ -40,10 +40,20 @@ async function renderVote() {
   );
   const myAnswer = myAnswerData?.data()?.answers || {};
 
+  // 🔽 回答者数をカウント
+  const answersSnap = await utils.getDocs(
+    utils.collection(utils.db, 'voteAnswers')
+  );
+  const participantCount = answersSnap.docs.filter((doc) =>
+    doc.id.startsWith(voteId + '_')
+  ).length;
+
   // 画面に反映
   $('#vote-title').text(voteData.name);
   $('#vote-description').text(voteData.explain);
-  $('#vote-status').text(voteData.isActive ? '受付中' : '終了');
+  $('#vote-status').text(
+    `${voteData.isActive ? '受付中' : '終了'}（${participantCount}人が回答済）`
+  );
   $('#created-by').text(voteData.createdBy);
   if (myAnswer && Object.keys(myAnswer).length > 0) {
     // 回答がある場合、回答するボタンを「回答を修正する」に変更
