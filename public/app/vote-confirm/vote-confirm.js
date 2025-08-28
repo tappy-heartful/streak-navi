@@ -58,7 +58,7 @@ async function renderVote() {
 
   // 集計結果表示
   const voteResults = await getVoteResults(voteId, voteData.items);
-  renderView(voteData.items, voteResults, container, myAnswer, myProfileUrl);
+  renderView(voteData, voteResults, container, myAnswer, myProfileUrl);
 
   setupEventHandlers(voteId, isAdmin, voteData.isActive, uid);
 }
@@ -97,7 +97,11 @@ async function getVoteResults(voteId, items) {
 ////////////////////////////
 // 投票結果表示
 ////////////////////////////
-function renderView(items, voteResults, container, myAnswer, myProfileUrl) {
+function renderView(voteData, voteResults, container, myAnswer, myProfileUrl) {
+  const isAnonymous = !!voteData.isAnonymous;
+  const hideVotes = !!voteData.hideVotes;
+  const items = voteData.items || [];
+
   items.forEach((item) => {
     const results = voteResults[item.name] || {};
     const maxVotes = Math.max(...Object.values(results), 1);
@@ -112,19 +116,26 @@ function renderView(items, voteResults, container, myAnswer, myProfileUrl) {
           ? `<img src="${myProfileUrl}" alt="あなたの選択" class="my-choice-icon"/>`
           : '';
 
-        const voteCountView =
-          count > 0
-            ? `<a href="#" class="vote-count-link" data-item="${item.name}" data-choice="${choice.name}">${count}票</a>`
-            : `${count}票`;
+        let voteCountView = '';
+        if (!hideVotes) {
+          if (isAnonymous || count === 0) {
+            // 匿名 or 0票 → リンクなし
+            voteCountView = `${count}票`;
+          } else {
+            // 通常 → リンクあり
+            voteCountView = `<a href="#" class="vote-count-link" data-item="${item.name}" data-choice="${choice.name}">${count}票</a>`;
+          }
+        }
+
+        const barHtml = hideVotes
+          ? '' // 非公開ならバーも表示しない
+          : `<div class="bar-container"><div class="bar" style="width: ${percent}%"></div></div>`;
+
         return `
           <div class="result-bar ${isMyChoice ? 'my-choice' : ''}">
             <div class="label">${iconHtml}${choice.name}</div>
-            <div class="bar-container">
-              <div class="bar" style="width: ${percent}%"></div>
-            </div>
-            <div class="vote-count">
-                ${voteCountView}
-            </div>
+            ${barHtml}
+            <div class="vote-count">${voteCountView}</div>
           </div>
         `;
       })

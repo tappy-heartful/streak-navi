@@ -86,6 +86,8 @@ async function loadVoteData(voteId, mode) {
   $('#vote-title').val(data.name + (mode === 'copy' ? '（コピー）' : ''));
   $('#vote-description').val(data.explain);
   $('#is-open').prop('checked', !!data.isActive);
+  $('#is-anonymous').prop('checked', !!data.isAnonymous);
+  $('#hide-votes').prop('checked', !!data.hideVotes);
 
   // 項目表示
   $('#vote-items-container').empty();
@@ -252,6 +254,8 @@ function captureInitialState() {
     title: $('#vote-title').val(),
     description: $('#vote-description').val(),
     isOpen: $('#is-open').prop('checked'),
+    isAnonymous: $('#is-anonymous').prop('checked'),
+    hideVotes: $('#hide-votes').prop('checked'),
     items: $('#vote-items-container .vote-item')
       .map(function () {
         return {
@@ -272,6 +276,8 @@ function restoreInitialState() {
   $('#vote-title').val(initialStateHtml.title);
   $('#vote-description').val(initialStateHtml.description);
   $('#is-open').prop('checked', initialStateHtml.isOpen);
+  $('#is-anonymous').prop('checked', initialStateHtml.isAnonymous);
+  $('#hide-votes').prop('checked', initialStateHtml.hideVotes);
 
   $('#vote-items-container').empty();
   initialStateHtml.items.forEach((item) => {
@@ -298,6 +304,8 @@ function collectVoteData() {
     name: $('#vote-title').val().trim(),
     explain: $('#vote-description').val().trim(),
     isActive: $('#is-open').prop('checked'),
+    isAnonymous: $('#is-anonymous').prop('checked'),
+    hideVotes: $('#hide-votes').prop('checked'),
     createdAt: utils.serverTimestamp(),
     createdBy: utils.getSession('displayName'),
     items: [],
