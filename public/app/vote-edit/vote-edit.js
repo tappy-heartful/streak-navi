@@ -69,6 +69,8 @@ async function setupPage(mode) {
   } else if (mode === 'new') {
     // 初期表示で投票項目一つ表示
     $('#vote-items-container').append(createVoteItemTemplate());
+    // 回答を受け付けにチェック
+    $('#is-open').prop('checked', true);
   }
 }
 
