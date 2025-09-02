@@ -368,11 +368,6 @@ a {
   z-index: 1000;
 }
 
-/* 非表示状態 */
-.hidden {
-  display: none;
-}
-
 /* モーダルの中身 */
 .modal-content {
   background: #fff;
