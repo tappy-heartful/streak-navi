@@ -142,13 +142,18 @@ function renderView(voteData, voteResults, container, myAnswer, myProfileUrl) {
           ? `<img src="${myProfileUrl}" alt="あなたの選択" class="my-choice-icon"/>`
           : '';
 
+        // 🔽 選択肢名をリンク付きにする
+        const choiceLabel = choice.link
+          ? `<a href="${choice.link}" target="_blank" rel="noopener noreferrer">${choice.name}</a>`
+          : choice.name;
+
         let voteCountView = '';
         if (!hideVotes) {
           if (isAnonymous || count === 0) {
             // 匿名 or 0票 → リンクなし
             voteCountView = `${count}票`;
           } else {
-            // 通常 → リンクあり
+            // 通常 → リンクあり（投票者一覧モーダルへ）
             voteCountView = `<a href="#" class="vote-count-link" data-item="${item.name}" data-choice="${choice.name}">${count}票</a>`;
           }
         }
@@ -159,7 +164,7 @@ function renderView(voteData, voteResults, container, myAnswer, myProfileUrl) {
 
         return `
           <div class="result-bar ${isMyChoice ? 'my-choice' : ''}">
-            <div class="label">${iconHtml}${choice.name}</div>
+            <div class="label">${iconHtml}${choiceLabel}</div>
             ${barHtml}
             <div class="vote-count">${voteCountView}</div>
           </div>
