@@ -248,9 +248,9 @@ function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
         )
         .join('');
 
-      $('#vote-detail-modal .modal-title').text(`${choiceName} に投票した人`);
-      $('#vote-detail-modal .modal-body').html(modalBody);
-      $('#vote-detail-modal').removeClass('hidden');
+      $('.modal .modal-title').text(`${choiceName} に投票した人`);
+      $('.modal .modal-body').html(modalBody);
+      $('.modal').removeClass('hidden');
     } catch (e) {
       // ログ登録
       await utils.writeLog({
@@ -261,18 +261,6 @@ function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
       });
     } finally {
       utils.hideSpinner();
-    }
-  });
-
-  // 閉じるボタン押下でモーダルを非表示にする
-  $(document).on('click', '.modal-close', function () {
-    $(this).closest('.modal').addClass('hidden');
-  });
-
-  // モーダルの外側をクリックした場合も閉じる
-  $(document).on('click', '.modal', function (e) {
-    if ($(e.target).hasClass('modal')) {
-      $(this).addClass('hidden');
     }
   });
 

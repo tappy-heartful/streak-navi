@@ -206,6 +206,7 @@ export async function initDisplay(isShowSpinner = true) {
   await loadComponent('header');
   await loadComponent('footer');
   await loadComponent('dialog');
+  await loadComponent('modal');
 
   // セッションにあるユーザ情報を更新
   for (const [key, value] of Object.entries(userSnap.data())) {
