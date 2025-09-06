@@ -1,33 +1,51 @@
 export function showModal(title, body) {
-  const $modal = $('.modal');
-  const $title = $modal.find('.modal-title');
-  const $body = $modal.find('.modal-body');
+  return new Promise((resolve) => {
+    const $modal = $('.modal');
+    const $title = $modal.find('.modal-title');
+    const $body = $modal.find('.modal-body');
+    const $buttons = $modal.find('.confirm-buttons');
+    const $saveBtn = $buttons.find('.save-button');
+    const $cancelBtn = $buttons.find('.cancel-button');
+    const $closeBtn = $modal.find('.modal-close');
 
-  // タイトルと本文をセット
-  $title.text(title);
-  $body.html(body);
+    // タイトルと本文セット
+    $title.text(title);
+    $body.html(body);
 
-  // 表示
-  $modal.removeClass('hidden');
+    // ボタン表示
+    $buttons.removeClass('hidden');
 
-  // --- モーダルが閉じられるまで待つ Promise ---
-  const closed = new Promise((resolve) => {
-    const close = () => {
+    // モーダル表示
+    $modal.removeClass('hidden');
+
+    // クリーンアップ関数
+    const cleanup = () => {
       $modal.addClass('hidden');
-      $(document).off('click.modalClose');
-      resolve(true);
+      $buttons.addClass('hidden');
+      $saveBtn.off('click');
+      $cancelBtn.off('click');
+      $closeBtn.off('click');
+      $modal.off('click.modalOuter');
     };
 
-    // 閉じるボタン
-    $(document).on('click.modalClose', '.modal-close', close);
+    // 保存ボタン → resolve(true)
+    $saveBtn.on('click', () => {
+      cleanup();
+      resolve(true);
+    });
 
-    // 外側クリック
-    $(document).on('click.modalClose', '.modal', function (e) {
+    // キャンセル系 → resolve(false)
+    const cancelHandler = () => {
+      cleanup();
+      resolve(false);
+    };
+
+    $cancelBtn.on('click', cancelHandler);
+    $closeBtn.on('click', cancelHandler);
+    $modal.on('click.modalOuter', function (e) {
       if ($(e.target).hasClass('modal')) {
-        close();
+        cancelHandler();
       }
     });
   });
-
-  return { closed };
 }
