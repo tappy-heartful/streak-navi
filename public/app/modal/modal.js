@@ -1,6 +1,6 @@
 import * as utils from '../common/functions.js';
 ////////////////////////////
-// 初期表示
+// イベント処理
 ////////////////////////////
 $(document).ready(async function () {
   // 閉じるボタン押下でモーダルを非表示にする
@@ -15,3 +15,15 @@ $(document).ready(async function () {
     }
   });
 });
+
+////////////////////////////
+// モーダル表示
+////////////////////////////
+export function showModal(title, body) {
+  return new Promise((resolve) => {
+    $('.modal .modal-title').text(title);
+    $('.modal .modal-body').html(body);
+    $('.modal').removeClass('hidden');
+    resolve(true);
+  });
+}

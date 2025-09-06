@@ -54,6 +54,10 @@ export {
 import { showDialog } from '../dialog/dialog.js';
 export { showDialog };
 
+// モーダル関連
+import { showModal } from '../modal/modal.js';
+export { showModal };
+
 // グローバル定数
 export const globalAppName = 'streakNavi';
 export const globalClientId = '2007808275';

@@ -248,9 +248,7 @@ function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
         )
         .join('');
 
-      $('.modal .modal-title').text(`${choiceName} に投票した人`);
-      $('.modal .modal-body').html(modalBody);
-      $('.modal').removeClass('hidden');
+      await utils.showModal(`${choiceName} に投票した人`, modalBody);
     } catch (e) {
       // ログ登録
       await utils.writeLog({
