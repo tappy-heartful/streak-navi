@@ -1,4 +1,12 @@
-export function showModal(title, body) {
+/**
+ * モーダル表示関数
+ * @param {string} title - モーダルタイトル
+ * @param {string} body - モーダル本文（HTML可）
+ * @param {string} [saveLabel] - 保存ボタンのラベル。未指定なら非表示
+ * @param {string} [cancelLabel] - キャンセルボタンのラベル。未指定なら非表示
+ * @returns {Promise<boolean>} 保存=true, キャンセル=false
+ */
+export function showModal(title, body, saveLabel, cancelLabel) {
   return new Promise((resolve) => {
     const $modal = $('.modal');
     const $title = $modal.find('.modal-title');
@@ -12,8 +20,25 @@ export function showModal(title, body) {
     $title.text(title);
     $body.html(body);
 
-    // ボタン表示
-    $buttons.removeClass('hidden');
+    // ボタンラベルに応じて表示/非表示
+    if (saveLabel) {
+      $saveBtn.text(saveLabel).removeClass('hidden');
+    } else {
+      $saveBtn.addClass('hidden');
+    }
+
+    if (cancelLabel) {
+      $cancelBtn.text(cancelLabel).removeClass('hidden');
+    } else {
+      $cancelBtn.addClass('hidden');
+    }
+
+    // ボタン全体を表示/非表示
+    if (saveLabel || cancelLabel) {
+      $buttons.removeClass('hidden');
+    } else {
+      $buttons.addClass('hidden');
+    }
 
     // モーダル表示
     $modal.removeClass('hidden');
