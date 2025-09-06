@@ -1,29 +1,33 @@
-import * as utils from '../common/functions.js';
-////////////////////////////
-// イベント処理
-////////////////////////////
-$(document).ready(async function () {
-  // 閉じるボタン押下でモーダルを非表示にする
-  $(document).on('click', '.modal-close', function () {
-    $(this).closest('.modal').addClass('hidden');
-  });
-
-  // モーダルの外側をクリックした場合も閉じる
-  $(document).on('click', '.modal', function (e) {
-    if ($(e.target).hasClass('modal')) {
-      $(this).addClass('hidden');
-    }
-  });
-});
-
-////////////////////////////
-// モーダル表示
-////////////////////////////
 export function showModal(title, body) {
-  return new Promise((resolve) => {
-    $('.modal .modal-title').text(title);
-    $('.modal .modal-body').html(body);
-    $('.modal').removeClass('hidden');
-    resolve(true);
+  const $modal = $('.modal');
+  const $title = $modal.find('.modal-title');
+  const $body = $modal.find('.modal-body');
+
+  // タイトルと本文をセット
+  $title.text(title);
+  $body.html(body);
+
+  // 表示
+  $modal.removeClass('hidden');
+
+  // --- モーダルが閉じられるまで待つ Promise ---
+  const closed = new Promise((resolve) => {
+    const close = () => {
+      $modal.addClass('hidden');
+      $(document).off('click.modalClose');
+      resolve(true);
+    };
+
+    // 閉じるボタン
+    $(document).on('click.modalClose', '.modal-close', close);
+
+    // 外側クリック
+    $(document).on('click.modalClose', '.modal', function (e) {
+      if ($(e.target).hasClass('modal')) {
+        close();
+      }
+    });
   });
+
+  return { closed };
 }

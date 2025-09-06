@@ -248,6 +248,9 @@ function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
         )
         .join('');
 
+      // スピナー非表示
+      utils.hideSpinner();
+
       await utils.showModal(`${choiceName} に投票した人`, modalBody);
     } catch (e) {
       // ログ登録
