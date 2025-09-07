@@ -130,7 +130,7 @@ function renderView(voteData, voteResults, container, myAnswer, myProfileUrl) {
 
   // 投票説明リンク対応
   const voteDescription = voteData.explain
-    ? voteData.explainLink.startsWith('http')
+    ? voteData.explainLink
       ? `<a href="${voteData.explainLink}" target="_blank" rel="noopener noreferrer">${voteData.explain}</a>`
       : voteData.explain
     : '';
