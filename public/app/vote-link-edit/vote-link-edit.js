@@ -12,10 +12,10 @@ $(document).ready(async function () {
   try {
     await utils.initDisplay(); // 共通初期化
 
-    // データ取得
+    // データ取得＆画面反映
     await loadVoteData(utils.globalGetParamVoteId);
 
-    // データ反映後に初期状態を保存
+    // 初期状態を保存
     captureInitialState();
 
     setupEventHandlers();
@@ -43,30 +43,40 @@ async function loadVoteData(voteId) {
   }
   const data = docSnap.data();
 
-  // 投票名・説明・公開状態
-  $('#vote-title').val(data.name);
-  $('#vote-description').val(data.explain);
-  $('#is-open').prop('checked', !!data.isActive);
-  $('#is-anonymous').prop('checked', !!data.isAnonymous);
-  $('#hide-votes').prop('checked', !!data.hideVotes);
+  // 投票名表示
+  $('#vote-title').text(data.name);
 
-  // 項目表示
-  $('#vote-items-container').empty();
-  data.items.forEach((item) => {
-    const $item = createVoteItemTemplate();
-    $item.find('.vote-item-title').val(item.name);
-    const $choices = $item.find('.vote-choices').empty();
-    item.choices.forEach((choice, idx) => {
-      $choices.append(`
-          <div class="choice-wrapper">
-            ・<input type="text" class="vote-choice" placeholder="選択肢${
-              idx + 1
-            }" value="${choice.name}" />
-            <button class="remove-choice">×</button>
-          </div>
-        `);
+  // 投票説明リンク用テキストボックス
+  $('#vote-description').val(data.link || '');
+
+  // 投票項目表示
+  const $container = $('#vote-items-container');
+  $container.empty();
+
+  data.items.forEach((item, itemIdx) => {
+    const $item = $(`
+      <div class="vote-item">
+        <label>項目名：${item.name}</label>
+        <input type="text" class="vote-item-link" placeholder="[${
+          item.name
+        }] のリンク" value="${item.link || ''}" />
+        <div class="vote-choices"></div>
+      </div>
+    `);
+
+    const $choicesContainer = $item.find('.vote-choices');
+    item.choices.forEach((choice, choiceIdx) => {
+      $choicesContainer.append(`
+        <div class="choice-wrapper">
+          ・${choice.name}
+          <input type="text" class="vote-choice-link" placeholder="[${
+            choice.name
+          }] のリンク" value="${choice.link || ''}" />
+        </div>
+      `);
     });
-    $('#vote-items-container').append($item);
+
+    $container.append($item);
   });
 }
 
@@ -74,45 +84,35 @@ async function loadVoteData(voteId) {
 // イベントハンドラ登録
 //==================================
 function setupEventHandlers() {
-  // 【クリアボタン】初期状態に戻す
+  // クリアボタン
   $('#clear-button').on('click', async () => {
     if (await utils.showDialog('編集前に戻しますか？')) restoreInitialState();
   });
 
-  // 【保存ボタン】
+  // 保存ボタン
   $('#save-button').on('click', async () => {
-    // 入力チェック
     if (!validateVoteData()) {
-      utils.showDialog('入力内容を確認してください', true);
+      utils.showDialog('リンク形式が正しくありません', true);
       return;
     }
 
-    // 確認ダイアログ
     if (!(await utils.showDialog('保存しますか？'))) return;
 
-    utils.showSpinner(); // スピナー表示
-
+    utils.showSpinner();
     try {
-      // 入力データ取得
       const voteData = collectVoteData();
-
-      // 更新
       const voteId = utils.globalGetParamVoteId;
+
       await utils.updateDoc(utils.doc(utils.db, 'votes', voteId), {
         ...voteData,
         updatedAt: utils.serverTimestamp(),
       });
 
-      // ログ登録
-      await utils.writeLog({
-        dataId: voteId,
-        action: '更新',
-      });
+      await utils.writeLog({ dataId: voteId, action: '更新' });
       utils.hideSpinner();
       await utils.showDialog('更新しました', true);
       window.location.href = `../vote-confirm/vote-confirm.html?voteId=${voteId}`;
     } catch (e) {
-      // ログ登録
       await utils.writeLog({
         dataId: utils.globalGetParamVoteId,
         action: '保存',
@@ -120,62 +120,28 @@ function setupEventHandlers() {
         errorDetail: { message: e.message, stack: e.stack },
       });
     } finally {
-      // スピナー非表示
       utils.hideSpinner();
     }
   });
 
-  // 確認画面に戻る
-  $(document).on('click', '.back-link', function (e) {
+  // 戻るリンク
+  $(document).on('click', '.back-link', () => {
     window.location.href = `../vote-confirm/vote-confirm.html?voteId=${utils.globalGetParamVoteId}`;
   });
 }
 
 //==================================
-// 項目テンプレート生成
-//==================================
-function createVoteItemTemplate() {
-  return $(`
-    <div class="vote-item">
-      <input type="text" class="vote-item-title" placeholder="項目名（例：演目候補）" />
-      <div class="vote-choices">
-        ${choiceTemplate(1)[0].outerHTML}
-        ${choiceTemplate(2)[0].outerHTML}
-      </div>
-      <button class="add-choice">＋ 選択肢を追加</button>
-      <button class="remove-item">× 項目を削除</button>
-    </div>
-  `);
-}
-
-//==================================
-// 選択肢テンプレート生成
-//==================================
-function choiceTemplate(index) {
-  return $(`
-    <div class="choice-wrapper">
-      ・<input type="text" class="vote-choice" placeholder="選択肢${index}" />
-      <button class="remove-choice">×</button>
-    </div>
-  `);
-}
-
-//==================================
-// 初期状態の保存と復元
+// 初期状態保存・復元
 //==================================
 function captureInitialState() {
   initialStateHtml = {
-    title: $('#vote-title').val(),
-    description: $('#vote-description').val(),
-    isOpen: $('#is-open').prop('checked'),
-    isAnonymous: $('#is-anonymous').prop('checked'),
-    hideVotes: $('#hide-votes').prop('checked'),
+    voteDescription: $('#vote-description').val(),
     items: $('#vote-items-container .vote-item')
       .map(function () {
         return {
-          name: $(this).find('.vote-item-title').val(),
+          link: $(this).find('.vote-item-link').val(),
           choices: $(this)
-            .find('.vote-choice')
+            .find('.vote-choice-link')
             .map(function () {
               return $(this).val();
             })
@@ -187,24 +153,15 @@ function captureInitialState() {
 }
 
 function restoreInitialState() {
-  $('#vote-title').val(initialStateHtml.title);
-  $('#vote-description').val(initialStateHtml.description);
-  $('#is-open').prop('checked', initialStateHtml.isOpen);
-  $('#is-anonymous').prop('checked', initialStateHtml.isAnonymous);
-  $('#hide-votes').prop('checked', initialStateHtml.hideVotes);
+  $('#vote-description').val(initialStateHtml.voteDescription);
 
-  $('#vote-items-container').empty();
-  initialStateHtml.items.forEach((item) => {
-    const $item = createVoteItemTemplate();
-    $item.find('.vote-item-title').val(item.name);
-
-    const $choices = $item.find('.vote-choices').empty();
-    item.choices.forEach((choice, idx) => {
-      $choices.append(choiceTemplate(idx + 1));
-      $choices.find('.vote-choice').last().val(choice);
-    });
-
-    $('#vote-items-container').append($item);
+  $('#vote-items-container .vote-item').each(function (idx) {
+    $(this).find('.vote-item-link').val(initialStateHtml.items[idx].link);
+    $(this)
+      .find('.vote-choice-link')
+      .each(function (cIdx) {
+        $(this).val(initialStateHtml.items[idx].choices[cIdx]);
+      });
   });
 
   clearErrors();
@@ -215,26 +172,19 @@ function restoreInitialState() {
 //==================================
 function collectVoteData() {
   const voteData = {
-    name: $('#vote-title').val().trim(),
-    explain: $('#vote-description').val().trim(),
-    isActive: $('#is-open').prop('checked'),
-    isAnonymous: $('#is-anonymous').prop('checked'),
-    hideVotes: $('#hide-votes').prop('checked'),
-    createdAt: utils.serverTimestamp(),
+    link: $('#vote-description').val().trim(),
     items: [],
   };
 
   $('#vote-items-container .vote-item').each(function () {
-    const itemName = $(this).find('.vote-item-title').val().trim();
-    if (!itemName) return;
-
-    const itemObj = { name: itemName, choices: [] };
+    const itemLink = $(this).find('.vote-item-link').val().trim();
+    const itemObj = { link: itemLink, choices: [] };
 
     $(this)
-      .find('.vote-choice')
+      .find('.vote-choice-link')
       .each(function () {
-        const choiceName = $(this).val().trim();
-        if (choiceName) itemObj.choices.push({ name: choiceName });
+        const choiceLink = $(this).val().trim();
+        itemObj.choices.push({ link: choiceLink });
       });
 
     voteData.items.push(itemObj);
@@ -244,13 +194,42 @@ function collectVoteData() {
 }
 
 //==================================
-// 入力チェック
+// 入力チェック（URL形式）
 //==================================
 function validateVoteData() {
   let isValid = true;
-  clearErrors(); // 既存エラー解除
+  clearErrors();
 
-  // URLチェック(urlポイ値か)
+  const urlPattern = /^(https?:\/\/|mailto:|tel:)/i;
+
+  // 投票説明
+  const voteLink = $('#vote-description').val().trim();
+  if (voteLink && !urlPattern.test(voteLink)) {
+    markError($('#vote-description'), '正しいリンク形式ではありません');
+    isValid = false;
+  }
+
+  // 項目リンク
+  $('#vote-items-container .vote-item').each(function () {
+    const $itemLink = $(this).find('.vote-item-link');
+    const val = $itemLink.val().trim();
+    if (val && !urlPattern.test(val)) {
+      markError($itemLink, '正しいリンク形式ではありません');
+      isValid = false;
+    }
+
+    $(this)
+      .find('.vote-choice-link')
+      .each(function () {
+        const choiceVal = $(this).val().trim();
+        if (choiceVal && !urlPattern.test(choiceVal)) {
+          markError($(this), '正しいリンク形式ではありません');
+          isValid = false;
+        }
+      });
+  });
+
+  return isValid;
 }
 
 //==================================
