@@ -47,8 +47,8 @@ async function loadVoteData(voteId) {
   $('#vote-title').text(data.name);
 
   // 投票説明リンク用テキストボックス
-  $('#vote-description').val(data.link || '');
-  $('#vote-description').attr(
+  $('#vote-description-link').val(data.explainLink || '');
+  $('#vote-description-link').attr(
     'placeholder',
     (data.explain || '投票説明') + ' のリンク'
   );
@@ -95,8 +95,9 @@ function setupEventHandlers() {
 
   // 保存ボタン
   $('#save-button').on('click', async () => {
+    // 入力チェック
     if (!validateVoteData()) {
-      utils.showDialog('リンク形式が正しくありません', true);
+      utils.showDialog('リンク形式を確認してください', true);
       return;
     }
 
@@ -104,17 +105,52 @@ function setupEventHandlers() {
 
     utils.showSpinner();
     try {
-      const voteData = collectVoteData();
       const voteId = utils.globalGetParamVoteId;
+      const voteRef = utils.doc(utils.db, 'votes', voteId);
 
-      await utils.updateDoc(utils.doc(utils.db, 'votes', voteId), {
-        ...voteData,
-        updatedAt: utils.serverTimestamp(),
+      // --- 既存データ取得 ---
+      const docSnap = await utils.getDoc(voteRef);
+      if (!docSnap.exists()) throw new Error('投票が見つかりません：' + voteId);
+      const existingData = docSnap.data();
+
+      // --- リンクだけ更新 ---
+      const updatedData = { ...existingData };
+
+      // 投票説明リンク
+      updatedData.explainLink = $('#vote-description-link').val().trim();
+
+      // 項目リンク・選択肢リンク
+      updatedData.items = existingData.items.map((item, i) => {
+        const $itemElem = $('#vote-items-container .vote-item').eq(i);
+        const itemLink = $itemElem.find('.vote-item-link').val().trim();
+
+        const newItem = { ...item, link: itemLink };
+
+        if (item.choices && item.choices.length) {
+          newItem.choices = item.choices.map((choice, cIdx) => {
+            const choiceLink = $itemElem
+              .find('.vote-choice-link')
+              .eq(cIdx)
+              .val()
+              .trim();
+            return { ...choice, link: choiceLink };
+          });
+        }
+
+        return newItem;
       });
 
-      await utils.writeLog({ dataId: voteId, action: '更新' });
+      // 更新日時
+      updatedData.updatedAt = utils.serverTimestamp();
+
+      // --- Firestore 更新 ---
+      await utils.updateDoc(voteRef, updatedData);
+
+      // ログ登録
+      await utils.writeLog({ dataId: voteId, action: '保存' });
+
       utils.hideSpinner();
-      await utils.showDialog('更新しました', true);
+      await utils.showDialog('保存しました', true);
       window.location.href = `../vote-confirm/vote-confirm.html?voteId=${voteId}`;
     } catch (e) {
       await utils.writeLog({
@@ -139,7 +175,7 @@ function setupEventHandlers() {
 //==================================
 function captureInitialState() {
   initialStateHtml = {
-    voteDescription: $('#vote-description').val(),
+    voteDescriptionLink: $('#vote-description-link').val(),
     items: $('#vote-items-container .vote-item')
       .map(function () {
         return {
@@ -157,7 +193,7 @@ function captureInitialState() {
 }
 
 function restoreInitialState() {
-  $('#vote-description').val(initialStateHtml.voteDescription);
+  $('#vote-description-link').val(initialStateHtml.voteDescriptionLink);
 
   $('#vote-items-container .vote-item').each(function (idx) {
     $(this).find('.vote-item-link').val(initialStateHtml.items[idx].link);
@@ -172,32 +208,6 @@ function restoreInitialState() {
 }
 
 //==================================
-// 投票データ収集
-//==================================
-function collectVoteData() {
-  const voteData = {
-    link: $('#vote-description').val().trim(),
-    items: [],
-  };
-
-  $('#vote-items-container .vote-item').each(function () {
-    const itemLink = $(this).find('.vote-item-link').val().trim();
-    const itemObj = { link: itemLink, choices: [] };
-
-    $(this)
-      .find('.vote-choice-link')
-      .each(function () {
-        const choiceLink = $(this).val().trim();
-        itemObj.choices.push({ link: choiceLink });
-      });
-
-    voteData.items.push(itemObj);
-  });
-
-  return voteData;
-}
-
-//==================================
 // 入力チェック（URL形式）
 //==================================
 function validateVoteData() {
@@ -207,9 +217,9 @@ function validateVoteData() {
   const urlPattern = /^(https?:\/\/|mailto:|tel:)/i;
 
   // 投票説明
-  const voteLink = $('#vote-description').val().trim();
+  const voteLink = $('#vote-description-link').val().trim();
   if (voteLink && !urlPattern.test(voteLink)) {
-    markError($('#vote-description'), '正しいリンク形式ではありません');
+    markError($('#vote-description-link'), '正しいリンク形式ではありません');
     isValid = false;
   }
 

@@ -128,9 +128,22 @@ function renderView(voteData, voteResults, container, myAnswer, myProfileUrl) {
   const hideVotes = !!voteData.hideVotes;
   const items = voteData.items || [];
 
+  // 投票説明リンク対応
+  const voteDescription = voteData.explain
+    ? voteData.explainLink.startsWith('http')
+      ? `<a href="${voteData.explainLink}" target="_blank" rel="noopener noreferrer">${voteData.explain}</a>`
+      : voteData.explain
+    : '';
+  $('#vote-description').html(voteDescription);
+
   items.forEach((item) => {
     const results = voteResults[item.name] || {};
     const maxVotes = Math.max(...Object.values(results), 1);
+
+    // 投票項目名リンク対応
+    const itemTitleHtml = item.link
+      ? `<a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.name}</a>`
+      : item.name;
 
     const barsHtml = item.choices
       .map((choice) => {
@@ -142,7 +155,7 @@ function renderView(voteData, voteResults, container, myAnswer, myProfileUrl) {
           ? `<img src="${myProfileUrl}" alt="あなたの選択" class="my-choice-icon"/>`
           : '';
 
-        // 🔽 選択肢名をリンク付きにする
+        // 選択肢名リンク対応
         const choiceLabel = choice.link
           ? `<a href="${choice.link}" target="_blank" rel="noopener noreferrer">${choice.name}</a>`
           : choice.name;
@@ -174,7 +187,7 @@ function renderView(voteData, voteResults, container, myAnswer, myProfileUrl) {
 
     const html = `
       <div class="vote-item">
-        <div class="vote-item-title">${item.name}</div>
+        <div class="vote-item-title">${itemTitleHtml}</div>
         <div class="vote-results">${barsHtml}</div>
       </div>
     `;
