@@ -44,33 +44,38 @@ async function setupPage(mode) {
   const backLink = $('.back-link');
 
   if (mode === 'new') {
+    // 表示文言設定
     pageTitle.text('投票新規作成');
     title.text('投票新規作成');
     submitButton.text('登録');
     backLink.text('← 投票一覧に戻る');
-  } else if (mode === 'copy') {
-    pageTitle.text('投票新規作成');
-    title.text('投票新規作成');
-    submitButton.text('登録');
-    backLink.text('← 投票確認に戻る');
-  } else if (mode === 'edit') {
-    pageTitle.text('投票編集');
-    title.text('投票編集');
-    submitButton.text('更新');
-    backLink.text('← 投票確認に戻る');
-  } else {
-    pageTitle.text('投票管理');
-    throw new Error('モード不正です');
-  }
-
-  if (mode === 'copy' || mode === 'edit') {
-    // 既存データ取得
-    await loadVoteData(utils.globalGetParamVoteId, mode);
-  } else if (mode === 'new') {
     // 初期表示で投票項目一つ表示
     $('#vote-items-container').append(createVoteItemTemplate());
     // 回答を受け付けにチェック
     $('#is-open').prop('checked', true);
+    // リンク設定ボタン非表示
+    $('#vote-link-edit-button').hide();
+  } else if (mode === 'copy') {
+    // 表示文言設定
+    pageTitle.text('投票新規作成');
+    title.text('投票新規作成');
+    submitButton.text('登録');
+    backLink.text('← 投票確認に戻る');
+    // 既存データ取得
+    await loadVoteData(utils.globalGetParamVoteId, mode);
+    // リンク設定ボタン非表示
+    $('#vote-link-edit-button').hide();
+  } else if (mode === 'edit') {
+    // 表示文言設定
+    pageTitle.text('投票編集');
+    title.text('投票編集');
+    submitButton.text('更新');
+    backLink.text('← 投票確認に戻る');
+    // 既存データ取得
+    await loadVoteData(utils.globalGetParamVoteId, mode);
+  } else {
+    pageTitle.text('投票管理');
+    throw new Error('モード不正です');
   }
 }
 
@@ -182,9 +187,18 @@ function setupEventHandlers(mode) {
           action: '登録',
         });
         utils.hideSpinner();
-        await utils.showDialog('登録しました', true);
 
-        window.location.href = `../vote-confirm/vote-confirm.html?voteId=${docRef.id}`;
+        if (
+          await utils.showDialog(
+            '登録しました 続いて選択肢のリンクを設定しますか？'
+          )
+        ) {
+          // はいでリンク設定画面へ
+          window.location.href = `../vote-link-edit/vote-link-edit.html?voteId=${docRef.id}`;
+        } else {
+          // いいえで確認画面へ
+          window.location.href = `../vote-confirm/vote-confirm.html?voteId=${docRef.id}`;
+        }
       } else {
         // 更新
         const voteId = utils.globalGetParamVoteId;
@@ -215,6 +229,13 @@ function setupEventHandlers(mode) {
       utils.hideSpinner();
     }
   });
+
+  // リンク設定
+  $('#vote-link-edit-button')
+    .off('click')
+    .on('click', function () {
+      window.location.href = `../vote-link-edit/vote-link-edit.html?voteId=${utils.globalGetParamVoteId}`;
+    });
 
   // 確認/一覧画面に戻る
   $(document).on('click', '.back-link', function (e) {

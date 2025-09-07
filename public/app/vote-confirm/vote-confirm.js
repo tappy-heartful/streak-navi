@@ -357,6 +357,13 @@ function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
       window.location.href = `../vote-edit/vote-edit.html?mode=edit&voteId=${voteId}`;
     });
 
+  // リンク設定
+  $('#vote-link-edit-button')
+    .off('click')
+    .on('click', function () {
+      window.location.href = `../vote-link-edit/vote-link-edit.html?voteId=${voteId}`;
+    });
+
   // コピー
   $('#vote-copy-button')
     .off('click')
