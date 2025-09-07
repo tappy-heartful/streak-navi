@@ -1,0 +1,45 @@
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.vote-item {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+.vote-item-title {
+  margin-bottom: 10px;
+}
+
+.vote-choices input {
+  margin-bottom: 8px;
+}
+
+.add-choice, .remove-item, #add-item, #add-link {
+  margin-top: 10px;
+  background-color: #eee;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.checkbox-group {
+  margin-top: 20px;
+  text-align: center;
+}
+.choice-wrapper {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.choice-wrapper input {
+  flex: 1;
+}
