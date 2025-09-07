@@ -48,6 +48,10 @@ async function loadVoteData(voteId) {
 
   // 投票説明リンク用テキストボックス
   $('#vote-description').val(data.link || '');
+  $('#vote-description').attr(
+    'placeholder',
+    data.explain || '投票説明 のリンク'
+  );
 
   // 投票項目表示
   const $container = $('#vote-items-container');
@@ -57,9 +61,9 @@ async function loadVoteData(voteId) {
     const $item = $(`
       <div class="vote-item">
         <label>項目名：${item.name}</label>
-        <input type="text" class="vote-item-link" placeholder="[${
+        <input type="text" class="vote-item-link" placeholder="${
           item.name
-        }] のリンク" value="${item.link || ''}" />
+        } のリンク" value="${item.link || ''}" />
         <div class="vote-choices"></div>
       </div>
     `);
@@ -69,9 +73,9 @@ async function loadVoteData(voteId) {
       $choicesContainer.append(`
         <div class="choice-wrapper">
           ・${choice.name}
-          <input type="text" class="vote-choice-link" placeholder="[${
+          <input type="text" class="vote-choice-link" placeholder="${
             choice.name
-          }] のリンク" value="${choice.link || ''}" />
+          } のリンク" value="${choice.link || ''}" />
         </div>
       `);
     });
