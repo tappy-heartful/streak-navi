@@ -26,6 +26,13 @@
   animation: fadeInUp 0.2s ease-out;
 }
 
+/* ヘッダーと本文の間はすでにborder-bottomあるのでOK */
+/* ボタン部分を下端から離す */
+.modal-content .confirm-buttons {
+  padding: 0 16px 16px; /* 左右と下に余白 */
+}
+
+
 /* ヘッダー部分 */
 .modal-header {
   display: flex;
