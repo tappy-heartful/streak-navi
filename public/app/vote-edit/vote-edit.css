@@ -20,7 +20,7 @@
   margin-bottom: 8px;
 }
 
-.add-choice, .remove-item, #add-item, #add-link {
+.add-choice, .remove-item, #add-item, #add-link, #set-link {
   margin-top: 10px;
   background-color: #eee;
   border: none;

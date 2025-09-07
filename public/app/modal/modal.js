@@ -12,8 +12,8 @@ export function showModal(title, body, saveLabel, cancelLabel) {
     const $title = $modal.find('.modal-title');
     const $body = $modal.find('.modal-body');
     const $buttons = $modal.find('.confirm-buttons');
-    const $saveBtn = $buttons.find('.save-button');
-    const $cancelBtn = $buttons.find('.cancel-button');
+    const $saveBtn = $buttons.find('#modal-save-button');
+    const $cancelBtn = $buttons.find('#modal-cancel-button');
     const $closeBtn = $modal.find('.modal-close');
 
     // タイトルと本文セット
