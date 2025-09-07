@@ -50,7 +50,7 @@ async function loadVoteData(voteId) {
   $('#vote-description').val(data.link || '');
   $('#vote-description').attr(
     'placeholder',
-    data.explain || '投票説明 のリンク'
+    (data.explain || '投票説明') + ' のリンク'
   );
 
   // 投票項目表示
