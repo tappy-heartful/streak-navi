@@ -21,20 +21,15 @@
   width: 90%;
   max-width: 400px;
   max-height: 80%;
-  overflow-y: auto;
+  display: flex;              /* 縦にflex */
+  flex-direction: column;     /* 上から下へ配置 */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   animation: fadeInUp 0.2s ease-out;
 }
 
-/* ヘッダーと本文の間はすでにborder-bottomあるのでOK */
-/* ボタン部分を下端から離す */
-.modal-content .confirm-buttons {
-  padding: 0 16px 16px; /* 左右と下に余白 */
-}
-
-
 /* ヘッダー部分 */
 .modal-header {
+  flex-shrink: 0;            /* 縮まない */
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -42,7 +37,27 @@
   border-bottom: 1px solid #ddd;
   font-weight: bold;
   font-size: 16px;
+  background: #fff;          /* スクロール時に背景が透けないように */
+  position: sticky;          /* 念のためstickyでも */
+  top: 0;
+  z-index: 1;
 }
+
+/* 本文部分だけスクロール */
+.modal-body {
+  flex: 1;                   /* 余った高さを使う */
+  overflow-y: auto;          /* ここだけスクロール */
+  padding: 16px;
+}
+
+/* ボタン部分は下に固定 */
+.modal-content .confirm-buttons {
+  flex-shrink: 0;
+  padding: 16px;
+  background: #fff;
+  border-top: 1px solid #ddd;
+}
+
 
 /* 閉じるボタン */
 .modal-close {
@@ -56,9 +71,4 @@
 
 .modal-close:hover {
   color: #000;
-}
-
-/* 本文部分 */
-.modal-body {
-  padding: 16px;
 }

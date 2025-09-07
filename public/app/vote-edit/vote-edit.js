@@ -137,63 +137,6 @@ function setupEventHandlers(mode) {
       $(this).closest('.vote-item').remove();
     });
 
-  // 【リンクを設定ボタン】
-  $('#set-link').on('click', async () => {
-    // いま表示しているvote-itemをコピー（イベントは不要なのでfalse, false推奨）
-    const $voteItems = $('#vote-items-container .vote-item').clone(
-      false,
-      false
-    );
-
-    // 不要なボタンを削除
-    $voteItems.find('.remove-choice').remove();
-    $voteItems.find('.add-choice').remove();
-    $voteItems.find('.remove-item').remove();
-
-    // モーダル本文のHTMLを組み立て
-    const modalBody = $('<div>');
-    modalBody.append($voteItems);
-
-    // 投票名・選択肢名を placeholder に反映、value は空にする
-    modalBody.find('.vote-item').each(function () {
-      const itemName = $(this).find('.vote-item-title').val();
-      $(this)
-        .find('.vote-item-title')
-        .val('') // 値は消す
-        .attr(
-          'placeholder',
-          itemName ? `${itemName} のリンク` : 'リンクを入力'
-        );
-
-      $(this)
-        .find('.vote-choice')
-        .each(function () {
-          const choiceName = $(this).val();
-          $(this)
-            .attr('value', '') // 値は消す
-            .attr(
-              'placeholder',
-              choiceName ? `${choiceName} のリンク` : 'リンクを入力'
-            );
-        });
-    });
-
-    // showModal呼び出し
-    const result = await utils.showModal(
-      'リンク設定',
-      modalBody.html(),
-      '保存',
-      'キャンセル'
-    );
-
-    if (result) {
-      console.log('リンク設定: 保存が押されました');
-      // 保存処理はこのあと実装予定
-    } else {
-      console.log('リンク設定: キャンセルされました');
-    }
-  });
-
   // 【クリアボタン】初期状態に戻す
   $('#clear-button').on('click', async () => {
     if (
