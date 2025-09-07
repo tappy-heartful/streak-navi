@@ -307,6 +307,7 @@ button {
   border-radius: 8px;
   display: inline-block;
   transition: background-color 0.2s ease;
+  cursor: pointer;
 }
 
 .back-link:hover {
