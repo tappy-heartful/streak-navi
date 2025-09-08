@@ -39,7 +39,7 @@
           }
 
           // 保存されたstateを取り出して比較（CSRF対策）
-          const savedState = utils.getSession('oauthState');
+          const savedState = localStorage.getItem('oauthState');
           if (!savedState) {
             throw new Error(
               '認証セッションが見つかりません。もう一度ログインしてください。'
@@ -49,7 +49,7 @@
             throw new Error('不正なリクエストです（state不一致）。');
           }
           // 一致したらstateは使い終わったので削除
-          utils.removeSession('oauthState');
+          localStorage.removeItem('oauthState');
 
           // メッセージ表示
           $('#message').append('✅成功<br><br>');

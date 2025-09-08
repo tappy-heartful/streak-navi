@@ -31,6 +31,8 @@ function generateAndStoreState() {
   const array = new Uint32Array(10);
   window.crypto.getRandomValues(array);
   const state = Array.from(array, (dec) => dec.toString(16)).join('');
-  utils.setSession('oauthState', state);
+  // LINEアプリ経由だと別タブでコールバックされることがあるため
+  // ローカルストレージに保存しておく
+  localStorage.setItem('oauthState', state);
   return state;
 }
