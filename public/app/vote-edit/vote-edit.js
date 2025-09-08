@@ -202,22 +202,26 @@ function setupEventHandlers(mode) {
 
         // 既存データ取得
         const docSnap = await utils.getDoc(voteRef);
-        if (!docSnap.exists())
-          throw new Error('投票が見つかりません：' + voteId);
+        if (!docSnap.exists) throw new Error('投票が見つかりません：' + voteId);
         const existingData = docSnap.data();
 
-        // --- リンク情報を統合 ---
+        // --- リンク情報を名前で統合 ---
         voteData.explainLink = existingData.explainLink || '';
-        voteData.items = voteData.items.map((item, i) => {
-          const existingItem =
-            (existingData.items && existingData.items[i]) || {};
+        voteData.items = voteData.items.map((item) => {
+          // 既存項目で同名のものを探す
+          const existingItem = (existingData.items || []).find(
+            (ei) => ei.name === item.name
+          );
+
           return {
             ...item,
-            link: existingItem.link || '',
-            choices: item.choices.map((choice, cIdx) => {
-              const existingChoice =
-                (existingItem.choices && existingItem.choices[cIdx]) || {};
-              return { ...choice, link: existingChoice.link || '' };
+            link: existingItem?.link || '',
+            choices: item.choices.map((choice) => {
+              // 既存項目がある場合、同名選択肢のリンクを取得
+              const existingChoice = existingItem?.choices?.find(
+                (ec) => ec.name === choice.name
+              );
+              return { ...choice, link: existingChoice?.link || '' };
             }),
           };
         });
