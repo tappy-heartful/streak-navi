@@ -382,6 +382,7 @@ function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
   $(document).on('click', '.youtube-link', async function (e) {
     e.preventDefault();
     const videoId = $(this).data('video-id');
+    const name = $(this).text();
     const iframeHtml = `
     <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; max-width:100%;">
       <iframe 
@@ -391,7 +392,7 @@ function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
         style="position:absolute; top:0; left:0; width:100%; height:100%;">
       </iframe>
     </div>`;
-    await utils.showModal('YouTube再生', iframeHtml);
+    await utils.showModal(name, iframeHtml);
   });
 
   // 編集
