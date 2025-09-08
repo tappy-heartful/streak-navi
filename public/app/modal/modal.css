@@ -1,4 +1,3 @@
-
 /* モーダル用 */
 /* モーダル全体（背景のオーバーレイ） */
 .modal {
@@ -12,12 +11,12 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
-  border-radius: 8px;
 }
 
 /* モーダルの中身 */
 .modal-content {
   background: #fff;
+  border-radius: 8px;
   width: 90%;
   max-width: 768px;
   max-height: 80%;
@@ -25,6 +24,7 @@
   flex-direction: column;     /* 上から下へ配置 */
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   animation: fadeInUp 0.2s ease-out;
+  overflow: hidden;           /* 子要素の角丸を切り取る */
 }
 
 /* ヘッダー部分 */
@@ -37,10 +37,12 @@
   border-bottom: 1px solid #ddd;
   font-weight: bold;
   font-size: 16px;
-  background: #fff;          /* スクロール時に背景が透けないように */
-  position: sticky;          /* 念のためstickyでも */
+  background: #fff;          /* 背景色 */
+  position: sticky;          /* スクロール時に固定 */
   top: 0;
   z-index: 1;
+  border-top-left-radius: 8px;   /* 上部角丸 */
+  border-top-right-radius: 8px;
 }
 
 /* 本文部分だけスクロール */
@@ -48,6 +50,7 @@
   flex: 1;                   /* 余った高さを使う */
   overflow-y: auto;          /* ここだけスクロール */
   padding: 16px;
+  background: #fff;
 }
 
 /* ボタン部分は下に固定 */
@@ -56,8 +59,9 @@
   padding: 16px;
   background: #fff;
   border-top: 1px solid #ddd;
+  border-bottom-left-radius: 8px;  /* 下部角丸 */
+  border-bottom-right-radius: 8px;
 }
-
 
 /* 閉じるボタン */
 .modal-close {
