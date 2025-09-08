@@ -131,7 +131,7 @@ function renderView(voteData, voteResults, container, myAnswer, myProfileUrl) {
   // 投票説明リンク対応
   const voteDescription = voteData.explain
     ? voteData.explainLink
-      ? `<a href="${voteData.explainLink}" target="_blank" rel="noopener noreferrer">${voteData.explain}</a>`
+      ? getLinkHtml(voteData.explainLink, voteData.explain)
       : voteData.explain
     : '';
   $('#vote-description').html(voteDescription);
@@ -142,7 +142,7 @@ function renderView(voteData, voteResults, container, myAnswer, myProfileUrl) {
 
     // 投票項目名リンク対応
     const itemTitleHtml = item.link
-      ? `<a href="${item.link}" target="_blank" rel="noopener noreferrer">${item.name}</a>`
+      ? getLinkHtml(item.link, item.name)
       : item.name;
 
     const barsHtml = item.choices
@@ -157,7 +157,7 @@ function renderView(voteData, voteResults, container, myAnswer, myProfileUrl) {
 
         // 選択肢名リンク対応
         const choiceLabel = choice.link
-          ? `<a href="${choice.link}" target="_blank" rel="noopener noreferrer">${choice.name}</a>`
+          ? getLinkHtml(choice.link, choice.name)
           : choice.name;
 
         let voteCountView = '';
@@ -194,6 +194,21 @@ function renderView(voteData, voteResults, container, myAnswer, myProfileUrl) {
 
     container.append(html);
   });
+}
+
+// リンクHTML生成（YouTubeはモーダル用、他は新規タブ）
+function getLinkHtml(url, text) {
+  try {
+    const u = new URL(url);
+    if (u.hostname.includes('youtube.com') || u.hostname.includes('youtu.be')) {
+      const videoId = u.searchParams.get('v') || u.pathname.split('/').pop();
+      return `<a href="#" class="youtube-link" data-video-id="${videoId}">${text}</a>`;
+    }
+  } catch (e) {
+    // URLパース失敗時は通常テキスト
+    return text;
+  }
+  return `<a href="${url}" target="_blank" rel="noopener noreferrer">${text}</a>`;
 }
 
 ////////////////////////////
@@ -362,6 +377,22 @@ function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
         utils.hideSpinner();
       }
     });
+
+  // YouTubeリンクをモーダルで表示
+  $(document).on('click', '.youtube-link', async function (e) {
+    e.preventDefault();
+    const videoId = $(this).data('video-id');
+    const iframeHtml = `
+    <div style="position:relative; padding-bottom:56.25%; height:0; overflow:hidden; max-width:100%;">
+      <iframe 
+        src="https://www.youtube.com/embed/${videoId}?autoplay=1"
+        frameborder="0"
+        allowfullscreen
+        style="position:absolute; top:0; left:0; width:100%; height:100%;">
+      </iframe>
+    </div>`;
+    await utils.showModal('YouTube再生', iframeHtml);
+  });
 
   // 編集
   $('#vote-edit-button')
