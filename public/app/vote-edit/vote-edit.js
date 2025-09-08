@@ -171,21 +171,17 @@ function setupEventHandlers(mode) {
     utils.showSpinner(); // スピナー表示
 
     try {
-      // 入力データ取得
-      const voteData = collectVoteData(mode);
+      const voteData = collectVoteData(mode); // 投票本文だけ取得
 
       if (['new', 'copy'].includes(mode)) {
-        // 新規登録
+        // --- 新規作成・コピー ---
         const docRef = await utils.addDoc(
           utils.collection(utils.db, 'votes'),
           voteData
         );
 
         // ログ登録
-        await utils.writeLog({
-          dataId: docRef.id,
-          action: '登録',
-        });
+        await utils.writeLog({ dataId: docRef.id, action: '登録' });
         utils.hideSpinner();
 
         if (
@@ -200,19 +196,41 @@ function setupEventHandlers(mode) {
           window.location.href = `../vote-confirm/vote-confirm.html?voteId=${docRef.id}`;
         }
       } else {
-        // 更新
+        // --- 編集 ---
         const voteId = utils.globalGetParamVoteId;
-        await utils.updateDoc(utils.doc(utils.db, 'votes', voteId), {
-          ...voteData,
-          updatedAt: utils.serverTimestamp(),
+        const voteRef = utils.doc(utils.db, 'votes', voteId);
+
+        // 既存データ取得
+        const docSnap = await utils.getDoc(voteRef);
+        if (!docSnap.exists())
+          throw new Error('投票が見つかりません：' + voteId);
+        const existingData = docSnap.data();
+
+        // --- リンク情報を統合 ---
+        voteData.explainLink = existingData.explainLink || '';
+        voteData.items = voteData.items.map((item, i) => {
+          const existingItem =
+            (existingData.items && existingData.items[i]) || {};
+          return {
+            ...item,
+            link: existingItem.link || '',
+            choices: item.choices.map((choice, cIdx) => {
+              const existingChoice =
+                (existingItem.choices && existingItem.choices[cIdx]) || {};
+              return { ...choice, link: existingChoice.link || '' };
+            }),
+          };
         });
 
+        voteData.updatedAt = utils.serverTimestamp();
+
+        // --- Firestore 更新 ---
+        await utils.updateDoc(voteRef, voteData);
+
         // ログ登録
-        await utils.writeLog({
-          dataId: voteId,
-          action: '更新',
-        });
+        await utils.writeLog({ dataId: voteId, action: '更新' });
         utils.hideSpinner();
+
         await utils.showDialog('更新しました', true);
         window.location.href = `../vote-confirm/vote-confirm.html?voteId=${voteId}`;
       }
