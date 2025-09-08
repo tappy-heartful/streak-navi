@@ -12,12 +12,12 @@
   align-items: center;
   justify-content: center;
   z-index: 1000;
+  border-radius: 8px;
 }
 
 /* モーダルの中身 */
 .modal-content {
   background: #fff;
-  border-radius: 8px;
   width: 90%;
   max-width: 768px;
   max-height: 80%;
