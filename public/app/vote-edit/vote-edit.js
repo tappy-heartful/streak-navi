@@ -53,8 +53,6 @@ async function setupPage(mode) {
     $('#vote-items-container').append(createVoteItemTemplate());
     // 回答を受け付けにチェック
     $('#is-open').prop('checked', true);
-    // リンク設定ボタン非表示
-    $('#vote-link-edit-button').hide();
   } else if (mode === 'copy') {
     // 表示文言設定
     pageTitle.text('投票新規作成');
@@ -63,8 +61,6 @@ async function setupPage(mode) {
     backLink.text('← 投票確認に戻る');
     // 既存データ取得
     await loadVoteData(utils.globalGetParamVoteId, mode);
-    // リンク設定ボタン非表示
-    $('#vote-link-edit-button').hide();
   } else if (mode === 'edit') {
     // 表示文言設定
     pageTitle.text('投票編集');
@@ -235,8 +231,17 @@ function setupEventHandlers(mode) {
         await utils.writeLog({ dataId: voteId, action: '更新' });
         utils.hideSpinner();
 
-        await utils.showDialog('更新しました', true);
-        window.location.href = `../vote-confirm/vote-confirm.html?voteId=${voteId}`;
+        if (
+          await utils.showDialog(
+            '更新しました 続いて選択肢のリンクを設定しますか？'
+          )
+        ) {
+          // はいでリンク設定画面へ
+          window.location.href = `../vote-link-edit/vote-link-edit.html?voteId=${voteId}`;
+        } else {
+          // いいえで確認画面へ
+          window.location.href = `../vote-confirm/vote-confirm.html?voteId=${voteId}`;
+        }
       }
     } catch (e) {
       // ログ登録
@@ -251,13 +256,6 @@ function setupEventHandlers(mode) {
       utils.hideSpinner();
     }
   });
-
-  // リンク設定
-  $('#vote-link-edit-button')
-    .off('click')
-    .on('click', function () {
-      window.location.href = `../vote-link-edit/vote-link-edit.html?voteId=${utils.globalGetParamVoteId}`;
-    });
 
   // 確認/一覧画面に戻る
   $(document).on('click', '.back-link', function (e) {
