@@ -171,14 +171,14 @@ async function loadContents() {
       html = `
         <div class="content-item">
           <h4>🎬${data.title}</h4>
-          <iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
+          ${utils.buildYouTubeModalHtml(videoId)}
         </div>`;
     } else if (data.type === 'instagram') {
       // Instagram → リンクを表示
       html = `
         <div class="content-item">
           <h4>🎨${data.title}</h4>
-          <a href="${data.url}" target="_blank" rel="noopener">Instagram ↗</a>
+          <a href="${data.url}" target="_blank" rel="noopener">Instagram<i class="fas fa-arrow-up-right-from-square"></i></a>
         </div>`;
     } else {
       // その他リンク
