@@ -11,12 +11,18 @@
 }
 
 .remove-secret-word {
-  margin-left: 6px;
-  background: #f44336;
+  background-color: #f44336;
   color: white;
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;   /* 丸ボタンにする */
+  margin-left: 8px;
   cursor: pointer;
+  width: 28px;          /* ボタンの幅 */
+  height: 28px;         /* ボタンの高さ */
+  font-size: 16px;      /* ×の大きさ */
+  line-height: 28px;    /* 中央寄せ */
+  text-align: center;
+  padding: 0;
 }
 
 .remove-secret-word.hidden {
