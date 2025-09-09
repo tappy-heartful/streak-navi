@@ -163,41 +163,43 @@ async function loadContents() {
     const data = doc.data();
     let html = '';
 
-    if (data.type === 'youtube') {
-      // YouTube 埋め込み
+    html += `<div class="content-item"><h4>${data.title}</h4>`;
+
+    // YouTube埋め込み
+    if (data.youtubeUrl) {
       const videoId =
-        new URL(data.url).searchParams.get('v') ||
-        new URL(data.url).pathname.split('/').pop();
-      html = `
-        <div class="content-item">
-          <h4>🎬${data.title}</h4>
-          ${utils.buildYouTubeModalHtml(videoId)}
-        </div>`;
-    } else if (data.type === 'instagram') {
-      // Instagram → リンクを表示
-      html = `
-        <div class="content-item">
-          <h4>🎨${data.title}</h4>
-          <a href="${data.url}" target="_blank" rel="noopener">Instagram<i class="fas fa-arrow-up-right-from-square"></i></a>
-        </div>`;
-    } else {
-      // その他リンク
-      html = `
-        <div class="content-item">
-          <h4>✨${data.title}</h4>
-          <a href="${data.url}" target="_blank" rel="noopener">${data.url} ↗</a>
-        </div>`;
+        new URL(data.youtubeUrl).searchParams.get('v') ||
+        new URL(data.youtubeUrl).pathname.split('/').pop();
+      html += utils.buildYouTubeModalHtml(videoId);
     }
 
+    // Instagram埋め込み
+    if (data.instagramUrl) {
+      const instaUrl = data.instagramUrl.split('?')[0]; // クエリを除去
+      html += `
+        <blockquote class="instagram-media" 
+                    data-instgrm-permalink="${instaUrl}" 
+                    data-instgrm-version="14" 
+                    style="background:#FFF; border:0; border-radius:3px; 
+                          box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); 
+                          margin: 1px; max-width:540px; min-width:326px; padding:0; width:100%;">
+        </blockquote>
+      `;
+    }
+
+    html += `</div>`;
     $contentList.append(html);
   });
 
+  // Instagram埋め込みを処理
+  if (window.instgrm) {
+    window.instgrm.Embeds.process();
+  }
+
   // データがなければメッセージ
   if (snap.empty) {
-    $contentList.append(`
-      <div class="content-item">
-        コンテンツはまだ登録されていません🍀
-      </div>
-    `);
+    $contentList.append(
+      `<div class="content-item">コンテンツはまだ登録されていません🍀</div>`
+    );
   }
 }
