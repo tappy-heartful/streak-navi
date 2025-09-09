@@ -104,7 +104,19 @@ function setupEventHandlers() {
   $list.on('click', '.remove-secret-word', function () {
     $(this).closest('.secret-word-item').remove();
   });
+
   // 登録/更新ボタン押下
+  // 合言葉と権限の対応マップ
+  const secretWordMap = {
+    'One by One': 'isVoteAdmin',
+    'Soul Station': 'isUserAdmin',
+    'Fun Time': 'isEventAdmin',
+    'Portrait in Jazz': 'isScoreAdmin',
+    Milestones: 'isMoneyAdmin',
+    'Time Stream': 'isMediaAdmin',
+    'Life is Swing': 'isSystemAdmin',
+  };
+
   $('#save-button').on('click', async function () {
     const uid = utils.globalGetParamUid;
     const isInit = utils.globalGetParamIsInit;
@@ -115,11 +127,19 @@ function setupEventHandlers() {
       return;
     }
 
+    // 基本更新データ
     const updatedData = {
       sectionId: $('#section-select').val(),
       roleId: $('#role-select').val(),
-      // TODO:合言葉も保存対象ならここに含める
     };
+
+    // --- 合言葉チェック ---
+    $('.secret-word-input').each(function () {
+      const word = $(this).val().trim();
+      if (secretWordMap[word]) {
+        updatedData[secretWordMap[word]] = true;
+      }
+    });
 
     const dialogResult = await utils.showDialog(
       'この内容で' + (isInit ? '登録' : '更新') + 'しますか？'
