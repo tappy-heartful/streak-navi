@@ -170,6 +170,11 @@ async function loadContents() {
       html += utils.buildYouTubeHtml(videoId, true);
     }
 
+    // Google Drive埋め込み
+    if (data.driveUrl) {
+      html += utils.buildGoogleDriveHtml(data.driveUrl, true); // 第二引数で注意文表示可否
+    }
+
     html += `</div>`;
     $contentList.append(html);
   });

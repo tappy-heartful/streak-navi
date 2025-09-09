@@ -336,3 +336,21 @@ export function buildInstagramHtml(url, includeWrapper = true) {
 
   return includeWrapper ? `<div class="instagram-embed">${html}</div>` : html;
 }
+
+// Google Drive埋め込みHTMLを生成
+export function buildGoogleDriveHtml(driveUrl, showNotice = true) {
+  if (!driveUrl) return '';
+
+  const match = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
+  if (!match) return '';
+
+  const fileId = match[1];
+  const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
+
+  return `
+    <div class="drive-embed">
+      <iframe src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      ${showNotice ? `<div class="drive-notice">🔒※内部限定動画</div>` : ''}
+    </div>
+  `;
+}

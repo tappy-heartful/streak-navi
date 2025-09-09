@@ -444,7 +444,31 @@ a {
   border-radius: 16px !important;
 }
 
-/* Instagram内のHeaderCtaを非表示にする */
-.HeaderCta {
-  display: none !important;
+/* Google Drive埋め込み */
+.drive-embed {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow: hidden;
+  max-width: 100%;
+  border-radius: 16px;
+  margin-bottom: 8px;
+}
+
+.drive-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  border: 0;
+}
+
+/* 注意文 */
+.drive-notice {
+  text-align: left;
+  font-size: 14px;
+  margin-top: 4px;
+  font-weight: bold;
 }
