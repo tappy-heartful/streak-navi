@@ -302,37 +302,16 @@ function formatDateForId(date = new Date()) {
 // YouTube埋め込みモーダルのHTMLを生成する関数
 export function buildYouTubeHtml(videoId, isDispLink = true) {
   return `
-    <div style="
-        position:relative;
-        padding-bottom:56.25%;
-        height:0;
-        overflow:hidden;
-        max-width:100%;
-        border-radius:16px;
-    ">
+    <div class="youtube-embed">
       <iframe
         src="https://www.youtube.com/embed/${videoId}?autoplay=1"
-        frameborder="0"
-        allowfullscreen
-        style="
-          position:absolute;
-          top:0;
-          left:0;
-          width:100%;
-          height:100%;
-          border-radius:16px;
-        ">
+        allowfullscreen>
       </iframe>
     </div>
     ${
       isDispLink
-        ? `<div style="
-        text-align:right;
-        margin-top:8px;
-          ">
-            <a href="https://www.youtube.com/watch?v=${videoId}"
-              target="_blank"
-              style="font-weight:bold; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+        ? `<div class="youtube-link-container">
+            <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank">
               YouTubeでみる
               <i class="fas fa-arrow-up-right-from-square"></i>
             </a>
@@ -351,22 +330,9 @@ export function buildYouTubeHtml(videoId, isDispLink = true) {
 export function buildInstagramHtml(url, includeWrapper = true) {
   if (!url) return '';
 
-  // URLからクエリを除去
   const instaUrl = url.split('?')[0];
 
-  const html = `
-    <blockquote class="instagram-media" 
-                data-instgrm-permalink="${instaUrl}" 
-                data-instgrm-version="14" 
-                style="background:#FFF; border:0; border-radius:3px; 
-                       box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); 
-                       margin: 1px; max-width:540px; min-width:326px; padding:0; width:100%;">
-    </blockquote>
-  `;
+  const html = `<blockquote class="instagram-media" data-instgrm-permalink="${instaUrl}" data-instgrm-version="14"></blockquote>`;
 
-  if (includeWrapper) {
-    return `<div class="instagram-embed">${html}</div>`;
-  } else {
-    return html;
-  }
+  return includeWrapper ? `<div class="instagram-embed">${html}</div>` : html;
 }

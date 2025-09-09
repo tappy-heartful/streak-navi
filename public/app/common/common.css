@@ -379,3 +379,50 @@ a {
     transform: translateY(0);
   }
 }
+/* YouTube埋め込みモーダル */
+.youtube-embed {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow: hidden;
+  max-width: 100%;
+  border-radius: 16px;
+  margin-bottom: 8px;
+}
+
+.youtube-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  border: 0;
+}
+
+/* YouTubeリンク */
+.youtube-link-container {
+  text-align: right;
+  margin-top: 8px;
+}
+
+.youtube-link-container a {
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Instagram埋め込み */
+.instagram-embed {
+  background: #fff;
+  border: 0;
+  border-radius: 6px;
+  box-shadow: 0 0 1px 0 rgba(0,0,0,0.5), 0 1px 10px 0 rgba(0,0,0,0.15);
+  margin: 8px 0;
+  max-width: 540px;
+  min-width: 326px;
+  padding: 0;
+  width: 100%;
+}
