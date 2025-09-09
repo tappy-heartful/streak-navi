@@ -108,7 +108,7 @@ function setupEventHandlers() {
   });
 
   // 登録/更新ボタン押下
-  // 合言葉と権限の対応マップ
+  // 合言葉と権限の対応マップ TODO: 将来的にDB化
   const secretWordMap = {
     'One by One': 'isVoteAdmin',
     'Soul Station': 'isUserAdmin',

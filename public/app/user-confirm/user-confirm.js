@@ -64,6 +64,7 @@ async function setUpPage() {
 
   // 管理者権限(管理者権限がある場合のみ表示)
   let adminList = [];
+  // TODO: 将来的にDB化
   if (userData.isUserAdmin) adminList.push('ユーザ管理者');
   if (userData.isVoteAdmin) adminList.push('投票管理者');
   if (adminList.length > 0) {
