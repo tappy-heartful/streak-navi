@@ -80,6 +80,7 @@ async function loadPendingVotesForAnnouncement() {
 
   const uid = utils.getSession('uid');
   const $announcementList = $('.notification-list');
+  const $announcementContainer = $('.announcement-container'); // container取得
   $announcementList.empty();
 
   let hasPending = false;
@@ -111,18 +112,13 @@ async function loadPendingVotesForAnnouncement() {
     // ✅ 未回答があるとき冒頭にメッセージを追加
     $announcementList.prepend(`
       <li class="pending-message">
-          📌未回答の投票があります
+        📌未回答の投票があります
       </li>
     `);
+    $announcementContainer.show(); // 表示
   } else {
-    // 未回答がなければ「お知らせはありません🍀」を表示
-    $announcementList.append(`
-      <li class="empty-message">
-        <div class="notification-link">
-          お知らせはありません🍀
-        </div>
-      </li>
-    `);
+    // お知らせがない場合は container を非表示
+    $announcementContainer.hide();
   }
 }
 
