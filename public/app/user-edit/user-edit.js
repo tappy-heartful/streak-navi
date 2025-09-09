@@ -102,7 +102,9 @@ function setupEventHandlers() {
 
   // 合言葉削除ボタン
   $list.on('click', '.remove-secret-word', function () {
-    $(this).closest('.secret-word-item').remove();
+    const $item = $(this).closest('.secret-word-item');
+    $item.next('.error-message').remove(); // 直後のエラーメッセージを削除
+    $item.remove(); // テキストボックス＋ボタン本体を削除
   });
 
   // 登録/更新ボタン押下
@@ -243,7 +245,7 @@ function clearErrors() {
 }
 
 function markError($field, message) {
-  const $item = $field.closest('.secret-word-item'); // 親コンテナを取得
-  $item.append(`<div class="error-message">${message}</div>`); // 末尾に追加
+  const $item = $field.closest('.secret-word-item');
+  $item.after(`<div class="error-message">${message}</div>`); // ← 兄弟要素として後に追加
   $field.addClass('error-field');
 }
