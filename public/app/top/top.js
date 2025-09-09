@@ -165,24 +165,26 @@ async function loadContents() {
 
     if (data.type === 'youtube') {
       // YouTube 埋め込み
-      const videoId = new URL(data.url).searchParams.get('v');
+      const videoId =
+        new URL(data.url).searchParams.get('v') ||
+        new URL(data.url).pathname.split('/').pop();
       html = `
         <div class="content-item">
-          <h4>${data.title}</h4>
+          <h4>🎬${data.title}</h4>
           <iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
         </div>`;
     } else if (data.type === 'instagram') {
       // Instagram → リンクを表示
       html = `
         <div class="content-item">
-          <h4>${data.title}</h4>
+          <h4>🎨${data.title}</h4>
           <a href="${data.url}" target="_blank" rel="noopener">Instagram ↗</a>
         </div>`;
     } else {
       // その他リンク
       html = `
         <div class="content-item">
-          <h4>${data.title}</h4>
+          <h4>✨${data.title}</h4>
           <a href="${data.url}" target="_blank" rel="noopener">${data.url} ↗</a>
         </div>`;
     }
