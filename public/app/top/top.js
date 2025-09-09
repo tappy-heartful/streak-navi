@@ -145,7 +145,7 @@ async function loadMenu() {
 // コンテンツを読み込んで表示する関数
 async function loadContents() {
   const contentsRef = utils.collection(utils.db, 'contents');
-  const q = utils.query(contentsRef, utils.orderBy('order', 'asc'));
+  const q = utils.query(contentsRef, utils.orderBy('date', 'desc'));
   const snap = await utils.getDocs(q);
 
   const $contentList = $('.content-list');
@@ -155,7 +155,7 @@ async function loadContents() {
     const data = doc.data();
     let html = '';
 
-    html += `<div class="content-item"><h4>✨${data.title}</h4>`;
+    html += `<div class="content-item"><h4>${data.title}</h4>`;
 
     // Instagram埋め込み
     if (data.instagramUrl) {
