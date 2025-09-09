@@ -341,3 +341,32 @@ export function buildYouTubeHtml(videoId, isDispLink = true) {
     }
   `;
 }
+
+/**
+ * Instagram埋め込みHTMLを生成
+ * @param {string} url - Instagramの投稿URL
+ * @param {boolean} includeWrapper - trueなら外枠<div>も含める
+ * @returns {string} HTML文字列
+ */
+export function buildInstagramHtml(url, includeWrapper = true) {
+  if (!url) return '';
+
+  // URLからクエリを除去
+  const instaUrl = url.split('?')[0];
+
+  const html = `
+    <blockquote class="instagram-media" 
+                data-instgrm-permalink="${instaUrl}" 
+                data-instgrm-version="14" 
+                style="background:#FFF; border:0; border-radius:3px; 
+                       box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); 
+                       margin: 1px; max-width:540px; min-width:326px; padding:0; width:100%;">
+    </blockquote>
+  `;
+
+  if (includeWrapper) {
+    return `<div class="instagram-embed">${html}</div>`;
+  } else {
+    return html;
+  }
+}

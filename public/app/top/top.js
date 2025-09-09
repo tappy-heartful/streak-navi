@@ -163,20 +163,11 @@ async function loadContents() {
     const data = doc.data();
     let html = '';
 
-    html += `<div class="content-item"><h4>${data.title}</h4>`;
+    html += `<div class="content-item"><h4>✨${data.title}</h4>`;
 
     // Instagram埋め込み
     if (data.instagramUrl) {
-      const instaUrl = data.instagramUrl.split('?')[0]; // クエリを除去
-      html += `
-        <blockquote class="instagram-media" 
-                    data-instgrm-permalink="${instaUrl}" 
-                    data-instgrm-version="14" 
-                    style="background:#FFF; border:0; border-radius:3px; 
-                          box-shadow:0 0 1px 0 rgba(0,0,0,0.5),0 1px 10px 0 rgba(0,0,0,0.15); 
-                          margin: 1px; max-width:540px; min-width:326px; padding:0; width:100%;">
-        </blockquote>
-      `;
+      html += utils.buildInstagramHtml(data.instagramUrl, false);
     }
 
     // YouTube埋め込み
