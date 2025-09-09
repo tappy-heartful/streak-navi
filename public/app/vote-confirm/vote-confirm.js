@@ -384,7 +384,7 @@ function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
     const videoId = $(this).data('video-id');
     const title = $(this).text();
 
-    const iframeHtml = utils.buildYouTubeModalHtml(videoId);
+    const iframeHtml = utils.buildYouTubeHtml(videoId);
 
     await utils.showModal(title, iframeHtml);
   });

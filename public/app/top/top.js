@@ -165,14 +165,6 @@ async function loadContents() {
 
     html += `<div class="content-item"><h4>${data.title}</h4>`;
 
-    // YouTube埋め込み
-    if (data.youtubeUrl) {
-      const videoId =
-        new URL(data.youtubeUrl).searchParams.get('v') ||
-        new URL(data.youtubeUrl).pathname.split('/').pop();
-      html += utils.buildYouTubeModalHtml(videoId, false);
-    }
-
     // Instagram埋め込み
     if (data.instagramUrl) {
       const instaUrl = data.instagramUrl.split('?')[0]; // クエリを除去
@@ -185,6 +177,14 @@ async function loadContents() {
                           margin: 1px; max-width:540px; min-width:326px; padding:0; width:100%;">
         </blockquote>
       `;
+    }
+
+    // YouTube埋め込み
+    if (data.youtubeUrl) {
+      const videoId =
+        new URL(data.youtubeUrl).searchParams.get('v') ||
+        new URL(data.youtubeUrl).pathname.split('/').pop();
+      html += utils.buildYouTubeHtml(videoId, false);
     }
 
     html += `</div>`;

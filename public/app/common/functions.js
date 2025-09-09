@@ -300,7 +300,7 @@ function formatDateForId(date = new Date()) {
 }
 
 // YouTube埋め込みモーダルのHTMLを生成する関数
-export function buildYouTubeModalHtml(videoId, isDispLink = true) {
+export function buildYouTubeHtml(videoId, isDispLink = true) {
   return `
     <div style="
         position:relative;
