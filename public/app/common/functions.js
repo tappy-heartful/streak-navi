@@ -311,7 +311,7 @@ export function buildYouTubeHtml(videoId, showNotice = false) {
     <div class="youtube-link-container">
       ${
         showNotice
-          ? `<span class="youtube-notice">※バンド内限定公開🔒</span>`
+          ? `<span class="youtube-notice">🔒バンド内限定公開</span>`
           : ''
       }
       <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank">
@@ -348,9 +348,11 @@ export function buildGoogleDriveHtml(driveUrl, showNotice = false) {
   const embedUrl = `https://drive.google.com/file/d/${fileId}/preview`;
 
   return `
-    <div class="drive-embed">
-      <iframe src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-      ${showNotice ? `<div class="drive-notice">🔒※バンド内限定公開</div>` : ''}
+    <div class="drive-embed-wrapper">
+      <div class="drive-embed">
+        <iframe src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+      </div>
+      ${showNotice ? `<div class="drive-notice">🔒バンド内限定公開</div>` : ''}
     </div>
   `;
 }

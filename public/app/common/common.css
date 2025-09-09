@@ -445,14 +445,18 @@ a {
 }
 
 /* Google Drive埋め込み */
+/* drive-embedはiframe専用ラッパーに */
+.drive-embed-wrapper {
+  margin-bottom: 12px; /* 注意文との間隔 */
+}
+
+/* iframeラッパー */
 .drive-embed {
   position: relative;
   padding-bottom: 56.25%; /* 16:9 */
   height: 0;
   overflow: hidden;
-  max-width: 100%;
   border-radius: 16px;
-  margin-bottom: 8px;
 }
 
 .drive-embed iframe {
