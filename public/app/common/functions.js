@@ -300,7 +300,7 @@ function formatDateForId(date = new Date()) {
 }
 
 // YouTube埋め込みモーダルのHTMLを生成する関数
-export function buildYouTubeHtml(videoId, isDispLink = true) {
+export function buildYouTubeHtml(videoId, showNotice = false) {
   return `
     <div class="youtube-embed">
       <iframe
@@ -308,17 +308,13 @@ export function buildYouTubeHtml(videoId, isDispLink = true) {
         allowfullscreen>
       </iframe>
     </div>
-    ${
-      isDispLink
-        ? `<div class="youtube-link-container">
-            <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank">
-              YouTubeでみる
-              <i class="fas fa-arrow-up-right-from-square"></i>
-            </a>
-          </div>`
-        : ''
-    }
-  `;
+    <div class="youtube-link-container">
+      ${showNotice ? `<span class="youtube-notice">※内部限定動画🔒</span>` : ''}
+      <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank">
+        YouTubeでみる
+        <i class="fas fa-arrow-up-right-from-square"></i>
+      </a>
+    </div>`;
 }
 
 /**

@@ -167,7 +167,7 @@ async function loadContents() {
       const videoId =
         new URL(data.youtubeUrl).searchParams.get('v') ||
         new URL(data.youtubeUrl).pathname.split('/').pop();
-      html += utils.buildYouTubeHtml(videoId);
+      html += utils.buildYouTubeHtml(videoId, true);
     }
 
     html += `</div>`;

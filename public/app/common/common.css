@@ -400,12 +400,21 @@ a {
   border: 0;
 }
 
-/* YouTubeリンク */
+/* YouTubeリンクコンテナ */
 .youtube-link-container {
-  text-align: right;
+  display: flex;              /* 左右に配置 */
+  justify-content: space-between;
+  align-items: center;
   margin-top: 8px;
 }
 
+/* 左側の注意文 */
+.youtube-notice {
+  font-size: 14px;
+  font-weight: bold;
+}
+
+/* 右側のリンク */
 .youtube-link-container a {
   font-weight: bold;
   text-decoration: none;
