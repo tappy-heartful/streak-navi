@@ -311,7 +311,7 @@ export function buildYouTubeHtml(videoId, showNotice = false) {
     <div class="youtube-link-container">
       ${
         showNotice
-          ? `<span class="youtube-notice">※バンド内限定動画🔒</span>`
+          ? `<span class="youtube-notice">※バンド内限定公開🔒</span>`
           : ''
       }
       <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank">
@@ -338,7 +338,7 @@ export function buildInstagramHtml(url, includeWrapper = true) {
 }
 
 // Google Drive埋め込みHTMLを生成
-export function buildGoogleDriveHtml(driveUrl, showNotice = true) {
+export function buildGoogleDriveHtml(driveUrl, showNotice = false) {
   if (!driveUrl) return '';
 
   const match = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/);
@@ -350,7 +350,7 @@ export function buildGoogleDriveHtml(driveUrl, showNotice = true) {
   return `
     <div class="drive-embed">
       <iframe src="${embedUrl}" allow="autoplay; encrypted-media" allowfullscreen></iframe>
-      ${showNotice ? `<div class="drive-notice">🔒※内部限定動画</div>` : ''}
+      ${showNotice ? `<div class="drive-notice">🔒※バンド内限定公開</div>` : ''}
     </div>
   `;
 }
