@@ -309,7 +309,11 @@ export function buildYouTubeHtml(videoId, showNotice = false) {
       </iframe>
     </div>
     <div class="youtube-link-container">
-      ${showNotice ? `<span class="youtube-notice">※内部限定動画🔒</span>` : ''}
+      ${
+        showNotice
+          ? `<span class="youtube-notice">※バンド内限定動画🔒</span>`
+          : ''
+      }
       <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank">
         YouTubeでみる
         <i class="fas fa-arrow-up-right-from-square"></i>
