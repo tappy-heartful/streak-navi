@@ -298,3 +298,42 @@ function formatDateForId(date = new Date()) {
     pad(date.getSeconds())
   );
 }
+
+// YouTube埋め込みモーダルのHTMLを生成する関数
+export function buildYouTubeModalHtml(videoId) {
+  return `
+    <div style="
+        position:relative;
+        padding-bottom:56.25%;
+        height:0;
+        overflow:hidden;
+        max-width:100%;
+        border-radius:16px;
+    ">
+      <iframe
+        src="https://www.youtube.com/embed/${videoId}?autoplay=1"
+        frameborder="0"
+        allowfullscreen
+        style="
+          position:absolute;
+          top:0;
+          left:0;
+          width:100%;
+          height:100%;
+          border-radius:16px;
+        ">
+      </iframe>
+    </div>
+    <div style="
+        text-align:right;
+        margin-top:8px;
+    ">
+      <a href="https://www.youtube.com/watch?v=${videoId}"
+         target="_blank"
+         style="font-weight:bold; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+        YouTubeでみる
+        <i class="fas fa-arrow-up-right-from-square"></i>
+      </a>
+    </div>
+  `;
+}

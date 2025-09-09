@@ -382,33 +382,11 @@ function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
   $(document).on('click', '.youtube-link', async function (e) {
     e.preventDefault();
     const videoId = $(this).data('video-id');
-    const name = $(this).text();
+    const title = $(this).text();
 
-    const iframeHtml = `
-    <div style="
-        position:relative;
-        padding-bottom:56.25%;
-        height:0;
-        overflow:hidden;
-        max-width:100%;
-        border-radius:16px;
-    ">
-      <iframe
-        src="https://www.youtube.com/embed/${videoId}?autoplay=1"
-        frameborder="0"
-        allowfullscreen
-        style="
-          position:absolute;
-          top:0;
-          left:0;
-          width:100%;
-          height:100%;
-          border-radius:16px;
-        ">
-      </iframe>
-    </div>`;
+    const iframeHtml = utils.buildYouTubeModalHtml(videoId);
 
-    await utils.showModal(name, iframeHtml);
+    await utils.showModal(title, iframeHtml);
   });
 
   // 編集
