@@ -9,6 +9,7 @@ $(document).ready(async function () {
     await utils.initDisplay();
     await loadPendingVotesForAnnouncement();
     await loadMenu();
+    await loadContents();
 
     // スピナー非表示
     utils.hideSpinner();
@@ -147,4 +148,54 @@ async function loadMenu() {
   $menuList.append(
     `<a href="../user-list/user-list.html" class="menu-button user">👥 ユーザ一覧</a>`
   );
+}
+
+// コンテンツを読み込んで表示する関数
+async function loadContents() {
+  const contentsRef = utils.collection(utils.db, 'contents');
+  const q = utils.query(contentsRef, utils.orderBy('order', 'asc'));
+  const snap = await utils.getDocs(q);
+
+  const $contentList = $('.content-list');
+  $contentList.empty();
+
+  snap.forEach((doc) => {
+    const data = doc.data();
+    let html = '';
+
+    if (data.type === 'youtube') {
+      // YouTube 埋め込み
+      const videoId = new URL(data.url).searchParams.get('v');
+      html = `
+        <div class="content-item">
+          <h4>${data.title}</h4>
+          <iframe src="https://www.youtube.com/embed/${videoId}" allowfullscreen></iframe>
+        </div>`;
+    } else if (data.type === 'instagram') {
+      // Instagram → リンクを表示
+      html = `
+        <div class="content-item">
+          <h4>${data.title}</h4>
+          <a href="${data.url}" target="_blank" rel="noopener">Instagram ↗</a>
+        </div>`;
+    } else {
+      // その他リンク
+      html = `
+        <div class="content-item">
+          <h4>${data.title}</h4>
+          <a href="${data.url}" target="_blank" rel="noopener">${data.url} ↗</a>
+        </div>`;
+    }
+
+    $contentList.append(html);
+  });
+
+  // データがなければメッセージ
+  if (snap.empty) {
+    $contentList.append(`
+      <div class="content-item">
+        コンテンツはまだ登録されていません🍀
+      </div>
+    `);
+  }
 }
