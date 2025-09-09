@@ -134,17 +134,23 @@ function setupEventHandlers() {
     };
 
     // --- 合言葉チェック ---
+    let matched = false; // 合言葉が一致したかどうか
     $('.secret-word-input').each(function () {
       const word = $(this).val().trim();
       if (secretWordMap[word]) {
         updatedData[secretWordMap[word]] = true;
+        matched = true;
       }
     });
+
+    if (!matched) {
+      await utils.showDialog('合言葉が正しく入力されていません', true);
+      return;
+    }
 
     const dialogResult = await utils.showDialog(
       'この内容で' + (isInit ? '登録' : '更新') + 'しますか？'
     );
-
     if (!dialogResult) return;
 
     // スピナー表示
@@ -167,7 +173,7 @@ function setupEventHandlers() {
 
       await utils.showDialog((isInit ? '登録' : '更新') + 'しました', true);
 
-      // 画面遷移 (初回ログインの場合TOP, それ以外の場合確認画面へ)
+      // 画面遷移
       window.location.href =
         isInit === utils.globalStrTrue
           ? '../top/top.html?isInit=1'
