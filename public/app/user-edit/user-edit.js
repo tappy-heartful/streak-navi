@@ -107,19 +107,10 @@ function setupEventHandlers() {
     $item.remove(); // テキストボックス＋ボタン本体を削除
   });
 
-  // 登録/更新ボタン押下
-  // 合言葉と権限の対応マップ TODO: 将来的にDB化
-  const secretWordMap = {
-    'One by One': 'isVoteAdmin',
-    'Soul Station': 'isUserAdmin',
-    'Fun Time': 'isEventAdmin',
-    'Portrait in Jazz': 'isScoreAdmin',
-    Milestones: 'isMoneyAdmin',
-    'Time Stream': 'isMediaAdmin',
-    'Life is Swing': 'isSystemAdmin',
-  };
-
   $('#save-button').on('click', async function () {
+    // スピナー表示
+    utils.showSpinner();
+
     const uid = utils.globalGetParamUid;
     const isInit = utils.globalGetParamIsInit;
 
@@ -130,6 +121,9 @@ function setupEventHandlers() {
       await utils.showDialog('入力内容を確認してください', true);
       return;
     }
+
+    // Firestoreから最新の合言葉マップを取得
+    const secretWordMap = await getSecretWordMap();
 
     // 基本更新データ
     const updatedData = {
@@ -144,10 +138,7 @@ function setupEventHandlers() {
       const $input = $(this);
       const word = $input.val().trim();
 
-      if (!word) {
-        // 空欄は無視
-        return;
-      }
+      if (!word) return; // 空欄は無視
 
       if (secretWordMap[word]) {
         // 正しい → 何もしない（更新データに反映）
@@ -158,6 +149,9 @@ function setupEventHandlers() {
         hasError = true;
       }
     });
+
+    // スピナー非表示
+    utils.hideSpinner();
 
     if (hasError) {
       // ひとつでもエラーがあれば処理中止
@@ -214,6 +208,18 @@ function setupEventHandlers() {
     window.location.href =
       '../user-confirm/user-confirm.html?uid=' + utils.globalGetParamUid;
   });
+}
+
+async function getSecretWordMap() {
+  const snapshot = await utils.getDocs(
+    utils.collection(utils.db, 'secretWords')
+  );
+  const map = {};
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    map[data.word] = data.roleField; // ここだけあればOK
+  });
+  return map;
 }
 
 function validateUserData() {
