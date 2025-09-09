@@ -62,15 +62,22 @@ async function setUpPage() {
   $('#user-name').text(userData.displayName || '');
   $('.user-icon').attr('src', userData.pictureUrl || utils.globalBandLogoImage);
 
-  // 管理者権限(管理者権限がある場合のみ表示)
+  // 管理者権限表示
+  const secretWordsSnap = await utils.getDocs(
+    utils.collection(utils.db, 'secretWords')
+  );
   let adminList = [];
-  // TODO: 将来的にDB化
-  if (userData.isUserAdmin) adminList.push('ユーザ管理者');
-  if (userData.isVoteAdmin) adminList.push('投票管理者');
+  secretWordsSnap.forEach((doc) => {
+    const role = doc.data(); // { label, roleField, word }
+    if (userData[role.roleField]) {
+      adminList.push(role.label);
+    }
+  });
+
   if (adminList.length > 0) {
     $('label:contains("管理者権限")').html(
       `管理者権限：${adminList.join('、')}
-       <span class="tooltip-icon" data-tooltip="管理者はデータ操作ができます。" >？</span>`
+       <span class="tooltip-icon" data-tooltip="管理者はデータ操作ができます。">？</span>`
     );
   } else {
     $('label:contains("管理者権限")').remove();
@@ -86,7 +93,7 @@ async function setUpPage() {
     <span class="tooltip-icon" data-tooltip="このユーザの役職">？</span>`
   );
 
-  // 編集/退会/日付/uid表示条件チェック
+  // 編集/退会ボタン表示
   utils.getSession('uid') === uid
     ? $('#confirm-buttons').show()
     : $('#confirm-buttons').hide();
