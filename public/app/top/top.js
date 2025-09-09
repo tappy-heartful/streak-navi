@@ -129,7 +129,6 @@ async function loadPendingVotesForAnnouncement() {
 // メニューを読み込んで表示する関数
 async function loadMenu() {
   const $menuList = $('.menu-list');
-  const voteAdminFlg = utils.getSession('voteAdminFlg');
 
   // 投票一覧
   $menuList.append(

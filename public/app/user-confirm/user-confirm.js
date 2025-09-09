@@ -64,8 +64,8 @@ async function setUpPage() {
 
   // 管理者権限(管理者権限がある場合のみ表示)
   let adminList = [];
-  if (userData.userAdminFlg) adminList.push('ユーザ管理者');
-  if (userData.voteAdminFlg) adminList.push('投票管理者');
+  if (userData.isUserAdmin) adminList.push('ユーザ管理者');
+  if (userData.isVoteAdmin) adminList.push('投票管理者');
   if (adminList.length > 0) {
     $('label:contains("管理者権限")').html(
       `管理者権限：${adminList.join('、')}

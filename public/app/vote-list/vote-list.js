@@ -74,7 +74,7 @@ async function setUpPage() {
   votedItems.forEach((item) => $list.append(item));
   closedItems.forEach((item) => $list.append(item));
 
-  utils.getSession('voteAdminFlg') === utils.globalStrTrue
+  utils.getSession('isVoteAdmin') === utils.globalStrTrue
     ? $('#add-button').show()
     : $('#add-button').hide();
 }
