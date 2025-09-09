@@ -170,7 +170,7 @@ async function loadContents() {
       const videoId =
         new URL(data.youtubeUrl).searchParams.get('v') ||
         new URL(data.youtubeUrl).pathname.split('/').pop();
-      html += utils.buildYouTubeModalHtml(videoId);
+      html += utils.buildYouTubeModalHtml(videoId, false);
     }
 
     // Instagram埋め込み

@@ -300,7 +300,7 @@ function formatDateForId(date = new Date()) {
 }
 
 // YouTube埋め込みモーダルのHTMLを生成する関数
-export function buildYouTubeModalHtml(videoId) {
+export function buildYouTubeModalHtml(videoId, isDispLink = true) {
   return `
     <div style="
         position:relative;
@@ -324,16 +324,20 @@ export function buildYouTubeModalHtml(videoId) {
         ">
       </iframe>
     </div>
-    <div style="
+    ${
+      isDispLink
+        ? `<div style="
         text-align:right;
         margin-top:8px;
-    ">
-      <a href="https://www.youtube.com/watch?v=${videoId}"
-         target="_blank"
-         style="font-weight:bold; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
-        YouTubeでみる
-        <i class="fas fa-arrow-up-right-from-square"></i>
-      </a>
-    </div>
+          ">
+            <a href="https://www.youtube.com/watch?v=${videoId}"
+              target="_blank"
+              style="font-weight:bold; text-decoration:none; display:inline-flex; align-items:center; gap:4px;">
+              YouTubeでみる
+              <i class="fas fa-arrow-up-right-from-square"></i>
+            </a>
+          </div>`
+        : ''
+    }
   `;
 }
