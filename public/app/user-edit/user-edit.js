@@ -121,6 +121,8 @@ function setupEventHandlers() {
     const uid = utils.globalGetParamUid;
     const isInit = utils.globalGetParamIsInit;
 
+    clearErrors(); // エラークリア
+
     // 入力チェック
     if (!validateUserData()) {
       await utils.showDialog('入力内容を確認してください', true);
@@ -134,17 +136,30 @@ function setupEventHandlers() {
     };
 
     // --- 合言葉チェック ---
-    let matched = false; // 合言葉が一致したかどうか
+    let hasError = false;
+
     $('.secret-word-input').each(function () {
-      const word = $(this).val().trim();
+      const $input = $(this);
+      const word = $input.val().trim();
+
+      if (!word) {
+        // 空欄は無視
+        return;
+      }
+
       if (secretWordMap[word]) {
+        // 正しい → 何もしない（更新データに反映）
         updatedData[secretWordMap[word]] = true;
-        matched = true;
+      } else {
+        // 間違い → エラー表示
+        markError($input, '正しい合言葉を入力してください');
+        hasError = true;
       }
     });
 
-    if (!matched) {
-      await utils.showDialog('合言葉が正しく入力されていません', true);
+    if (hasError) {
+      // ひとつでもエラーがあれば処理中止
+      await utils.showDialog('入力内容を確認してください', true);
       return;
     }
 
@@ -228,7 +243,7 @@ function clearErrors() {
 }
 
 function markError($field, message) {
-  $field
-    .after(`<div class="error-message">${message}</div>`)
-    .addClass('error-field');
+  const $item = $field.closest('.secret-word-item'); // 親コンテナを取得
+  $item.append(`<div class="error-message">${message}</div>`); // 末尾に追加
+  $field.addClass('error-field');
 }
