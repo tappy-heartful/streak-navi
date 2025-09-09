@@ -427,13 +427,14 @@ a {
   box-sizing: border-box;
 }
 
-/* Instagram内のblockquoteも幅100%に */
-.instagram-embed blockquote.instagram-media {
+/* Instagram 埋め込みの幅をレスポンシブにする */
+.instagram-embed iframe.instagram-media {
+  min-width: 0 !important;
   width: 100% !important;
   max-width: 100% !important;
 }
 
-/* Instagram内のViewProfileButtonを非表示にする */
-.ViewProfileButton {
+/* Instagram内のHeaderCtaを非表示にする */
+.HeaderCta {
   display: none !important;
 }
