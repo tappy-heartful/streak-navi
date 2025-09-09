@@ -171,11 +171,6 @@ function validateUserData() {
     markError($('#role-select'), '役職を選択してください');
     isValid = false;
   }
-  // TODO: 合言葉も保存対象にする場合はコメントアウトを外す
-  // if (!secretWord) {
-  //   markError($('#secret-word'), '合言葉を入力してください');
-  //   isValid = false;
-  // }
 
   return isValid;
 }
