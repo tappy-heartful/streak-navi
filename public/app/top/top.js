@@ -167,7 +167,7 @@ async function loadContents() {
 
     // Instagram埋め込み
     if (data.instagramUrl) {
-      html += utils.buildInstagramHtml(data.instagramUrl, false);
+      html += utils.buildInstagramHtml(data.instagramUrl);
     }
 
     // YouTube埋め込み
@@ -175,7 +175,7 @@ async function loadContents() {
       const videoId =
         new URL(data.youtubeUrl).searchParams.get('v') ||
         new URL(data.youtubeUrl).pathname.split('/').pop();
-      html += utils.buildYouTubeHtml(videoId, false);
+      html += utils.buildYouTubeHtml(videoId);
     }
 
     html += `</div>`;
