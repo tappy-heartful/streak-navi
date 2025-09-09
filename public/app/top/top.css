@@ -49,6 +49,14 @@
   padding-left: 16px;
 }
 
+.empty-message .notification-link {
+  background-color: #f0f0f0;
+  color: #777;
+  font-size: 14px;
+  text-align: center;
+  box-shadow: none;
+}
+
 /* メニュー */
 h3 {
   font-size: 18px;
