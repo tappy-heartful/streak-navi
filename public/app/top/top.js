@@ -9,7 +9,7 @@ $(document).ready(async function () {
     await utils.initDisplay();
     await loadPendingVotesForAnnouncement();
     await loadMenu();
-    await loadContents();
+    await loadMedias();
 
     // スピナー非表示
     utils.hideSpinner();
@@ -143,9 +143,9 @@ async function loadMenu() {
 }
 
 // コンテンツを読み込んで表示する関数
-async function loadContents() {
-  const contentsRef = utils.collection(utils.db, 'contents');
-  const q = utils.query(contentsRef, utils.orderBy('date', 'desc'));
+async function loadMedias() {
+  const mediasRef = utils.collection(utils.db, 'medias');
+  const q = utils.query(mediasRef, utils.orderBy('date', 'desc'));
   const snap = await utils.getDocs(q);
 
   const $contentList = $('.content-list');
