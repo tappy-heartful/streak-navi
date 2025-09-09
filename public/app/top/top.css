@@ -190,11 +190,10 @@ h3 {
 
 /* タイトル */
 .content-item h4 {
-  margin: 0 0 10px 0;
-  font-size: 18px;
   font-weight: bold;
-  color: #333;
   text-align: center;
+  font-size: 1.2em;
+  color: #6d6d6d;
 }
 
 /* iframe（YouTubeなど） */
