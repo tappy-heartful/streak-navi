@@ -136,14 +136,6 @@ async function loadMenu() {
     `<a href="../vote-list/vote-list.html" class="menu-button vote">📊 投票一覧</a>`
   );
 
-  // 投票新規作成
-  if (voteAdminFlg === utils.globalStrTrue) {
-    // 投票管理者の場合にのみ表示
-    $menuList.append(
-      `<a href="../vote-edit/vote-edit.html?mode=new" class="menu-button memo">📝 投票新規作成</a>`
-    );
-  }
-
   // ユーザ一覧
   $menuList.append(
     `<a href="../user-list/user-list.html" class="menu-button user">👥 ユーザ一覧</a>`

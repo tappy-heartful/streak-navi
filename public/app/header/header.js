@@ -10,11 +10,6 @@ $(document).ready(async function () {
   $('#header-line-icon').attr('src', lineIconPath);
   $('#header-line-name').text(lineAccountName);
 
-  // 管理者なら新規作成ボタン表示
-  if (utils.getSession('voteAdminFlg') === utils.globalStrTrue) {
-    $('#menu-vote-new').show();
-  }
-
   // --- 左ロゴクリックでサイドメニュー表示 ---
   $('.header-left').on('click', function (e) {
     e.stopPropagation();
@@ -27,9 +22,6 @@ $(document).ready(async function () {
   });
   $('#menu-vote-list').on('click', function () {
     window.location.href = '../vote-list/vote-list.html';
-  });
-  $('#menu-vote-new').on('click', function () {
-    window.location.href = '../vote-edit/vote-edit.html?mode=new';
   });
   $('#menu-user-list').on('click', function () {
     window.location.href = '../user-list/user-list.html';
