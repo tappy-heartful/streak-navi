@@ -1,0 +1,33 @@
+.secret-word-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.secret-word-input {
+  flex: 1;
+  padding: 6px 10px;
+  font-size: 14px;
+}
+
+.remove-secret-word {
+  margin-left: 6px;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.remove-secret-word.hidden {
+  display: none;
+}
+
+#add-secret-word {
+  margin-top: 10px;
+  background-color: #eee;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}

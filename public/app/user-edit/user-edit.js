@@ -86,6 +86,24 @@ async function populateRoles(selectedId) {
 }
 
 function setupEventHandlers() {
+  // 合言葉追加/削除
+  const $list = $('#secret-word-list');
+
+  // 合言葉追加
+  $('#add-secret-word').on('click', function () {
+    const $item = $(`
+      <div class="secret-word-item">
+        <input type="text" class="secret-word-input" placeholder="LINEで告知された合言葉を入力..." />
+        <button type="button" class="remove-secret-word">×</button>
+      </div>
+    `);
+    $list.append($item);
+  });
+
+  // 合言葉削除ボタン
+  $list.on('click', '.remove-secret-word', function () {
+    $(this).closest('.secret-word-item').remove();
+  });
   // 登録/更新ボタン押下
   $('#save-button').on('click', async function () {
     const uid = utils.globalGetParamUid;

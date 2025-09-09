@@ -41,14 +41,18 @@
 
       <!-- 秘密の合言葉 -->
       <div class="form-group">
-        <label class="label-title" for="secret-word">秘密の合言葉</label>
-        <input
-          type="text"
-          id="secret-word"
-          placeholder="合言葉を入力..."
-          required
-        />
-        <small>※LINEで告知された合言葉を入力してください</small>
+        <label class="label-title">秘密の合言葉</label>
+        <div id="secret-word-list">
+          <div class="secret-word-item">
+            <input
+              type="text"
+              class="secret-word-input"
+              placeholder="LINEで告知された合言葉を入力..."
+            />
+            <button type="button" class="remove-secret-word hidden">×</button>
+          </div>
+        </div>
+        <button type="button" id="add-secret-word">＋ 合言葉を追加</button>
       </div>
 
       <div id="confirm-buttons" class="confirm-buttons">
