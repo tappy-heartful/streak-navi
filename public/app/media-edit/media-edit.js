@@ -46,7 +46,7 @@ async function setupPage(mode) {
     pageTitle.text(mode === 'edit' ? 'メディア編集' : 'メディア新規作成');
     title.text(mode === 'edit' ? 'メディア編集' : 'メディア新規作成');
     submitButton.text(mode === 'edit' ? '更新' : '登録');
-    backLink.text('← メディア一覧に戻る');
+    backLink.text('← メディア確認に戻る');
     await loadMediaData(utils.globalGetParamMediaId, mode);
   } else {
     throw new Error('モード不正です');
