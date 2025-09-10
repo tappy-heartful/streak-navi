@@ -62,6 +62,11 @@ async function renderMedia() {
     mediaData.isDispTop === true ? '表示する' : '表示しない'
   );
 
+  // 管理者の場合のみ編集・削除ボタン表示
+  utils.getSession('isMediaAdmin') === utils.globalStrTrue
+    ? $('.confirm-buttons').show()
+    : $('confirm-buttons').hide();
+
   // Instagram埋め込みを処理
   if (window.instgrm) {
     window.instgrm.Embeds.process();

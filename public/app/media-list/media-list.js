@@ -36,6 +36,10 @@ async function setUpPage() {
 
     $list.append(makeMediaItem(mediaId, mediaData.date, mediaData.title));
   }
+  // 管理者の場合のみ新規登録ボタン表示
+  utils.getSession('isMediaAdmin') === utils.globalStrTrue
+    ? $('#add-button').show()
+    : $('#add-button').hide();
 }
 
 function makeMediaItem(mediaId, date, title) {
