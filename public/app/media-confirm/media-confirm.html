@@ -9,76 +9,50 @@
       href="../../images/favicon.png"
       type="image/png"
     />
-    <title>投票確認</title>
+    <title>メディア確認</title>
     <link rel="stylesheet" href="../common/common.css" />
-    <link rel="stylesheet" href="vote-confirm.css" />
+    <link rel="stylesheet" href="media-confirm.css" />
   </head>
   <body>
     <div id="header-placeholder"></div>
 
-    <!-- タイトル（カード外） -->
+    <!-- タイトル -->
     <div class="page-header">
-      <h1 id="page-title">投票確認</h1>
+      <h1 id="page-title">メディア確認</h1>
     </div>
 
     <main class="container">
-      <div class="vote-status-container">
-        <span id="vote-status-label" class="vote-status"></span>
+      <div class="form-group">
+        <label class="label-title">日付</label>
+        <div class="label-value" id="media-date"></div>
       </div>
 
       <div class="form-group">
-        <label class="label-title">投票名</label>
-        <div class="label-value" id="vote-title"></div>
+        <label class="label-title">タイトル</label>
+        <div class="label-value" id="media-title"></div>
       </div>
 
       <div class="form-group">
-        <label class="label-title">投票説明</label>
-        <div class="label-value" id="vote-description"></div>
-      </div>
-
-      <div id="vote-items-container"></div>
-
-      <div class="form-group">
-        <label class="label-title">投票状況</label>
-        <div class="label-value" id="vote-status"></div>
+        <label class="label-title">Instagram</label>
+        <div class="label-value" id="media-instagram"></div>
       </div>
 
       <div class="form-group">
-        <label class="label-title">作成者</label>
-        <div class="label-value" id="created-by"></div>
+        <label class="label-title">YouTube</label>
+        <div class="label-value" id="media-youtube"></div>
       </div>
 
-      <div id="answer-menu" class="menu-section">
-        <h2 class="menu-title">回答メニュー</h2>
-        <div class="confirm-buttons">
-          <button id="answer-save-button" class="save-button">
-            回答する/回答を修正する
-          </button>
-          <button id="answer-delete-button" class="delete-button">
-            回答を取り消す
-          </button>
-        </div>
-      </div>
-
-      <div id="vote-menu" class="menu-section">
-        <h2 class="menu-title">投票管理メニュー</h2>
-        <div class="confirm-buttons">
-          <button id="vote-edit-button" class="edit-button">編集</button>
-          <button id="vote-copy-button" class="copy-button">コピー</button>
-        </div>
-        <div class="confirm-buttons">
-          <button id="vote-link-edit-button" class="edit-button">
-            リンク設定
-          </button>
-          <button id="vote-delete-button" class="delete-button">削除</button>
-        </div>
+      <!-- メニュー -->
+      <div class="confirm-buttons">
+        <button id="media-edit-button" class="edit-button">編集</button>
+        <button id="media-copy-button" class="copy-button">コピー</button>
+        <button id="media-delete-button" class="delete-button">削除</button>
       </div>
     </main>
 
-    <!-- フッター部（カード外） -->
     <div class="page-footer">
-      <a href="../vote-list/vote-list.html" class="back-link"
-        >← 投票一覧に戻る</a
+      <a href="../media-list/media-list.html" class="back-link"
+        >← メディア一覧に戻る</a
       >
     </div>
 
@@ -87,12 +61,7 @@
     <div id="modal-placeholder"></div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- Font Awesome 読み込み（CDN） -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
     <script type="module" src="../common/functions.js"></script>
-    <script type="module" src="vote-confirm.js"></script>
+    <script type="module" src="media-confirm.js"></script>
   </body>
 </html>
