@@ -1,29 +1,22 @@
-import * as utils from '../common/functions.js'; // 共通関数群読み込み
+import * as utils from '../common/functions.js';
 
-//==================================
-// グローバル変数
-//==================================
-let initialStateHtml; // 初期表示状態の保存用
+let initialState = {};
 
-//==================================
-// 初期化処理（ページ読込時）
-//==================================
+//===========================
+// 初期化
+//===========================
 $(document).ready(async function () {
   try {
-    await utils.initDisplay(); // 共通初期化
-    const mode = utils.globalGetParamMode; // URLパラメータからモード取得
+    await utils.initDisplay();
 
-    // データ取得や初期表示の完了を待つ
+    const mode = utils.globalGetParamMode; // new / edit / copy
     await setupPage(mode);
-
-    // データ反映後に初期状態を保存
     captureInitialState();
-
     setupEventHandlers(mode);
   } catch (e) {
     // ログ登録
     await utils.writeLog({
-      dataId: utils.globalGetParamVoteId,
+      dataId: utils.globalGetParamMediaId,
       action: '初期表示',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
@@ -34,9 +27,9 @@ $(document).ready(async function () {
   }
 });
 
-//==================================
-// ページの設定
-//==================================
+//===========================
+// ページ設定
+//===========================
 async function setupPage(mode) {
   const pageTitle = $('#page-title');
   const title = $('#title');
@@ -44,119 +37,52 @@ async function setupPage(mode) {
   const backLink = $('.back-link');
 
   if (mode === 'new') {
-    // 表示文言設定
-    pageTitle.text('投票新規作成');
-    title.text('投票新規作成');
+    pageTitle.text('メディア新規作成');
+    title.text('メディア新規作成');
     submitButton.text('登録');
-    backLink.text('← 投票一覧に戻る');
-    // 初期表示で投票項目一つ表示
-    $('#vote-items-container').append(createVoteItemTemplate());
-    // 回答を受け付けにチェック
-    $('#is-open').prop('checked', true);
-  } else if (mode === 'copy') {
-    // 表示文言設定
-    pageTitle.text('投票新規作成');
-    title.text('投票新規作成');
-    submitButton.text('登録');
-    backLink.text('← 投票確認に戻る');
-    // 既存データ取得
-    await loadVoteData(utils.globalGetParamVoteId, mode);
-  } else if (mode === 'edit') {
-    // 表示文言設定
-    pageTitle.text('投票編集');
-    title.text('投票編集');
-    submitButton.text('更新');
-    backLink.text('← 投票確認に戻る');
-    // 既存データ取得
-    await loadVoteData(utils.globalGetParamVoteId, mode);
+    backLink.text('← メディア一覧に戻る');
+  } else if (mode === 'edit' || mode === 'copy') {
+    pageTitle.text(mode === 'edit' ? 'メディア編集' : 'メディア新規作成');
+    title.text(mode === 'edit' ? 'メディア編集' : 'メディア新規作成');
+    submitButton.text(mode === 'edit' ? '更新' : '登録');
+    backLink.text('← メディア一覧に戻る');
+    await loadMediaData(utils.globalGetParamMediaId, mode);
   } else {
-    pageTitle.text('投票管理');
     throw new Error('モード不正です');
   }
 }
 
-//==================================
-// 投票データ取得＆画面反映
-//==================================
-async function loadVoteData(voteId, mode) {
-  const docSnap = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
-  if (!docSnap.exists()) {
-    throw new Error('投票が見つかりません：' + voteId);
-  }
+//===========================
+// データ読み込み
+//===========================
+async function loadMediaData(docId, mode) {
+  const docSnap = await utils.getDoc(utils.doc(utils.db, 'medias', docId));
+  if (!docSnap.exists()) throw new Error('メディアが見つかりません');
+
   const data = docSnap.data();
 
-  // 投票名・説明・公開状態
-  $('#vote-title').val(data.name + (mode === 'copy' ? '（コピー）' : ''));
-  $('#vote-description').val(data.explain);
-  $('#is-open').prop('checked', !!data.isActive);
-  $('#is-anonymous').prop('checked', !!data.isAnonymous);
-  $('#hide-votes').prop('checked', !!data.hideVotes);
-
-  // 項目表示
-  $('#vote-items-container').empty();
-  data.items.forEach((item) => {
-    const $item = createVoteItemTemplate();
-    $item.find('.vote-item-title').val(item.name);
-    const $choices = $item.find('.vote-choices').empty();
-    item.choices.forEach((choice, idx) => {
-      $choices.append(`
-          <div class="choice-wrapper">
-            ・<input type="text" class="vote-choice" placeholder="選択肢${
-              idx + 1
-            }" value="${choice.name}" />
-            <button class="remove-choice">×</button>
-          </div>
-        `);
-    });
-    $('#vote-items-container').append($item);
-  });
+  $('#media-date').val(data.date);
+  $('#media-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
+  $('#instagram-url').val(data.instagramUrl || '');
+  $('#youtube-url').val(data.youtubeUrl || '');
+  $('#drive-url').val(data.driveUrl || '');
 }
 
-//==================================
-// イベントハンドラ登録
-//==================================
+//===========================
+// イベント登録
+//===========================
 function setupEventHandlers(mode) {
-  // 【項目追加ボタン】
-  $('#add-item').on('click', () => {
-    $('#vote-items-container').append(createVoteItemTemplate());
-  });
-
-  // 【項目内ボタン（動的要素用イベント委任）】
-  $('#vote-items-container')
-    // 選択肢追加
-    .on('click', '.add-choice', function () {
-      const $choices = $(this).siblings('.vote-choices');
-      const index = $choices.find('.choice-wrapper').length + 1;
-      $choices.append(choiceTemplate(index));
-    })
-    // 選択肢削除
-    .on('click', '.remove-choice', function () {
-      $(this).parent('.choice-wrapper').remove();
-    })
-    // 項目削除
-    .on('click', '.remove-item', function () {
-      $(this).closest('.vote-item').remove();
-    });
-
-  // 【クリアボタン】初期状態に戻す
   $('#clear-button').on('click', async () => {
-    if (
-      await utils.showDialog(
-        mode === 'new' ? '入力内容をクリアしますか？' : '編集前に戻しますか？'
-      )
-    )
+    if (await utils.showDialog('入力内容をクリアしますか？'))
       restoreInitialState();
   });
 
-  // 【登録/更新ボタン】
   $('#save-button').on('click', async () => {
-    // 入力チェック
-    if (!validateVoteData()) {
+    if (!validateData()) {
       utils.showDialog('入力内容を確認してください', true);
       return;
     }
 
-    // 確認ダイアログ
     if (
       !(await utils.showDialog(
         (['new', 'copy'].includes(mode) ? '登録' : '更新') + 'しますか？'
@@ -164,303 +90,122 @@ function setupEventHandlers(mode) {
     )
       return;
 
-    utils.showSpinner(); // スピナー表示
-
+    utils.showSpinner();
     try {
-      const voteData = collectVoteData(mode); // 投票本文だけ取得
+      const mediaData = collectData(mode);
 
       if (['new', 'copy'].includes(mode)) {
-        // --- 新規作成・コピー ---
         const docRef = await utils.addDoc(
-          utils.collection(utils.db, 'votes'),
-          voteData
+          utils.collection(utils.db, 'medias'),
+          mediaData
         );
-
-        // ログ登録
         await utils.writeLog({ dataId: docRef.id, action: '登録' });
         utils.hideSpinner();
-
-        if (
-          await utils.showDialog(
-            '登録しました 続いて選択肢のリンクを設定しますか？'
-          )
-        ) {
-          // はいでリンク設定画面へ
-          window.location.href = `../vote-link-edit/vote-link-edit.html?voteId=${docRef.id}`;
-        } else {
-          // いいえで確認画面へ
-          window.location.href = `../vote-confirm/vote-confirm.html?voteId=${docRef.id}`;
-        }
+        await utils.showDialog('登録しました', true);
+        window.location.href = `../media-list/media-list.html`;
       } else {
-        // --- 編集 ---
-        const voteId = utils.globalGetParamVoteId;
-        const voteRef = utils.doc(utils.db, 'votes', voteId);
-
-        // 既存データ取得
-        const docSnap = await utils.getDoc(voteRef);
-        if (!docSnap.exists) throw new Error('投票が見つかりません：' + voteId);
-        const existingData = docSnap.data();
-
-        // --- リンク情報を名前で統合 ---
-        voteData.explainLink = existingData.explainLink || '';
-        voteData.items = voteData.items.map((item) => {
-          // 既存項目で同名のものを探す
-          const existingItem = (existingData.items || []).find(
-            (ei) => ei.name === item.name
-          );
-
-          return {
-            ...item,
-            link: existingItem?.link || '',
-            choices: item.choices.map((choice) => {
-              // 既存項目がある場合、同名選択肢のリンクを取得
-              const existingChoice = existingItem?.choices?.find(
-                (ec) => ec.name === choice.name
-              );
-              return { ...choice, link: existingChoice?.link || '' };
-            }),
-          };
+        const mediaRef = utils.doc(
+          utils.db,
+          'medias',
+          utils.globalGetParamMediaId
+        );
+        mediaData.updatedAt = utils.serverTimestamp();
+        await utils.updateDoc(mediaRef, mediaData);
+        await utils.writeLog({
+          dataId: utils.globalGetParamMediaId,
+          action: '更新',
         });
-
-        voteData.updatedAt = utils.serverTimestamp();
-
-        // --- Firestore 更新 ---
-        await utils.updateDoc(voteRef, voteData);
-
-        // ログ登録
-        await utils.writeLog({ dataId: voteId, action: '更新' });
         utils.hideSpinner();
-
-        if (
-          await utils.showDialog(
-            '更新しました 続いて選択肢のリンクを設定しますか？'
-          )
-        ) {
-          // はいでリンク設定画面へ
-          window.location.href = `../vote-link-edit/vote-link-edit.html?voteId=${voteId}`;
-        } else {
-          // いいえで確認画面へ
-          window.location.href = `../vote-confirm/vote-confirm.html?voteId=${voteId}`;
-        }
+        await utils.showDialog('更新しました', true);
+        window.location.href = `../media-list/media-list.html`;
       }
     } catch (e) {
-      // ログ登録
       await utils.writeLog({
-        dataId: utils.globalGetParamVoteId,
+        dataId: utils.globalGetParamMediaId,
         action: ['new', 'copy'].includes(mode) ? '登録' : '更新',
         status: 'error',
         errorDetail: { message: e.message, stack: e.stack },
       });
     } finally {
-      // スピナー非表示
       utils.hideSpinner();
     }
   });
 
-  // 確認/一覧画面に戻る
-  $(document).on('click', '.back-link', function (e) {
-    window.location.href = ['edit', 'copy'].includes(mode)
-      ? `../vote-confirm/vote-confirm.html?voteId=${utils.globalGetParamVoteId}`
-      : '../vote-list/vote-list.html';
-  });
+  $(document).on(
+    'click',
+    '.back-link',
+    () =>
+      (window.location.href = ['edit', 'copy'].includes(mode)
+        ? `../media-confirm/media-confirm.html?mediaId=${utils.globalGetParamMediaId}`
+        : '../media-list/media-list.html')
+  );
 }
 
-//==================================
-// 項目テンプレート生成
-//==================================
-function createVoteItemTemplate() {
-  return $(`
-    <div class="vote-item">
-      <input type="text" class="vote-item-title" placeholder="項目名（例：演目候補）" />
-      <div class="vote-choices">
-        ${choiceTemplate(1)[0].outerHTML}
-        ${choiceTemplate(2)[0].outerHTML}
-      </div>
-      <button class="add-choice">＋ 選択肢を追加</button>
-      <button class="remove-item">× 項目を削除</button>
-    </div>
-  `);
-}
-
-//==================================
-// 選択肢テンプレート生成
-//==================================
-function choiceTemplate(index) {
-  return $(`
-    <div class="choice-wrapper">
-      ・<input type="text" class="vote-choice" placeholder="選択肢${index}" />
-      <button class="remove-choice">×</button>
-    </div>
-  `);
-}
-
-//==================================
-// 初期状態の保存と復元
-//==================================
-function captureInitialState() {
-  initialStateHtml = {
-    title: $('#vote-title').val(),
-    description: $('#vote-description').val(),
-    isOpen: $('#is-open').prop('checked'),
-    isAnonymous: $('#is-anonymous').prop('checked'),
-    hideVotes: $('#hide-votes').prop('checked'),
-    items: $('#vote-items-container .vote-item')
-      .map(function () {
-        return {
-          name: $(this).find('.vote-item-title').val(),
-          choices: $(this)
-            .find('.vote-choice')
-            .map(function () {
-              return $(this).val();
-            })
-            .get(),
-        };
-      })
-      .get(),
-  };
-}
-
-function restoreInitialState() {
-  $('#vote-title').val(initialStateHtml.title);
-  $('#vote-description').val(initialStateHtml.description);
-  $('#is-open').prop('checked', initialStateHtml.isOpen);
-  $('#is-anonymous').prop('checked', initialStateHtml.isAnonymous);
-  $('#hide-votes').prop('checked', initialStateHtml.hideVotes);
-
-  $('#vote-items-container').empty();
-  initialStateHtml.items.forEach((item) => {
-    const $item = createVoteItemTemplate();
-    $item.find('.vote-item-title').val(item.name);
-
-    const $choices = $item.find('.vote-choices').empty();
-    item.choices.forEach((choice, idx) => {
-      $choices.append(choiceTemplate(idx + 1));
-      $choices.find('.vote-choice').last().val(choice);
-    });
-
-    $('#vote-items-container').append($item);
-  });
-
-  clearErrors();
-}
-
-//==================================
-// 投票データ収集
-//==================================
-function collectVoteData(mode) {
-  const voteData = {
-    name: $('#vote-title').val().trim(),
-    explain: $('#vote-description').val().trim(),
-    isActive: $('#is-open').prop('checked'),
-    isAnonymous: $('#is-anonymous').prop('checked'),
-    hideVotes: $('#hide-votes').prop('checked'),
+//===========================
+// データ収集
+//===========================
+function collectData(mode) {
+  const data = {
+    date: $('#media-date').val().trim(),
+    title: $('#media-title').val().trim(),
+    instagramUrl: $('#instagram-url').val().trim(),
+    youtubeUrl: $('#youtube-url').val().trim(),
+    driveUrl: $('#drive-url').val().trim(),
     createdAt: utils.serverTimestamp(),
-    items: [],
   };
-
-  // 作成者は新規作成とコピー時のみ設定
-  if (['new', 'copy'].includes(mode)) {
-    voteData.createdBy = utils.getSession('displayName');
-  }
-
-  $('#vote-items-container .vote-item').each(function () {
-    const itemName = $(this).find('.vote-item-title').val().trim();
-    if (!itemName) return;
-
-    const itemObj = { name: itemName, choices: [] };
-
-    $(this)
-      .find('.vote-choice')
-      .each(function () {
-        const choiceName = $(this).val().trim();
-        if (choiceName) itemObj.choices.push({ name: choiceName });
-      });
-
-    voteData.items.push(itemObj);
-  });
-
-  return voteData;
+  if (['new', 'copy'].includes(mode))
+    data.createdBy = utils.getSession('displayName');
+  return data;
 }
 
-//==================================
+//===========================
 // 入力チェック
-//==================================
-function validateVoteData() {
+//===========================
+function validateData() {
   let isValid = true;
-  clearErrors(); // 既存エラー解除
+  clearErrors();
 
-  const title = $('#vote-title').val().trim();
-  const description = $('#vote-description').val().trim();
-
-  // 投票名必須
-  if (!title) markError($('#vote-title'), '必須項目です'), (isValid = false);
-  // 説明必須
-  if (!description)
-    markError($('#vote-description'), '必須項目です'), (isValid = false);
-
-  // 項目名チェック
-  const itemNames = [];
-  $('#vote-items-container .vote-item').each(function () {
-    const $item = $(this).find('.vote-item-title');
-    const name = $item.val().trim();
-
-    if (!name) return markError($item, '必須項目です'), (isValid = false);
-    if (itemNames.includes(name))
-      return markError($item, '項目名が重複しています'), (isValid = false);
-
-    itemNames.push(name);
-  });
-  if (!itemNames.length) {
-    $('#vote-items-container').before(
-      '<div class="error-message">項目を1つ以上追加してください</div>'
-    );
+  if (!$('#media-date').val().trim()) {
+    markError($('#media-date'), '必須項目です');
     isValid = false;
   }
-
-  // 選択肢チェック
-  $('#vote-items-container .vote-item').each(function () {
-    const choiceNames = [];
-    const $choices = $(this).find('.vote-choice');
-    let hasChoice = false;
-
-    $choices.each(function () {
-      const val = $(this).val().trim();
-      if (val) {
-        hasChoice = true;
-        if (choiceNames.includes(val)) isValid = false;
-        choiceNames.push(val);
-      }
-    });
-
-    if (!hasChoice) {
-      $(this)
-        .find('.vote-choices')
-        .after(
-          '<div class="error-message">選択肢を1つ以上入力してください</div>'
-        );
-      $choices.addClass('error-field');
-      isValid = false;
-    }
-    if (new Set(choiceNames).size !== choiceNames.length) {
-      $(this)
-        .find('.vote-choices')
-        .after('<div class="error-message">選択肢が重複しています</div>');
-      $choices.addClass('error-field');
-      isValid = false;
-    }
-  });
+  if (!$('#media-title').val().trim()) {
+    markError($('#media-title'), '必須項目です');
+    isValid = false;
+  }
 
   return isValid;
 }
 
-//==================================
+//===========================
+// 初期状態保存／復元
+//===========================
+function captureInitialState() {
+  initialState = {
+    date: $('#media-date').val(),
+    title: $('#media-title').val(),
+    instagramUrl: $('#instagram-url').val(),
+    youtubeUrl: $('#youtube-url').val(),
+    driveUrl: $('#drive-url').val(),
+  };
+}
+
+function restoreInitialState() {
+  $('#media-date').val(initialState.date);
+  $('#media-title').val(initialState.title);
+  $('#instagram-url').val(initialState.instagramUrl);
+  $('#youtube-url').val(initialState.youtubeUrl);
+  $('#drive-url').val(initialState.driveUrl);
+  clearErrors();
+}
+
+//===========================
 // エラー表示ユーティリティ
-//==================================
+//===========================
 function clearErrors() {
   $('.error-message').remove();
   $('.error-field').removeClass('error-field');
 }
-
 function markError($field, message) {
   $field
     .after(`<div class="error-message">${message}</div>`)

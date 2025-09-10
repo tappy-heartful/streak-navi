@@ -3,64 +3,59 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="title">メディア管理</title>
     <link rel="icon" href="../../images/favicon.png" type="image/png" />
     <link
       rel="apple-touch-icon"
       href="../../images/favicon.png"
       type="image/png"
     />
-    <title id="title">投票管理</title>
     <link rel="stylesheet" href="../common/common.css" />
-    <link rel="stylesheet" href="vote-edit.css" />
+    <link rel="stylesheet" href="media-edit.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
   </head>
   <body>
     <div id="header-placeholder"></div>
 
-    <!-- タイトル（カード外） -->
     <div class="page-header">
-      <h1 id="page-title">投票管理</h1>
+      <h1 id="page-title">メディア管理</h1>
     </div>
 
     <main class="container">
-      <!-- 投票名 -->
       <div class="form-group">
-        <label for="vote-title">投票名</label>
-        <input type="text" id="vote-title" placeholder="投票名を入力..." />
+        <label for="media-date">日付</label>
+        <input type="text" id="media-date" placeholder="例：2025.05.18" />
       </div>
 
-      <!-- 投票説明 -->
       <div class="form-group">
-        <label for="vote-description">投票説明</label>
-        <input type="text"
-          id="vote-description"
-          placeholder="説明を入力..."
-        ></input>
+        <label for="media-title">タイトル</label>
+        <input type="text" id="media-title" placeholder="タイトルを入力..." />
       </div>
 
-      <!-- 投票項目 -->
-      <div id="vote-items-container"></div>
-      <button id="add-item">＋ 投票項目を追加</button>
-
-      <!-- 回答受付 -->
-      <div class="form-group checkbox-group">
-        <label>
-          <input type="checkbox" id="is-open" />
-          回答を受付
-        </label>
+      <div class="form-group">
+        <label for="instagram-url">Instagram URL</label>
+        <input
+          type="text"
+          id="instagram-url"
+          placeholder="InstagramのURLを入力..."
+        />
       </div>
 
-      <div class="form-group checkbox-group">
-        <label>
-          <input type="checkbox" id="is-anonymous" />
-          匿名投票
-        </label>
+      <div class="form-group">
+        <label for="youtube-url">YouTube URL</label>
+        <input
+          type="text"
+          id="youtube-url"
+          placeholder="YouTubeのURLを入力..."
+        />
       </div>
 
-      <div class="form-group checkbox-group">
-        <label>
-          <input type="checkbox" id="hide-votes" />
-          票数を非公開
-        </label>
+      <div class="form-group">
+        <label for="drive-url">Google Drive URL</label>
+        <input type="text" id="drive-url" placeholder="Drive共有URLを入力..." />
       </div>
 
       <!-- アクションボタン -->
@@ -70,21 +65,16 @@
       </div>
     </main>
 
-    <!-- フッター部（カード外） -->
     <div class="page-footer">
-      <a class="back-link">← 投票一覧/確認に戻る</a>
+      <a class="back-link">← メディア一覧に戻る</a>
     </div>
 
     <div id="footer-placeholder"></div>
     <div id="dialog-placeholder"></div>
     <div id="modal-placeholder"></div>
 
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="module" src="../common/functions.js"></script>
-    <script type="module" src="vote-edit.js"></script>
+    <script type="module" src="media-edit.js"></script>
   </body>
 </html>
