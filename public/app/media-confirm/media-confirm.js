@@ -53,6 +53,16 @@ async function renderMedia() {
     $('#media-youtube').text('未設定');
   }
 
+  // GoogleDriveリンク
+  if (mediaData.driveUrl) {
+    const videoId = extractYouTubeId(mediaData.driveUrl);
+    $('#media-drive').html(
+      `<a href="#" class="youtube-link" data-video-id="${videoId}">YouTubeを開く</a>`
+    );
+  } else {
+    $('#media-youtube').text('未設定');
+  }
+
   setupEventHandlers(mediaId);
 }
 
