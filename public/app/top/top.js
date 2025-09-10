@@ -168,6 +168,7 @@ async function loadMedias() {
     let html = '';
 
     html += `<div class="content-item"><h4>${data.title}</h4>`;
+    html += `<div class="media-date">${data.date}</div>`;
 
     // Instagram埋め込み
     if (data.instagramUrl) {

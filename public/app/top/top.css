@@ -194,7 +194,18 @@ h3 {
   text-align: center;
   font-size: 1.2em;
   color: #6d6d6d;
+  margin-bottom: 0.25em;
 }
+
+/* 日付 */
+.media-date {
+  text-align: center;
+  font-family: 'Roboto', sans-serif; /* 読みやすいシンプルなフォント */
+  font-size: 0.75em;  /* 小さめ */
+  color: #999;        /* 薄めグレー */
+  margin-bottom: 2em;
+}
+
 
 /* iframe（YouTubeなど） */
 .content-item iframe {
