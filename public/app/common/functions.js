@@ -23,6 +23,7 @@ export { app, auth, signInWithCustomToken };
 import {
   getFirestore,
   query,
+  where,
   orderBy,
   doc,
   getDoc,
@@ -39,6 +40,7 @@ export {
   db,
   doc,
   query,
+  where,
   orderBy,
   getDoc,
   getDocs,

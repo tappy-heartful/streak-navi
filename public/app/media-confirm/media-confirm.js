@@ -57,6 +57,11 @@ async function renderMedia() {
     $('#media-drive').text('未設定');
   }
 
+  // TOP表示
+  $('#is-disp-top').text(
+    mediaData.isDispTop === true ? '表示する' : '表示しない'
+  );
+
   // Instagram埋め込みを処理
   if (window.instgrm) {
     window.instgrm.Embeds.process();

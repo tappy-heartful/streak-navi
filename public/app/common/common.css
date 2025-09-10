@@ -139,6 +139,11 @@ input[type="text"], textarea {
   box-sizing: border-box;
 }
 
+.checkbox-group {
+  margin-top: 20px;
+  text-align: center;
+}
+
 /* 投票ステータス */
 .vote-status {
   display: inline-block;

@@ -151,12 +151,20 @@ async function loadMedias() {
   const mediasRef = utils.collection(utils.db, 'medias');
   const q = utils.query(mediasRef, utils.orderBy('date', 'desc'));
   const snap = await utils.getDocs(q);
+  let isExist = false;
 
   const $contentList = $('.content-list');
   $contentList.empty();
 
   snap.forEach((doc) => {
     const data = doc.data();
+
+    // TOP表示フラグが false または未設定ならスキップ
+    if (!data.isDispTop) {
+      return;
+    }
+    isExist = true;
+
     let html = '';
 
     html += `<div class="content-item"><h4>${data.title}</h4>`;
@@ -185,10 +193,9 @@ async function loadMedias() {
     window.instgrm.Embeds.process();
   }
 
-  // データがなければメッセージ
-  if (snap.empty) {
+  if (!isExist) {
     $contentList.append(
-      `<div class="content-item">コンテンツはまだ登録されていません🍀</div>`
+      `<div class="content-item">メディアはまだ登録されていません🍀</div>`
     );
   }
 }
