@@ -62,7 +62,7 @@ async function loadMediaData(docId, mode) {
 
   const data = docSnap.data();
 
-  $('#media-date').val(data.date);
+  $('#media-date').val(utils.formatDateToYMDHyphen(data.date));
   $('#media-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
   $('#instagram-url').val(data.instagramUrl || '');
   $('#youtube-url').val(data.youtubeUrl || '');
@@ -151,8 +151,9 @@ function setupEventHandlers(mode) {
 // データ収集
 //===========================
 function collectData(mode) {
+  const rawDate = $('#media-date').val().trim();
   const data = {
-    date: $('#media-date').val().trim(),
+    date: utils.formatDateToYMDDot(rawDate), // yyyy.MM.dd 形式で保存
     title: $('#media-title').val().trim(),
     instagramUrl: $('#instagram-url').val().trim(),
     youtubeUrl: $('#youtube-url').val().trim(),

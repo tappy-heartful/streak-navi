@@ -139,6 +139,24 @@ input[type="text"], textarea {
   box-sizing: border-box;
 }
 
+/* date入力をテキスト入力と同じ見た目に */
+input[type="date"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  box-sizing: border-box;
+  background-color: #fff;
+  appearance: none; /* 一部ブラウザで矢印非表示 */
+}
+
+input[type="date"]:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
 .checkbox-group {
   margin-top: 20px;
   text-align: center;
