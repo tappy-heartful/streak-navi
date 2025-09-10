@@ -105,6 +105,12 @@ select:disabled {
   margin-bottom: 1.5em; /* 元の20pxと1.5emを統一 */
 }
 
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
 .label-title {
   display: block;
   margin-bottom: 0.5em;
