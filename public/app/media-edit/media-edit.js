@@ -41,6 +41,7 @@ async function setupPage(mode) {
     title.text('メディア新規作成');
     submitButton.text('登録');
     backLink.text('← メディア一覧に戻る');
+    $('#is-disp-top').prop('checked', true); // 新規作成時はTOPに表示をデフォルトON
   } else if (mode === 'edit' || mode === 'copy') {
     pageTitle.text(mode === 'edit' ? 'メディア編集' : 'メディア新規作成');
     title.text(mode === 'edit' ? 'メディア編集' : 'メディア新規作成');
@@ -66,6 +67,7 @@ async function loadMediaData(docId, mode) {
   $('#instagram-url').val(data.instagramUrl || '');
   $('#youtube-url').val(data.youtubeUrl || '');
   $('#drive-url').val(data.driveUrl || '');
+  $('#is-disp-top').prop('checked', data.isDispTop || false);
 }
 
 //===========================
@@ -155,6 +157,7 @@ function collectData(mode) {
     instagramUrl: $('#instagram-url').val().trim(),
     youtubeUrl: $('#youtube-url').val().trim(),
     driveUrl: $('#drive-url').val().trim(),
+    isDispTop: $('#is-disp-top').prop('checked'),
     createdAt: utils.serverTimestamp(),
   };
   if (['new', 'copy'].includes(mode))
@@ -248,6 +251,7 @@ function captureInitialState() {
     instagramUrl: $('#instagram-url').val(),
     youtubeUrl: $('#youtube-url').val(),
     driveUrl: $('#drive-url').val(),
+    isDispTop: $('#is-disp-top').prop('checked'),
   };
 }
 
@@ -257,6 +261,7 @@ function restoreInitialState() {
   $('#instagram-url').val(initialState.instagramUrl);
   $('#youtube-url').val(initialState.youtubeUrl);
   $('#drive-url').val(initialState.driveUrl);
+  $('#is-disp-top').prop('checked', initialState.isDispTop);
   clearErrors();
 }
 
