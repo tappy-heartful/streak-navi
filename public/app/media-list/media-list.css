@@ -1,18 +1,17 @@
 
-.vote-list {
+.media-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.vote-list li {
+.media-list li {
   margin-bottom: 15px;
 }
 
-.vote-link {
+.media-link {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
+  flex-direction: column;
   padding: 14px 18px;
   border-radius: 8px;
   background-color: #f9f9f9;
@@ -21,11 +20,22 @@
   transition: background-color 0.3s ease;
 }
 
-.vote-link:hover {
+.media-link:hover {
   background-color: #e0f5e9;
 }
 
-.vote-link.empty {
+.media-date {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.media-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.media-link.empty {
   text-align: center;
   color: #777;
   background-color: #f0f0f0;
@@ -51,12 +61,4 @@
 
 .add-button:hover {
   background-color: #45a049;
-}
-
-.empty-message .vote-link {
-  background-color: #f0f0f0;
-  color: #777;
-  font-size: 14px;
-  text-align: center;
-  box-shadow: none;
 }

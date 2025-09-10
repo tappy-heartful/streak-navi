@@ -111,8 +111,8 @@ h3 {
   content: "📊";
 }
 
-.menu-button.memo::after {
-  content: "📝";
+.menu-button.media::after {
+  content: "🎥";
 }
 
 .menu-button.user::after {

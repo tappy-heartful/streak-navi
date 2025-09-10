@@ -135,6 +135,11 @@ async function loadMenu() {
     `<a href="../vote-list/vote-list.html" class="menu-button vote">📊 投票一覧</a>`
   );
 
+  // メディア一覧
+  $menuList.append(
+    `<a href="../media-list/media-list.html" class="menu-button media">🎥 メディア一覧</a>`
+  );
+
   // ユーザ一覧
   $menuList.append(
     `<a href="../user-list/user-list.html" class="menu-button user">👥 ユーザ一覧</a>`
