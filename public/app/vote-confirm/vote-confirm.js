@@ -201,8 +201,7 @@ function getLinkHtml(url, text) {
   try {
     const u = new URL(url);
     if (u.hostname.includes('youtube.com') || u.hostname.includes('youtu.be')) {
-      const videoId = u.searchParams.get('v') || u.pathname.split('/').pop();
-      return `<a href="#" class="youtube-link" data-video-id="${videoId}">${text}</a>`;
+      return `<a href="#" class="youtube-link" data-video-url="${url}">${text}</a>`;
     }
   } catch (e) {
     // URLパース失敗時は通常テキスト
@@ -381,10 +380,10 @@ function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
   // YouTubeリンクをモーダルで表示
   $(document).on('click', '.youtube-link', async function (e) {
     e.preventDefault();
-    const videoId = $(this).data('video-id');
+    const videoUrl = $(this).data('video-url');
     const title = $(this).text();
 
-    const iframeHtml = utils.buildYouTubeHtml(videoId);
+    const iframeHtml = utils.buildYouTubeHtml(videoUrl);
 
     await utils.showModal(title, iframeHtml);
   });

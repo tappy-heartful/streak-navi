@@ -45,10 +45,7 @@ async function renderMedia() {
 
   // YouTubeリンク
   if (mediaData.youtubeUrl) {
-    const videoId =
-      new URL(mediaData.youtubeUrl).searchParams.get('v') ||
-      new URL(mediaData.youtubeUrl).pathname.split('/').pop();
-    $('#media-youtube').html(utils.buildYouTubeHtml(videoId));
+    $('#media-youtube').html(utils.buildYouTubeHtml(mediaData.youtubeUrl));
   } else {
     $('#media-youtube').text('未設定');
   }

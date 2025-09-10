@@ -168,10 +168,7 @@ async function loadMedias() {
 
     // YouTube埋め込み
     if (data.youtubeUrl) {
-      const videoId =
-        new URL(data.youtubeUrl).searchParams.get('v') ||
-        new URL(data.youtubeUrl).pathname.split('/').pop();
-      html += utils.buildYouTubeHtml(videoId, true);
+      html += utils.buildYouTubeHtml(data.youtubeUrl, true);
     }
 
     // Google Drive埋め込み

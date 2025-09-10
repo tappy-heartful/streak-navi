@@ -301,7 +301,10 @@ function formatDateForId(date = new Date()) {
 }
 
 // YouTube埋め込みモーダルのHTMLを生成する関数
-export function buildYouTubeHtml(videoId, showNotice = false) {
+export function buildYouTubeHtml(youtubeUrl, showNotice = false) {
+  const videoId =
+    new URL(youtubeUrl).searchParams.get('v') ||
+    new URL(youtubeUrl).pathname.split('/').pop();
   return `
     <div class="youtube-embed">
       <iframe
