@@ -93,7 +93,7 @@ function setupEventHandlers() {
   $('#add-secret-word').on('click', function () {
     const $item = $(`
       <div class="secret-word-item">
-        <input type="text" class="secret-word-input" placeholder="告知されていれば入力..." />
+        <input type="text" class="secret-word-input" placeholder="合言葉を入力..." />
         <button type="button" class="remove-secret-word">×</button>
       </div>
     `);
