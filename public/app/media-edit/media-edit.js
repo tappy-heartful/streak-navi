@@ -73,7 +73,11 @@ async function loadMediaData(docId, mode) {
 //===========================
 function setupEventHandlers(mode) {
   $('#clear-button').on('click', async () => {
-    if (await utils.showDialog('入力内容をクリアしますか？'))
+    if (
+      await utils.showDialog(
+        mode === 'new' ? '入力内容をクリアしますか？' : '編集前に戻しますか？'
+      )
+    )
       restoreInitialState();
   });
 
