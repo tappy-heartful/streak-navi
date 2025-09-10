@@ -37,7 +37,7 @@ async function renderMedia() {
   // Instagramリンク
   if (mediaData.instagramUrl) {
     $('#media-instagram').html(
-      `<a href="${mediaData.instagramUrl}" target="_blank" rel="noopener noreferrer">Instagramリンク</a>`
+      utils.buildInstagramHtml(mediaData.instagramUrl)
     );
   } else {
     $('#media-instagram').text('未設定');
@@ -45,24 +45,25 @@ async function renderMedia() {
 
   // YouTubeリンク
   if (mediaData.youtubeUrl) {
-    const videoId = extractYouTubeId(mediaData.youtubeUrl);
-    $('#media-youtube').html(
-      `<a href="#" class="youtube-link" data-video-id="${videoId}">YouTubeを開く</a>`
-    );
+    const videoId =
+      new URL(mediaData.youtubeUrl).searchParams.get('v') ||
+      new URL(mediaData.youtubeUrl).pathname.split('/').pop();
+    $('#media-youtube').html(utils.buildYouTubeHtml(videoId));
   } else {
     $('#media-youtube').text('未設定');
   }
 
   // GoogleDriveリンク
   if (mediaData.driveUrl) {
-    const videoId = extractYouTubeId(mediaData.driveUrl);
-    $('#media-drive').html(
-      `<a href="#" class="youtube-link" data-video-id="${videoId}">YouTubeを開く</a>`
-    );
+    $('#media-drive').html(utils.buildGoogleDriveHtml(mediaData.driveUrl));
   } else {
-    $('#media-youtube').text('未設定');
+    $('#media-drive').text('未設定');
   }
 
+  // Instagram埋め込みを処理
+  if (window.instgrm) {
+    window.instgrm.Embeds.process();
+  }
   setupEventHandlers(mediaId);
 }
 
@@ -105,29 +106,4 @@ function setupEventHandlers(mediaId) {
       utils.hideSpinner();
     }
   });
-
-  // YouTubeモーダル表示
-  $(document).on('click', '.youtube-link', async function (e) {
-    e.preventDefault();
-    const videoId = $(this).data('video-id');
-    const iframeHtml = utils.buildYouTubeHtml(videoId);
-    await utils.showModal('YouTube', iframeHtml);
-  });
-}
-
-////////////////////////////
-// YouTube ID 抽出
-////////////////////////////
-function extractYouTubeId(url) {
-  try {
-    const u = new URL(url);
-    if (u.hostname.includes('youtube.com')) {
-      return u.searchParams.get('v');
-    } else if (u.hostname.includes('youtu.be')) {
-      return u.pathname.substring(1);
-    }
-  } catch (e) {
-    return '';
-  }
-  return '';
 }
