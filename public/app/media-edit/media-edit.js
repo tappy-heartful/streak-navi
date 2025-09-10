@@ -169,13 +169,70 @@ function validateData() {
   let isValid = true;
   clearErrors();
 
-  if (!$('#media-date').val().trim()) {
+  const date = $('#media-date').val().trim();
+  const title = $('#media-title').val().trim();
+  const instagramUrl = $('#instagram-url').val().trim();
+  const youtubeUrl = $('#youtube-url').val().trim();
+  const driveUrl = $('#drive-url').val().trim();
+
+  // 必須チェック
+  if (!date) {
     markError($('#media-date'), '必須項目です');
     isValid = false;
   }
-  if (!$('#media-title').val().trim()) {
+  if (!title) {
     markError($('#media-title'), '必須項目です');
     isValid = false;
+  }
+
+  // URL チェック用関数
+  const isValidURL = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  // Instagram URL チェック
+  if (instagramUrl) {
+    if (!isValidURL(instagramUrl)) {
+      markError($('#instagram-url'), '正しいURLを入力してください');
+      isValid = false;
+    } else if (
+      !/^https:\/\/www\.instagram\.com\/p\/[A-Za-z0-9_\-]+/.test(instagramUrl)
+    ) {
+      markError($('#instagram-url'), 'Instagramの投稿URLではありません');
+      isValid = false;
+    }
+  }
+
+  // YouTube URL チェック
+  if (youtubeUrl) {
+    if (!isValidURL(youtubeUrl)) {
+      markError($('#youtube-url'), '正しいURLを入力してください');
+      isValid = false;
+    } else if (
+      !/^https:\/\/(www\.)?youtube\.com\/watch\?v=[\w\-]+/.test(youtubeUrl) &&
+      !/^https:\/\/youtu\.be\/[\w\-]+/.test(youtubeUrl)
+    ) {
+      markError($('#youtube-url'), 'YouTube動画URLではありません');
+      isValid = false;
+    }
+  }
+
+  // Google Drive URL チェック
+  if (driveUrl) {
+    if (!isValidURL(driveUrl)) {
+      markError($('#drive-url'), '正しいURLを入力してください');
+      isValid = false;
+    } else if (
+      !/^https:\/\/drive\.google\.com\/file\/d\/[\w\-]+\/view/.test(driveUrl)
+    ) {
+      markError($('#drive-url'), 'Google DriveファイルURLではありません');
+      isValid = false;
+    }
   }
 
   return isValid;
