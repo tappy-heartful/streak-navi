@@ -41,10 +41,10 @@ async function setUpPage() {
 function makeMediaItem(mediaId, date, title) {
   return $(`
     <li>
-      <div class="media-link">
+      <a href="../media-confirm/media-confirm.html?mediaId=${mediaId}" class="media-link">
         <span class="media-date">📅 ${date}</span>
         <span class="media-title">${title}</span>
-      </div>
+      </a>
     </li>
   `);
 }
