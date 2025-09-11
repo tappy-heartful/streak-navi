@@ -19,72 +19,77 @@ $(document).ready(async function () {
 });
 
 async function setUpPage() {
-  const $list = $('#vote-list').empty();
+  const $list = $('#call-list').empty();
 
-  const votesRef = utils.collection(utils.db, 'votes');
-  const qVotes = utils.query(votesRef, utils.orderBy('createdAt', 'desc'));
-  const votesSnap = await utils.getDocs(qVotes);
+  const callsRef = utils.collection(utils.db, 'calls');
+  const qCalls = utils.query(callsRef, utils.orderBy('createdAt', 'desc'));
+  const callsSnap = await utils.getDocs(qCalls);
 
-  if (votesSnap.empty) {
+  if (callsSnap.empty) {
     showEmptyMessage($list);
     return;
   }
 
   // 各ステータスごとの配列に振り分け
   const pendingItems = [];
-  const votedItems = [];
+  const calledItems = [];
   const closedItems = [];
 
-  for (const voteDoc of votesSnap.docs) {
-    const voteData = voteDoc.data();
-    const voteId = voteDoc.id;
+  for (const callDoc of callsSnap.docs) {
+    const callData = callDoc.data();
+    const callId = callDoc.id;
 
-    let status = '';
-    let statusClass = '';
+    pendingItems.push(
+      makeCallItem(callId, callData.title, '未回答', 'pending')
+    );
 
-    if (voteData.isActive === false) {
-      status = '終了';
-      statusClass = 'closed';
-      closedItems.push(
-        makeVoteItem(voteId, voteData.name, status, statusClass)
-      );
-    } else {
-      const answerId = `${voteId}_${utils.getSession('uid')}`;
-      const answerDocRef = utils.doc(utils.db, 'voteAnswers', answerId);
-      const answerSnap = await utils.getDoc(answerDocRef);
+    // TODO 回答状況による制御
+    // let status = '';
+    // let statusClass = '';
 
-      if (answerSnap.exists()) {
-        status = '回答済';
-        statusClass = 'voted';
-        votedItems.push(
-          makeVoteItem(voteId, voteData.name, status, statusClass)
-        );
-      } else {
-        status = '未回答';
-        statusClass = 'pending';
-        pendingItems.push(
-          makeVoteItem(voteId, voteData.name, status, statusClass)
-        );
-      }
-    }
+    // if (callData.isActive === false) {
+    //   status = '終了';
+    //   statusClass = 'closed';
+    //   closedItems.push(
+    //     makeCallItem(callId, callData.name, status, statusClass)
+    //   );
+    // } else {
+    //   const answerId = `${callId}_${utils.getSession('uid')}`;
+    //   const answerDocRef = utils.doc(utils.db, 'callAnswers', answerId);
+    //   const answerSnap = await utils.getDoc(answerDocRef);
+
+    //   if (answerSnap.exists()) {
+    //     status = '回答済';
+    //     statusClass = 'called';
+    //     calledItems.push(
+    //       makeCallItem(callId, callData.name, status, statusClass)
+    //     );
+    //   } else {
+    //     status = '未回答';
+    //     statusClass = 'pending';
+    //     pendingItems.push(
+    //       makeCallItem(callId, callData.name, status, statusClass)
+    //     );
+    //   }
+    // }
   }
 
   // 表示順: 未回答 → 回答済 → 終了
   pendingItems.forEach((item) => $list.append(item));
-  votedItems.forEach((item) => $list.append(item));
+  calledItems.forEach((item) => $list.append(item));
   closedItems.forEach((item) => $list.append(item));
 
-  utils.getSession('isVoteAdmin') === utils.globalStrTrue
+  utils.getSession('isCallAdmin') === utils.globalStrTrue
     ? $('#add-button').show()
     : $('#add-button').hide();
 }
 
-function makeVoteItem(voteId, name, status, statusClass) {
+function makeCallItem(callId, name, status, statusClass) {
   return $(`
     <li>
-      <a href="../vote-confirm/vote-confirm.html?voteId=${voteId}" class="vote-link">
-        📝 ${name}
-        <span class="vote-status ${statusClass}">${status}</span>
+      <a href="../call-confirm/call-confirm.html?callId=${callId}" class="call-link">
+      🎶 ${name}
+        <span class="answer-status ${statusClass}">${status}</span>
       </a>
     </li>
   `);
@@ -93,8 +98,8 @@ function makeVoteItem(voteId, name, status, statusClass) {
 function showEmptyMessage($list) {
   $list.append(`
     <li class="empty-message">
-      <div class="vote-link empty">
-        該当の投票はありません🍀
+      <div class="call-link empty">
+        該当の曲募集はありません🍀
       </div>
     </li>
   `);

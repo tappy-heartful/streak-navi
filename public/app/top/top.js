@@ -130,6 +130,11 @@ async function loadPendingVotesForAnnouncement() {
 async function loadMenu() {
   const $menuList = $('.menu-list');
 
+  // 曲募集一覧
+  $menuList.append(
+    `<a href="../call-list/call-list.html" class="menu-button call">🎶 曲募集一覧</a>`
+  );
+
   // 投票一覧
   $menuList.append(
     `<a href="../vote-list/vote-list.html" class="menu-button vote">📊 投票一覧</a>`

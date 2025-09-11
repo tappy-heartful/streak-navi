@@ -107,6 +107,10 @@ h3 {
 }
 
 /* 各アイコン例 */
+.menu-button.call::after {
+  content: "🎶";
+}
+
 .menu-button.vote::after {
   content: "📊";
 }

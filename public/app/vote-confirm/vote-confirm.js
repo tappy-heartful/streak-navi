@@ -61,13 +61,13 @@ async function renderVote() {
     statusClass = 'pending';
     statusText = '未回答';
   }
-  $('#vote-status-label')
+  $('#answer-status-label')
     .removeClass('pending voted closed')
     .addClass(statusClass)
     .text(statusText);
   $('#vote-title').text(voteData.name);
   $('#vote-description').text(voteData.explain);
-  $('#vote-status').text(
+  $('#answer-status').text(
     `${voteData.isActive ? '受付中' : '終了'}（${participantCount}人が回答済）`
   );
   $('#created-by').text(voteData.createdBy);

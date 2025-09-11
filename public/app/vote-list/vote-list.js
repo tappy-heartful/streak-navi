@@ -84,7 +84,7 @@ function makeVoteItem(voteId, name, status, statusClass) {
     <li>
       <a href="../vote-confirm/vote-confirm.html?voteId=${voteId}" class="vote-link">
         📝 ${name}
-        <span class="vote-status ${statusClass}">${status}</span>
+        <span class="answer-status ${statusClass}">${status}</span>
       </a>
     </li>
   `);
