@@ -147,8 +147,9 @@
           const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
           localStorage.removeItem('redirectAfterLogin');
 
-          // ログイン後の遷移先に指定があればその画面へ遷移
-          // 無ければTOPまたは同意画面へ遷移
+          // 初回ログイン：同意画面へ遷移
+          // ログイン後の遷移先に指定がある：その画面へ遷移
+          // 上記以外：TOPへ遷移
           window.location.href = userExists
             ? redirectAfterLogin ??
               utils.globalBaseUrl + '/app/top/top.html?fromLogin=1'
