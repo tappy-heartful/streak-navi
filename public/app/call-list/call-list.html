@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="../../images/favicon.png" />
+    <title>投票一覧</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="vote-list.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="page-header">
+        <h1>投票一覧</h1>
+      </div>
+
+      <div class="container">
+        <section class="vote-list">
+          <ul class="vote-list" id="vote-list"></ul>
+        </section>
+        <button
+          id="add-button"
+          class="add-button"
+          onclick="window.location.href = '../vote-edit/vote-edit.html?mode=new'"
+        >
+          ＋ 新規作成
+        </button>
+      </div>
+
+      <div class="page-footer">
+        <a href="../top/top.html" class="back-link">← TOPに戻る</a>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="vote-list.js"></script>
+  </body>
+</html>
