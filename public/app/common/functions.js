@@ -189,6 +189,10 @@ export async function initDisplay(isShowSpinner = true) {
 
   // 不正遷移チェック
   if (!getSession('uid')) {
+    // ログイン画面への遷移ではない場合、ログイン後にコールバック画面からその画面へ遷移
+    if (!window.location.href.includes('app/login/login.html')) {
+      localStorage.setItem('redirectAfterLogin', window.location.href);
+    }
     // ログインページへ遷移
     window.location.href = window.location.origin;
   }

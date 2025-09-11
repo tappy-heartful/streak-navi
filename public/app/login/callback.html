@@ -143,12 +143,16 @@
           // ✅ ログイン成功
           $('#message').append('<br>✅All Processes OK (〜￣▽￣)〜');
 
-          // TOPまたは同意画面へ遷移
-          window.location.href =
-            utils.globalBaseUrl +
-            (userExists
-              ? '/app/top/top.html?fromLogin=1'
-              : '/app/login/consent.html');
+          // リダイレクト先取得
+          const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
+          localStorage.removeItem('redirectAfterLogin');
+
+          // ログイン後の遷移先に指定があればその画面へ遷移
+          // 無ければTOPまたは同意画面へ遷移(ただし初回ログイン時は同意画面へ)
+          window.location.href = userExists
+            ? redirectAfterLogin ??
+              utils.globalBaseUrl + '/app/top/top.html?fromLogin=1'
+            : utils.globalBaseUrl + '/app/login/consent.html';
         } catch (e) {
           $('#message').append('エラー: ' + e.message);
 
