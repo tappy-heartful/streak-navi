@@ -143,9 +143,9 @@
           // ✅ ログイン成功
           $('#message').append('<br>✅All Processes OK (〜￣▽￣)〜');
 
-          // リダイレクト先取得
+          // リダイレクト先取得(ユーザが存在しない場合はユーザ編集ののち遷移させるため保持)
           const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
-          localStorage.removeItem('redirectAfterLogin');
+          if (userExists) localStorage.removeItem('redirectAfterLogin');
 
           // 初回ログイン：同意画面へ遷移
           // ログイン後の遷移先に指定がある：その画面へ遷移

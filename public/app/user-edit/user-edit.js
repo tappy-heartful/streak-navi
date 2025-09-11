@@ -184,10 +184,14 @@ function setupEventHandlers() {
 
       await utils.showDialog((isInit ? '登録' : '更新') + 'しました', true);
 
+      // 初回ログインの場合、リダイレクト先が指定されていればそこに遷移
+      const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
+      localStorage.removeItem('redirectAfterLogin');
+
       // 画面遷移
       window.location.href =
         isInit === utils.globalStrTrue
-          ? '../top/top.html?isInit=1'
+          ? redirectAfterLogin ?? '../top/top.html?isInit=1'
           : '../user-confirm/user-confirm.html?uid=' + uid;
     } catch (e) {
       // ログ登録
