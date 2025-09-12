@@ -78,8 +78,8 @@ async function renderCall() {
 ////////////////////////////
 // イベント & 権限制御
 ////////////////////////////
-function setupEventHandlers(callId, isAdmin, isOpen, uid) {
-  if (!isOpen) {
+function setupEventHandlers(callId, isAdmin, isActive, uid) {
+  if (!isActive) {
     $('#answer-menu').hide();
   }
   if (!isAdmin) {

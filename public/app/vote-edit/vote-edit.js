@@ -52,7 +52,7 @@ async function setupPage(mode) {
     // 初期表示で投票項目一つ表示
     $('#vote-items-container').append(createVoteItemTemplate());
     // 回答を受け付けにチェック
-    $('#is-open').prop('checked', true);
+    $('#is-active').prop('checked', true);
   } else if (mode === 'copy') {
     // 表示文言設定
     pageTitle.text('投票新規作成');
@@ -88,7 +88,7 @@ async function loadVoteData(voteId, mode) {
   // 投票名・説明・公開状態
   $('#vote-title').val(data.name + (mode === 'copy' ? '（コピー）' : ''));
   $('#vote-description').val(data.explain);
-  $('#is-open').prop('checked', !!data.isActive);
+  $('#is-active').prop('checked', !!data.isActive);
   $('#is-anonymous').prop('checked', !!data.isAnonymous);
   $('#hide-votes').prop('checked', !!data.hideVotes);
 
@@ -301,7 +301,7 @@ function captureInitialState() {
   initialStateHtml = {
     title: $('#vote-title').val(),
     description: $('#vote-description').val(),
-    isOpen: $('#is-open').prop('checked'),
+    isActive: $('#is-active').prop('checked'),
     isAnonymous: $('#is-anonymous').prop('checked'),
     hideVotes: $('#hide-votes').prop('checked'),
     items: $('#vote-items-container .vote-item')
@@ -323,7 +323,7 @@ function captureInitialState() {
 function restoreInitialState() {
   $('#vote-title').val(initialStateHtml.title);
   $('#vote-description').val(initialStateHtml.description);
-  $('#is-open').prop('checked', initialStateHtml.isOpen);
+  $('#is-active').prop('checked', initialStateHtml.isActive);
   $('#is-anonymous').prop('checked', initialStateHtml.isAnonymous);
   $('#hide-votes').prop('checked', initialStateHtml.hideVotes);
 
@@ -351,7 +351,7 @@ function collectVoteData(mode) {
   const voteData = {
     name: $('#vote-title').val().trim(),
     explain: $('#vote-description').val().trim(),
-    isActive: $('#is-open').prop('checked'),
+    isActive: $('#is-active').prop('checked'),
     isAnonymous: $('#is-anonymous').prop('checked'),
     hideVotes: $('#hide-votes').prop('checked'),
     createdAt: utils.serverTimestamp(),

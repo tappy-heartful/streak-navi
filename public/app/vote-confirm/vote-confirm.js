@@ -213,8 +213,8 @@ function getLinkHtml(url, text) {
 ////////////////////////////
 // イベント & 表示制御
 ////////////////////////////
-function setupEventHandlers(voteId, isAdmin, isOpen, uid) {
-  if (!isOpen) {
+function setupEventHandlers(voteId, isAdmin, isActive, uid) {
+  if (!isActive) {
     $('#answer-menu').hide();
   }
   if (!isAdmin) {

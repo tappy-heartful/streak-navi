@@ -40,7 +40,7 @@ async function setupPage(mode) {
     submitButton.text('登録');
     backLink.text('← 曲募集一覧に戻る');
     // 回答を受け付けにチェック
-    $('#is-open').prop('checked', true);
+    $('#is-active').prop('checked', true);
   } else if (mode === 'edit' || mode === 'copy') {
     pageTitle.text(mode === 'edit' ? '曲募集編集' : '曲募集新規作成');
     title.text(mode === 'edit' ? '曲募集編集' : '曲募集新規作成');
@@ -63,7 +63,7 @@ async function loadCallData(docId, mode) {
 
   $('#call-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
   $('#call-description').val(data.description || '');
-  $('#is-open').prop('checked', data.isOpen || false);
+  $('#is-active').prop('checked', data.isActive || false);
   $('#is-anonymous').prop('checked', data.isAnonymous || false);
 
   // 募集項目を復元
@@ -165,7 +165,7 @@ function collectData(mode) {
     title: $('#call-title').val().trim(),
     description: $('#call-description').val().trim(),
     items,
-    isOpen: $('#is-open').prop('checked'),
+    isActive: $('#is-active').prop('checked'),
     isAnonymous: $('#is-anonymous').prop('checked'),
     createdAt: utils.serverTimestamp(),
   };
@@ -227,7 +227,7 @@ function captureInitialState() {
         return $(this).val();
       })
       .get(),
-    isOpen: $('#is-open').prop('checked'),
+    isActive: $('#is-active').prop('checked'),
     isAnonymous: $('#is-anonymous').prop('checked'),
   };
 }
@@ -237,7 +237,7 @@ function restoreInitialState() {
   $('#call-description').val(initialState.description);
   $('#call-items-container').empty();
   initialState.items.forEach((item) => addItemToForm(item));
-  $('#is-open').prop('checked', initialState.isOpen);
+  $('#is-active').prop('checked', initialState.isActive);
   $('#is-anonymous').prop('checked', initialState.isAnonymous);
   clearErrors();
 }
