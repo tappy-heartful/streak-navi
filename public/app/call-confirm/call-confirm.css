@@ -1,17 +1,3 @@
-/* call-confirm専用 */
-
-/* 回答ステータスラベル */
-#answer-status-label {
-  font-size: 14px;
-  font-weight: bold;
-  padding: 4px 10px;
-  border-radius: 12px;
-  display: inline-block;
-  margin-bottom: 15px;
-  color: #fff;
-  background-color: #2196f3;
-}
-
 /* 募集情報ラベル */
 .call-info {
   display: flex;
