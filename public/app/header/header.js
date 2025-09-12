@@ -20,6 +20,9 @@ $(document).ready(async function () {
   $('#menu-top').on('click', function () {
     window.location.href = '../top/top.html';
   });
+  $('#menu-call-list').on('click', function () {
+    window.location.href = '../call-list/call-list.html';
+  });
   $('#menu-vote-list').on('click', function () {
     window.location.href = '../vote-list/vote-list.html';
   });

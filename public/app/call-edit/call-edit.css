@@ -1,4 +1,4 @@
-.vote-item {
+.call-item {
   margin-bottom: 20px;
   padding: 15px;
   border: 1px solid #ddd;
@@ -6,11 +6,11 @@
   background: #f9f9f9;
 }
 
-.vote-item-title {
+.call-item-title {
   margin-bottom: 10px;
 }
 
-.vote-choices input {
+.call-choices input {
   margin-bottom: 8px;
 }
 
