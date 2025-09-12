@@ -1,84 +1,77 @@
-.answer-status-container {
-  text-align: center;
-  margin-bottom: 16px;
-}
+/* call-confirm専用 */
 
-.vote-item {
-  margin-bottom: 20px;
-  padding: 15px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #f9f9f9;
-}
-
-.vote-item-title {
-  font-weight: bold;
-  margin-bottom: 10px;
-  font-size: 18px;
-}
-
-.vote-choices {
-  padding-left: 20px;
-}
-
-.vote-choice {
-  margin-bottom: 6px;
-  padding-left: 8px;
-}
-
-.vote-results {
-  margin-top: 10px;
-}
-
-.result-bar {
-  display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-  font-size: 15px;
-}
-
-.result-bar .label {
-  width: 100px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.result-bar .bar-container {
-  flex-grow: 1;
-  background: #e0e0e0;
-  border-radius: 4px;
-  overflow: hidden;
-  margin: 0 10px;
-  height: 18px;
-}
-
-.result-bar .bar {
-  height: 100%;
-  background: linear-gradient(to right, #4CAF50, #81C784);
-  border-radius: 4px;
-  transition: width 0.5s;
-}
-
-.result-bar .vote-count {
-  min-width: 40px;
-  text-align: right;
-  font-weight: bold;
-}
-
-.section-label {
-  margin: 20px 0 10px;
+/* 回答ステータスラベル */
+#answer-status-label {
   font-size: 14px;
   font-weight: bold;
-  color: #888;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 4px;
+  padding: 4px 10px;
+  border-radius: 12px;
+  display: inline-block;
+  margin-bottom: 15px;
+  color: #fff;
+  background-color: #2196f3;
 }
 
-.my-choice-icon {
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  vertical-align: middle;
-  margin-right: 4px;
+/* 募集情報ラベル */
+.call-info {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.call-info .label-item {
+  font-size: 14px;
+  color: #666;
+  background-color: #f4f4f4;
+  padding: 6px 12px;
+  border-radius: 12px;
+}
+
+/* 募集項目リスト */
+#call-items-container .form-group {
+  margin-bottom: 15px;
+}
+
+#call-items-container .label-value {
+  background-color: #f9f9f9;
+  padding: 12px;
+  border-radius: 8px;
+  font-size: 16px;
+  color: #333;
+  box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+}
+/* ユーザ情報表示 */
+.user-profile {
+  margin-bottom: 25px;
+}
+
+.user-profile .user-icon {
+  width: 56px;
+  height: 56px;
+}
+
+.user-profile .user-name {
+  font-size: 18px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* 募集のアクティブ/終了ステータス */
+.call-status {
+  font-size: 14px;
+  font-weight: bold;
+  padding: 4px 10px;
+  border-radius: 12px;
+  display: inline-block;
+  margin-bottom: 15px;
+  color: #fff;
+}
+
+.call-status.open {
+  background-color: #4caf50;
+}
+
+.call-status.closed {
+  background-color: #9e9e9e;
 }

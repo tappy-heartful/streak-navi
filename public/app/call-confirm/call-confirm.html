@@ -9,16 +9,16 @@
       href="../../images/favicon.png"
       type="image/png"
     />
-    <title>投票確認</title>
+    <title>曲募集確認</title>
     <link rel="stylesheet" href="../common/common.css" />
-    <link rel="stylesheet" href="vote-confirm.css" />
+    <link rel="stylesheet" href="call-confirm.css" />
   </head>
   <body>
     <div id="header-placeholder"></div>
 
     <!-- タイトル（カード外） -->
     <div class="page-header">
-      <h1 id="page-title">投票確認</h1>
+      <h1 id="page-title">曲募集</h1>
     </div>
 
     <main class="container">
@@ -27,16 +27,21 @@
       </div>
 
       <div class="form-group">
-        <label class="label-title">投票名</label>
-        <div class="label-value" id="vote-title"></div>
+        <label class="label-title">タイトル</label>
+        <div class="label-value" id="call-title"></div>
       </div>
 
       <div class="form-group">
-        <label class="label-title">投票説明</label>
-        <div class="label-value" id="vote-description"></div>
+        <label class="label-title">説明</label>
+        <div class="label-value" id="call-description"></div>
       </div>
 
-      <div id="vote-items-container"></div>
+      <div id="call-items-container"></div>
+
+      <div class="form-group">
+        <label class="label-title">募集項目</label>
+        <div class="label-value" id="call-items"></div>
+      </div>
 
       <div class="form-group">
         <label class="label-title">投票状況</label>
@@ -44,8 +49,8 @@
       </div>
 
       <div class="form-group">
-        <label class="label-title">作成者</label>
-        <div class="label-value" id="created-by"></div>
+        <label class="label-title">匿名募集</label>
+        <div class="label-value" id="call-anonymous"></div>
       </div>
 
       <div id="answer-menu" class="menu-section">
@@ -60,25 +65,20 @@
         </div>
       </div>
 
-      <div id="vote-menu" class="menu-section">
-        <h2 class="menu-title">投票管理メニュー</h2>
+      <div id="call-menu" class="menu-section">
+        <h2 class="menu-title">募集管理メニュー</h2>
         <div class="confirm-buttons">
-          <button id="vote-edit-button" class="edit-button">編集</button>
-          <button id="vote-copy-button" class="copy-button">コピー</button>
-        </div>
-        <div class="confirm-buttons">
-          <button id="vote-link-edit-button" class="edit-button">
-            リンク設定
-          </button>
-          <button id="vote-delete-button" class="delete-button">削除</button>
+          <button id="call-edit-button" class="edit-button">編集</button>
+          <button id="call-copy-button" class="copy-button">コピー</button>
+          <button id="call-delete-button" class="delete-button">削除</button>
         </div>
       </div>
     </main>
 
     <!-- フッター部（カード外） -->
     <div class="page-footer">
-      <a href="../vote-list/vote-list.html" class="back-link"
-        >← 投票一覧に戻る</a
+      <a href="../call-list/call-list.html" class="back-link"
+        >← 曲募集一覧に戻る</a
       >
     </div>
 
@@ -92,6 +92,6 @@
     />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="module" src="../common/functions.js"></script>
-    <script type="module" src="vote-confirm.js"></script>
+    <script type="module" src="call-confirm.js"></script>
   </body>
 </html>
