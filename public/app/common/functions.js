@@ -384,3 +384,11 @@ export function formatDateToYMDHyphen(dateStr) {
   const [yyyy, mm, dd] = parts;
   return `${yyyy}-${mm}-${dd}`;
 }
+/**
+ * ランダムなユニークIDを生成する関数
+ * @param {string} prefix - 先頭に付与する文字列（省略可）
+ * @returns {string} 例: "song-abc123xyz"
+ */
+export function generateId(prefix = 'id') {
+  return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+}
