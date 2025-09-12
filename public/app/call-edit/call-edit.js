@@ -39,6 +39,8 @@ async function setupPage(mode) {
     title.text('曲募集新規作成');
     submitButton.text('登録');
     backLink.text('← 曲募集一覧に戻る');
+    // 初期表示で投票項目一つ表示
+    $('#call-items-container').append(addItemToForm());
     // 回答を受け付けにチェック
     $('#is-active').prop('checked', true);
   } else if (mode === 'edit' || mode === 'copy') {
@@ -201,6 +203,13 @@ function validateData() {
   if (items.length === 0) {
     markError($('#call-items-container'), '募集項目を1つ以上入力してください');
     isValid = false;
+  } else {
+    // 重複チェック
+    const uniqueItems = new Set(items);
+    if (uniqueItems.size !== items.length) {
+      markError($('#call-items-container'), '募集項目が重複しています');
+      isValid = false;
+    }
   }
 
   return isValid;
