@@ -56,7 +56,7 @@ async function renderCall() {
     .addClass(statusClass)
     .text(statusText);
   $('#call-title').text(callData.title);
-  $('#call-description').text(callData.explain);
+  $('#call-description').text(callData.description);
   $('#answer-status').text(callData.isActive ? '受付中' : '終了');
   $('#call-anonymous').text(callData.isAnonymous ? 'はい' : 'いいえ');
 

@@ -47,10 +47,10 @@ async function loadVoteData(voteId) {
   $('#vote-title').text(data.name);
 
   // 投票説明リンク用テキストボックス
-  $('#vote-description-link').val(data.explainLink || '');
+  $('#vote-description-link').val(data.descriptionLink || '');
   $('#vote-description-link').attr(
     'placeholder',
-    (data.explain || '投票説明') + ' のリンク'
+    (data.description || '投票説明') + ' のリンク'
   );
 
   // 投票項目表示
@@ -117,7 +117,7 @@ function setupEventHandlers() {
       const updatedData = { ...existingData };
 
       // 投票説明リンク
-      updatedData.explainLink = $('#vote-description-link').val().trim();
+      updatedData.descriptionLink = $('#vote-description-link').val().trim();
 
       // 項目リンク・選択肢リンク
       updatedData.items = existingData.items.map((item, i) => {

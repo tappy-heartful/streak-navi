@@ -66,7 +66,7 @@ async function renderVote() {
     .addClass(statusClass)
     .text(statusText);
   $('#vote-title').text(voteData.name);
-  $('#vote-description').text(voteData.explain);
+  $('#vote-description').text(voteData.description);
   $('#answer-status').text(
     `${voteData.isActive ? '受付中' : '終了'}（${participantCount}人が回答済）`
   );
@@ -129,10 +129,10 @@ function renderView(voteData, voteResults, container, myAnswer, myProfileUrl) {
   const items = voteData.items || [];
 
   // 投票説明リンク対応
-  const voteDescription = voteData.explain
-    ? voteData.explainLink
-      ? getLinkHtml(voteData.explainLink, voteData.explain)
-      : voteData.explain
+  const voteDescription = voteData.description
+    ? voteData.descriptionLink
+      ? getLinkHtml(voteData.descriptionLink, voteData.description)
+      : voteData.description
     : '';
   $('#vote-description').html(voteDescription);
 

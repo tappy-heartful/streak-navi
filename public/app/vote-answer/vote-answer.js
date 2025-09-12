@@ -67,7 +67,7 @@ async function fetchAnswerData(voteId, uid) {
 
 function renderVote(voteData, answerData = {}) {
   $('#vote-title').text(voteData.name);
-  $('#vote-description').text(voteData.explain);
+  $('#vote-description').text(voteData.description);
 
   const container = $('#vote-items-container').empty();
 

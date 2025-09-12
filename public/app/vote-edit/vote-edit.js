@@ -87,7 +87,7 @@ async function loadVoteData(voteId, mode) {
 
   // 投票名・説明・公開状態
   $('#vote-title').val(data.name + (mode === 'copy' ? '（コピー）' : ''));
-  $('#vote-description').val(data.explain);
+  $('#vote-description').val(data.description);
   $('#is-active').prop('checked', !!data.isActive);
   $('#is-anonymous').prop('checked', !!data.isAnonymous);
   $('#hide-votes').prop('checked', !!data.hideVotes);
@@ -202,7 +202,7 @@ function setupEventHandlers(mode) {
         const existingData = docSnap.data();
 
         // --- リンク情報を名前で統合 ---
-        voteData.explainLink = existingData.explainLink || '';
+        voteData.descriptionLink = existingData.descriptionLink || '';
         voteData.items = voteData.items.map((item) => {
           // 既存項目で同名のものを探す
           const existingItem = (existingData.items || []).find(
@@ -350,7 +350,7 @@ function restoreInitialState() {
 function collectVoteData(mode) {
   const voteData = {
     name: $('#vote-title').val().trim(),
-    explain: $('#vote-description').val().trim(),
+    description: $('#vote-description').val().trim(),
     isActive: $('#is-active').prop('checked'),
     isAnonymous: $('#is-anonymous').prop('checked'),
     hideVotes: $('#hide-votes').prop('checked'),
