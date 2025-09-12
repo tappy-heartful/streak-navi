@@ -1,4 +1,4 @@
-export function showDialog(message, isConfirm = false) {
+export function showDialog(message, isOKOnly = false) {
   return new Promise((resolve) => {
     const overlay = document.getElementById('custom-dialog');
     const msg = document.getElementById('dialog-message');
@@ -9,7 +9,7 @@ export function showDialog(message, isConfirm = false) {
     msg.textContent = message;
 
     // ボタン表示を毎回リセット
-    if (isConfirm) {
+    if (isOKOnly) {
       okBtn.textContent = 'OK';
       cancelBtn.classList.add('hidden');
     } else {

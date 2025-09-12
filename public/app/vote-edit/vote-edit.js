@@ -179,12 +179,9 @@ function setupEventHandlers(mode) {
         // ログ登録
         await utils.writeLog({ dataId: docRef.id, action: '登録' });
         utils.hideSpinner();
+        await utils.showDialog('登録しました', true);
 
-        if (
-          await utils.showDialog(
-            '登録しました 続いて選択肢のリンクを設定しますか？'
-          )
-        ) {
+        if (await utils.showDialog('続いて選択肢のリンクを設定しますか？')) {
           // はいでリンク設定画面へ
           window.location.href = `../vote-link-edit/vote-link-edit.html?voteId=${docRef.id}`;
         } else {
@@ -230,12 +227,9 @@ function setupEventHandlers(mode) {
         // ログ登録
         await utils.writeLog({ dataId: voteId, action: '更新' });
         utils.hideSpinner();
+        await utils.showDialog('更新しました', true);
 
-        if (
-          await utils.showDialog(
-            '更新しました 続いて選択肢のリンクを設定しますか？'
-          )
-        ) {
+        if (await utils.showDialog('続いて選択肢のリンクを設定しますか？')) {
           // はいでリンク設定画面へ
           window.location.href = `../vote-link-edit/vote-link-edit.html?voteId=${voteId}`;
         } else {
