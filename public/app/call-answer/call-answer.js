@@ -90,17 +90,15 @@ function buildSongForm(genreId, song = {}, idx = 0) {
       <input type="text" placeholder="曲名 *" class="song-title" value="${
         song.title || ''
       }">
-      <input type="url" placeholder="参考音源URL" class="song-url" value="${
+      <input type="text" placeholder="参考音源URL" class="song-url" value="${
         song.url || ''
       }">
       <select class="song-scorestatus"></select>
-      <input type="url" placeholder="購入先リンク" class="song-purchase" value="${
+      <input type="text" placeholder="購入先リンク" class="song-purchase" value="${
         song.purchase || ''
       }">
-      <textarea placeholder="備考" class="song-note">${
-        song.note || ''
-      }</textarea>
-      <button class="remove-song">× 曲を削除</button>
+      <text placeholder="備考" class="song-note">${song.note || ''}</text>
+      <button class="remove-song">× 曲を取下</button>
     </div>
   `;
 }
