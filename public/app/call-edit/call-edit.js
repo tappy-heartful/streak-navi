@@ -187,6 +187,12 @@ function validateData() {
     isValid = false;
   }
 
+  const description = $('#call-description').val().trim();
+  if (!description) {
+    markError($('#call-description'), '必須項目です');
+    isValid = false;
+  }
+
   const items = [];
   $('#call-items-container .call-item-input').each(function () {
     const val = $(this).val().trim();
