@@ -17,13 +17,12 @@ $(document).ready(async function () {
 });
 
 ////////////////////////////
-// 曲募集データ表示
+// 募集データ表示
 ////////////////////////////
 async function renderCall() {
   const callId = utils.globalGetParamCallId;
   const isAdmin = utils.getSession('isCallAdmin') === utils.globalStrTrue;
   const uid = utils.getSession('uid');
-  const myProfileUrl = utils.getSession('pictureUrl') || '';
 
   // calls から募集情報を取得
   const callSnap = await utils.getDoc(utils.doc(utils.db, 'calls', callId));
@@ -32,11 +31,19 @@ async function renderCall() {
   }
   const callData = callSnap.data();
 
-  // callAnswers から自分の回答取得（今回は回答状況は考慮しない）
+  // callAnswers から自分の回答取得
   const myAnswerData = await utils.getDoc(
     utils.doc(utils.db, 'callAnswers', `${callId}_${uid}`)
   );
   const myAnswer = myAnswerData?.data()?.answers || {};
+
+  // 🔽 参加者数をカウント
+  const answersSnap = await utils.getDocs(
+    utils.collection(utils.db, 'callAnswers')
+  );
+  const participantCount = answersSnap.docs.filter((doc) =>
+    doc.id.startsWith(callId + '_')
+  ).length;
 
   // 画面に反映
   let statusClass = '';
@@ -51,26 +58,34 @@ async function renderCall() {
     statusClass = 'pending';
     statusText = '未回答';
   }
+
   $('#answer-status-label')
     .removeClass('pending voted closed')
     .addClass(statusClass)
     .text(statusText);
+
   $('#call-title').text(callData.title);
   $('#call-description').text(callData.description);
-  $('#answer-status').text(callData.isActive ? '受付中' : '終了');
+  $('#answer-status').text(
+    `${callData.isActive ? '受付中' : '終了'}（${participantCount}人が回答中）`
+  );
   $('#call-anonymous').text(callData.isAnonymous ? 'はい' : 'いいえ');
 
   // 募集項目を表示
-  const container = $('#call-items').empty(); // #call-items を対象
+  const container = $('#call-items').empty();
   const items = callData.items || [];
   items.forEach((item) => {
-    const itemHtml = `
-    <div class="call-item">
-      ${item}
-    </div>
-  `;
+    const itemHtml = `<div class="call-item">${item}</div>`;
     container.append(itemHtml);
   });
+
+  // 🔽 回答メニュー制御
+  if (myAnswer && Object.keys(myAnswer).length > 0) {
+    $('#answer-save-button').text('回答を修正する');
+  } else {
+    $('#answer-save-button').text('回答する');
+    $('#answer-delete-button').hide();
+  }
 
   setupEventHandlers(callId, isAdmin, callData.isActive, uid);
 }
