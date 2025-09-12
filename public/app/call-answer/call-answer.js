@@ -98,7 +98,7 @@ function buildSongForm(genreId, song = {}, idx = 0) {
         song.purchase || ''
       }">
       <text placeholder="備考" class="song-note">${song.note || ''}</text>
-      <button class="remove-song">× 曲を取下</button>
+      <button class="remove-song">× 削除</button>
     </div>
   `;
 }
@@ -117,6 +117,7 @@ function setupEventHandlers(mode, callId, uid, callData) {
 
   // 保存
   $('#answer-submit').on('click', async function () {
+    clearErrors(); // 既存のエラー表示を消す
     const answers = {};
     let hasError = false;
 
@@ -127,17 +128,16 @@ function setupEventHandlers(mode, callId, uid, callData) {
       $(this)
         .find('.song-item')
         .each(function () {
-          const title = $(this).find('.song-title').val().trim();
-          const url = $(this).find('.song-url').val().trim();
-          const scorestatus = $(this).find('.song-scorestatus').val();
-          const purchase = $(this).find('.song-purchase').val().trim();
-          const note = $(this).find('.song-note').val().trim();
+          const $item = $(this);
+          const title = $item.find('.song-title').val().trim();
+          const url = $item.find('.song-url').val().trim();
+          const scorestatus = $item.find('.song-scorestatus').val();
+          const purchase = $item.find('.song-purchase').val().trim();
+          const note = $item.find('.song-note').val().trim();
 
           if (!title) {
             hasError = true;
-            $(this)
-              .find('.song-title')
-              .after(`<div class="error-message">曲名は必須です。</div>`);
+            markError($item.find('.song-title'), '曲名は必須です。');
           }
 
           songs.push({ title, url, scorestatus, purchase, note });
@@ -147,7 +147,7 @@ function setupEventHandlers(mode, callId, uid, callData) {
     });
 
     if (hasError) {
-      await utils.showDialog(`曲名を入力してください。`, true);
+      await utils.showDialog(`入力内容を確認してください。`, true);
       return;
     }
 
@@ -160,12 +160,7 @@ function setupEventHandlers(mode, callId, uid, callData) {
       utils.showSpinner();
       await utils.setDoc(
         utils.doc(utils.db, 'callAnswers', `${callId}_${uid}`),
-        {
-          callId,
-          uid,
-          answers,
-          updatedAt: utils.serverTimestamp(),
-        },
+        { callId, uid, answers, updatedAt: utils.serverTimestamp() },
         { merge: true }
       );
 
@@ -198,24 +193,16 @@ function setupEventHandlers(mode, callId, uid, callData) {
     window.location.href = '../call-confirm/call-confirm.html?callId=' + callId;
   });
 }
-//===========================
-// Firestore から scorestatus をロードして <select> に反映
-//===========================
-async function loadScoreStatusOptions(selectEl) {
-  try {
-    const snapshot = await db.collection('scorestatus').get();
-    selectEl.empty(); // 既存の選択肢をクリア
 
-    // 初期値
-    selectEl.append(`<option value="">選択してください</option>`);
-
-    snapshot.forEach((doc) => {
-      const data = doc.data();
-      // 例: { name: "完成済み", value: "completed" }
-      const option = `<option value="${doc.id}">${data.name}</option>`;
-      selectEl.append(option);
-    });
-  } catch (err) {
-    console.error('scorestatus のロードに失敗しました:', err);
-  }
+//===========================
+// エラー表示ユーティリティ
+//===========================
+function clearErrors() {
+  $('.error-message').remove();
+  $('.error-field').removeClass('error-field');
+}
+function markError($field, message) {
+  $field
+    .after(`<div class="error-message">${message}</div>`)
+    .addClass('error-field');
 }
