@@ -39,7 +39,23 @@ async function renderCall() {
   const myAnswer = myAnswerData?.data()?.answers || {};
 
   // 画面に反映
-  $('#answer-status-label').text(callData.isActive ? '受付中' : '終了');
+  // 画面に反映
+  let statusClass = '';
+  let statusText = '';
+  if (!callData.isActive) {
+    statusClass = 'closed';
+    statusText = '終了';
+  } else if (myAnswer && Object.keys(myAnswer).length > 0) {
+    statusClass = 'voted';
+    statusText = '回答済';
+  } else {
+    statusClass = 'pending';
+    statusText = '未回答';
+  }
+  $('#answer-status-label')
+    .removeClass('pending voted closed')
+    .addClass(statusClass)
+    .text(statusText);
   $('#call-title').text(callData.title);
   $('#call-description').text(callData.explain);
   $('#answer-status').text(callData.isActive ? '受付中' : '終了');
