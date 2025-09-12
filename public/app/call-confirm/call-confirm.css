@@ -1,0 +1,84 @@
+.answer-status-container {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.vote-item {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+.vote-item-title {
+  font-weight: bold;
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.vote-choices {
+  padding-left: 20px;
+}
+
+.vote-choice {
+  margin-bottom: 6px;
+  padding-left: 8px;
+}
+
+.vote-results {
+  margin-top: 10px;
+}
+
+.result-bar {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 15px;
+}
+
+.result-bar .label {
+  width: 100px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.result-bar .bar-container {
+  flex-grow: 1;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 0 10px;
+  height: 18px;
+}
+
+.result-bar .bar {
+  height: 100%;
+  background: linear-gradient(to right, #4CAF50, #81C784);
+  border-radius: 4px;
+  transition: width 0.5s;
+}
+
+.result-bar .vote-count {
+  min-width: 40px;
+  text-align: right;
+  font-weight: bold;
+}
+
+.section-label {
+  margin: 20px 0 10px;
+  font-size: 14px;
+  font-weight: bold;
+  color: #888;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 4px;
+}
+
+.my-choice-icon {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  vertical-align: middle;
+  margin-right: 4px;
+}
