@@ -39,7 +39,6 @@ async function renderCall() {
   const myAnswer = myAnswerData?.data()?.answers || {};
 
   // 画面に反映
-  // 画面に反映
   let statusClass = '';
   let statusText = '';
   if (!callData.isActive) {
@@ -62,15 +61,14 @@ async function renderCall() {
   $('#call-anonymous').text(callData.isAnonymous ? 'はい' : 'いいえ');
 
   // 募集項目を表示
-  const container = $('#call-items-container').empty();
+  const container = $('#call-items').empty(); // #call-items を対象
   const items = callData.items || [];
   items.forEach((item) => {
-    const itemHtml = `<div class="form-group">
-      <label class="label-title">${item.name}</label>
-      <div class="label-value">
-        ${item.choices.map((c) => c.name).join(', ')}
-      </div>
-    </div>`;
+    const itemHtml = `
+    <div class="call-item">
+      ${item}
+    </div>
+  `;
     container.append(itemHtml);
   });
 
