@@ -1,0 +1,56 @@
+/* 募集項目（ジャンル）ブロック */
+.genre-block {
+  margin-bottom: 30px;
+  padding: 16px;
+  border-radius: 10px;
+  background-color: #fafafa;
+  border: 1px solid #e0e0e0;
+}
+
+/* ジャンルタイトル */
+.genre-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 12px;
+  padding-left: 8px;
+  border-left: 4px solid #4caf50;
+  color: #333;
+}
+
+/* 回答者名 */
+.answer-user {
+  font-size: 14px;
+  font-weight: bold;
+  color: #555;
+  margin: 8px 0 6px 0;
+}
+
+/* 曲アイテム */
+.song-item {
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  box-shadow: 1px 1px 6px rgba(0,0,0,0.05);
+}
+
+.song-item strong {
+  font-size: 16px;
+  color: #333;
+}
+
+.song-item div {
+  font-size: 14px;
+  margin-top: 4px;
+  color: #444;
+  word-break: break-word; /* 長いURLなどの折返し */
+}
+
+/* 回答なし表示 */
+.no-answer {
+  font-size: 14px;
+  font-style: italic;
+  color: #888;
+  padding: 6px 0 2px 8px;
+}

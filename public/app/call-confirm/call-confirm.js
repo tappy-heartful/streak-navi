@@ -71,13 +71,65 @@ async function renderCall() {
   );
   $('#call-anonymous').text(callData.isAnonymous ? 'はい' : 'いいえ');
 
-  // 募集項目を表示
+  // 募集項目＋回答を表示
   const container = $('#call-items').empty();
   const items = callData.items || [];
-  items.forEach((item) => {
-    const itemHtml = `<div class="call-item">${item}</div>`;
-    container.append(itemHtml);
-  });
+
+  // 全員の回答をまとめて取得
+  const answersSnap2 = await utils.getDocs(
+    utils.collection(utils.db, 'callAnswers')
+  );
+  const allAnswers = answersSnap2.docs
+    .filter((doc) => doc.id.startsWith(callId + '_'))
+    .map((doc) => doc.data());
+
+  for (const genre of items) {
+    const genreBlock = $(`<div class="genre-block"></div>`);
+    genreBlock.append(`<div class="genre-title">🎵 ${genre}</div>`);
+
+    const genreList = $('<div class="genre-answers"></div>');
+
+    allAnswers.forEach((ans) => {
+      const songs = ans.answers?.[genre] || [];
+      if (songs.length > 0) {
+        // 回答者名（匿名でなければ表示）
+        if (!callData.isAnonymous) {
+          genreList.append(
+            `<div class="answer-user">回答者: ${ans.uid || '(不明)'}</div>`
+          );
+        }
+
+        songs.forEach((song) => {
+          const songHtml = `
+            <div class="song-item">
+              <div><strong>${song.title}</strong></div>
+              ${
+                song.url
+                  ? `<div>参考音源: <a href="${song.url}" target="_blank">${song.url}</a></div>`
+                  : ''
+              }
+              ${song.scorestatus ? `<div>譜面: ${song.scorestatus}</div>` : ''}
+              ${
+                song.purchase
+                  ? `<div>購入先: <a href="${song.purchase}" target="_blank">${song.purchase}</a></div>`
+                  : ''
+              }
+              ${song.note ? `<div>備考: ${song.note}</div>` : ''}
+            </div>
+          `;
+          genreList.append(songHtml);
+        });
+      }
+    });
+
+    if (genreList.children().length > 0) {
+      genreBlock.append(genreList);
+    } else {
+      genreBlock.append(`<div class="no-answer">（回答なし）</div>`);
+    }
+
+    container.append(genreBlock);
+  }
 
   // 🔽 回答メニュー制御
   if (myAnswer && Object.keys(myAnswer).length > 0) {
