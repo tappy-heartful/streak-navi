@@ -305,4 +305,11 @@ function setupEventHandlers(callId, isAdmin, isActive, uid) {
     .on('click', function () {
       window.location.href = `../call-edit/call-edit.html?mode=copy&callId=${callId}`;
     });
+
+  // 投票作成
+  $('#create-vote-button')
+    .off('click')
+    .on('click', function () {
+      window.location.href = `../vote-edit/vote-edit.html?mode=createFromcall&callId=${callId}`;
+    });
 }
