@@ -135,23 +135,35 @@ async function renderCall() {
           const scoreName = song.scorestatus
             ? scoreStatusMap[song.scorestatus]
             : '';
+
+          // YouTubeかどうか判定
+          let urlHtml = '';
+          if (song.url) {
+            const isYouTube =
+              song.url.includes('youtube.com/watch') ||
+              song.url.includes('youtu.be');
+            if (isYouTube) {
+              // モーダル表示用リンク
+              urlHtml = `<div>参考音源: <a href="#" class="youtube-link" data-video-url="${song.url}">YouTubeで見る</a></div>`;
+            } else {
+              // 通常リンク
+              urlHtml = `<div>参考音源: <a href="${song.url}" target="_blank">リンクを開く<i class="fas fa-arrow-up-right-from-square"></i></a></div>`;
+            }
+          }
+
           const songHtml = `
-          <div class="song-item">
-            <div><strong>${song.title}</strong></div>
-            ${
-              song.url
-                ? `<div>参考音源: <a href="${song.url}" target="_blank">${song.url}</a></div>`
-                : ''
-            }
-            ${scoreName ? `<div>譜面: ${scoreName}</div>` : ''}
-            ${
-              song.purchase
-                ? `<div>購入先: <a href="${song.purchase}" target="_blank">${song.purchase}</a></div>`
-                : ''
-            }
-            ${song.note ? `<div>備考: ${song.note}</div>` : ''}
-          </div>
-        `;
+        <div class="song-item">
+          <div><strong>${song.title}</strong></div>
+          ${urlHtml}
+          ${scoreName ? `<div>譜面: ${scoreName}</div>` : ''}
+          ${
+            song.purchase
+              ? `<div>購入先: <a href="${song.purchase}" target="_blank">リンクを開く<i class="fas fa-arrow-up-right-from-square"></i></a></div>`
+              : ''
+          }
+          ${song.note ? `<div>備考: ${song.note}</div>` : ''}
+        </div>
+      `;
           genreList.append(songHtml);
         });
       }
@@ -268,6 +280,17 @@ function setupEventHandlers(callId, isAdmin, isActive, uid) {
         utils.hideSpinner();
       }
     });
+
+  // YouTubeリンクをモーダルで表示
+  $(document).on('click', '.youtube-link', async function (e) {
+    e.preventDefault();
+    const videoUrl = $(this).data('video-url');
+    const title = $(this).closest('.song-item').find('strong').text();
+
+    const iframeHtml = utils.buildYouTubeHtml(videoUrl);
+
+    await utils.showModal(title, iframeHtml);
+  });
 
   // 編集
   $('#call-edit-button')
