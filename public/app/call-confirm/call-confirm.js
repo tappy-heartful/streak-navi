@@ -83,6 +83,37 @@ async function renderCall() {
     .filter((doc) => doc.id.startsWith(callId + '_'))
     .map((doc) => doc.data());
 
+  // ユーザIDとscoreStatusIDをまとめて取得
+  const userIds = [...new Set(allAnswers.map((ans) => ans.uid))];
+  const scoreStatusIds = new Set();
+  allAnswers.forEach((ans) => {
+    Object.values(ans.answers || {}).forEach((songs) => {
+      songs.forEach((song) => {
+        if (song.scorestatus) scoreStatusIds.add(song.scorestatus);
+      });
+    });
+  });
+
+  // Firestoreからまとめて取得
+  const userDocs = await Promise.all(
+    userIds.map((uid) => utils.getDoc(utils.doc(utils.db, 'users', uid)))
+  );
+  const usersMap = {};
+  userDocs.forEach((doc) => {
+    if (doc.exists()) usersMap[doc.id] = doc.data().displayName;
+  });
+
+  const scoreStatusDocs = await Promise.all(
+    Array.from(scoreStatusIds).map((id) =>
+      utils.getDoc(utils.doc(utils.db, 'scoreStatus', id))
+    )
+  );
+  const scoreStatusMap = {};
+  scoreStatusDocs.forEach((doc) => {
+    if (doc.exists()) scoreStatusMap[doc.id] = doc.data().name;
+  });
+
+  // 各ジャンルの表示
   for (const genre of items) {
     const genreBlock = $(`<div class="genre-block"></div>`);
     genreBlock.append(`<div class="genre-title">🎵 ${genre}</div>`);
@@ -94,29 +125,33 @@ async function renderCall() {
       if (songs.length > 0) {
         // 回答者名（匿名でなければ表示）
         if (!callData.isAnonymous) {
+          const displayName = usersMap[ans.uid] || '(不明)';
           genreList.append(
-            `<div class="answer-user">回答者: ${ans.uid || '(不明)'}</div>`
+            `<div class="answer-user">回答者: ${displayName}</div>`
           );
         }
 
         songs.forEach((song) => {
+          const scoreName = song.scorestatus
+            ? scoreStatusMap[song.scorestatus]
+            : '';
           const songHtml = `
-            <div class="song-item">
-              <div><strong>${song.title}</strong></div>
-              ${
-                song.url
-                  ? `<div>参考音源: <a href="${song.url}" target="_blank">${song.url}</a></div>`
-                  : ''
-              }
-              ${song.scorestatus ? `<div>譜面: ${song.scorestatus}</div>` : ''}
-              ${
-                song.purchase
-                  ? `<div>購入先: <a href="${song.purchase}" target="_blank">${song.purchase}</a></div>`
-                  : ''
-              }
-              ${song.note ? `<div>備考: ${song.note}</div>` : ''}
-            </div>
-          `;
+          <div class="song-item">
+            <div><strong>${song.title}</strong></div>
+            ${
+              song.url
+                ? `<div>参考音源: <a href="${song.url}" target="_blank">${song.url}</a></div>`
+                : ''
+            }
+            ${scoreName ? `<div>譜面: ${scoreName}</div>` : ''}
+            ${
+              song.purchase
+                ? `<div>購入先: <a href="${song.purchase}" target="_blank">${song.purchase}</a></div>`
+                : ''
+            }
+            ${song.note ? `<div>備考: ${song.note}</div>` : ''}
+          </div>
+        `;
           genreList.append(songHtml);
         });
       }
