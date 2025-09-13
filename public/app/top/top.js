@@ -7,7 +7,7 @@ $(document).ready(async function () {
   try {
     // 初期処理
     await utils.initDisplay();
-    await loadPendingVotesForAnnouncement();
+    await loadPendingAnnouncements();
     await loadMenu();
     await loadMedias();
 
@@ -72,22 +72,24 @@ function getGreetingMessage() {
   return 'こんばんは🌙';
 }
 
-// 未回答の投票を取得して「お知らせ」に表示
-async function loadPendingVotesForAnnouncement() {
-  const votesRef = utils.collection(utils.db, 'votes');
-  const qVotes = utils.query(votesRef, utils.orderBy('createdAt', 'desc'));
-  const votesSnap = await utils.getDocs(qVotes);
-
+// 未回答の投票・募集をまとめて「お知らせ」に表示
+async function loadPendingAnnouncements() {
   const uid = utils.getSession('uid');
   const $announcementList = $('.notification-list');
   $announcementList.empty();
 
   let hasPending = false;
 
+  // --- 未回答の投票 ---
+  const votesRef = utils.collection(utils.db, 'votes');
+  const qVotes = utils.query(votesRef, utils.orderBy('createdAt', 'desc'));
+  const votesSnap = await utils.getDocs(qVotes);
+
+  let hasPendingVotes = false;
+
   for (const voteDoc of votesSnap.docs) {
     const voteData = voteDoc.data();
-
-    if (voteData.isActive === false) continue; // 終了は除外
+    if (voteData.isActive === false) continue;
 
     const voteId = voteDoc.id;
     const answerId = `${voteId}_${uid}`;
@@ -95,7 +97,15 @@ async function loadPendingVotesForAnnouncement() {
     const answerSnap = await utils.getDoc(answerDocRef);
 
     if (!answerSnap.exists()) {
-      // 未回答ならお知らせに追加
+      if (!hasPendingVotes) {
+        $announcementList.append(`
+          <li class="pending-message">
+            📌未回答の投票があります
+          </li>
+        `);
+        hasPendingVotes = true;
+        hasPending = true;
+      }
       $announcementList.append(`
         <li>
           <a href="../vote-confirm/vote-confirm.html?voteId=${voteId}" class="notification-link">
@@ -103,24 +113,50 @@ async function loadPendingVotesForAnnouncement() {
           </a>
         </li>
       `);
-      hasPending = true;
     }
   }
 
-  if (hasPending) {
-    // ✅ 未回答があるとき冒頭にメッセージを追加
-    $announcementList.prepend(`
-      <li class="pending-message">
-          📌未回答の投票があります
-      </li>
-    `);
-  } else {
-    // 未回答がなければ「お知らせはありません🍀」を表示
+  // --- 未回答の曲募集 ---
+  const callsRef = utils.collection(utils.db, 'calls');
+  const qCalls = utils.query(callsRef, utils.orderBy('createdAt', 'desc'));
+  const callsSnap = await utils.getDocs(qCalls);
+
+  let hasPendingCalls = false;
+
+  for (const callDoc of callsSnap.docs) {
+    const callData = callDoc.data();
+    if (callData.isActive === false) continue;
+
+    const callId = callDoc.id;
+    const answerId = `${callId}_${uid}`;
+    const answerDocRef = utils.doc(utils.db, 'callAnswers', answerId);
+    const answerSnap = await utils.getDoc(answerDocRef);
+
+    if (!answerSnap.exists()) {
+      if (!hasPendingCalls) {
+        $announcementList.append(`
+          <li class="pending-message">
+            📌候補曲、募集中です
+          </li>
+        `);
+        hasPendingCalls = true;
+        hasPending = true;
+      }
+      $announcementList.append(`
+        <li>
+          <a href="../call-confirm/call-confirm.html?callId=${callId}" class="notification-link">
+            🎶${callData.title}
+          </a>
+        </li>
+      `);
+    }
+  }
+
+  // どちらも未回答がなければ空メッセージ
+  if (!hasPending) {
     $announcementList.append(`
       <li class="empty-message">
-        <div class="notification-link">
-          お知らせはありません🍀
-        </div>
+        <div class="notification-link">お知らせはありません🍀</div>
       </li>
     `);
   }
