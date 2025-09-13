@@ -310,6 +310,6 @@ function setupEventHandlers(callId, isAdmin, isActive, uid) {
   $('#create-vote-button')
     .off('click')
     .on('click', function () {
-      window.location.href = `../vote-edit/vote-edit.html?mode=createFromcall&callId=${callId}`;
+      window.location.href = `../vote-edit/vote-edit.html?mode=createFromCall&callId=${callId}`;
     });
 }
