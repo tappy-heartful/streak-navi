@@ -160,10 +160,16 @@ async function loadCallData() {
     // 各ジャンルに対する全回答者の曲を収集
     const songs = allAnswers.flatMap((answers) => answers[genre] || []);
 
-    songs.forEach((song, idx) => {
-      $choices.append(choiceTemplate(idx + 1));
-      $choices.find('.vote-choice').last().val(song.title);
-    });
+    if (songs.length > 0) {
+      // 回答がある場合は全曲を選択肢に追加
+      songs.forEach((song, idx) => {
+        $choices.append(choiceTemplate(idx + 1));
+        $choices.find('.vote-choice').last().val(song.title);
+      });
+    } else {
+      // 回答が1件もない場合は空の選択肢を1つ表示
+      $choices.append(choiceTemplate(0));
+    }
 
     $('#vote-items-container').append($item);
   });
@@ -312,6 +318,8 @@ function setupEventHandlers(mode) {
   $(document).on('click', '.back-link', function (e) {
     window.location.href = ['edit', 'copy'].includes(mode)
       ? `../vote-confirm/vote-confirm.html?voteId=${utils.globalGetParamVoteId}`
+      : mode === 'createFromCall'
+      ? `../call-confirm/call-confirm.html?callId=${utils.globalGetParamCallId}`
       : '../vote-list/vote-list.html';
   });
 }
