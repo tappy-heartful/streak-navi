@@ -59,7 +59,7 @@ async function setupPage(mode) {
     title.text('曲募集から投票作成');
     submitButton.text('登録');
     backLink.text('← 曲募集確認に戻る');
-    loadCallData();
+    await loadCallData();
   } else if (mode === 'copy') {
     // 表示文言設定
     pageTitle.text('投票新規作成');
