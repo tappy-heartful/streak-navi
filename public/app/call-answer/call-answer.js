@@ -108,9 +108,9 @@ function buildSongForm(genreId, song = {}, idx = 0) {
       <input type="text" placeholder="購入先リンク(任意)" class="song-purchase" value="${
         song.purchase || ''
       }">
-      <input type="text" placeholder="備考(任意)" class="song-note">${
+      <input type="text" placeholder="備考(任意)" class="song-note" value="${
         song.note || ''
-      }</input>
+      }">
       <button class="remove-song">× 削除</button>
     </div>
   `;
@@ -134,7 +134,7 @@ function setupEventHandlers(mode, callId, uid, callData) {
     $(this).closest('.song-item').remove();
   });
 
-  // 保存（ここはそのままでOK）
+  // 保存
   $('#answer-submit').on('click', async function () {
     clearErrors();
     const answers = {};
@@ -154,9 +154,19 @@ function setupEventHandlers(mode, callId, uid, callData) {
           const purchase = $item.find('.song-purchase').val().trim();
           const note = $item.find('.song-note').val().trim();
 
+          // 曲名チェック
           if (!title) {
             hasError = true;
             markError($item.find('.song-title'), '曲名は必須です。');
+          }
+
+          // 譜面状況チェック（value=0ならエラー）
+          if (scorestatus === '0') {
+            hasError = true;
+            markError(
+              $item.find('.song-scorestatus'),
+              '譜面状況を選択してください。'
+            );
           }
 
           songs.push({ title, url, scorestatus, purchase, note });
@@ -246,16 +256,20 @@ async function fetchScoreStatus() {
 async function populateScoreStatusSelect($select, selectedValue = '') {
   const statusList = await fetchScoreStatus();
   $select.empty();
-  statusList.forEach((status, idx) => {
+
+  // 🔽 最初に固定のダミー項目を追加（新規時はこれが選択されたまま）
+  const defaultOption = $('<option>')
+    .val(0)
+    .text('譜面状況(必須)')
+    .prop('selected', true);
+  $select.append(defaultOption);
+
+  statusList.forEach((status) => {
     const option = $('<option>')
       .val(status.id) // DB保存用の値
       .text(status.name); // UIに表示するラベル
     // 編集時：既存データに一致するものを選択
     if (selectedValue && selectedValue === status.id) {
-      option.prop('selected', true);
-    }
-    // 新規時：最初の1件を初期選択
-    if (!selectedValue && idx === 0) {
       option.prop('selected', true);
     }
     $select.append(option);
