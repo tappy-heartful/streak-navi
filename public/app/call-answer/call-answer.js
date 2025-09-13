@@ -98,17 +98,17 @@ async function renderCall(callData, answerData = {}) {
 function buildSongForm(genreId, song = {}, idx = 0) {
   return `
     <div class="song-item">
-      <input type="text" placeholder="曲名 *" class="song-title" value="${
+      <input type="text" placeholder="曲名(必須)" class="song-title" value="${
         song.title || ''
       }">
-      <input type="text" placeholder="参考音源URL" class="song-url" value="${
+      <input type="text" placeholder="参考音源URL(任意)" class="song-url" value="${
         song.url || ''
       }">
       <select class="song-scorestatus"></select>
-      <input type="text" placeholder="購入先リンク" class="song-purchase" value="${
+      <input type="text" placeholder="購入先リンク(任意)" class="song-purchase" value="${
         song.purchase || ''
       }">
-      <text placeholder="備考" class="song-note">${song.note || ''}</text>
+      <text placeholder="備考(任意)" class="song-note">${song.note || ''}</text>
       <button class="remove-song">× 削除</button>
     </div>
   `;
