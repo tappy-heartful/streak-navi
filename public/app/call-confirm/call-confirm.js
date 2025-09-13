@@ -144,7 +144,7 @@ async function renderCall() {
               song.url.includes('youtu.be');
             if (isYouTube) {
               // モーダル表示用リンク
-              urlHtml = `<div>参考音源: <a href="#" class="youtube-link" data-video-url="${song.url}">YouTubeで見る</a></div>`;
+              urlHtml = `<div>参考音源: <a href="#" class="youtube-link" data-video-url="${song.url}">YouTubeでみる<i class="fas fa-arrow-up-right-from-square"></i></a></div>`;
             } else {
               // 通常リンク
               urlHtml = `<div>参考音源: <a href="${song.url}" target="_blank">リンクを開く<i class="fas fa-arrow-up-right-from-square"></i></a></div>`;
