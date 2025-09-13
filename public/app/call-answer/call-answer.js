@@ -108,7 +108,9 @@ function buildSongForm(genreId, song = {}, idx = 0) {
       <input type="text" placeholder="購入先リンク(任意)" class="song-purchase" value="${
         song.purchase || ''
       }">
-      <text placeholder="備考(任意)" class="song-note">${song.note || ''}</text>
+      <input type="text" placeholder="備考(任意)" class="song-note">${
+        song.note || ''
+      }</input>
       <button class="remove-song">× 削除</button>
     </div>
   `;
