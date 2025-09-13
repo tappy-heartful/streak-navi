@@ -68,7 +68,7 @@ async function loadCallData(docId, mode) {
   $('#is-active').prop('checked', data.isActive || false);
   $('#is-anonymous').prop('checked', data.isAnonymous || false);
 
-  // 募集項目を復元
+  // 募集ジャンルを復元
   if (data.items && Array.isArray(data.items)) {
     data.items.forEach((item) => addItemToForm(item));
   }
@@ -201,13 +201,16 @@ function validateData() {
     if (val) items.push(val);
   });
   if (items.length === 0) {
-    markError($('#call-items-container'), '募集項目を1つ以上入力してください');
+    markError(
+      $('#call-items-container'),
+      '募集ジャンルを1つ以上入力してください'
+    );
     isValid = false;
   } else {
     // 重複チェック
     const uniqueItems = new Set(items);
     if (uniqueItems.size !== items.length) {
-      markError($('#call-items-container'), '募集項目が重複しています');
+      markError($('#call-items-container'), '募集ジャンルが重複しています');
       isValid = false;
     }
   }
@@ -216,13 +219,13 @@ function validateData() {
 }
 
 //===========================
-// 募集項目の追加
+// 募集ジャンルの追加
 //===========================
 function addItemToForm(value = '') {
   const $container = $('#call-items-container');
   const $item = $(`
     <div class="call-item">
-      <input type="text" class="call-item-input" value="${value}" placeholder="募集項目を入力..." />
+      <input type="text" class="call-item-input" value="${value}" placeholder="募集ジャンルを入力..." />
       <button type="button" class="remove-item">× 項目を削除</button>
     </div>
   `);

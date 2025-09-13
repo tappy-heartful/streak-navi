@@ -71,7 +71,7 @@ async function renderCall() {
   );
   $('#call-anonymous').text(callData.isAnonymous ? 'はい' : 'いいえ');
 
-  // 募集項目＋回答を表示
+  // 募集ジャンル＋回答を表示
   const container = $('#call-items').empty();
   const items = callData.items || [];
 
