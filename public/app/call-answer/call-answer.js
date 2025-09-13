@@ -60,15 +60,16 @@ async function fetchAnswerData(callId, uid) {
   return null;
 }
 
-function renderCall(callData, answerData = {}) {
+async function renderCall(callData, answerData = {}) {
   $('#call-title').text(callData.title);
   $('#call-description').text(callData.description);
 
   const container = $('#call-items-container').empty();
 
-  (callData.items || []).forEach((genre) => {
+  for (const genre of callData.items || []) {
     const genreId = utils.generateId();
 
+    // 各ジャンルの曲フォームを生成
     const songsHtml = (answerData[genre] || [])
       .map((song, idx) => buildSongForm(genreId, song, idx))
       .join('');
@@ -81,7 +82,17 @@ function renderCall(callData, answerData = {}) {
       </div>
     `;
     container.append(genreHtml);
-  });
+
+    // 生成された select を初期化
+    const $selects = $(`#${genreId} .song-scorestatus`);
+    (answerData[genre] || []).forEach(async (song, idx) => {
+      await populateScoreStatusSelect($selects.eq(idx), song.scorestatus);
+    });
+    // 新規の場合でも1件目があれば初期化
+    if ((answerData[genre] || []).length === 0) {
+      await populateScoreStatusSelect($selects.eq(0));
+    }
+  }
 }
 
 function buildSongForm(genreId, song = {}, idx = 0) {
@@ -105,9 +116,15 @@ function buildSongForm(genreId, song = {}, idx = 0) {
 
 function setupEventHandlers(mode, callId, uid, callData) {
   // 曲追加
-  $(document).on('click', '.add-song', function () {
+  $(document).on('click', '.add-song', async function () {
     const genreId = $(this).data('genre-id');
-    $(`#${genreId} .songs-container`).append(buildSongForm(genreId));
+    const $container = $(`#${genreId} .songs-container`);
+    const $newForm = $(buildSongForm(genreId));
+    $container.append($newForm);
+
+    // 追加した select を初期化
+    const $select = $newForm.find('.song-scorestatus');
+    await populateScoreStatusSelect($select);
   });
 
   // 曲削除
@@ -115,9 +132,9 @@ function setupEventHandlers(mode, callId, uid, callData) {
     $(this).closest('.song-item').remove();
   });
 
-  // 保存
+  // 保存（ここはそのままでOK）
   $('#answer-submit').on('click', async function () {
-    clearErrors(); // 既存のエラー表示を消す
+    clearErrors();
     const answers = {};
     let hasError = false;
 
@@ -205,4 +222,40 @@ function markError($field, message) {
   $field
     .after(`<div class="error-message">${message}</div>`)
     .addClass('error-field');
+}
+
+//===========================
+// プルダウン初期化ユーティリティ
+//===========================
+async function fetchScoreStatus() {
+  const snap = await utils.getDocs(utils.collection(utils.db, 'scoreStatus'));
+  if (snap.empty) {
+    throw new Error('譜面ステータスが設定されていません');
+  }
+  // 並び順 = ドキュメントID昇順
+  return snap.docs
+    .sort((a, b) => a.id.localeCompare(b.id))
+    .map((doc) => ({
+      id: doc.id, // 保存用
+      name: doc.data().name, // 表示用
+    }));
+}
+
+async function populateScoreStatusSelect($select, selectedValue = '') {
+  const statusList = await fetchScoreStatus();
+  $select.empty();
+  statusList.forEach((status, idx) => {
+    const option = $('<option>')
+      .val(status.id) // DB保存用の値
+      .text(status.name); // UIに表示するラベル
+    // 編集時：既存データに一致するものを選択
+    if (selectedValue && selectedValue === status.id) {
+      option.prop('selected', true);
+    }
+    // 新規時：最初の1件を初期選択
+    if (!selectedValue && idx === 0) {
+      option.prop('selected', true);
+    }
+    $select.append(option);
+  });
 }
