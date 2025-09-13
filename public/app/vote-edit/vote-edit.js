@@ -59,51 +59,7 @@ async function setupPage(mode) {
     title.text('曲募集から投票作成');
     submitButton.text('登録');
     backLink.text('← 曲募集確認に戻る');
-
-    // callId は URL パラメータで取得済み
-    const callDoc = await utils.getDoc(
-      utils.doc(utils.db, 'calls', utils.globalGetParamCallId)
-    );
-    if (!callDoc.exists()) throw new Error('曲募集が見つかりません');
-
-    const callData = callDoc.data();
-
-    // タイトル・説明を引き継ぎ
-    $('#vote-title').val((callData.title || '') + ' の投票');
-    $('#vote-description').val(callData.description || '');
-    $('#is-active').prop('checked', true); // 常に有効
-
-    $('#vote-items-container').empty();
-
-    // --- 募集回答データを取得 ---
-    const answerDocsSnap = await utils.getDocs(
-      utils.collection(utils.db, 'callAnswers')
-    );
-    const allAnswers = [];
-    answerDocsSnap.forEach((doc) => {
-      const data = doc.data();
-      if (data.callId === utils.globalGetParamCallId && data.answers) {
-        allAnswers.push(data.answers); // { ジャンル: [ { title, ... } ] } のオブジェクト
-      }
-    });
-
-    // 募集ジャンルごとに投票項目を作る
-    (callData.items || []).forEach((genre) => {
-      const $item = createVoteItemTemplate();
-      $item.find('.vote-item-title').val(genre);
-
-      const $choices = $item.find('.vote-choices').empty();
-
-      // 各ジャンルに対する全回答者の曲を収集
-      const songs = allAnswers.flatMap((answers) => answers[genre] || []);
-
-      songs.forEach((song, idx) => {
-        $choices.append(choiceTemplate(idx + 1));
-        $choices.find('.vote-choice').last().val(song.title);
-      });
-
-      $('#vote-items-container').append($item);
-    });
+    loadCallData();
   } else if (mode === 'copy') {
     // 表示文言設定
     pageTitle.text('投票新規作成');
@@ -159,6 +115,56 @@ async function loadVoteData(voteId, mode) {
           </div>
         `);
     });
+    $('#vote-items-container').append($item);
+  });
+}
+
+//==================================
+// 募集データ取得＆画面反映
+//==================================
+async function loadCallData() {
+  // callId は URL パラメータで取得済み
+  const callDoc = await utils.getDoc(
+    utils.doc(utils.db, 'calls', utils.globalGetParamCallId)
+  );
+  if (!callDoc.exists()) throw new Error('曲募集が見つかりません');
+
+  const callData = callDoc.data();
+
+  // タイトル・説明を引き継ぎ
+  $('#vote-title').val((callData.title || '') + ' の投票');
+  $('#vote-description').val(callData.description || '');
+  $('#is-active').prop('checked', true); // 常に有効
+
+  $('#vote-items-container').empty();
+
+  // --- 募集回答データを取得 ---
+  const answerDocsSnap = await utils.getDocs(
+    utils.collection(utils.db, 'callAnswers')
+  );
+  const allAnswers = [];
+  answerDocsSnap.forEach((doc) => {
+    const data = doc.data();
+    if (data.callId === utils.globalGetParamCallId && data.answers) {
+      allAnswers.push(data.answers); // { ジャンル: [ { title, ... } ] } のオブジェクト
+    }
+  });
+
+  // 募集ジャンルごとに投票項目を作る
+  (callData.items || []).forEach((genre) => {
+    const $item = createVoteItemTemplate();
+    $item.find('.vote-item-title').val(genre);
+
+    const $choices = $item.find('.vote-choices').empty();
+
+    // 各ジャンルに対する全回答者の曲を収集
+    const songs = allAnswers.flatMap((answers) => answers[genre] || []);
+
+    songs.forEach((song, idx) => {
+      $choices.append(choiceTemplate(idx + 1));
+      $choices.find('.vote-choice').last().val(song.title);
+    });
+
     $('#vote-items-container').append($item);
   });
 }
