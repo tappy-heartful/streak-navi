@@ -168,7 +168,7 @@ async function loadCallData() {
       });
     } else {
       // 回答が1件もない場合は空の選択肢を1つ表示
-      $choices.append(choiceTemplate(0));
+      $choices.append(choiceTemplate(1));
     }
 
     $('#vote-items-container').append($item);
