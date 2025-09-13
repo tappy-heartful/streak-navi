@@ -166,9 +166,12 @@ async function loadCallData() {
         $choices.append(choiceTemplate(idx + 1));
         $choices.find('.vote-choice').last().val(song.title);
       });
+      // 回答が1件だけの場合は空の選択肢を追加
+      if (songs.length === 1) $choices.append(choiceTemplate(2));
     } else {
-      // 回答が1件もない場合は空の選択肢を1つ表示
+      // 回答が1件もない場合は空の選択肢を2つ表示
       $choices.append(choiceTemplate(1));
+      $choices.append(choiceTemplate(2));
     }
 
     $('#vote-items-container').append($item);
