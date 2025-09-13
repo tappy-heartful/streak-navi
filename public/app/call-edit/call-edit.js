@@ -114,7 +114,7 @@ function setupEventHandlers(mode) {
         await utils.writeLog({ dataId: docRef.id, action: '登録' });
         utils.hideSpinner();
         await utils.showDialog('登録しました', true);
-        window.location.href = `../call-list/call-list.html`;
+        window.location.href = `../call-confirm/call-confirm.html?callId=${docRef.id}`;
       } else {
         const callRef = utils.doc(
           utils.db,
@@ -129,7 +129,7 @@ function setupEventHandlers(mode) {
         });
         utils.hideSpinner();
         await utils.showDialog('更新しました', true);
-        window.location.href = `../call-list/call-list.html`;
+        window.location.href = `../call-confirm/call-confirm.html?callId=${utils.globalGetParamCallId}`;
       }
     } catch (e) {
       await utils.writeLog({
