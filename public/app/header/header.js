@@ -16,6 +16,12 @@ $(document).ready(async function () {
     $('#side-menu').slideToggle(200);
   });
 
+  // 何周年かのバッジ表示
+  const launchDate = new Date('2022-03-22'); // バンド設立日
+  const now = new Date();
+  const diffYears = now.getFullYear() - launchDate.getFullYear();
+  $('#anniversary-badge').text(diffYears + 'th');
+
   // サイドメニュー項目クリック
   $('#menu-top').on('click', function () {
     window.location.href = '../top/top.html';
