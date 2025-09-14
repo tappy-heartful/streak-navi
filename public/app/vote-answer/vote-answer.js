@@ -77,10 +77,30 @@ function renderVote(voteData, answerData = {}) {
       .map((choice, i) => {
         const choiceId = `${groupName}-choice-${i}`;
         const checked = answerData[item.name] === choice.name ? 'checked' : '';
+
+        // リンクアイコンがあれば右に表示
+        let iconHtml = '';
+        if (choice.link) {
+          const url = choice.link;
+          try {
+            const u = new URL(url);
+            if (
+              u.hostname.includes('youtube.com') ||
+              u.hostname.includes('youtu.be')
+            ) {
+              iconHtml = `<a href="#" class="youtube-link" data-video-url="${url}"><i class="fas fa-arrow-up-right-from-square"></i></a>`;
+            } else {
+              iconHtml = `<a href="${url}" target="_blank" rel="noopener noreferrer"><i class="fas fa-arrow-up-right-from-square"></i></a>`;
+            }
+          } catch (e) {
+            iconHtml = '';
+          }
+        }
+
         return `
           <label class="vote-choice-label" for="${choiceId}">
             <input type="radio" name="${groupName}" id="${choiceId}" value="${choice.name}" ${checked}/>
-            ${choice.name}
+            ${choice.name} ${iconHtml}
           </label>
         `;
       })
@@ -168,6 +188,16 @@ function setupEventHandlers(mode, voteId, uid) {
       // スピナー非表示
       utils.hideSpinner();
     }
+  });
+
+  $(document).on('click', '.youtube-link', async function (e) {
+    e.preventDefault();
+    const videoUrl = $(this).data('video-url') || $(this).attr('href');
+    const title = $(this).closest('label').text().trim();
+
+    const iframeHtml = utils.buildYouTubeHtml(videoUrl);
+
+    await utils.showModal(title, iframeHtml);
   });
 
   $(document).on('click', '.back-link', function () {
