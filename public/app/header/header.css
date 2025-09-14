@@ -12,7 +12,6 @@
 }
 
 .logo-text {
-  position: relative; /* バッジを絶対配置するため */
   font-family: Impact, sans-serif;
   font-size: 24px;
   color: white;
@@ -22,22 +21,6 @@
   display: inline-block;
   cursor: pointer;
   user-select: none;
-}
-
-.anniversary-badge {
-  position: absolute;
-  bottom: -6px;  /* ロゴの右下に少しはみ出す */
-  right: -6px;
-  background: linear-gradient(135deg, #FFD700, #FFC107, #FFA000); /* ゴールド風 */
-  color: white;
-  font-size: 12px;
-  font-weight: bold;
-  padding: 2px 6px;
-  border-radius: 50%; /* 丸バッジ */
-  box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-  border: 2px solid white; /* 見やすい縁取り */
-  font-family: "Trebuchet MS", sans-serif;
-  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
 }
 
 .logo-text .logo-n {
