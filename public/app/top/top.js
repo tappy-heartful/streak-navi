@@ -264,6 +264,7 @@ async function loadMedias() {
 function setupEventHandlers() {
   // 「別の曲を聴く」ボタン
   $('#blue-note-refresh').on('click', async () => {
+    utils.showSpinner();
     const $blueNote = $('#blue-note');
     $blueNote.empty();
 
@@ -281,5 +282,6 @@ function setupEventHandlers() {
     } else {
       $blueNote.append('<p>Blue Noteが見つかりませんでした。</p>');
     }
+    utils.hideSpinner();
   });
 }
