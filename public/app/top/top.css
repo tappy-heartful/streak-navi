@@ -115,12 +115,16 @@ h3 {
   content: "📊";
 }
 
-.menu-button.media::after {
-  content: "🎥";
-}
-
 .menu-button.user::after {
   content: "👥";
+}
+
+.menu-button.blue-note::after {
+  content: "🎧";
+}
+
+.menu-button.media::after {
+  content: "🎥";
 }
 
 .menu-button:hover {
