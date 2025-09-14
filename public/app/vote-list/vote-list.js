@@ -55,7 +55,7 @@ async function setUpPage() {
 
       if (answerSnap.exists()) {
         status = '回答済';
-        statusClass = 'voted';
+        statusClass = 'answered';
         votedItems.push(
           makeVoteItem(voteId, voteData.name, status, statusClass)
         );
