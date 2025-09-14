@@ -167,9 +167,6 @@ async function loadBlueNotes() {
   const $blueNote = $('#blue-note');
   $blueNote.empty();
 
-  const $blueNoteTitle = $('#blue-note-title');
-  $blueNoteTitle.empty();
-
   // 今日の日付を4桁(例: "0914")で取得
   const today = new Date();
   const month = String(today.getMonth() + 1).padStart(2, '0');
@@ -181,13 +178,11 @@ async function loadBlueNotes() {
   const docRef = utils.doc(notesRef, todayId);
   const docSnap = await utils.getDoc(docRef);
 
-  let title;
   let youtubeUrl;
 
   if (docSnap.exists()) {
     // 今日の日付が見つかった場合
     youtubeUrl = docSnap.data().youtubeUrl;
-    title = docSnap.data().title;
   } else {
     // 全データを取得してランダムに1件選ぶ
     const snapshot = await utils.getDocs(notesRef);
@@ -196,12 +191,8 @@ async function loadBlueNotes() {
     if (allDocs.length > 0) {
       const randomDoc = allDocs[Math.floor(Math.random() * allDocs.length)];
       youtubeUrl = randomDoc.data().youtubeUrl;
-      title = randomDoc.data().title;
     }
   }
-
-  // タイトル表示
-  $blueNoteTitle.text(title || '今日の一曲');
 
   // YouTube埋め込みを表示
   if (youtubeUrl) {
