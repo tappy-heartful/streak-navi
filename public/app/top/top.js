@@ -8,6 +8,7 @@ $(document).ready(async function () {
     // 初期処理
     await utils.initDisplay();
     await loadPendingAnnouncements();
+    await loadBlueNotes();
     await loadMedias();
 
     // スピナー非表示
@@ -158,6 +159,46 @@ async function loadPendingAnnouncements() {
         <div class="notification-link">お知らせはありません🍀</div>
       </li>
     `);
+  }
+}
+
+// Blue Noteを読み込んで表示する関数
+async function loadBlueNotes() {
+  const $blueNote = $('#blue-note');
+  $blueNote.empty();
+
+  // 今日の日付を4桁(例: "0914")で取得
+  const today = new Date();
+  const month = String(today.getMonth() + 1).padStart(2, '0');
+  const day = String(today.getDate()).padStart(2, '0');
+  const todayId = month + day;
+
+  // blueNotesコレクションを参照
+  const notesRef = utils.collection(utils.db, 'blueNotes');
+  const docRef = utils.doc(notesRef, todayId);
+  const docSnap = await utils.getDoc(docRef);
+
+  let youtubeUrl;
+
+  if (docSnap.exists()) {
+    // 今日の日付が見つかった場合
+    youtubeUrl = docSnap.data().youtubeUrl;
+  } else {
+    // 全データを取得してランダムに1件選ぶ
+    const snapshot = await utils.getDocs(notesRef);
+    const allDocs = snapshot.docs;
+
+    if (allDocs.length > 0) {
+      const randomDoc = allDocs[Math.floor(Math.random() * allDocs.length)];
+      youtubeUrl = randomDoc.data().youtubeUrl;
+    }
+  }
+
+  // YouTube埋め込みを表示
+  if (youtubeUrl) {
+    $blueNote.append(utils.buildYouTubeHtml(youtubeUrl));
+  } else {
+    $blueNote.append('<p>Blue Noteが見つかりませんでした。</p>');
   }
 }
 
