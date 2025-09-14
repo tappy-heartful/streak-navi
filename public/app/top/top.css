@@ -62,7 +62,7 @@ h3 {
   font-size: 18px;
   color: #333;
   margin-bottom: 20px;
-  border-left: 5px solid #5360c4;
+  border-left: 5px solid #4CAF50;
   padding-left: 10px;
   text-align: left;
 }
@@ -81,7 +81,7 @@ h3 {
   max-width: 300px;
   padding: 16px 20px;
   font-size: 18px;
-  background-color: #5360c4;
+  background-color: #4CAF50;
   color: white;
   border-radius: 10px;
   text-decoration: none;
@@ -139,7 +139,7 @@ h3 {
 }
 
 .menu-button:hover {
-  background-color: #6673d1;
+  background-color: #45a049;
 }
 
 /* 初回ログインポップアップ */
@@ -241,7 +241,7 @@ h3 {
   gap: 6px;
   margin-top: 10px;
   font-weight: bold;
-  color: #5360c4;
+  color: #4CAF50;
   text-decoration: none;
 }
 

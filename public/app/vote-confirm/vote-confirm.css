@@ -50,7 +50,7 @@
 
 .result-bar .bar {
   height: 100%;
-  background: linear-gradient(to right, #5360c4, #81C784);
+  background: linear-gradient(to right, #4CAF50, #81C784);
   border-radius: 4px;
   transition: width 0.5s;
 }
