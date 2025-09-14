@@ -37,7 +37,7 @@
 .add-button {
   display: block;
   margin: 30px auto 0 auto;
-  background-color: #4CAF50;
+  background-color: #5360c4;
   color: #fff;
   border: none;
   border-radius: 25px;
@@ -50,7 +50,7 @@
 }
 
 .add-button:hover {
-  background-color: #45a049;
+  background-color: #6673d1;
 }
 
 .empty-message .call-link {

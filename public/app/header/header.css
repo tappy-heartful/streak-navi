@@ -48,12 +48,12 @@
   white-space: nowrap;
   margin-bottom: 6px;
   border: none;
-  background-color: #4CAF50;
+  background-color: #5360c4;
   color: white;
 }
 
 .side-menu button:hover {
-  background-color: #45a049;
+  background-color: #6673d1;
 }
 
 .header-left {
@@ -106,7 +106,7 @@
 }
 
 .profile-button {
-  background-color: #2196f3;
+  background-color: #5360c4;
   color: white;
 }
 

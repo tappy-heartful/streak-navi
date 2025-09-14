@@ -69,7 +69,7 @@ select {
 
 /* フォーカス時の枠線 */
 select:focus {
-  border-color: #007bff;
+  border-color: #5360c4;
   outline: none;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
@@ -153,7 +153,7 @@ input[type="date"] {
 }
 
 input[type="date"]:focus {
-  border-color: #007bff;
+  border-color: #5360c4;
   outline: none;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
@@ -185,7 +185,7 @@ input[type="date"]:focus {
 }
 
 .answer-status.answered {
-  background-color: #4caf50; /* 緑 */
+  background-color: #5360c4; /* 緑 */
 }
 
 .answer-status.closed {
@@ -244,21 +244,21 @@ button {
   width: 100%;
   padding: 12px 24px;
   font-size: 16px;
-  background-color: #4CAF50;
+  background-color: #5360c4;
   color: white;
 }
 
 .save-button:hover {
-  background-color: #45a049;
+  background-color: #6673d1;
 }
 
 .edit-button {
-  background-color: #2196F3;
+  background-color: #5360c4;
   color: white;
 }
 
 .copy-button {
-  background-color: #2196F3;
+  background-color: #5360c4;
   color: white;
 }
 
@@ -335,9 +335,9 @@ button {
 
 .back-link {
   text-decoration: none;
-  color: #4CAF50;
+  color: #5360c4;
   font-weight: bold;
-  border: 2px solid #4CAF50;
+  border: 2px solid #5360c4;
   padding: 10px 20px;
   border-radius: 8px;
   display: inline-block;
@@ -346,7 +346,7 @@ button {
 }
 
 .back-link:hover {
-  background-color: #d8f7de;
+  background-color: #6c76c4;
 }
 
 /* 隠し */
@@ -356,7 +356,7 @@ button {
 
 /* リンクの色指定 */
 a {
-  color: #4caf50;
+  color: #5360c4;
   text-decoration:underline;
 }
 
@@ -376,7 +376,7 @@ a {
 
 .spinner {
   border: 6px solid #f3f3f3;
-  border-top: 6px solid #4caf50;
+  border-top: 6px solid #5360c4;
   border-radius: 50%;
   width: 50px;
   height: 50px;
