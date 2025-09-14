@@ -11,6 +11,9 @@ $(document).ready(async function () {
     await loadBlueNotes();
     await loadMedias();
 
+    // イベント登録
+    setupEventHandlers();
+
     // スピナー非表示
     utils.hideSpinner();
 
@@ -255,4 +258,28 @@ async function loadMedias() {
       `<div class="content-item">メディアはまだ登録されていません🍀</div>`
     );
   }
+}
+
+// イベントハンドラ登録
+function setupEventHandlers() {
+  // 「別の曲を聴く」ボタン
+  $('#blue-note-refresh').on('click', async () => {
+    const $blueNote = $('#blue-note');
+    $blueNote.empty();
+
+    // blueNotesコレクションを参照
+    const notesRef = utils.collection(utils.db, 'blueNotes');
+    const snapshot = await utils.getDocs(notesRef);
+    const allDocs = snapshot.docs;
+
+    if (allDocs.length > 0) {
+      const randomDoc = allDocs[Math.floor(Math.random() * allDocs.length)];
+      const youtubeUrl = randomDoc.data().youtubeUrl;
+
+      // 埋め込み表示
+      $blueNote.append(utils.buildYouTubeHtml(youtubeUrl));
+    } else {
+      $blueNote.append('<p>Blue Noteが見つかりませんでした。</p>');
+    }
+  });
 }
