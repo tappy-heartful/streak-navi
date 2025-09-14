@@ -184,7 +184,7 @@ input[type="date"]:focus {
   background-color: #ff9800; /* オレンジ */
 }
 
-.answer-status.voted {
+.answer-status.answered {
   background-color: #4caf50; /* 緑 */
 }
 

@@ -39,39 +39,35 @@ async function setUpPage() {
     const callData = callDoc.data();
     const callId = callDoc.id;
 
-    pendingItems.push(
-      makeCallItem(callId, callData.title, '未回答', 'pending')
-    );
+    // 回答状況による制御
+    let status = '';
+    let statusClass = '';
 
-    // TODO 回答状況による制御
-    // let status = '';
-    // let statusClass = '';
+    if (callData.isActive === false) {
+      status = '終了';
+      statusClass = 'closed';
+      closedItems.push(
+        makeCallItem(callId, callData.title, status, statusClass)
+      );
+    } else {
+      const answerId = `${callId}_${utils.getSession('uid')}`;
+      const answerDocRef = utils.doc(utils.db, 'callAnswers', answerId);
+      const answerSnap = await utils.getDoc(answerDocRef);
 
-    // if (callData.isActive === false) {
-    //   status = '終了';
-    //   statusClass = 'closed';
-    //   closedItems.push(
-    //     makeCallItem(callId, callData.name, status, statusClass)
-    //   );
-    // } else {
-    //   const answerId = `${callId}_${utils.getSession('uid')}`;
-    //   const answerDocRef = utils.doc(utils.db, 'callAnswers', answerId);
-    //   const answerSnap = await utils.getDoc(answerDocRef);
-
-    //   if (answerSnap.exists()) {
-    //     status = '回答済';
-    //     statusClass = 'called';
-    //     calledItems.push(
-    //       makeCallItem(callId, callData.name, status, statusClass)
-    //     );
-    //   } else {
-    //     status = '未回答';
-    //     statusClass = 'pending';
-    //     pendingItems.push(
-    //       makeCallItem(callId, callData.name, status, statusClass)
-    //     );
-    //   }
-    // }
+      if (answerSnap.exists()) {
+        status = '回答済';
+        statusClass = 'answered';
+        calledItems.push(
+          makeCallItem(callId, callData.title, status, statusClass)
+        );
+      } else {
+        status = '未回答';
+        statusClass = 'pending';
+        pendingItems.push(
+          makeCallItem(callId, callData.title, status, statusClass)
+        );
+      }
+    }
   }
 
   // 表示順: 未回答 → 回答済 → 終了

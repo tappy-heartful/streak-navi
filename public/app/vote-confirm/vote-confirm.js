@@ -55,14 +55,14 @@ async function renderVote() {
     statusClass = 'closed';
     statusText = '終了';
   } else if (myAnswer && Object.keys(myAnswer).length > 0) {
-    statusClass = 'voted';
+    statusClass = 'answered';
     statusText = '回答済';
   } else {
     statusClass = 'pending';
     statusText = '未回答';
   }
   $('#answer-status-label')
-    .removeClass('pending voted closed')
+    .removeClass('pending answered closed')
     .addClass(statusClass)
     .text(statusText);
   $('#vote-title').text(voteData.name);

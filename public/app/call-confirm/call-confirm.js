@@ -52,7 +52,7 @@ async function renderCall() {
     statusClass = 'closed';
     statusText = '終了';
   } else if (myAnswer && Object.keys(myAnswer).length > 0) {
-    statusClass = 'voted';
+    statusClass = 'answered';
     statusText = '回答済';
   } else {
     statusClass = 'pending';
@@ -60,7 +60,7 @@ async function renderCall() {
   }
 
   $('#answer-status-label')
-    .removeClass('pending voted closed')
+    .removeClass('pending answered closed')
     .addClass(statusClass)
     .text(statusText);
 
