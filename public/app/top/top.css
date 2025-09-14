@@ -93,6 +93,17 @@ h3 {
   box-sizing: border-box;
 }
 
+.blue-note-title {
+  display: block;        /* ブロックにする */
+  width: fit-content;    /* 下線は文字幅に合わせる */
+  margin: 0 auto 0.5em;  /* 自動マージンで中央揃え */
+  font-size: 16px;
+  color: #666;
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.2em;
+  text-align: center;    /* 念のためテキストも中央 */
+}
+
 /* 背景アイコン */
 .menu-button::after {
   content: '';
