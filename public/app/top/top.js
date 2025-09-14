@@ -136,7 +136,7 @@ async function loadPendingAnnouncements() {
       if (!hasPendingCalls) {
         $announcementList.append(`
           <li class="pending-message">
-            📌候補曲、募集中です
+            📌候補曲、募集中！
           </li>
         `);
         hasPendingCalls = true;
