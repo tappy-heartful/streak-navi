@@ -78,7 +78,7 @@ function renderVote(voteData, answerData = {}) {
         const choiceId = `${groupName}-choice-${i}`;
         const checked = answerData[item.name] === choice.name ? 'checked' : '';
 
-        // リンクアイコンがあれば右に表示
+        // リンクアイコン用HTML（枠外に配置）
         let iconHtml = '';
         if (choice.link) {
           const url = choice.link;
@@ -88,9 +88,9 @@ function renderVote(voteData, answerData = {}) {
               u.hostname.includes('youtube.com') ||
               u.hostname.includes('youtu.be')
             ) {
-              iconHtml = `<a href="#" class="youtube-link" data-video-url="${url}"><i class="fas fa-arrow-up-right-from-square"></i></a>`;
+              iconHtml = `<a href="#" class="vote-choice-link youtube-link" data-video-url="${url}" data-video-title="${choice.name}"><i class="fas fa-arrow-up-right-from-square"></i></a>`;
             } else {
-              iconHtml = `<a href="${url}" target="_blank" rel="noopener noreferrer"><i class="fas fa-arrow-up-right-from-square"></i></a>`;
+              iconHtml = `<a href="${url}" class="vote-choice-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-arrow-up-right-from-square"></i></a>`;
             }
           } catch (e) {
             iconHtml = '';
@@ -98,10 +98,13 @@ function renderVote(voteData, answerData = {}) {
         }
 
         return `
-          <label class="vote-choice-label" for="${choiceId}">
-            <input type="radio" name="${groupName}" id="${choiceId}" value="${choice.name}" ${checked}/>
-            ${choice.name} ${iconHtml}
-          </label>
+          <div class="vote-choice-wrapper">
+            <label class="vote-choice-label" for="${choiceId}">
+              <input type="radio" name="${groupName}" id="${choiceId}" value="${choice.name}" ${checked}/>
+              ${choice.name}
+            </label>
+            ${iconHtml}
+          </div>
         `;
       })
       .join('');
@@ -193,7 +196,7 @@ function setupEventHandlers(mode, voteId, uid) {
   $(document).on('click', '.youtube-link', async function (e) {
     e.preventDefault();
     const videoUrl = $(this).data('video-url') || $(this).attr('href');
-    const title = $(this).closest('label').text().trim();
+    const title = $(this).attr('data-video-title') || '参考音源';
 
     const iframeHtml = utils.buildYouTubeHtml(videoUrl);
 
