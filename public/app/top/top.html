@@ -9,7 +9,10 @@
       href="../../images/favicon.png"
       type="image/png"
     />
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto&display=swap"
+      rel="stylesheet"
+    />
     <title>TOP</title>
     <link rel="stylesheet" href="../common/common.css" />
     <link rel="stylesheet" href="top.css" />
@@ -27,28 +30,47 @@
         <div class="announcement-header">
           <h3>お知らせ</h3>
         </div>
-        <ul class="notification-list">
-        </ul>
+        <ul class="notification-list"></ul>
       </section>
     </main>
     <main class="container">
-        <h3>メニュー</h3>
-        <div class="menu-list">
-        </div>
+      <h3>メニュー</h3>
+      <div class="menu-list">
+        <a href="../call-list/call-list.html" class="menu-button call"
+          >🎶 曲募集一覧</a
+        >
+        <a href="../vote-list/vote-list.html" class="menu-button vote"
+          >📊 投票一覧</a
+        >
+        <a href="../user-list/user-list.html" class="menu-button user"
+          >👥 ユーザ一覧</a
+        >
+        <a
+          href="../blue-note-list/blue-note-list.html"
+          class="menu-button blue-note"
+          ><i class="fa-solid fa-headphones"></i> Blue Note一覧</a
+        >
+        <a href="../media-list/media-list.html" class="menu-button media"
+          >🎥 メディア一覧</a
+        >
       </div>
     </main>
     <main class="container">
       <h3>メディア</h3>
-      <div class="content-list">
-      </div>
+      <div class="content-list"></div>
     </main>
 
     <!-- 初回ログインの全画面演出 -->
     <div id="first-login-overlay" class="first-login-overlay hidden">
       <div class="first-login-content">
-        <img id="welcome-line-icon" class="line-icon" src="" alt="LINEアイコン" />
+        <img
+          id="welcome-line-icon"
+          class="line-icon"
+          src=""
+          alt="LINEアイコン"
+        />
         <p class="welcome-message">
-          <span id="greeting-message"></span><br>
+          <span id="greeting-message"></span><br />
           <span id="welcome-line-name"></span>さん
         </p>
       </div>

@@ -8,7 +8,6 @@ $(document).ready(async function () {
     // 初期処理
     await utils.initDisplay();
     await loadPendingAnnouncements();
-    await loadMenu();
     await loadMedias();
 
     // スピナー非表示
@@ -160,31 +159,6 @@ async function loadPendingAnnouncements() {
       </li>
     `);
   }
-}
-
-// メニューを読み込んで表示する関数
-async function loadMenu() {
-  const $menuList = $('.menu-list');
-
-  // 曲募集一覧
-  $menuList.append(
-    `<a href="../call-list/call-list.html" class="menu-button call">🎶 曲募集一覧</a>`
-  );
-
-  // 投票一覧
-  $menuList.append(
-    `<a href="../vote-list/vote-list.html" class="menu-button vote">📊 投票一覧</a>`
-  );
-
-  // メディア一覧
-  $menuList.append(
-    `<a href="../media-list/media-list.html" class="menu-button media">🎥 メディア一覧</a>`
-  );
-
-  // ユーザ一覧
-  $menuList.append(
-    `<a href="../user-list/user-list.html" class="menu-button user">👥 ユーザ一覧</a>`
-  );
 }
 
 // コンテンツを読み込んで表示する関数
