@@ -1,26 +1,57 @@
 .blue-note-item {
   display: flex;
   align-items: center;
-  gap: 10px; /* 日付と入力欄の間隔 */
+  gap: 10px;
   margin-bottom: 20px;
 }
 
 .blue-note-item label {
-  min-width: 40px; /* 日付の幅を固定 */
+  min-width: 40px;
   font-weight: bold;
   text-align: right;
   color: #333;
 }
 
 .blue-note-item input {
-  flex: 1; /* 残りの幅を入力欄が使う */
+  flex: 1;
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 6px;
   transition: 0.2s;
+  box-sizing: border-box;
 }
 
 .blue-note-item input:focus {
   border-color: #007bff;
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+}
+
+/* ボタン修正 */
+.save-button,
+.delete-button {
+  display: inline-block;   /* ←横幅を自然に */
+  width: auto !important;  /* ←共通の100%を打ち消す */
+  padding: 8px 16px;       /* ←共通より少し小さめ */
+  font-size: 14px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  color: white;
+  flex-shrink: 0;          /* ←入力欄に潰されない */
+}
+
+.save-button {
+  background-color: #5360c4;
+}
+
+.save-button:hover {
+  background-color: #3e4aa0;
+}
+
+.delete-button {
+  background-color: #c45353;
+}
+
+.delete-button:hover {
+  background-color: #a03e3e;
 }
