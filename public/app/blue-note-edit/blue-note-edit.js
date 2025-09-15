@@ -187,7 +187,7 @@ function setupEventHandlers() {
 
   // TOPに戻る
   $('.back-link').on('click', () => {
-    window.location.href = '../blue-top/top.html';
+    window.location.href = '../top/top.html';
   });
 }
 
