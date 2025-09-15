@@ -36,15 +36,16 @@ async function setupPage() {
   const $container = $('#blue-note-container').empty();
 
   for (let day = 1; day <= daysInMonth; day++) {
-    const dateId = `${month}${String(day).padStart(2, '0')}`; // e.g. "0101"
+    const dayStr = String(day).padStart(2, '0');
+    const dateId = `${month}${dayStr}`; // e.g. "0101"
 
     $container.append(`
-      <div class="form-group blue-note-item" data-date="${dateId}">
-        <label>${month}/${day}</label>
-        <input type="text" class="title-input" placeholder="曲名" />
-        <input type="text" class="url-input" placeholder="YouTube URL" />
-      </div>
-    `);
+    <div class="form-group blue-note-item" data-date="${dateId}">
+      <label>${month}/${dayStr}</label>
+      <input type="text" class="title-input" placeholder="曲名" />
+      <input type="text" class="url-input" placeholder="YouTube URL" />
+    </div>
+  `);
 
     // Firestoreからデータ読み込み
     const docRef = utils.doc(utils.db, 'blueNotes', dateId);
