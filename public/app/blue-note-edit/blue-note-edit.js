@@ -32,6 +32,7 @@ async function setupPage() {
   const daysInMonth = new Date(year, month, 0).getDate();
 
   $('#page-title').text(`Blue Note編集`);
+  $('#month').text(String(Number(month)) + '月');
 
   const $container = $('#blue-note-container').empty();
 
@@ -39,12 +40,11 @@ async function setupPage() {
     const dayStr = String(day).padStart(2, '0'); // 内部用
     const dateId = `${month}${dayStr}`; // e.g. "0101"
 
-    const displayMonth = String(Number(month)); // 先頭0を削除
     const displayDay = String(day); // 0埋めなし日付
 
     $container.append(`
     <div class="form-group blue-note-item" data-date="${dateId}">
-      <label>${displayMonth}/${displayDay}</label>
+      <label>${displayDay}日</label>
       <input type="text" class="title-input" placeholder="曲名" />
       <input type="text" class="url-input" placeholder="YouTube URL" />
     </div>
