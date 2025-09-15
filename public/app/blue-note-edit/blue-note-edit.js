@@ -3,6 +3,7 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
+    utils.hideSpinner();
     await setupPage();
     setupEventHandlers();
   } catch (e) {
