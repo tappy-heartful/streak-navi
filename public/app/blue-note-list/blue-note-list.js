@@ -41,7 +41,7 @@ function setUpPage() {
     $list.append(`
       <li>
         <a href="../blue-note-edit/blue-note-edit.html?month=${month}" class="blue-note-link">
-          🎷 ${name}
+          ${name}
         </a>
       </li>
     `);
