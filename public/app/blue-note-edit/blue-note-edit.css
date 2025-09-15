@@ -1,3 +1,30 @@
+.month-tabs {
+  display: flex;
+  gap: 8px;
+  list-style: none;
+  padding: 0;
+  margin-bottom: 20px;
+}
+
+.month-tabs li {
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background-color: #f0f0f0;
+  transition: 0.2s;
+  user-select: none;
+}
+
+.month-tabs li.active {
+  background-color: #5360c4;
+  color: white;
+}
+
+.month-tabs li:hover {
+  background-color: #d0d0d0;
+}
+
+
 .blue-note-item {
   display: flex;
   align-items: center;

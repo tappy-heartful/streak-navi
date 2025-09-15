@@ -19,15 +19,57 @@ $(document).ready(async function () {
 });
 
 //===========================
-// ページ設定
+// ページ設定（タブ対応）
 //===========================
 async function setupPage() {
-  const month = utils.globalGetParamMonth;
-  const year = 2024; // うるう年
+  const months = [
+    '1月',
+    '2月',
+    '3月',
+    '4月',
+    '5月',
+    '6月',
+    '7月',
+    '8月',
+    '9月',
+    '10月',
+    '11月',
+    '12月',
+  ];
+
+  // タブを作成
+  const $tabsContainer = $('#month-tabs');
+
+  const currentMonth = utils.globalGetParamMonth || '01';
+
+  months.forEach((name, index) => {
+    const month = String(index + 1).padStart(2, '0');
+    const $li = $(`<li>${name}</li>`);
+
+    if (month === currentMonth) $li.addClass('active');
+
+    $li.on('click', () => {
+      $('#month-tabs li').removeClass('active');
+      $li.addClass('active');
+      loadBlueNotes(month);
+    });
+
+    $tabsContainer.append($li);
+  });
+
+  // 初期表示
+  await loadBlueNotes(currentMonth);
+}
+
+//===========================
+// 選択月のBlue Note読み込み
+//===========================
+async function loadBlueNotes(month) {
+  const year = 2024; // 必要に応じて動的に
   const daysInMonth = new Date(year, month, 0).getDate();
 
   $('#page-title').text(`Blue Note編集`);
-  $('#month').text(String(Number(month)) + '月');
+  $('#month').text(Number(month) + '月');
 
   const $container = $('#blue-note-container').empty();
 
