@@ -84,20 +84,26 @@ function setupEventHandlers() {
         const title = $(this).find('.title-input').val().trim();
         const youtubeUrl = $(this).find('.url-input').val().trim();
 
-        updates.push(
-          utils.setDoc(
-            utils.doc(utils.db, 'blueNotes', dateId),
-            {
-              title,
-              youtubeUrl,
-              updatedAt: utils.serverTimestamp(),
-            },
-            { merge: true }
-          )
-        );
+        // ★ タイトルまたはURLのどちらかが入力されていれば保存
+        if (title !== '' || youtubeUrl !== '') {
+          updates.push(
+            utils.setDoc(
+              utils.doc(utils.db, 'blueNotes', dateId),
+              {
+                title: title || undefined,
+                youtubeUrl: youtubeUrl || undefined,
+                updatedAt: utils.serverTimestamp(),
+              },
+              { merge: true }
+            )
+          );
+        }
       });
 
-      await Promise.all(updates);
+      if (updates.length > 0) {
+        await Promise.all(updates);
+      }
+
       await utils.writeLog({
         dataId: utils.globalGetParamMonth,
         action: '保存',
