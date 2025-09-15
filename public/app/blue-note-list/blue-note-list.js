@@ -1,4 +1,22 @@
-$(document).ready(function () {
+$(document).ready(async function () {
+  try {
+    await utils.initDisplay();
+    await setUpPage();
+  } catch (e) {
+    // ログ登録
+    await utils.writeLog({
+      dataId: 'none',
+      action: '初期表示',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+  } finally {
+    // スピナー非表示
+    utils.hideSpinner();
+  }
+});
+
+function setUpPage() {
   const months = [
     '1月',
     '2月',
@@ -26,4 +44,4 @@ $(document).ready(function () {
       </li>
     `);
   });
-});
+}
