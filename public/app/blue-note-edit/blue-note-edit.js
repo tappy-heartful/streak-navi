@@ -27,8 +27,8 @@ $(document).ready(async function () {
 // ページ設定
 //===========================
 async function setupPage() {
-  const month = utils.globalGetParamMonth; // "01" ~ "12"
-  const year = 2024;
+  const month = utils.globalGetParamMonth;
+  const year = 2024; // うるう年
   const daysInMonth = new Date(year, month, 0).getDate();
 
   $('#page-title').text(`Blue Note編集`);
@@ -38,17 +38,16 @@ async function setupPage() {
 
   for (let day = 1; day <= daysInMonth; day++) {
     const dayStr = String(day).padStart(2, '0'); // 内部用
-    const dateId = `${month}${dayStr}`; // e.g. "0101"
-
-    const displayDay = String(day); // 0埋めなし日付
+    const dateId = `${month}${dayStr}`;
+    const displayDay = String(day);
 
     $container.append(`
-    <div class="form-group blue-note-item" data-date="${dateId}">
-      <label>${displayDay}日</label>
-      <input type="text" class="title-input" placeholder="曲名" />
-      <input type="text" class="url-input" placeholder="YouTube URL" />
-    </div>
-  `);
+      <div class="form-group blue-note-item" data-date="${dateId}">
+        <label>${displayDay}日</label>
+        <input type="text" class="title-input" placeholder="曲名" />
+        <input type="text" class="url-input" placeholder="YouTube URL" />
+      </div>
+    `);
 
     // Firestoreからデータ読み込み
     const docRef = utils.doc(utils.db, 'blueNotes', dateId);
@@ -65,19 +64,26 @@ async function setupPage() {
   }
 }
 
+//===========================
+// イベント設定
+//===========================
 function setupEventHandlers() {
   $('#clear-button').on('click', async () => {
-    if (await utils.showDialog('入力内容をクリアしますか？')) {
+    if (await utils.showDialog('編集前に戻しますか？')) {
       restoreInitialState();
     }
   });
 
   $('#save-button').on('click', async () => {
-    if (!validateData()) {
-      utils.showDialog('入力内容を確認してください', true);
+    utils.showSpinner();
+
+    if (!(await validateData())) {
+      utils.hideSpinner();
+      await utils.showDialog('入力内容を確認してください', true);
       return;
     }
 
+    utils.hideSpinner();
     if (!(await utils.showDialog('保存しますか？'))) return;
 
     utils.showSpinner();
@@ -89,14 +95,13 @@ function setupEventHandlers() {
         const title = $(this).find('.title-input').val().trim();
         const youtubeUrl = $(this).find('.url-input').val().trim();
 
-        // ★ タイトルまたはURLのどちらかが入力されていれば保存
-        if (title !== '' || youtubeUrl !== '') {
+        if (title !== '' && youtubeUrl !== '') {
           updates.push(
             utils.setDoc(
               utils.doc(utils.db, 'blueNotes', dateId),
               {
-                title: title || undefined,
-                youtubeUrl: youtubeUrl || undefined,
+                title: title,
+                youtubeUrl: youtubeUrl,
                 updatedAt: utils.serverTimestamp(),
               },
               { merge: true }
@@ -113,6 +118,7 @@ function setupEventHandlers() {
         dataId: utils.globalGetParamMonth,
         action: '保存',
       });
+
       utils.hideSpinner();
       await utils.showDialog('保存しました', true);
       window.location.reload();
@@ -133,6 +139,9 @@ function setupEventHandlers() {
   });
 }
 
+//===========================
+// 初期状態管理
+//===========================
 function captureInitialState() {
   initialState = {};
   $('.blue-note-item').each(function () {
@@ -155,8 +164,72 @@ function restoreInitialState() {
 //===========================
 // 入力チェック
 //===========================
-function validateData() {
-  let isValid = true;
+async function validateData() {
   utils.clearErrors();
+  let isValid = true;
+  const errors = [];
+
+  // Firestore既存データ取得
+  const snapshot = await utils.getDocs(utils.collection(utils.db, 'blueNotes'));
+  const existingTitles = new Set();
+  const existingVideoIds = new Set();
+
+  snapshot.forEach((doc) => {
+    const data = doc.data();
+    if (data.title) existingTitles.add(data.title.toLowerCase());
+    if (data.youtubeUrl) {
+      const vid = extractYouTubeId(data.youtubeUrl);
+      if (vid) existingVideoIds.add(vid);
+    }
+  });
+
+  $('.blue-note-item').each(function () {
+    const $item = $(this);
+    const title = $item.find('.title-input').val().trim();
+    const url = $item.find('.url-input').val().trim();
+
+    if (title === '' && url === '') return;
+
+    if ((title === '' && url !== '') || (title !== '' && url === '')) {
+      isValid = false;
+      errors.push([$item, 'タイトルとURLは両方入力してください']);
+      return;
+    }
+
+    const videoId = extractYouTubeId(url);
+    if (!videoId) {
+      isValid = false;
+      errors.push([$item, 'YouTube動画のURLを入力してください']);
+      return;
+    }
+
+    if (existingTitles.has(title.toLowerCase())) {
+      isValid = false;
+      errors.push([$item, 'このタイトルは既に登録されています']);
+      return;
+    }
+
+    if (existingVideoIds.has(videoId)) {
+      isValid = false;
+      errors.push([$item, 'このYouTube動画は既に登録されています']);
+      return;
+    }
+  });
+
+  // エラー表示
+  errors.forEach(([item, message]) => {
+    utils.markError($(item), message);
+  });
+
   return isValid;
+}
+
+//===========================
+// YouTube動画ID抽出
+//===========================
+function extractYouTubeId(url) {
+  const reg =
+    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+  const match = url.match(reg);
+  return match ? match[1] : null;
 }
