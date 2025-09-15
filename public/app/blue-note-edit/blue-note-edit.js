@@ -185,9 +185,9 @@ function setupEventHandlers() {
     }
   });
 
-  // 一覧に戻る
+  // TOPに戻る
   $('.back-link').on('click', () => {
-    window.location.href = '../blue-note-list/blue-note-list.html';
+    window.location.href = '../blue-top/top.html';
   });
 }
 
