@@ -85,6 +85,7 @@ export const globalGetParamMode = globalGetparams.get('mode');
 export const globalGetParamVoteId = globalGetparams.get('voteId');
 export const globalGetParamMediaId = globalGetparams.get('mediaId');
 export const globalGetParamCallId = globalGetparams.get('callId');
+export const globalGetParamMonth = globalGetparams.get('month');
 
 // 画面名
 export const globalScreenName = document.title || 'Streak Navi';

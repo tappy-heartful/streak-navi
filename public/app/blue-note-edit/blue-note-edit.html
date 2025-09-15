@@ -9,64 +9,29 @@
       href="../../images/favicon.png"
       type="image/png"
     />
-    <title id="title">曲募集</title>
+    <title id="title">Blue Note 編集</title>
     <link rel="stylesheet" href="../common/common.css" />
-    <link rel="stylesheet" href="call-edit.css" />
+    <link rel="stylesheet" href="blue-note-edit.css" />
   </head>
   <body>
     <div id="header-placeholder"></div>
 
-    <!-- タイトル（カード外） -->
     <div class="page-header">
-      <h1 id="page-title">曲募集</h1>
+      <h1 id="page-title">Blue Note 編集</h1>
     </div>
 
     <main class="container">
-      <!-- 募集タイトル -->
-      <div class="form-group">
-        <label for="call-title">タイトル</label>
-        <input type="text" id="call-title" placeholder="タイトルを入力..." />
-      </div>
-
-      <!-- 募集説明 -->
-      <div class="form-group">
-        <label for="call-description">説明</label>
-        <input type="text" id="call-description" placeholder="説明を入力..." />
-      </div>
-
-      <!-- 募集ジャンル -->
-      <div class="form-group">
-        <label for="call-items-container">募集ジャンル</label>
-        <div id="call-items-container"></div>
-        <button id="add-item">＋ 募集ジャンルを追加</button>
-      </div>
-
-      <!-- 回答受付 -->
-      <div class="form-group checkbox-group">
-        <label>
-          <input type="checkbox" id="is-active" />
-          回答を受付
-        </label>
-      </div>
-
-      <!-- 匿名募集 -->
-      <div class="form-group checkbox-group">
-        <label>
-          <input type="checkbox" id="is-anonymous" />
-          匿名募集
-        </label>
-      </div>
+      <div id="blue-note-container"></div>
 
       <!-- アクションボタン -->
       <div id="confirm-buttons" class="confirm-buttons">
         <button id="clear-button" class="clear-button">クリア</button>
-        <button id="save-button" class="save-button">登録 / 更新</button>
+        <button id="save-button" class="save-button">保存</button>
       </div>
     </main>
 
-    <!-- フッター部（カード外） -->
     <div class="page-footer">
-      <a class="back-link">← 曲募集一覧/確認に戻る</a>
+      <a class="back-link">← Blue Note 一覧に戻る</a>
     </div>
 
     <div id="footer-placeholder"></div>
@@ -79,6 +44,6 @@
     />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="module" src="../common/functions.js"></script>
-    <script type="module" src="call-edit.js"></script>
+    <script type="module" src="blue-note-edit.js"></script>
   </body>
 </html>

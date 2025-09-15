@@ -8,14 +8,12 @@ let initialState = {};
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
-
-    const mode = utils.globalGetParamMode; // new / edit / copy
-    await setupPage(mode);
+    await setupPage();
     captureInitialState();
-    setupEventHandlers(mode);
+    setupEventHandlers();
   } catch (e) {
     await utils.writeLog({
-      dataId: utils.globalGetParamCallId,
+      dataId: utils.globalGetParamMonth,
       action: '初期表示',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
@@ -28,113 +26,80 @@ $(document).ready(async function () {
 //===========================
 // ページ設定
 //===========================
-async function setupPage(mode) {
-  const pageTitle = $('#page-title');
-  const title = $('#title');
-  const submitButton = $('#save-button');
-  const backLink = $('.back-link');
+async function setupPage() {
+  const month = utils.globalGetParamMonth; // "01" ~ "12"
+  const year = 2024;
+  const daysInMonth = new Date(year, month, 0).getDate();
 
-  if (mode === 'new') {
-    pageTitle.text('曲募集新規作成');
-    title.text('曲募集新規作成');
-    submitButton.text('登録');
-    backLink.text('← 曲募集一覧に戻る');
-    // 初期表示で投票項目一つ表示
-    $('#call-items-container').append(addItemToForm());
-    // 回答を受け付けにチェック
-    $('#is-active').prop('checked', true);
-  } else if (mode === 'edit' || mode === 'copy') {
-    pageTitle.text(mode === 'edit' ? '曲募集編集' : '曲募集新規作成');
-    title.text(mode === 'edit' ? '曲募集編集' : '曲募集新規作成');
-    submitButton.text(mode === 'edit' ? '更新' : '登録');
-    backLink.text('← 曲募集確認に戻る');
-    await loadCallData(utils.globalGetParamCallId, mode);
-  } else {
-    throw new Error('モード不正です');
+  $('#page-title').text(`${month}月の楽曲編集`);
+
+  const $container = $('#blue-note-container').empty();
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateId = `${month}${String(day).padStart(2, '0')}`; // e.g. "0101"
+
+    $container.append(`
+      <div class="form-group blue-note-item" data-date="${dateId}">
+        <label>${month}/${day}</label>
+        <input type="text" class="title-input" placeholder="曲名" />
+        <input type="text" class="url-input" placeholder="YouTube URL" />
+      </div>
+    `);
+
+    // Firestoreからデータ読み込み
+    const docRef = utils.doc(utils.db, 'blueNotes', dateId);
+    const docSnap = await utils.getDoc(docRef);
+    if (docSnap.exists()) {
+      const data = docSnap.data();
+      $(`.blue-note-item[data-date="${dateId}"] .title-input`).val(
+        data.title || ''
+      );
+      $(`.blue-note-item[data-date="${dateId}"] .url-input`).val(
+        data.youtubeUrl || ''
+      );
+    }
   }
 }
 
-//===========================
-// データ読み込み
-//===========================
-async function loadCallData(docId, mode) {
-  const docSnap = await utils.getDoc(utils.doc(utils.db, 'calls', docId));
-  if (!docSnap.exists()) throw new Error('募集が見つかりません');
-
-  const data = docSnap.data();
-
-  $('#call-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
-  $('#call-description').val(data.description || '');
-  $('#is-active').prop('checked', data.isActive || false);
-  $('#is-anonymous').prop('checked', data.isAnonymous || false);
-
-  // 募集ジャンルを復元
-  if (data.items && Array.isArray(data.items)) {
-    data.items.forEach((item) => addItemToForm(item));
-  }
-}
-
-//===========================
-// イベント登録
-//===========================
-function setupEventHandlers(mode) {
-  $('#add-item').on('click', () => addItemToForm(''));
-
+function setupEventHandlers() {
   $('#clear-button').on('click', async () => {
-    if (
-      await utils.showDialog(
-        mode === 'new' ? '入力内容をクリアしますか？' : '編集前に戻しますか？'
-      )
-    )
+    if (await utils.showDialog('入力内容をクリアしますか？')) {
       restoreInitialState();
+    }
   });
 
   $('#save-button').on('click', async () => {
-    if (!validateData()) {
-      utils.showDialog('入力内容を確認してください', true);
-      return;
-    }
-
-    if (
-      !(await utils.showDialog(
-        (['new', 'copy'].includes(mode) ? '登録' : '更新') + 'しますか？'
-      ))
-    )
-      return;
+    if (!(await utils.showDialog('保存しますか？'))) return;
 
     utils.showSpinner();
     try {
-      const callData = collectData(mode);
+      const updates = [];
 
-      if (['new', 'copy'].includes(mode)) {
-        const docRef = await utils.addDoc(
-          utils.collection(utils.db, 'calls'),
-          callData
+      $('.blue-note-item').each(function () {
+        const dateId = $(this).data('date');
+        const title = $(this).find('.title-input').val().trim();
+        const youtubeUrl = $(this).find('.url-input').val().trim();
+
+        updates.push(
+          utils.setDoc(
+            utils.doc(utils.db, 'blueNotes', dateId),
+            {
+              title,
+              youtubeUrl,
+              updatedAt: utils.serverTimestamp(),
+            },
+            { merge: true }
+          )
         );
-        await utils.writeLog({ dataId: docRef.id, action: '登録' });
-        utils.hideSpinner();
-        await utils.showDialog('登録しました', true);
-        window.location.href = `../call-confirm/call-confirm.html?callId=${docRef.id}`;
-      } else {
-        const callRef = utils.doc(
-          utils.db,
-          'calls',
-          utils.globalGetParamCallId
-        );
-        callData.updatedAt = utils.serverTimestamp();
-        await utils.updateDoc(callRef, callData);
-        await utils.writeLog({
-          dataId: utils.globalGetParamCallId,
-          action: '更新',
-        });
-        utils.hideSpinner();
-        await utils.showDialog('更新しました', true);
-        window.location.href = `../call-confirm/call-confirm.html?callId=${utils.globalGetParamCallId}`;
-      }
+      });
+
+      await Promise.all(updates);
+      await utils.writeLog({ dataId: 'blueNotes', action: '保存' });
+      await utils.showDialog('保存しました', true);
     } catch (e) {
       await utils.writeLog({
-        dataId: utils.globalGetParamCallId,
-        action: ['new', 'copy'].includes(mode) ? '登録' : '更新',
+        dataId: 'blueNotes',
+        action: '保存',
         status: 'error',
         errorDetail: { message: e.message, stack: e.stack },
       });
@@ -143,132 +108,26 @@ function setupEventHandlers(mode) {
     }
   });
 
-  $(document).on(
-    'click',
-    '.back-link',
-    () =>
-      (window.location.href = ['edit', 'copy'].includes(mode)
-        ? `../call-confirm/call-confirm.html?callId=${utils.globalGetParamCallId}`
-        : '../call-list/call-list.html')
-  );
-}
-
-//===========================
-// データ収集
-//===========================
-function collectData(mode) {
-  const items = [];
-  $('#call-items-container .call-item-input').each(function () {
-    const val = $(this).val().trim();
-    if (val) items.push(val);
+  $('.back-link').on('click', () => {
+    window.location.href = '../blue-note-list/blue-note-list.html';
   });
-
-  const data = {
-    title: $('#call-title').val().trim(),
-    description: $('#call-description').val().trim(),
-    items,
-    isActive: $('#is-active').prop('checked'),
-    isAnonymous: $('#is-anonymous').prop('checked'),
-    createdAt: utils.serverTimestamp(),
-  };
-  if (['new', 'copy'].includes(mode))
-    data.createdBy = utils.getSession('displayName');
-  return data;
 }
 
-//===========================
-// 入力チェック
-//===========================
-function validateData() {
-  let isValid = true;
-  clearErrors();
-
-  const title = $('#call-title').val().trim();
-  if (!title) {
-    markError($('#call-title'), '必須項目です');
-    isValid = false;
-  }
-
-  const description = $('#call-description').val().trim();
-  if (!description) {
-    markError($('#call-description'), '必須項目です');
-    isValid = false;
-  }
-
-  const items = [];
-  $('#call-items-container .call-item-input').each(function () {
-    const val = $(this).val().trim();
-    if (val) items.push(val);
-  });
-  if (items.length === 0) {
-    markError(
-      $('#call-items-container'),
-      '募集ジャンルを1つ以上入力してください'
-    );
-    isValid = false;
-  } else {
-    // 重複チェック
-    const uniqueItems = new Set(items);
-    if (uniqueItems.size !== items.length) {
-      markError($('#call-items-container'), '募集ジャンルが重複しています');
-      isValid = false;
-    }
-  }
-
-  return isValid;
-}
-
-//===========================
-// 募集ジャンルの追加
-//===========================
-function addItemToForm(value = '') {
-  const $container = $('#call-items-container');
-  const $item = $(`
-    <div class="call-item">
-      <input type="text" class="call-item-input" value="${value}" placeholder="募集ジャンルを入力..." />
-      <button type="button" class="remove-item">× 項目を削除</button>
-    </div>
-  `);
-  $item.find('.remove-item').on('click', () => $item.remove());
-  $container.append($item);
-}
-
-//===========================
-// 初期状態保存／復元
-//===========================
 function captureInitialState() {
-  initialState = {
-    title: $('#call-title').val(),
-    description: $('#call-description').val(),
-    items: $('#call-items-container .call-item-input')
-      .map(function () {
-        return $(this).val();
-      })
-      .get(),
-    isActive: $('#is-active').prop('checked'),
-    isAnonymous: $('#is-anonymous').prop('checked'),
-  };
+  initialState = {};
+  $('.blue-note-item').each(function () {
+    const dateId = $(this).data('date');
+    initialState[dateId] = {
+      title: $(this).find('.title-input').val(),
+      youtubeUrl: $(this).find('.url-input').val(),
+    };
+  });
 }
 
 function restoreInitialState() {
-  $('#call-title').val(initialState.title);
-  $('#call-description').val(initialState.description);
-  $('#call-items-container').empty();
-  initialState.items.forEach((item) => addItemToForm(item));
-  $('#is-active').prop('checked', initialState.isActive);
-  $('#is-anonymous').prop('checked', initialState.isAnonymous);
-  clearErrors();
-}
-
-//===========================
-// エラー表示ユーティリティ
-//===========================
-function clearErrors() {
-  $('.error-message').remove();
-  $('.error-field').removeClass('error-field');
-}
-function markError($field, message) {
-  $field
-    .after(`<div class="error-message">${message}</div>`)
-    .addClass('error-field');
+  for (const [dateId, values] of Object.entries(initialState)) {
+    const $item = $(`.blue-note-item[data-date="${dateId}"]`);
+    $item.find('.title-input').val(values.title);
+    $item.find('.url-input').val(values.youtubeUrl);
+  }
 }
