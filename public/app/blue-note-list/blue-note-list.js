@@ -1,3 +1,5 @@
+import * as utils from '../common/functions.js';
+
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
