@@ -70,7 +70,7 @@ async function loadBlueNotes(month) {
   const daysInMonth = new Date(year, month, 0).getDate();
 
   $('#page-title').text(`Blue Note編集`);
-  $('#month').text(Number(month));
+  $('#month').text(Number(month) + '月');
 
   const $container = $('#blue-note-container').empty();
 
