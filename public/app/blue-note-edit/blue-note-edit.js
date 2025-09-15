@@ -163,57 +163,89 @@ function restoreInitialState() {
 }
 
 //===========================
-// 入力チェック
+// 入力チェック（非同期版）
 //===========================
 async function validateData() {
-  utils.clearErrors();
+  utils.clearErrors(); // エラー表示を初期化
   let isValid = true;
   const errors = [];
 
-  // Firestore既存データ取得
+  // Firestoreから既存データ取得
   const snapshot = await utils.getDocs(utils.collection(utils.db, 'blueNotes'));
-  const existingTitles = new Set();
-  const existingVideoIds = new Set();
+
+  // 画面内重複チェック用
+  const seenTitles = new Set();
+  const seenVideoIds = new Set();
+
+  // Firestore既存データセット（タイトルは小文字、URLは動画ID）
+  const existingTitlesMap = new Map(); // title.toLowerCase() => dateId
+  const existingVideoIdsMap = new Map(); // videoId => dateId
 
   snapshot.forEach((doc) => {
     const data = doc.data();
-    if (data.title) existingTitles.add(data.title.toLowerCase());
+    if (data.title) existingTitlesMap.set(data.title.toLowerCase(), doc.id);
     if (data.youtubeUrl) {
       const vid = extractYouTubeId(data.youtubeUrl);
-      if (vid) existingVideoIds.add(vid);
+      if (vid) existingVideoIdsMap.set(vid, doc.id);
     }
   });
 
+  // 各入力欄をチェック
   $('.blue-note-item').each(function () {
     const $item = $(this);
+    const dateId = $item.data('date');
     const title = $item.find('.title-input').val().trim();
     const url = $item.find('.url-input').val().trim();
 
+    // 両方空の場合はスキップ
     if (title === '' && url === '') return;
 
+    // 片方だけ入力の場合
     if ((title === '' && url !== '') || (title !== '' && url === '')) {
       isValid = false;
       errors.push([$item, 'タイトルとURLは両方入力してください']);
       return;
     }
 
+    // YouTube URL形式チェック
     const videoId = extractYouTubeId(url);
     if (!videoId) {
       isValid = false;
-      errors.push([$item, 'YouTube動画のURLを入力してください']);
+      errors.push([$item, 'YouTube動画のURLを正しく入力してください']);
       return;
     }
 
-    if (existingTitles.has(title.toLowerCase())) {
+    // 画面内重複チェック
+    const lowerTitle = title.toLowerCase();
+    if (seenTitles.has(lowerTitle)) {
+      isValid = false;
+      errors.push([$item, '画面内でタイトルが重複しています']);
+    } else {
+      seenTitles.add(lowerTitle);
+    }
+
+    if (seenVideoIds.has(videoId)) {
+      isValid = false;
+      errors.push([$item, '画面内でYouTube動画が重複しています']);
+    } else {
+      seenVideoIds.add(videoId);
+    }
+
+    // Firestore既存データ重複チェック（自分以外の日付のみ）
+    if (
+      existingTitlesMap.has(lowerTitle) &&
+      existingTitlesMap.get(lowerTitle) !== dateId
+    ) {
       isValid = false;
       errors.push([$item, 'このタイトルは既に登録されています']);
-      return;
     }
 
-    if (existingVideoIds.has(videoId)) {
+    if (
+      existingVideoIdsMap.has(videoId) &&
+      existingVideoIdsMap.get(videoId) !== dateId
+    ) {
       isValid = false;
       errors.push([$item, 'このYouTube動画は既に登録されています']);
-      return;
     }
   });
 
@@ -230,7 +262,7 @@ async function validateData() {
 //===========================
 function extractYouTubeId(url) {
   const reg =
-    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w\-]+)/;
   const match = url.match(reg);
   return match ? match[1] : null;
 }
