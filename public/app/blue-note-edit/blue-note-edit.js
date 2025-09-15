@@ -3,9 +3,9 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
-    utils.hideSpinner();
     await setupPage();
     setupEventHandlers();
+    utils.hideSpinner();
   } catch (e) {
     await utils.writeLog({
       dataId: utils.globalGetParamMonth,
@@ -65,6 +65,7 @@ async function setupPage() {
 // 選択月のBlue Note読み込み
 //===========================
 async function loadBlueNotes(month) {
+  utils.showSpinner();
   const year = 2024; // 必要に応じて動的に
   const daysInMonth = new Date(year, month, 0).getDate();
 
@@ -106,6 +107,7 @@ async function loadBlueNotes(month) {
       `);
     }
   }
+  utils.hideSpinner();
 }
 
 //===========================
