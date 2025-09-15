@@ -95,11 +95,16 @@ function setupEventHandlers() {
       });
 
       await Promise.all(updates);
-      await utils.writeLog({ dataId: 'blueNotes', action: '保存' });
+      await utils.writeLog({
+        dataId: utils.globalGetParamMonth,
+        action: '保存',
+      });
+      utils.hideSpinner();
       await utils.showDialog('保存しました', true);
+      window.location.reload();
     } catch (e) {
       await utils.writeLog({
-        dataId: 'blueNotes',
+        dataId: utils.globalGetParamMonth,
         action: '保存',
         status: 'error',
         errorDetail: { message: e.message, stack: e.stack },
