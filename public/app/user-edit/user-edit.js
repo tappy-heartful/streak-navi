@@ -114,7 +114,7 @@ function setupEventHandlers() {
     const uid = utils.globalGetParamUid;
     const isInit = utils.globalGetParamIsInit;
 
-    clearErrors(); // エラークリア
+    utils.clearErrors(); // エラークリア
 
     // 入力チェック
     if (!validateUserData()) {
@@ -145,7 +145,7 @@ function setupEventHandlers() {
         updatedData[secretWordMap[word]] = true;
       } else {
         // 間違い → エラー表示
-        markError($input, '正しい合言葉を入力してください');
+        utils.markError($input, '正しい合言葉を入力してください');
         hasError = true;
       }
     });
@@ -228,34 +228,20 @@ async function getSecretWordMap() {
 
 function validateUserData() {
   let isValid = true;
-  clearErrors();
+  utils.clearErrors();
 
   const sectionId = $('#section-select').val();
   const roleId = $('#role-select').val();
   const secretWord = $('#secret-word').val()?.trim();
 
   if (!sectionId) {
-    markError($('#section-select'), 'パートを選択してください');
+    utils.markError($('#section-select'), 'パートを選択してください');
     isValid = false;
   }
   if (!roleId) {
-    markError($('#role-select'), '役職を選択してください');
+    utils.markError($('#role-select'), '役職を選択してください');
     isValid = false;
   }
 
   return isValid;
-}
-
-//==================================
-// エラー表示ユーティリティ
-//==================================
-function clearErrors() {
-  $('.error-message').remove();
-  $('.error-field').removeClass('error-field');
-}
-
-function markError($field, message) {
-  const $item = $field.closest('.secret-word-item');
-  $item.after(`<div class="error-message">${message}</div>`); // ← 兄弟要素として後に追加
-  $field.addClass('error-field');
 }

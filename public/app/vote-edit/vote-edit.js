@@ -403,7 +403,7 @@ function restoreInitialState() {
     $('#vote-items-container').append($item);
   });
 
-  clearErrors();
+  utils.clearErrors();
 }
 
 //==================================
@@ -449,16 +449,17 @@ function collectVoteData(mode) {
 //==================================
 function validateVoteData() {
   let isValid = true;
-  clearErrors(); // 既存エラー解除
+  utils.clearErrors(); // 既存エラー解除
 
   const title = $('#vote-title').val().trim();
   const description = $('#vote-description').val().trim();
 
   // 投票名必須
-  if (!title) markError($('#vote-title'), '必須項目です'), (isValid = false);
+  if (!title)
+    utils.markError($('#vote-title'), '必須項目です'), (isValid = false);
   // 説明必須
   if (!description)
-    markError($('#vote-description'), '必須項目です'), (isValid = false);
+    utils.markError($('#vote-description'), '必須項目です'), (isValid = false);
 
   // 項目名チェック
   const itemNames = [];
@@ -466,9 +467,11 @@ function validateVoteData() {
     const $item = $(this).find('.vote-item-title');
     const name = $item.val().trim();
 
-    if (!name) return markError($item, '必須項目です'), (isValid = false);
+    if (!name) return utils.markError($item, '必須項目です'), (isValid = false);
     if (itemNames.includes(name))
-      return markError($item, '項目名が重複しています'), (isValid = false);
+      return (
+        utils.markError($item, '項目名が重複しています'), (isValid = false)
+      );
 
     itemNames.push(name);
   });
@@ -513,18 +516,4 @@ function validateVoteData() {
   });
 
   return isValid;
-}
-
-//==================================
-// エラー表示ユーティリティ
-//==================================
-function clearErrors() {
-  $('.error-message').remove();
-  $('.error-field').removeClass('error-field');
-}
-
-function markError($field, message) {
-  $field
-    .after(`<div class="error-message">${message}</div>`)
-    .addClass('error-field');
 }

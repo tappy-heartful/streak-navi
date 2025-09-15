@@ -73,6 +73,11 @@ function setupEventHandlers() {
   });
 
   $('#save-button').on('click', async () => {
+    if (!validateData()) {
+      utils.showDialog('入力内容を確認してください', true);
+      return;
+    }
+
     if (!(await utils.showDialog('保存しますか？'))) return;
 
     utils.showSpinner();
@@ -145,4 +150,13 @@ function restoreInitialState() {
     $item.find('.title-input').val(values.title);
     $item.find('.url-input').val(values.youtubeUrl);
   }
+}
+
+//===========================
+// 入力チェック
+//===========================
+function validateData() {
+  let isValid = true;
+  utils.clearErrors();
+  return isValid;
 }

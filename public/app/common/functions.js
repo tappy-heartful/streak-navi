@@ -393,3 +393,16 @@ export function formatDateToYMDHyphen(dateStr) {
 export function generateId(prefix = 'id') {
   return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
 }
+
+//===========================
+// エラー表示ユーティリティ
+//===========================
+export function clearErrors() {
+  $('.error-message').remove();
+  $('.error-field').removeClass('error-field');
+}
+export function markError($field, message) {
+  $field
+    .after(`<div class="error-message">${message}</div>`)
+    .addClass('error-field');
+}

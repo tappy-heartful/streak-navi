@@ -181,17 +181,17 @@ function collectData(mode) {
 //===========================
 function validateData() {
   let isValid = true;
-  clearErrors();
+  utils.clearErrors();
 
   const title = $('#call-title').val().trim();
   if (!title) {
-    markError($('#call-title'), '必須項目です');
+    utils.markError($('#call-title'), '必須項目です');
     isValid = false;
   }
 
   const description = $('#call-description').val().trim();
   if (!description) {
-    markError($('#call-description'), '必須項目です');
+    utils.markError($('#call-description'), '必須項目です');
     isValid = false;
   }
 
@@ -201,7 +201,7 @@ function validateData() {
     if (val) items.push(val);
   });
   if (items.length === 0) {
-    markError(
+    utils.markError(
       $('#call-items-container'),
       '募集ジャンルを1つ以上入力してください'
     );
@@ -210,7 +210,10 @@ function validateData() {
     // 重複チェック
     const uniqueItems = new Set(items);
     if (uniqueItems.size !== items.length) {
-      markError($('#call-items-container'), '募集ジャンルが重複しています');
+      utils.markError(
+        $('#call-items-container'),
+        '募集ジャンルが重複しています'
+      );
       isValid = false;
     }
   }
@@ -257,18 +260,5 @@ function restoreInitialState() {
   initialState.items.forEach((item) => addItemToForm(item));
   $('#is-active').prop('checked', initialState.isActive);
   $('#is-anonymous').prop('checked', initialState.isAnonymous);
-  clearErrors();
-}
-
-//===========================
-// エラー表示ユーティリティ
-//===========================
-function clearErrors() {
-  $('.error-message').remove();
-  $('.error-field').removeClass('error-field');
-}
-function markError($field, message) {
-  $field
-    .after(`<div class="error-message">${message}</div>`)
-    .addClass('error-field');
+  utils.clearErrors();
 }

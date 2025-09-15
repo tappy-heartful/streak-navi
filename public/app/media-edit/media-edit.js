@@ -171,7 +171,7 @@ function collectData(mode) {
 //===========================
 function validateData() {
   let isValid = true;
-  clearErrors();
+  utils.clearErrors();
 
   const date = $('#media-date').val().trim();
   const title = $('#media-title').val().trim();
@@ -181,11 +181,11 @@ function validateData() {
 
   // 必須チェック
   if (!date) {
-    markError($('#media-date'), '必須項目です');
+    utils.markError($('#media-date'), '必須項目です');
     isValid = false;
   }
   if (!title) {
-    markError($('#media-title'), '必須項目です');
+    utils.markError($('#media-title'), '必須項目です');
     isValid = false;
   }
 
@@ -202,12 +202,12 @@ function validateData() {
   // Instagram URL チェック
   if (instagramUrl) {
     if (!isValidURL(instagramUrl)) {
-      markError($('#instagram-url'), '正しいURLを入力してください');
+      utils.markError($('#instagram-url'), '正しいURLを入力してください');
       isValid = false;
     } else if (
       !/^https:\/\/www\.instagram\.com\/p\/[A-Za-z0-9_\-]+/.test(instagramUrl)
     ) {
-      markError($('#instagram-url'), 'Instagramの投稿URLではありません');
+      utils.markError($('#instagram-url'), 'Instagramの投稿URLではありません');
       isValid = false;
     }
   }
@@ -215,13 +215,13 @@ function validateData() {
   // YouTube URL チェック
   if (youtubeUrl) {
     if (!isValidURL(youtubeUrl)) {
-      markError($('#youtube-url'), '正しいURLを入力してください');
+      utils.markError($('#youtube-url'), '正しいURLを入力してください');
       isValid = false;
     } else if (
       !/^https:\/\/(www\.)?youtube\.com\/watch\?v=[\w\-]+/.test(youtubeUrl) &&
       !/^https:\/\/youtu\.be\/[\w\-]+/.test(youtubeUrl)
     ) {
-      markError($('#youtube-url'), 'YouTube動画URLではありません');
+      utils.markError($('#youtube-url'), 'YouTube動画URLではありません');
       isValid = false;
     }
   }
@@ -229,12 +229,12 @@ function validateData() {
   // Google Drive URL チェック
   if (driveUrl) {
     if (!isValidURL(driveUrl)) {
-      markError($('#drive-url'), '正しいURLを入力してください');
+      utils.markError($('#drive-url'), '正しいURLを入力してください');
       isValid = false;
     } else if (
       !/^https:\/\/drive\.google\.com\/file\/d\/[\w\-]+\/view/.test(driveUrl)
     ) {
-      markError($('#drive-url'), 'Google DriveファイルURLではありません');
+      utils.markError($('#drive-url'), 'Google DriveファイルURLではありません');
       isValid = false;
     }
   }
@@ -263,18 +263,5 @@ function restoreInitialState() {
   $('#youtube-url').val(initialState.youtubeUrl);
   $('#drive-url').val(initialState.driveUrl);
   $('#is-disp-top').prop('checked', initialState.isDispTop);
-  clearErrors();
-}
-
-//===========================
-// エラー表示ユーティリティ
-//===========================
-function clearErrors() {
-  $('.error-message').remove();
-  $('.error-field').removeClass('error-field');
-}
-function markError($field, message) {
-  $field
-    .after(`<div class="error-message">${message}</div>`)
-    .addClass('error-field');
+  utils.clearErrors();
 }

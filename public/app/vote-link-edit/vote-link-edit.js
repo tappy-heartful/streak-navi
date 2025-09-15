@@ -204,7 +204,7 @@ function restoreInitialState() {
       });
   });
 
-  clearErrors();
+  utils.clearErrors();
 }
 
 //==================================
@@ -212,14 +212,17 @@ function restoreInitialState() {
 //==================================
 function validateVoteData() {
   let isValid = true;
-  clearErrors();
+  utils.clearErrors();
 
   const urlPattern = /^(https?:\/\/|mailto:|tel:)/i;
 
   // 投票説明
   const voteLink = $('#vote-description-link').val().trim();
   if (voteLink && !urlPattern.test(voteLink)) {
-    markError($('#vote-description-link'), '正しいリンク形式ではありません');
+    utils.markError(
+      $('#vote-description-link'),
+      '正しいリンク形式ではありません'
+    );
     isValid = false;
   }
 
@@ -228,7 +231,7 @@ function validateVoteData() {
     const $itemLink = $(this).find('.vote-item-link');
     const val = $itemLink.val().trim();
     if (val && !urlPattern.test(val)) {
-      markError($itemLink, '正しいリンク形式ではありません');
+      utils.markError($itemLink, '正しいリンク形式ではありません');
       isValid = false;
     }
 
@@ -237,25 +240,11 @@ function validateVoteData() {
       .each(function () {
         const choiceVal = $(this).val().trim();
         if (choiceVal && !urlPattern.test(choiceVal)) {
-          markError($(this), '正しいリンク形式ではありません');
+          utils.markError($(this), '正しいリンク形式ではありません');
           isValid = false;
         }
       });
   });
 
   return isValid;
-}
-
-//==================================
-// エラー表示ユーティリティ
-//==================================
-function clearErrors() {
-  $('.error-message').remove();
-  $('.error-field').removeClass('error-field');
-}
-
-function markError($field, message) {
-  $field
-    .after(`<div class="error-message">${message}</div>`)
-    .addClass('error-field');
 }

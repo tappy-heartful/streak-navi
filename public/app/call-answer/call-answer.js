@@ -136,7 +136,7 @@ function setupEventHandlers(mode, callId, uid, callData) {
 
   // 保存
   $('#answer-submit').on('click', async function () {
-    clearErrors();
+    utils.clearErrors();
     const answers = {};
     let hasError = false;
 
@@ -157,13 +157,13 @@ function setupEventHandlers(mode, callId, uid, callData) {
           // 曲名チェック
           if (!title) {
             hasError = true;
-            markError($item.find('.song-title'), '曲名は必須です。');
+            utils.markError($item.find('.song-title'), '曲名は必須です。');
           }
 
           // 譜面状況チェック（value=0ならエラー）
           if (scorestatus === '0') {
             hasError = true;
-            markError(
+            utils.markError(
               $item.find('.song-scorestatus'),
               '譜面状況を選択してください。'
             );
@@ -221,19 +221,6 @@ function setupEventHandlers(mode, callId, uid, callData) {
   $(document).on('click', '.back-link', function () {
     window.location.href = '../call-confirm/call-confirm.html?callId=' + callId;
   });
-}
-
-//===========================
-// エラー表示ユーティリティ
-//===========================
-function clearErrors() {
-  $('.error-message').remove();
-  $('.error-field').removeClass('error-field');
-}
-function markError($field, message) {
-  $field
-    .after(`<div class="error-message">${message}</div>`)
-    .addClass('error-field');
 }
 
 //===========================
