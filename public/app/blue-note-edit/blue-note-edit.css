@@ -1,18 +1,26 @@
 .blue-note-item {
+  display: flex;
+  align-items: center;
+  gap: 10px; /* 日付と入力欄の間隔 */
   margin-bottom: 20px;
 }
 
 .blue-note-item label {
+  min-width: 40px; /* 日付の幅を固定 */
   font-weight: bold;
-  display: block;
-  margin-bottom: 6px;
+  text-align: right;
+  color: #333;
 }
 
 .blue-note-item input {
-  display: block;
-  width: 100%;
-  margin-bottom: 8px;
+  flex: 1; /* 残りの幅を入力欄が使う */
   padding: 8px;
   border: 1px solid #ccc;
   border-radius: 6px;
+  transition: 0.2s;
+}
+
+.blue-note-item input:focus {
+  border-color: #007bff;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
 }
