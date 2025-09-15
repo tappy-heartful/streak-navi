@@ -159,6 +159,7 @@ function restoreInitialState() {
     $item.find('.title-input').val(values.title);
     $item.find('.url-input').val(values.youtubeUrl);
   }
+  utils.clearErrors();
 }
 
 //===========================
