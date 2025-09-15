@@ -1,9 +1,11 @@
 .month-tabs {
   display: flex;
+  flex-wrap: wrap;   /* 折り返しを許可 */
   gap: 8px;
   list-style: none;
   padding: 0;
   margin-bottom: 20px;
+  justify-content: center; /* 中央寄せにすると見栄え良い */
 }
 
 .month-tabs li {
@@ -13,17 +15,15 @@
   background-color: #f0f0f0;
   transition: 0.2s;
   user-select: none;
+  flex: 0 1 auto;       /* ←幅を自動調整して折り返し可能に */
+  text-align: center;
+  min-width: 60px;      /* ←スマホで潰れすぎ防止 */
 }
 
 .month-tabs li.active {
   background-color: #5360c4;
   color: white;
 }
-
-.month-tabs li:hover {
-  background-color: #d0d0d0;
-}
-
 
 .blue-note-item {
   display: flex;
