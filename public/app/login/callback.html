@@ -152,7 +152,7 @@
           // 上記以外：ホームへ遷移
           window.location.href = userExists
             ? redirectAfterLogin ??
-              utils.globalBaseUrl + '/app/top/top.html?fromLogin=1'
+              utils.globalBaseUrl + '/app/home/home.html?fromLogin=1'
             : utils.globalBaseUrl + '/app/login/consent.html';
         } catch (e) {
           $('#message').append('エラー: ' + e.message);

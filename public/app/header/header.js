@@ -18,7 +18,7 @@ $(document).ready(async function () {
 
   // サイドメニュー項目クリック
   $('#menu-top').on('click', function () {
-    window.location.href = '../top/top.html';
+    window.location.href = '../home/home.html';
   });
   $('#menu-call-list').on('click', function () {
     window.location.href = '../call-list/call-list.html';

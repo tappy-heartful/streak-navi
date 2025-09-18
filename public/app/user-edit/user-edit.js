@@ -191,7 +191,7 @@ function setupEventHandlers() {
       // 画面遷移
       window.location.href =
         isInit === utils.globalStrTrue
-          ? redirectAfterLogin ?? '../top/top.html?isInit=1'
+          ? redirectAfterLogin ?? '../home/home.html?isInit=1'
           : '../user-confirm/user-confirm.html?uid=' + uid;
     } catch (e) {
       // ログ登録

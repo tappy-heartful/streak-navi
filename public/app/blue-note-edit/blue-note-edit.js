@@ -255,7 +255,7 @@ function setupEventHandlers() {
 
   // ホームに戻る
   $('.back-link').on('click', () => {
-    window.location.href = '../top/top.html';
+    window.location.href = '../home/home.html';
   });
 }
 
