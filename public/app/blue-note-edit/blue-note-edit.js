@@ -110,8 +110,8 @@ async function loadBlueNotes(month) {
           <span class="label-value title-value">
             ${
               data.youtubeId
-                ? `<a href="${videoUrl}" class="youtube-link" data-video-url="${videoUrl}" data-video-title="${data.title}">${data.title}
-                   <i class="fa-brands fa-youtube"></i></a>`
+                ? `<i class="fa-brands fa-youtube"></i>
+                  <a href="${videoUrl}" class="youtube-link" data-video-url="${videoUrl}" data-video-title="${data.title}">${data.title}</a>`
                 : data.title || ''
             }
           </span>
@@ -160,8 +160,8 @@ async function refreshBlueNoteItem(dateId) {
         <span class="label-value title-value">
           ${
             data.youtubeId
-              ? `<a href="${videoUrl}" class="youtube-link" data-video-url="${videoUrl}" data-video-title="${data.title}">${data.title}
-                <i class="fa-brands fa-youtube"></i></a>`
+              ? `<i class="fa-brands fa-youtube"></i>
+                <a href="${videoUrl}" class="youtube-link" data-video-url="${videoUrl}" data-video-title="${data.title}">${data.title}</a>`
               : data.title || ''
           }
         </span>
