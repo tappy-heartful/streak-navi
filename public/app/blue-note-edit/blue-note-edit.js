@@ -64,9 +64,11 @@ async function setupPage() {
 //===========================
 // 選択月のBlue Note読み込み
 //===========================
+let currentLoadId = 0; // グローバルに管理
+
 async function loadBlueNotes(month) {
-  utils.showSpinner();
-  const year = 2024; // 必要に応じて動的に
+  const loadId = ++currentLoadId; // 呼び出しごとにIDを更新
+  const year = 2024;
   const daysInMonth = new Date(year, month, 0).getDate();
 
   $('#page-title').text(`Blue Note編集`);
@@ -75,6 +77,9 @@ async function loadBlueNotes(month) {
   const $container = $('#blue-note-container').empty();
 
   for (let day = 1; day <= daysInMonth; day++) {
+    // 途中で別の月の読み込みが始まったら中断
+    if (loadId !== currentLoadId) return;
+
     const dayStr = String(day).padStart(2, '0');
     const dateId = `${month}${dayStr}`;
     const displayDay = String(day);
@@ -82,32 +87,34 @@ async function loadBlueNotes(month) {
     const docRef = utils.doc(utils.db, 'blueNotes', dateId);
     const docSnap = await utils.getDoc(docRef);
 
+    // 再度チェック（await 後に別の月に切り替わった場合）
+    if (loadId !== currentLoadId) return;
+
     if (docSnap.exists()) {
       const data = docSnap.data();
       $container.append(`
-          <div class="form-group blue-note-item" data-date="${dateId}">
-            <label class="day-label">${displayDay}日</label>
-            <input type="text" class="title-input" value="${
-              data.title || ''
-            }" disabled />
-            <input type="text" class="url-input" value="${
-              data.youtubeUrl || ''
-            }" disabled />
-            <button class="delete-button">削除</button>
-          </div>
-        `);
+        <div class="form-group blue-note-item" data-date="${dateId}">
+          <label class="day-label">${displayDay}日</label>
+          <input type="text" class="title-input" value="${
+            data.title || ''
+          }" disabled />
+          <input type="text" class="url-input" value="${
+            data.youtubeUrl || ''
+          }" disabled />
+          <button class="delete-button">削除</button>
+        </div>
+      `);
     } else {
       $container.append(`
-          <div class="form-group blue-note-item" data-date="${dateId}">
-            <label class="day-label">${displayDay}日</label>
-            <input type="text" class="title-input" placeholder="曲名" />
-            <input type="text" class="url-input" placeholder="YouTube URL" />
-            <button class="save-button">保存</button>
-          </div>
-        `);
+        <div class="form-group blue-note-item" data-date="${dateId}">
+          <label class="day-label">${displayDay}日</label>
+          <input type="text" class="title-input" placeholder="曲名" />
+          <input type="text" class="url-input" placeholder="YouTube URL" />
+          <button class="save-button">保存</button>
+        </div>
+      `);
     }
   }
-  utils.hideSpinner();
 }
 
 //===========================
