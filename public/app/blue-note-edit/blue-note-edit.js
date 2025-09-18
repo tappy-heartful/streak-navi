@@ -85,26 +85,26 @@ async function loadBlueNotes(month) {
     if (docSnap.exists()) {
       const data = docSnap.data();
       $container.append(`
-        <div class="form-group blue-note-item" data-date="${dateId}">
-          <label>${displayDay}日</label>
-          <input type="text" class="title-input" value="${
-            data.title || ''
-          }" disabled />
-          <input type="text" class="url-input" value="${
-            data.youtubeUrl || ''
-          }" disabled />
-          <button class="delete-button">削除</button>
-        </div>
-      `);
+          <div class="form-group blue-note-item" data-date="${dateId}">
+            <label class="day-label">${displayDay}日</label>
+            <input type="text" class="title-input" value="${
+              data.title || ''
+            }" disabled />
+            <input type="text" class="url-input" value="${
+              data.youtubeUrl || ''
+            }" disabled />
+            <button class="delete-button">削除</button>
+          </div>
+        `);
     } else {
       $container.append(`
-        <div class="form-group blue-note-item" data-date="${dateId}">
-          <label>${displayDay}日</label>
-          <input type="text" class="title-input" placeholder="曲名" />
-          <input type="text" class="url-input" placeholder="YouTube URL" />
-          <button class="save-button">保存</button>
-        </div>
-      `);
+          <div class="form-group blue-note-item" data-date="${dateId}">
+            <label class="day-label">${displayDay}日</label>
+            <input type="text" class="title-input" placeholder="曲名" />
+            <input type="text" class="url-input" placeholder="YouTube URL" />
+            <button class="save-button">保存</button>
+          </div>
+        `);
     }
   }
   utils.hideSpinner();
