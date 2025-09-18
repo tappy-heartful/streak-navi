@@ -100,13 +100,21 @@ async function loadBlueNotes(month) {
         data.createdBy === utils.getSession('uid') ||
         utils.getSession('isBlueNoteAdmin') === utils.globalStrTrue;
 
+      const videoUrl = data.youtubeId
+        ? `https://youtu.be/${data.youtubeId}`
+        : '';
+
       $container.append(`
         <div class="form-group blue-note-item" data-date="${dateId}">
           <label class="day-label">${displayDay}日</label>
-          <span class="label-value title-value">${data.title || ''}</span>
-          <span class="label-value url-value">${
-            data.youtubeId ? `https://youtu.be/${data.youtubeId}` : ''
-          }</span>
+          <span class="label-value title-value">
+            ${
+              data.youtubeId
+                ? `<a href="${videoUrl}" class="youtube-link" data-video-url="${videoUrl}" data-video-title="${data.title}">${data.title}
+                   <i class="fas fa-arrow-up-right-from-square"></i></a>`
+                : data.title || ''
+            }
+          </span>
           <button class="delete-button" style="display: ${
             showDelete ? 'inline-block' : 'none'
           };">削除</button>
@@ -144,13 +152,19 @@ async function refreshBlueNoteItem(dateId) {
       data.createdBy === utils.getSession('uid') ||
       utils.getSession('isBlueNoteAdmin') === utils.globalStrTrue;
 
+    const videoUrl = data.youtubeId ? `https://youtu.be/${data.youtubeId}` : '';
+
     const $newItem = $(`
       <div class="form-group blue-note-item" data-date="${dateId}">
         <label class="day-label">${displayDay}日</label>
-        <span class="label-value title-value">${data.title || ''}</span>
-        <span class="label-value url-value">${
-          data.youtubeId ? `https://youtu.be/${data.youtubeId}` : ''
-        }</span>
+        <span class="label-value title-value">
+          ${
+            data.youtubeId
+              ? `<a href="${videoUrl}" class="youtube-link" data-video-url="${videoUrl}" data-video-title="${data.title}">${data.title}
+              <i class="fas fa-arrow-up-right-from-square"></i></a>`
+              : data.title || ''
+          }
+        </span>
         <button class="delete-button" style="display: ${
           showDelete ? 'inline-block' : 'none'
         };">削除</button>
@@ -297,6 +311,17 @@ function setupEventHandlers() {
     } finally {
       utils.hideSpinner();
     }
+  });
+
+  // youtubeリンク
+  $(document).on('click', '.youtube-link', async function (e) {
+    e.preventDefault();
+    const videoUrl = $(this).data('video-url') || $(this).attr('href');
+    const title = $(this).data('video-title') || '参考音源';
+
+    const iframeHtml = utils.buildYouTubeHtml(videoUrl);
+
+    await utils.showModal(title, iframeHtml);
   });
 
   // ホームに戻る
