@@ -123,7 +123,7 @@ async function loadBlueNotes(month) {
 function setupEventHandlers() {
   // 保存
   $(document).on('click', '.save-button', async function () {
-    utils.clearErrors(); // まず既存エラーをクリア
+    utils.clearErrors(); // 既存エラーをクリア
 
     const $item = $(this).closest('.blue-note-item');
     const dateId = $item.data('date');
@@ -132,20 +132,34 @@ function setupEventHandlers() {
     const title = $titleField.val().trim();
     const youtubeUrl = $urlField.val().trim();
 
+    // 🔹 エラー表示用領域を作る（itemの直下）
+    let $errorContainer = $item.find('.error-container');
+    if ($errorContainer.length === 0) {
+      $errorContainer = $('<div class="error-container"></div>');
+      $item.append($errorContainer);
+    }
+    $errorContainer.empty();
+
     let hasError = false;
     if (!title) {
-      utils.markError($titleField, 'タイトルを入力してください');
+      $errorContainer.append(
+        '<div class="error-message">タイトルを入力してください</div>'
+      );
       hasError = true;
     }
     if (!youtubeUrl) {
-      utils.markError($urlField, 'URLを入力してください');
+      $errorContainer.append(
+        '<div class="error-message">URLを入力してください</div>'
+      );
       hasError = true;
     }
     if (hasError) return;
 
     const videoId = extractYouTubeId(youtubeUrl);
     if (!videoId) {
-      utils.markError($urlField, 'YouTubeのURLを正しく入力してください');
+      $errorContainer.append(
+        '<div class="error-message">YouTubeのURLを正しく入力してください</div>'
+      );
       return;
     }
 
@@ -165,11 +179,15 @@ function setupEventHandlers() {
     allDocsSnap.forEach((doc) => {
       const data = doc.data();
       if (normalize(data.title || '') === normalizedTitle) {
-        utils.markError($titleField, 'このタイトルは既に登録されています');
+        $errorContainer.append(
+          '<div class="error-message">このタイトルは既に登録されています</div>'
+        );
         duplicateFound = true;
       }
       if (normalize(data.youtubeUrl || '') === normalizedUrl) {
-        utils.markError($urlField, 'このURLは既に登録されています');
+        $errorContainer.append(
+          '<div class="error-message">このURLは既に登録されています</div>'
+        );
         duplicateFound = true;
       }
     });

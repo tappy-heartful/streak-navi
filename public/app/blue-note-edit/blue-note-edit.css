@@ -98,3 +98,7 @@
 .delete-button:hover {
   background-color: #a03e3e;
 }
+.error-container {
+  grid-column: 1 / span 3; /* 日付・入力欄・ボタン全部にまたがる */
+  margin-top: 2px;
+}
