@@ -62,7 +62,7 @@ async function setupPage() {
 }
 
 //===========================
-// 選択月のBlue Note読み込み
+// 選択月のBlue Note読み込み（修正版）
 //===========================
 let currentLoadId = 0; // グローバルに管理
 
@@ -92,6 +92,12 @@ async function loadBlueNotes(month) {
 
     if (docSnap.exists()) {
       const data = docSnap.data();
+
+      // 削除ボタン表示判定
+      const showDelete =
+        data.createdBy === utils.getSession('uid') ||
+        utils.getSession('isBlueNoteAdmin') === utils.globalStrTrue;
+
       $container.append(`
         <div class="form-group blue-note-item" data-date="${dateId}">
           <label class="day-label">${displayDay}日</label>
@@ -101,7 +107,9 @@ async function loadBlueNotes(month) {
           <input type="text" class="url-input" value="${
             data.youtubeUrl || ''
           }" disabled />
-          <button class="delete-button">削除</button>
+          <button class="delete-button" style="display: ${
+            showDelete ? 'inline-block' : 'none'
+          };">削除</button>
         </div>
       `);
     } else {
