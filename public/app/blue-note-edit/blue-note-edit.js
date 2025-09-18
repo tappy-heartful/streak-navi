@@ -124,6 +124,55 @@ async function loadBlueNotes(month) {
     }
   }
 }
+// ===========================
+// 特定の日付だけUIを更新する関数
+// ===========================
+async function refreshBlueNoteItem(dateId) {
+  const month = dateId.slice(0, 2);
+  const dayStr = dateId.slice(2);
+  const displayDay = Number(dayStr);
+
+  const docRef = utils.doc(utils.db, 'blueNotes', dateId);
+  const docSnap = await utils.getDoc(docRef);
+
+  const $container = $(`.blue-note-item[data-date="${dateId}"]`).parent();
+  const $oldItem = $(`.blue-note-item[data-date="${dateId}"]`);
+
+  if (docSnap.exists()) {
+    const data = docSnap.data();
+    const showDelete =
+      data.createdBy === utils.getSession('uid') ||
+      utils.getSession('isBlueNoteAdmin') === utils.globalStrTrue;
+
+    const $newItem = $(`
+      <div class="form-group blue-note-item" data-date="${dateId}">
+        <label class="day-label">${displayDay}日</label>
+        <input type="text" class="title-input" value="${
+          data.title || ''
+        }" disabled />
+        <input type="text" class="url-input" value="${
+          data.youtubeUrl || ''
+        }" disabled />
+        <button class="delete-button" style="display: ${
+          showDelete ? 'inline-block' : 'none'
+        };">削除</button>
+      </div>
+    `);
+
+    $oldItem.replaceWith($newItem);
+  } else {
+    const $newItem = $(`
+      <div class="form-group blue-note-item" data-date="${dateId}">
+        <label class="day-label">${displayDay}日</label>
+        <input type="text" class="title-input" placeholder="曲名" />
+        <input type="text" class="url-input" placeholder="YouTube URL" />
+        <button class="save-button">保存</button>
+      </div>
+    `);
+
+    $oldItem.replaceWith($newItem);
+  }
+}
 
 //===========================
 // イベント設定
@@ -216,7 +265,7 @@ function setupEventHandlers() {
       utils.hideSpinner();
 
       await utils.showDialog('保存しました', true);
-      window.location.reload();
+      await refreshBlueNoteItem(dateId);
     } catch (e) {
       await utils.writeLog({
         dataId: dateId,
@@ -240,7 +289,10 @@ function setupEventHandlers() {
     try {
       await utils.deleteDoc(utils.doc(utils.db, 'blueNotes', dateId));
       await utils.writeLog({ dataId: dateId, action: '削除' });
-      window.location.reload();
+      utils.hideSpinner();
+
+      await utils.showDialog('削除しました', true);
+      await refreshBlueNoteItem(dateId);
     } catch (e) {
       await utils.writeLog({
         dataId: dateId,
