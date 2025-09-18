@@ -218,7 +218,7 @@ async function loadMedias() {
   snap.forEach((doc) => {
     const data = doc.data();
 
-    // TOP表示フラグが false または未設定ならスキップ
+    // ホーム表示フラグが false または未設定ならスキップ
     if (!data.isDispTop) {
       return;
     }

@@ -41,7 +41,7 @@ async function setupPage(mode) {
     title.text('メディア新規作成');
     submitButton.text('登録');
     backLink.text('← メディア一覧に戻る');
-    $('#is-disp-top').prop('checked', true); // 新規作成時はTOPに表示をデフォルトON
+    $('#is-disp-top').prop('checked', true); // 新規作成時はホームに表示をデフォルトON
   } else if (mode === 'edit' || mode === 'copy') {
     pageTitle.text(mode === 'edit' ? 'メディア編集' : 'メディア新規作成');
     title.text(mode === 'edit' ? 'メディア編集' : 'メディア新規作成');

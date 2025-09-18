@@ -253,7 +253,7 @@ function setupEventHandlers() {
     }
   });
 
-  // TOPに戻る
+  // ホームに戻る
   $('.back-link').on('click', () => {
     window.location.href = '../top/top.html';
   });
