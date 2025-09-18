@@ -40,10 +40,10 @@ async function setupPage() {
   // タブを作成
   const $tabsContainer = $('#month-tabs');
 
-  const currentMonth = utils.globalGetParamMonth || '01';
+  const currentMonth = utils.globalGetParamMonth || '1';
 
   months.forEach((name, index) => {
-    const month = String(index + 1).padStart(2, '0');
+    const month = String(index + 1);
     const $li = $(`<li>${name}</li>`);
 
     if (month === currentMonth) $li.addClass('active');
@@ -58,7 +58,7 @@ async function setupPage() {
   });
 
   // 初期表示
-  await loadBlueNotes(currentMonth);
+  await loadBlueNotes(Number(currentMonth));
 }
 
 //===========================
@@ -69,10 +69,10 @@ let currentLoadId = 0; // グローバルに管理
 async function loadBlueNotes(month) {
   const loadId = ++currentLoadId; // 呼び出しごとにIDを更新
   const year = 2024;
-  const daysInMonth = new Date(year, month, 0).getDate();
+  const daysInMonth = new Date(year, Number(month), 0).getDate();
 
   $('#page-title').text(`Blue Note編集`);
-  $('#month').text(Number(month) + '月');
+  $('#month').text(month + '月');
 
   const $container = $('#blue-note-container').empty();
 
@@ -81,7 +81,8 @@ async function loadBlueNotes(month) {
     if (loadId !== currentLoadId) return;
 
     const dayStr = String(day).padStart(2, '0');
-    const dateId = `${month}${dayStr}`;
+    const monthStr = String(month).padStart(2, '0'); // ← Firestore IDはゼロ埋めで統一
+    const dateId = `${monthStr}${dayStr}`;
     const displayDay = String(day);
 
     const docRef = utils.doc(utils.db, 'blueNotes', dateId);
@@ -128,7 +129,7 @@ async function loadBlueNotes(month) {
 // 特定の日付だけUIを更新する関数
 // ===========================
 async function refreshBlueNoteItem(dateId) {
-  const month = dateId.slice(0, 2);
+  const monthStr = dateId.slice(0, 2);
   const dayStr = dateId.slice(2);
   const displayDay = Number(dayStr);
 
@@ -236,9 +237,10 @@ function setupEventHandlers() {
       const data = doc.data();
       if (normalize(data.youtubeUrl || '') === normalizedUrl) {
         $errorContainer.append(
-          `<div class="error-message">このURLは既に登録されています：${Number(
-            doc.id.slice(0, 2)
-          )}月${Number(doc.id.slice(2))}日</div>`
+          `<div class="error-message">このURLは既に登録されています：${parseInt(
+            doc.id.slice(0, 2),
+            10
+          )}月${parseInt(doc.id.slice(2), 10)}日</div>`
         );
         duplicateFound = true;
       }
