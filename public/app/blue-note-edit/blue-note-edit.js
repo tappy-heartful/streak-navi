@@ -308,9 +308,13 @@ function setupEventHandlers() {
 //===========================
 // YouTube動画ID抽出
 //===========================
-function extractYouTubeId(url) {
+function extractYouTubeId(input) {
+  if (!input) return null;
+  const str = String(input).trim();
+  if (!str) return null;
+
   const reg =
-    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([\w\-]+)/;
-  const match = url.match(reg);
+    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)?([\w\-]{11})/;
+  const match = str.match(reg);
   return match ? match[1] : null;
 }
