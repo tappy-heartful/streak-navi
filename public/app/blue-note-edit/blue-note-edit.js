@@ -207,6 +207,7 @@ function setupEventHandlers() {
           title,
           youtubeUrl,
           updatedAt: utils.serverTimestamp(),
+          createdBy: utils.getSession('uid'),
         },
         { merge: true }
       );
