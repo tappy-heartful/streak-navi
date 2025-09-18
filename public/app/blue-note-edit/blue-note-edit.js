@@ -123,21 +123,58 @@ async function loadBlueNotes(month) {
 function setupEventHandlers() {
   // 保存
   $(document).on('click', '.save-button', async function () {
+    utils.clearErrors(); // まず既存エラーをクリア
+
     const $item = $(this).closest('.blue-note-item');
     const dateId = $item.data('date');
-    const title = $item.find('.title-input').val().trim();
-    const youtubeUrl = $item.find('.url-input').val().trim();
+    const $titleField = $item.find('.title-input');
+    const $urlField = $item.find('.url-input');
+    const title = $titleField.val().trim();
+    const youtubeUrl = $urlField.val().trim();
 
-    if (!title || !youtubeUrl) {
-      await utils.showDialog('タイトルとURLを両方入力してください', true);
-      return;
+    let hasError = false;
+    if (!title) {
+      utils.markError($titleField, 'タイトルを入力してください');
+      hasError = true;
     }
+    if (!youtubeUrl) {
+      utils.markError($urlField, 'URLを入力してください');
+      hasError = true;
+    }
+    if (hasError) return;
 
     const videoId = extractYouTubeId(youtubeUrl);
     if (!videoId) {
-      await utils.showDialog('YouTubeのURLを正しく入力してください', true);
+      utils.markError($urlField, 'YouTubeのURLを正しく入力してください');
       return;
     }
+
+    // 🔽 正規化関数（スペース除去＋小文字化）
+    function normalize(str) {
+      return str.replace(/\s+/g, '').toLowerCase();
+    }
+    const normalizedTitle = normalize(title);
+    const normalizedUrl = normalize(youtubeUrl);
+
+    // 🔽 重複チェック（全件取得して正規化比較）
+    const allDocsSnap = await utils.getDocs(
+      utils.collection(utils.db, 'blueNotes')
+    );
+    let duplicateFound = false;
+
+    allDocsSnap.forEach((doc) => {
+      const data = doc.data();
+      if (normalize(data.title || '') === normalizedTitle) {
+        utils.markError($titleField, 'このタイトルは既に登録されています');
+        duplicateFound = true;
+      }
+      if (normalize(data.youtubeUrl || '') === normalizedUrl) {
+        utils.markError($urlField, 'このURLは既に登録されています');
+        duplicateFound = true;
+      }
+    });
+
+    if (duplicateFound) return;
 
     if (!(await utils.showDialog('保存しますか？'))) return;
 
