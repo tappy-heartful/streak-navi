@@ -71,7 +71,7 @@ export const globalBandLogoImage = '../../images/favicon.png';
 export const globalAuthServerRailway =
   'https://streak-navi-auth-server-production.up.railway.app/line-login'; // railwayの認証サーバーURL
 export const globalAuthServerRender =
-  'https://streak-navi-auth-server.onrender.com/line-login'; // renderの認証サーバーURL
+  'https://streak-navi-auth-server-kz3v.onrender.com/line-login'; // 新しい Render の認証サーバーURL
 
 // GETパラメータたち
 export const globalGetparams = new URLSearchParams(window.location.search);
