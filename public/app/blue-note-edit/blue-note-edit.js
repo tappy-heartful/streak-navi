@@ -221,13 +221,7 @@ function setupEventHandlers() {
       return;
     }
 
-    // 🔽 正規化関数（スペース除去＋小文字化）
-    function normalize(str) {
-      return str.replace(/\s+/g, '').toLowerCase();
-    }
-    const normalizedUrl = normalize(youtubeUrl);
-
-    // 🔽 重複チェック（全件取得して正規化比較）
+    // 🔽 重複チェック（動画ID単位で判定）
     const allDocsSnap = await utils.getDocs(
       utils.collection(utils.db, 'blueNotes')
     );
@@ -235,9 +229,10 @@ function setupEventHandlers() {
 
     allDocsSnap.forEach((doc) => {
       const data = doc.data();
-      if (normalize(data.youtubeUrl || '') === normalizedUrl) {
+      const existingId = extractYouTubeId(data.youtubeUrl || '');
+      if (existingId && existingId === videoId) {
         $errorContainer.append(
-          `<div class="error-message">このURLは既に登録されています：${parseInt(
+          `<div class="error-message">この動画は既に登録されています：${parseInt(
             doc.id.slice(0, 2),
             10
           )}月${parseInt(doc.id.slice(2), 10)}日</div>`
