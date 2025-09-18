@@ -167,7 +167,6 @@ function setupEventHandlers() {
     function normalize(str) {
       return str.replace(/\s+/g, '').toLowerCase();
     }
-    const normalizedTitle = normalize(title);
     const normalizedUrl = normalize(youtubeUrl);
 
     // 🔽 重複チェック（全件取得して正規化比較）
@@ -178,15 +177,11 @@ function setupEventHandlers() {
 
     allDocsSnap.forEach((doc) => {
       const data = doc.data();
-      if (normalize(data.title || '') === normalizedTitle) {
-        $errorContainer.append(
-          '<div class="error-message">このタイトルは既に登録されています</div>'
-        );
-        duplicateFound = true;
-      }
       if (normalize(data.youtubeUrl || '') === normalizedUrl) {
         $errorContainer.append(
-          '<div class="error-message">このURLは既に登録されています</div>'
+          `<div class="error-message">このURLは既に登録されています：${Number(
+            doc.id.slice(0, 2)
+          )}月${Number(doc.id.slice(2))}日</div>`
         );
         duplicateFound = true;
       }
