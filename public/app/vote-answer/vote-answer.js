@@ -88,7 +88,7 @@ function renderVote(voteData, answerData = {}) {
               u.hostname.includes('youtube.com') ||
               u.hostname.includes('youtu.be')
             ) {
-              iconHtml = `<a href="#" class="vote-choice-link youtube-link" data-video-url="${url}" data-video-title="${choice.name}"><i class="fas fa-arrow-up-right-from-square"></i></a>`;
+              iconHtml = `<a href="#" class="vote-choice-link youtube-link" data-video-url="${url}" data-video-title="${choice.name}"><i class="fa-brands fa-youtube"></i></a>`;
             } else {
               iconHtml = `<a href="${url}" class="vote-choice-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-arrow-up-right-from-square"></i></a>`;
             }
