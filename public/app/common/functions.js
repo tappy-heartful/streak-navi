@@ -308,10 +308,26 @@ function formatDateForId(date = new Date()) {
 }
 
 // YouTube埋め込みモーダルのHTMLを生成する関数
-export function buildYouTubeHtml(youtubeUrl, showNotice = false) {
-  const videoId =
-    new URL(youtubeUrl).searchParams.get('v') ||
-    new URL(youtubeUrl).pathname.split('/').pop();
+export function buildYouTubeHtml(youtubeInput, showNotice = false) {
+  let videoId = '';
+
+  if (!youtubeInput) return ''; // 空入力は無視
+
+  // もし文字列がURLっぽければURLとして解析
+  try {
+    const url = new URL(youtubeInput);
+    videoId = url.searchParams.get('v') || url.pathname.split('/').pop();
+  } catch (e) {
+    // URLとして解析できなければ、入力をそのまま動画IDとして扱う
+    videoId = youtubeInput;
+  }
+
+  // 簡単にIDらしいかチェック（11文字の英数字・-_）
+  if (!/^[\w-]{11}$/.test(videoId)) {
+    console.warn('YouTube動画IDとして不正です:', videoId);
+    return '';
+  }
+
   return `
     <div class="youtube-embed">
       <iframe

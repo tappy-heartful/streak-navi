@@ -104,7 +104,9 @@ async function loadBlueNotes(month) {
         <div class="form-group blue-note-item" data-date="${dateId}">
           <label class="day-label">${displayDay}日</label>
           <span class="label-value title-value">${data.title || ''}</span>
-          <span class="label-value url-value">${data.youtubeUrl || ''}</span>
+          <span class="label-value url-value">${
+            data.youtubeId ? `https://youtu.be/${data.youtubeId}` : ''
+          }</span>
           <button class="delete-button" style="display: ${
             showDelete ? 'inline-block' : 'none'
           };">削除</button>
@@ -146,7 +148,9 @@ async function refreshBlueNoteItem(dateId) {
       <div class="form-group blue-note-item" data-date="${dateId}">
         <label class="day-label">${displayDay}日</label>
         <span class="label-value title-value">${data.title || ''}</span>
-        <span class="label-value url-value">${data.youtubeUrl || ''}</span>
+        <span class="label-value url-value">${
+          data.youtubeId ? `https://youtu.be/${data.youtubeId}` : ''
+        }</span>
         <button class="delete-button" style="display: ${
           showDelete ? 'inline-block' : 'none'
         };">削除</button>
@@ -222,7 +226,7 @@ function setupEventHandlers() {
 
     allDocsSnap.forEach((doc) => {
       const data = doc.data();
-      const existingId = extractYouTubeId(data.youtubeUrl || '');
+      const existingId = data.youtubeId || '';
       if (existingId && existingId === videoId) {
         $errorContainer.append(
           `<div class="error-message">この動画は既に登録されています：${parseInt(
@@ -244,7 +248,7 @@ function setupEventHandlers() {
         utils.doc(utils.db, 'blueNotes', dateId),
         {
           title,
-          youtubeUrl,
+          youtubeId: videoId, // ← ここだけ保存
           updatedAt: utils.serverTimestamp(),
           createdBy: utils.getSession('uid'),
         },

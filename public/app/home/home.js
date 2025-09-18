@@ -181,11 +181,11 @@ async function loadBlueNotes() {
   const docRef = utils.doc(notesRef, todayId);
   const docSnap = await utils.getDoc(docRef);
 
-  let youtubeUrl;
+  let youtubeId;
 
   if (docSnap.exists()) {
     // 今日の日付が見つかった場合
-    youtubeUrl = docSnap.data().youtubeUrl;
+    youtubeId = docSnap.data().youtubeId;
   } else {
     // 全データを取得してランダムに1件選ぶ
     const snapshot = await utils.getDocs(notesRef);
@@ -193,13 +193,13 @@ async function loadBlueNotes() {
 
     if (allDocs.length > 0) {
       const randomDoc = allDocs[Math.floor(Math.random() * allDocs.length)];
-      youtubeUrl = randomDoc.data().youtubeUrl;
+      youtubeId = randomDoc.data().youtubeId;
     }
   }
 
   // YouTube埋め込みを表示
-  if (youtubeUrl) {
-    $blueNote.append(utils.buildYouTubeHtml(youtubeUrl));
+  if (youtubeId) {
+    $blueNote.append(utils.buildYouTubeHtml(youtubeId));
   } else {
     $blueNote.append('<p>Blue Noteが見つかりませんでした。</p>');
   }
@@ -235,8 +235,8 @@ async function loadMedias() {
     }
 
     // YouTube埋め込み
-    if (data.youtubeUrl) {
-      html += utils.buildYouTubeHtml(data.youtubeUrl, true);
+    if (data.youtubeId) {
+      html += utils.buildYouTubeHtml(data.youtubeId, true);
     }
 
     // Google Drive埋め込み
@@ -275,10 +275,10 @@ function setupEventHandlers() {
 
     if (allDocs.length > 0) {
       const randomDoc = allDocs[Math.floor(Math.random() * allDocs.length)];
-      const youtubeUrl = randomDoc.data().youtubeUrl;
+      const youtubeId = randomDoc.data().youtubeId;
 
       // 埋め込み表示
-      $blueNote.append(utils.buildYouTubeHtml(youtubeUrl));
+      $blueNote.append(utils.buildYouTubeHtml(youtubeId));
     } else {
       $blueNote.append('<p>Blue Noteが見つかりませんでした。</p>');
     }
