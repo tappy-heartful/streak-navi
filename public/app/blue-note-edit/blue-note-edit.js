@@ -103,12 +103,8 @@ async function loadBlueNotes(month) {
       $container.append(`
         <div class="form-group blue-note-item" data-date="${dateId}">
           <label class="day-label">${displayDay}日</label>
-          <input type="text" class="title-input" value="${
-            data.title || ''
-          }" disabled />
-          <input type="text" class="url-input" value="${
-            data.youtubeUrl || ''
-          }" disabled />
+          <span class="label-value title-value">${data.title || ''}</span>
+          <span class="label-value url-value">${data.youtubeUrl || ''}</span>
           <button class="delete-button" style="display: ${
             showDelete ? 'inline-block' : 'none'
           };">削除</button>
@@ -149,12 +145,8 @@ async function refreshBlueNoteItem(dateId) {
     const $newItem = $(`
       <div class="form-group blue-note-item" data-date="${dateId}">
         <label class="day-label">${displayDay}日</label>
-        <input type="text" class="title-input" value="${
-          data.title || ''
-        }" disabled />
-        <input type="text" class="url-input" value="${
-          data.youtubeUrl || ''
-        }" disabled />
+        <span class="label-value title-value">${data.title || ''}</span>
+        <span class="label-value url-value">${data.youtubeUrl || ''}</span>
         <button class="delete-button" style="display: ${
           showDelete ? 'inline-block' : 'none'
         };">削除</button>
