@@ -40,7 +40,8 @@ async function setupPage() {
   // タブを作成
   const $tabsContainer = $('#month-tabs');
 
-  const currentMonth = utils.globalGetParamMonth || '1';
+  const currentMonth =
+    utils.globalGetParamMonth || String(new Date().getMonth() + 1);
 
   months.forEach((name, index) => {
     const month = String(index + 1);
