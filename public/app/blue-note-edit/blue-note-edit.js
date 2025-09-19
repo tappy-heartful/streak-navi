@@ -104,14 +104,29 @@ async function loadBlueNotes(month) {
         ? `https://youtu.be/${data.youtubeId}`
         : '';
 
+      // 🔽 createdBy の displayName を取得
+      let displayName = '';
+      if (data.createdBy) {
+        try {
+          const userDoc = await utils.getDoc(
+            utils.doc(utils.db, 'users', data.createdBy)
+          );
+          if (userDoc.exists()) {
+            displayName = userDoc.data().displayName || '';
+          }
+        } catch (e) {
+          console.warn('ユーザー名取得に失敗:', e);
+        }
+      }
+
       $container.append(`
         <div class="form-group blue-note-item" data-date="${dateId}">
           <label class="day-label">${displayDay}日</label>
           <span class="label-value title-value">
             ${
               data.youtubeId
-                ? `<a href="${videoUrl}" class="youtube-link" data-video-url="${videoUrl}" data-video-title="${data.title}">
-                  <i class="fa-brands fa-youtube"></i>${data.title}</a>`
+                ? `<a href="${videoUrl}" class="youtube-link" data-video-url="${videoUrl}" data-video-title="${data.title}" data-created-by="${displayName}" >
+                    <i class="fa-brands fa-youtube"></i>${data.title}</a>`
                 : data.title || ''
             }
           </span>
@@ -316,7 +331,8 @@ function setupEventHandlers() {
   $(document).on('click', '.youtube-link', async function (e) {
     e.preventDefault();
     const videoUrl = $(this).data('video-url') || $(this).attr('href');
-    const title = $(this).data('video-title') || '参考音源';
+    let title = $(this).data('video-title') || '参考音源';
+    // title += ' by ' + $(this).data('created-by') || ''; //TODO: 名前表示は保留
 
     const iframeHtml = utils.buildYouTubeHtml(videoUrl);
 
