@@ -331,8 +331,8 @@ export function buildYouTubeHtml(youtubeInput, showNotice = false) {
   return `
     <div class="youtube-embed">
       <iframe
-        src="https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}"
-        allow="autoplay; encrypted-media"
+        src="https://www.youtube.com/embed/${videoId}?loop=1&playlist=${videoId}"
+        allow="encrypted-media"
         allowfullscreen>
       </iframe>
     </div>
