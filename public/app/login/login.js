@@ -48,9 +48,9 @@ function startBackgroundSlideshow() {
   const imageMap = {
     1: 1,
     2: 4,
-    3: 4,
+    3: 3,
     4: 6,
-    5: 5,
+    5: 3,
     6: 1,
     7: 1,
   };
