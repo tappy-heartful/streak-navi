@@ -311,7 +311,7 @@ function formatDateForId(date = new Date()) {
 export function buildYouTubeHtml(youtubeInput, showNotice = false) {
   let videoId = '';
 
-  if (!youtubeInput) return ''; // 空入力は無視
+  if (!youtubeInput) return '';
 
   // もし文字列がURLっぽければURLとして解析
   try {
@@ -331,7 +331,8 @@ export function buildYouTubeHtml(youtubeInput, showNotice = false) {
   return `
     <div class="youtube-embed">
       <iframe
-        src="https://www.youtube.com/embed/${videoId}?autoplay=1"
+        src="https://www.youtube.com/embed/${videoId}?autoplay=1&loop=1&playlist=${videoId}"
+        allow="autoplay; encrypted-media"
         allowfullscreen>
       </iframe>
     </div>
