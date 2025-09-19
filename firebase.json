@@ -30,6 +30,14 @@
           { "key": "Pragma", "value": "no-cache" },
           { "key": "Expires", "value": "0" }
         ]
+      },
+      {
+        "source": "**/*.{png,jpg,jpeg,gif,webp,svg}",
+        "headers": [
+          { "key": "Cache-Control", "value": "no-cache, no-store, must-revalidate" },
+          { "key": "Pragma", "value": "no-cache" },
+          { "key": "Expires", "value": "0" }
+        ]
       }
     ]
   }
