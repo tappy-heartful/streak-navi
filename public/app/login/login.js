@@ -44,30 +44,28 @@ function generateAndStoreState() {
 // 背景スライドショー
 ////////////////////////////
 function startBackgroundSlideshow() {
-  // 用意する背景画像リスト
-  const imagesLength = 9; // images/background/1.jpg ～ 10.jpg
+  const imagesLength = 9; // 1.jpg ～ 9.jpg
 
-  // 最初はランダムに
+  // 最初の画像
   let currentIndex = Math.floor(Math.random() * imagesLength);
-  $('body.login-page').css({
-    background: `url(../../images/background/${
-      currentIndex + 1
-    }.jpg) no-repeat center center`,
-    'background-size': 'cover',
-  });
+  setBackground(currentIndex);
 
-  // 10秒ごとに次の画像へ
   setInterval(() => {
-    currentIndex = (currentIndex + 1) % imagesLength;
+    // 次もランダムに選ぶ
+    currentIndex = Math.floor(Math.random() * imagesLength);
     $('body.login-page').fadeOut(800, function () {
-      $(this)
-        .css({
-          background: `url(../../images/background/${
-            currentIndex + 1
-          }.jpg) no-repeat center center`,
-          'background-size': 'cover',
-        })
-        .fadeIn(800);
+      setBackground(currentIndex);
+      $(this).fadeIn(800);
     });
   }, 10000);
+
+  function setBackground(index) {
+    $('body.login-page').css({
+      background: `url(../../images/background/${
+        index + 1
+      }.jpg) no-repeat center center`,
+      'background-size': 'cover',
+      'background-color': 'black', // 余白は黒で埋める
+    });
+  }
 }
