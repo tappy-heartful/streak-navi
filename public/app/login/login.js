@@ -6,6 +6,9 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   // セッションストレージ一度全削除
   utils.clearAllAppSession();
+
+  // 背景スライドショー開始
+  startBackgroundSlideshow();
 });
 
 ////////////////////////////
@@ -13,7 +16,7 @@ $(document).ready(async function () {
 ////////////////////////////
 $('#login').click(async function () {
   const redirectUri = encodeURIComponent(
-    utils.globalBaseUrl + '/app/login/callback.html' // テスト環境の場合、今のベースURLに結合
+    utils.globalBaseUrl + '/app/login/callback.html'
   );
   const state = generateAndStoreState();
   const scope = 'openid profile';
@@ -35,4 +38,36 @@ function generateAndStoreState() {
   // ローカルストレージに保存しておく
   localStorage.setItem('oauthState', state);
   return state;
+}
+
+////////////////////////////
+// 背景スライドショー
+////////////////////////////
+function startBackgroundSlideshow() {
+  // 用意する背景画像リスト
+  const imagesLength = 11;
+
+  // 最初はランダムに
+  let currentIndex = Math.floor(Math.random() * imagesLength);
+  $('body.login-page').css({
+    background: `url(../../images/background/${
+      currentIndex + 1
+    }.jpg) no-repeat center center`,
+    'background-size': 'cover',
+  });
+
+  // 10秒ごとに次の画像へ
+  setInterval(() => {
+    currentIndex = (currentIndex + 1) % imagesLength;
+    $('body.login-page').fadeOut(800, function () {
+      $(this)
+        .css({
+          background: `url(../../images/background/${
+            currentIndex + 1
+          }.jpg) no-repeat center center`,
+          'background-size': 'cover',
+        })
+        .fadeIn(800);
+    });
+  }, 10000);
 }
