@@ -1,30 +1,19 @@
 body.login-page {
   font-family: sans-serif;
   text-align: center;
-  background: url('../../images/background.jpg') no-repeat center center;
-  background-size: cover;
 
-  /* ↓flexとalign-itemsは必要なら調整 */
+  /* flexでコンテンツ中央揃え */
   display: flex;
   flex-direction: column;
   align-items: center;
-  position: relative; /* ::beforeの基準に */
+  position: relative; /* 背景レイヤーやカバーの基準 */
 }
-
-body.login-page::before {
-  content: "";
-  position: absolute;  /* fixed → absoluteに */
-  top: 0; left: 0;
-  width: 100%; height: 100%;
-  background-color: rgba(255, 255, 255, 0.5);
-  z-index: -1;
-}
-
 
 /* コンテンツ最大幅を768pxに制限 */
 .title {
   padding: 20px;
   box-sizing: border-box;
+  z-index: 1;
 }
 
 /* タイトル：背景は文字部分のみ黒 */
@@ -52,11 +41,14 @@ button {
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
+  z-index: 1;
 }
 
 button:hover {
   background-color: #04a94f;
 }
+
+/* 背景画像レイヤー */
 .bg-layer {
   position: absolute;
   inset: 0;
@@ -64,12 +56,13 @@ button:hover {
   background-position: center;
   background-repeat: no-repeat;
   background-color: black;
-  z-index: -1; /* 背景画像 */
+  z-index: -1;
 }
 
+/* 白カバー */
 .bg-cover {
   position: absolute;
   inset: 0;
-  background-color: rgba(255, 255, 255, 0.3); /* 白っぽさ */
+  background-color: rgba(255, 255, 255, 0.5); /* 白っぽさ */
   z-index: 0;
 }

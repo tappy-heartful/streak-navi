@@ -69,7 +69,7 @@ function startBackgroundSlideshow() {
   $cover.css({
     position: 'absolute',
     inset: 0,
-    'background-color': 'rgba(255,255,255,0.3)', // 白っぽさ
+    'background-color': 'rgba(255,255,255,0.5)', // 白っぽさ
     'z-index': 0, // 背景画像の上、コンテンツの下
   });
 
