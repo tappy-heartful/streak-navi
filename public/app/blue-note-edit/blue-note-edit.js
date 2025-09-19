@@ -63,7 +63,7 @@ async function setupPage() {
 }
 
 //===========================
-// 選択月のBlue Note読み込み（修正版）
+// 選択月のBlue Notes読み込み（修正版）
 //===========================
 let currentLoadId = 0; // グローバルに管理
 
@@ -72,7 +72,6 @@ async function loadBlueNotes(month) {
   const year = 2024;
   const daysInMonth = new Date(year, Number(month), 0).getDate();
 
-  $('#page-title').text(`Blue Note編集`);
   $('#month').text(month + '月');
 
   const $container = $('#blue-note-container').empty();

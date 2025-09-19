@@ -165,7 +165,7 @@ async function loadPendingAnnouncements() {
   }
 }
 
-// Blue Noteを読み込んで表示する関数
+// Blue Notesを読み込んで表示する関数
 let blueNotes = [];
 let currentIndex = 0;
 
