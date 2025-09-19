@@ -46,7 +46,7 @@ function generateAndStoreState() {
 function startBackgroundSlideshow() {
   const imageMap = {
     1: 1,
-    2: 3,
+    2: 5,
     3: 3,
     4: 5,
     5: 2,
@@ -66,12 +66,6 @@ function startBackgroundSlideshow() {
 
   // 白カバー div
   const $cover = $('<div class="bg-cover"></div>').appendTo($body);
-  $cover.css({
-    position: 'absolute',
-    inset: 0,
-    'background-color': 'rgba(255,255,255,0.5)', // 白っぽさ
-    'z-index': 0, // 背景画像の上、コンテンツの下
-  });
 
   let showing = $bg1;
   let hidden = $bg2;
