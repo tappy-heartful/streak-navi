@@ -169,26 +169,44 @@ async function loadPendingAnnouncements() {
 let blueNotes = [];
 let currentIndex = 0;
 
-// 初期ロード
 async function initBlueNotes() {
   const snapshot = await utils.getDocs(utils.collection(utils.db, 'blueNotes'));
-  blueNotes = snapshot.docs.map((d) => d.data().youtubeId);
 
-  const $videos = $('#blue-note-videos').empty();
-  blueNotes.forEach((id, i) => {
-    $videos.append(`
-      <div class="blue-note-video ${i === 0 ? 'active' : ''}">
-        ${utils.buildYouTubeHtml(id)}
-      </div>
-    `);
-  });
-  currentIndex = 0;
+  // youtubeId と docId を配列で保持
+  const notes = snapshot.docs.map((d) => ({
+    id: d.id,
+    youtubeId: d.data().youtubeId,
+  }));
+  blueNotes = notes.map((n) => n.youtubeId);
+
+  // 今日の日付4桁 (例: 9月19日 → "0919")
+  const now = new Date();
+  const mm = String(now.getMonth() + 1).padStart(2, '0');
+  const dd = String(now.getDate()).padStart(2, '0');
+  const todayId = mm + dd;
+
+  // 今日の曲を探す
+  let index = notes.findIndex((n) => n.id === todayId);
+
+  // なければランダム
+  if (index === -1) {
+    index = Math.floor(Math.random() * blueNotes.length);
+  }
+
+  // 初期表示
+  showVideo(index);
 }
 
-// 表示切り替え
 function showVideo(index) {
-  $('.blue-note-video').removeClass('active').eq(index).addClass('active');
+  const $videos = $('#blue-note-videos');
   currentIndex = index;
+
+  $videos.empty();
+
+  const youtubeId = blueNotes[index];
+  $videos.append(`<div class="blue-note-video active">
+      ${utils.buildYouTubeHtml(youtubeId)}
+    </div>`);
 }
 
 // コンテンツを読み込んで表示する関数
