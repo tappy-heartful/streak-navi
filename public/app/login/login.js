@@ -45,7 +45,7 @@ function generateAndStoreState() {
 ////////////////////////////
 function startBackgroundSlideshow() {
   // 用意する背景画像リスト
-  const imagesLength = 11;
+  const imagesLength = 10; // images/background/1.jpg ～ 10.jpg
 
   // 最初はランダムに
   let currentIndex = Math.floor(Math.random() * imagesLength);
