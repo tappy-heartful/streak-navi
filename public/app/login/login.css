@@ -57,3 +57,19 @@ button {
 button:hover {
   background-color: #04a94f;
 }
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: black;
+  z-index: -1; /* 背景画像 */
+}
+
+.bg-cover {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.3); /* 白っぽさ */
+  z-index: 0;
+}

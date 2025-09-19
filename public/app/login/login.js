@@ -41,53 +41,75 @@ function generateAndStoreState() {
 }
 
 ////////////////////////////
-// 背景スライドショー
+// 背景スライドショー（クロスフェード + 白カバー）
 ////////////////////////////
 function startBackgroundSlideshow() {
-  // 各番号Aの画像枚数を定義
   const imageMap = {
     1: 1,
-    2: 4,
+    2: 3,
     3: 3,
-    4: 6,
-    5: 3,
-    6: 1,
-    7: 1,
+    4: 5,
+    5: 2,
+    6: 3,
   };
-
-  // 番号Aの順番リスト
   const keys = Object.keys(imageMap).map(Number);
 
-  // 最初はランダム
   let currentAIndex = Math.floor(Math.random() * keys.length);
   let currentB = 1;
 
-  // 初期表示
-  setBackground(keys[currentAIndex], currentB);
+  const $body = $('body.login-page');
+  $body.css('position', 'relative');
+
+  // 背景用 div
+  const $bg1 = $('<div class="bg-layer"></div>').appendTo($body);
+  const $bg2 = $('<div class="bg-layer"></div>').appendTo($body);
+
+  // 白カバー div
+  const $cover = $('<div class="bg-cover"></div>').appendTo($body);
+  $cover.css({
+    position: 'absolute',
+    inset: 0,
+    'background-color': 'rgba(255,255,255,0.3)', // 白っぽさ
+    'z-index': 0, // 背景画像の上、コンテンツの下
+  });
+
+  let showing = $bg1;
+  let hidden = $bg2;
+
+  setBackground(showing, keys[currentAIndex], currentB);
+  hidden.css('opacity', 0);
 
   setInterval(() => {
     const currentA = keys[currentAIndex];
     const maxB = imageMap[currentA];
 
-    // Bを進める
     currentB++;
     if (currentB > maxB) {
-      // 次のAへ
       currentB = 1;
       currentAIndex = (currentAIndex + 1) % keys.length;
     }
 
-    $('body.login-page').fadeOut(800, function () {
-      setBackground(keys[currentAIndex], currentB);
-      $(this).fadeIn(800);
+    setBackground(hidden, keys[currentAIndex], currentB);
+
+    // クロスフェード
+    hidden.animate({ opacity: 1 }, 2000);
+    showing.animate({ opacity: 0 }, 2000, function () {
+      const temp = showing;
+      showing = hidden;
+      hidden = temp;
     });
   }, 10000);
 
-  function setBackground(A, B) {
-    $('body.login-page').css({
+  function setBackground($el, A, B) {
+    $el.css({
       background: `url(../../images/background/${A}_${B}.jpg) no-repeat center center`,
       'background-size': 'cover',
-      'background-color': 'black', // 余白は黒で埋める
+      'background-color': 'black',
+      position: 'absolute',
+      inset: 0,
+      'z-index': -1,
+      width: '100%',
+      height: '100%',
     });
   }
 }
