@@ -94,13 +94,61 @@
   text-align: center;    /* 念のためテキストも中央 */
 }
 
+.blue-note-player-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+#blue-note-videos {
+  width: 100%;          /* 横幅いっぱい */
+  max-width: 800px;     /* 任意で最大幅 */
+  aspect-ratio: 16/9;
+}
+
+.blue-note-controls {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;      /* 狭い画面では改行 */
+  margin-top: 10px;     /* 動画とボタンの間隔 */
+}
+
+.blue-note-control {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  font-size: 16px;
+  border: none;
+  border-radius: 8px;
+  background-color: #4CAF50;
+  color: white;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  white-space: nowrap;  /* ボタン内折返し防止 */
+}
+
+.blue-note-control i {
+  font-size: 1.2em;
+}
+
+.blue-note-control:hover {
+  background-color: #45a049;
+}
+
+/* iframe表示部分はそのまま */
 .blue-note-video {
   display: none;
 }
+
 .blue-note-video.active {
   display: block;
   animation: fadeIn 0.5s ease;
 }
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }

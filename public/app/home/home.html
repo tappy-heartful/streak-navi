@@ -64,31 +64,25 @@
       <h2 id="blue-note-title" class="blue-note-title">今日の一曲</h2>
 
       <!-- プレイヤー本体 -->
-      <div class="blue-note-player">
-        <button
-          id="blue-note-prev"
-          class="menu-button blue-note"
-          style="width: auto"
-        >
-          ⏮️ 前の曲
-        </button>
+      <div class="blue-note-player-wrapper">
+        <!-- 動画表示部分 -->
         <div id="blue-note-videos"></div>
-        <button
-          id="blue-note-next"
-          class="menu-button blue-note"
-          style="width: auto"
-        >
-          ⏭️ 次の曲
-        </button>
-      </div>
 
-      <button
-        id="blue-note-random"
-        class="menu-button blue-note"
-        style="width: auto; max-width: none; margin: 10px auto"
-      >
-        ランダム <i class="fa-solid fa-arrows-rotate"></i>
-      </button>
+        <!-- ボタン部分 -->
+        <div class="blue-note-controls">
+          <button id="blue-note-prev" class="blue-note-control">
+            <i class="fa-solid fa-backward-step"></i>
+          </button>
+
+          <button id="blue-note-random" class="blue-note-control">
+            ランダム <i class="fa-solid fa-arrows-rotate"></i>
+          </button>
+
+          <button id="blue-note-next" class="blue-note-control">
+            <i class="fa-solid fa-forward-step"></i>
+          </button>
+        </div>
+      </div>
     </main>
 
     <main class="container">
