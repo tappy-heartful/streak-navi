@@ -5,7 +5,6 @@ $(document).ready(async function () {
     await utils.initDisplay();
     await setupPage();
     setupEventHandlers();
-    utils.hideSpinner();
   } catch (e) {
     await utils.writeLog({
       dataId: utils.globalGetParamMonth,
@@ -57,6 +56,9 @@ async function setupPage() {
 
     $tabsContainer.append($li);
   });
+
+  // スピナー非表示(ユーザの待ち時間を減らす)
+  utils.hideSpinner();
 
   // 初期表示
   await loadBlueNotes(Number(currentMonth));
