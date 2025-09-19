@@ -221,8 +221,8 @@ async function loadMedias() {
     }
 
     // YouTube埋め込み
-    if (data.youtubeId) {
-      html += utils.buildYouTubeHtml(data.youtubeId, true);
+    if (data.youtubeUrl) {
+      html += utils.buildYouTubeHtml(data.youtubeUrl, true);
     }
 
     // Google Drive埋め込み
