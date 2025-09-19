@@ -50,7 +50,7 @@ function startBackgroundSlideshow() {
     2: 4,
     3: 4,
     4: 6,
-    5: 6,
+    5: 5,
     6: 1,
     7: 1,
   };
