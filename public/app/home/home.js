@@ -8,7 +8,7 @@ $(document).ready(async function () {
     // 初期処理
     await utils.initDisplay();
     await loadPendingAnnouncements();
-    await loadBlueNotes();
+    await initBlueNotes();
     await loadMedias();
 
     // イベント登録
@@ -166,43 +166,29 @@ async function loadPendingAnnouncements() {
 }
 
 // Blue Noteを読み込んで表示する関数
-async function loadBlueNotes() {
-  const $blueNote = $('#blue-note');
-  $blueNote.empty();
+let blueNotes = [];
+let currentIndex = 0;
 
-  // 今日の日付を4桁(例: "0914")で取得
-  const today = new Date();
-  const month = String(today.getMonth() + 1).padStart(2, '0');
-  const day = String(today.getDate()).padStart(2, '0');
-  const todayId = month + day;
+// 初期ロード
+async function initBlueNotes() {
+  const snapshot = await utils.getDocs(utils.collection(utils.db, 'blueNotes'));
+  blueNotes = snapshot.docs.map((d) => d.data().youtubeId);
 
-  // blueNotesコレクションを参照
-  const notesRef = utils.collection(utils.db, 'blueNotes');
-  const docRef = utils.doc(notesRef, todayId);
-  const docSnap = await utils.getDoc(docRef);
+  const $videos = $('#blue-note-videos').empty();
+  blueNotes.forEach((id, i) => {
+    $videos.append(`
+      <div class="blue-note-video ${i === 0 ? 'active' : ''}">
+        ${utils.buildYouTubeHtml(id)}
+      </div>
+    `);
+  });
+  currentIndex = 0;
+}
 
-  let youtubeId;
-
-  if (docSnap.exists()) {
-    // 今日の日付が見つかった場合
-    youtubeId = docSnap.data().youtubeId;
-  } else {
-    // 全データを取得してランダムに1件選ぶ
-    const snapshot = await utils.getDocs(notesRef);
-    const allDocs = snapshot.docs;
-
-    if (allDocs.length > 0) {
-      const randomDoc = allDocs[Math.floor(Math.random() * allDocs.length)];
-      youtubeId = randomDoc.data().youtubeId;
-    }
-  }
-
-  // YouTube埋め込みを表示
-  if (youtubeId) {
-    $blueNote.append(utils.buildYouTubeHtml(youtubeId));
-  } else {
-    $blueNote.append('<p>Blue Noteが見つかりませんでした。</p>');
-  }
+// 表示切り替え
+function showVideo(index) {
+  $('.blue-note-video').removeClass('active').eq(index).addClass('active');
+  currentIndex = index;
 }
 
 // コンテンツを読み込んで表示する関数
@@ -262,26 +248,19 @@ async function loadMedias() {
 
 // イベントハンドラ登録
 function setupEventHandlers() {
-  // 「別の曲を聴く」ボタン
-  $('#blue-note-refresh').on('click', async () => {
-    utils.showSpinner();
-    const $blueNote = $('#blue-note');
-    $blueNote.empty();
+  $('#blue-note-prev').on('click', () => {
+    showVideo((currentIndex - 1 + blueNotes.length) % blueNotes.length);
+  });
 
-    // blueNotesコレクションを参照
-    const notesRef = utils.collection(utils.db, 'blueNotes');
-    const snapshot = await utils.getDocs(notesRef);
-    const allDocs = snapshot.docs;
+  $('#blue-note-next').on('click', () => {
+    showVideo((currentIndex + 1) % blueNotes.length);
+  });
 
-    if (allDocs.length > 0) {
-      const randomDoc = allDocs[Math.floor(Math.random() * allDocs.length)];
-      const youtubeId = randomDoc.data().youtubeId;
-
-      // 埋め込み表示
-      $blueNote.append(utils.buildYouTubeHtml(youtubeId));
-    } else {
-      $blueNote.append('<p>Blue Noteが見つかりませんでした。</p>');
-    }
-    utils.hideSpinner();
+  $('#blue-note-random').on('click', () => {
+    let newIndex;
+    do {
+      newIndex = Math.floor(Math.random() * blueNotes.length);
+    } while (newIndex === currentIndex); // 違う曲を検索
+    showVideo(newIndex);
   });
 }

@@ -62,9 +62,28 @@
     <main class="container">
       <h3>Blue Note</h3>
       <h2 id="blue-note-title" class="blue-note-title">今日の一曲</h2>
-      <div id="blue-note"></div>
+
+      <!-- プレイヤー本体 -->
+      <div class="blue-note-player">
+        <button
+          id="blue-note-prev"
+          class="menu-button blue-note"
+          style="width: auto"
+        >
+          ⏮️ 前の曲
+        </button>
+        <div id="blue-note-videos"></div>
+        <button
+          id="blue-note-next"
+          class="menu-button blue-note"
+          style="width: auto"
+        >
+          ⏭️ 次の曲
+        </button>
+      </div>
+
       <button
-        id="blue-note-refresh"
+        id="blue-note-random"
         class="menu-button blue-note"
         style="width: auto; max-width: none; margin: 10px auto"
       >

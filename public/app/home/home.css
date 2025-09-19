@@ -94,6 +94,19 @@
   text-align: center;    /* 念のためテキストも中央 */
 }
 
+.blue-note-video {
+  display: none;
+}
+.blue-note-video.active {
+  display: block;
+  animation: fadeIn 0.5s ease;
+}
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+
 /* 背景アイコン */
 .menu-button::after {
   content: '';
