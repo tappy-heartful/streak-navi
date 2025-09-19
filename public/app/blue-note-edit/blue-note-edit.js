@@ -195,7 +195,7 @@ function setupEventHandlers() {
     utils.clearErrors(); // 既存エラーをクリア
 
     const $item = $(this).closest('.blue-note-item');
-    const dateId = $item.data('date');
+    const dateId = $item.attr('data-date');
     const $titleField = $item.find('.title-input');
     const $urlField = $item.find('.url-input');
     const title = $titleField.val().trim();
@@ -255,14 +255,13 @@ function setupEventHandlers() {
     if (duplicateFound) return;
 
     if (!(await utils.showDialog('保存しますか？'))) return;
-
     utils.showSpinner();
     try {
       await utils.setDoc(
         utils.doc(utils.db, 'blueNotes', dateId),
         {
-          title,
-          youtubeId: videoId, // ← ここだけ保存
+          title: title,
+          youtubeId: videoId,
           updatedAt: utils.serverTimestamp(),
           createdBy: utils.getSession('uid'),
         },
@@ -289,7 +288,7 @@ function setupEventHandlers() {
   // 削除
   $(document).on('click', '.delete-button', async function () {
     const $item = $(this).closest('.blue-note-item');
-    const dateId = $item.data('date');
+    const dateId = $item.attr('data-date');
 
     if (!(await utils.showDialog('削除しますか？'))) return;
 
