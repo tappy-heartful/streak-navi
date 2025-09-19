@@ -46,7 +46,7 @@ function generateAndStoreState() {
 function startBackgroundSlideshow() {
   // 各番号Aの画像枚数を定義
   const imageMap = {
-    1: 3,
+    1: 1,
     2: 4,
     3: 4,
     4: 6,
