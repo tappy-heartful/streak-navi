@@ -44,26 +44,48 @@ function generateAndStoreState() {
 // 背景スライドショー
 ////////////////////////////
 function startBackgroundSlideshow() {
-  const imagesLength = 9; // 1.jpg ～ 9.jpg
+  // 各番号Aの画像枚数を定義
+  const imageMap = {
+    1: 3,
+    2: 4,
+    3: 4,
+    4: 6,
+    5: 6,
+    6: 1,
+    7: 1,
+  };
 
-  // 最初の画像
-  let currentIndex = Math.floor(Math.random() * imagesLength);
-  setBackground(currentIndex);
+  // 番号Aの順番リスト
+  const keys = Object.keys(imageMap).map(Number);
+
+  // 最初はランダム
+  let currentAIndex = Math.floor(Math.random() * keys.length);
+  let currentB = 1;
+
+  // 初期表示
+  setBackground(keys[currentAIndex], currentB);
 
   setInterval(() => {
-    // 次もランダムに選ぶ
-    currentIndex = Math.floor(Math.random() * imagesLength);
+    const currentA = keys[currentAIndex];
+    const maxB = imageMap[currentA];
+
+    // Bを進める
+    currentB++;
+    if (currentB > maxB) {
+      // 次のAへ
+      currentB = 1;
+      currentAIndex = (currentAIndex + 1) % keys.length;
+    }
+
     $('body.login-page').fadeOut(800, function () {
-      setBackground(currentIndex);
+      setBackground(keys[currentAIndex], currentB);
       $(this).fadeIn(800);
     });
   }, 10000);
 
-  function setBackground(index) {
+  function setBackground(A, B) {
     $('body.login-page').css({
-      background: `url(../../images/background/${
-        index + 1
-      }.jpg) no-repeat center center`,
+      background: `url(../../images/background/${A}_${B}.jpg) no-repeat center center`,
       'background-size': 'cover',
       'background-color': 'black', // 余白は黒で埋める
     });
