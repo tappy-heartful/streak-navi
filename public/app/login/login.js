@@ -45,7 +45,7 @@ function generateAndStoreState() {
 ////////////////////////////
 function startBackgroundSlideshow() {
   const imageMap = {
-    1: 2,
+    1: 3,
     2: 5,
     3: 4,
     4: 5,
