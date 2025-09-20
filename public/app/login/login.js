@@ -49,7 +49,7 @@ function startBackgroundSlideshow() {
     2: 5,
     3: 3,
     4: 5,
-    5: 2,
+    5: 4,
     6: 3,
     99: 1,
   };
