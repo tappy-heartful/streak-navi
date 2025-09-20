@@ -74,6 +74,9 @@ function startBackgroundSlideshow() {
   setBackground(showing, keys[currentAIndex], currentB);
   hidden.css('opacity', 0);
 
+  const intervalTime = 10000; // 10秒ごとに切替
+  const fadeTime = 2000; // フェード時間2秒
+
   setInterval(() => {
     const currentA = keys[currentAIndex];
     const maxB = imageMap[currentA];
@@ -84,24 +87,29 @@ function startBackgroundSlideshow() {
       currentAIndex = (currentAIndex + 1) % keys.length;
     }
 
+    const nextUrl = `../../images/background/${keys[currentAIndex]}_${currentB}.jpg`;
+    preloadImage(nextUrl); // 事前読み込み
+
     setBackground(hidden, keys[currentAIndex], currentB);
 
     // クロスフェード
-    hidden.animate({ opacity: 1 }, 2000);
-    showing.animate({ opacity: 0 }, 2000, function () {
+    hidden.hide().fadeIn(fadeTime);
+    showing.fadeOut(fadeTime, function () {
       const temp = showing;
       showing = hidden;
       hidden = temp;
     });
-  }, 10000);
+  }, intervalTime);
 
+  // 画像事前読み込み
+  function preloadImage(url) {
+    const img = new Image();
+    img.src = url;
+  }
+
+  // 背景セット＋ランダムズーム
   function setBackground($el, A, B) {
     const url = `../../images/background/${A}_${B}.jpg`;
-
-    // ランダムでズームイン/アウト
-    const animations = ['zoomIn', 'zoomOut'];
-    const randomAnim =
-      animations[Math.floor(Math.random() * animations.length)];
 
     $el.css({
       'background-image': `url(${url})`,
@@ -117,7 +125,12 @@ function startBackgroundSlideshow() {
       opacity: 1,
     });
 
-    // アニメーションをリセットして再適用
+    // ランダムでズームイン/ズームアウト
+    const animations = ['zoomIn', 'zoomOut'];
+    const randomAnim =
+      animations[Math.floor(Math.random() * animations.length)];
+
+    // アニメーションリセットして再適用
     $el.css('animation', 'none');
     $el[0].offsetHeight; // reflow
     $el.css('animation', `${randomAnim} 10s ease-in-out forwards`);
