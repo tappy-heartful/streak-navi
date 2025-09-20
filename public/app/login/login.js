@@ -104,7 +104,9 @@ function startBackgroundSlideshow() {
       animations[Math.floor(Math.random() * animations.length)];
 
     $el.css({
-      background: `url(${url}) no-repeat center center`,
+      'background-image': `url(${url})`,
+      'background-position': 'center',
+      'background-repeat': 'no-repeat',
       'background-size': 'cover',
       'background-color': 'black',
       position: 'absolute',
@@ -113,7 +115,11 @@ function startBackgroundSlideshow() {
       width: '100%',
       height: '100%',
       opacity: 1,
-      animation: `${randomAnim} 20s ease-in-out forwards`,
     });
+
+    // アニメーションをリセットして再適用
+    $el.css('animation', 'none');
+    $el[0].offsetHeight; // reflow
+    $el.css('animation', `${randomAnim} 10s ease-in-out forwards`);
   }
 }
