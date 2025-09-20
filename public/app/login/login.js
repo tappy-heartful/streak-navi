@@ -41,7 +41,7 @@ function generateAndStoreState() {
 }
 
 ////////////////////////////
-// 背景スライドショー（クロスフェード + 白カバー）
+// 背景スライドショー（クロスフェード + ズームイン/アウト）
 ////////////////////////////
 function startBackgroundSlideshow() {
   const imageMap = {
@@ -61,12 +61,12 @@ function startBackgroundSlideshow() {
   const $body = $('body.login-page');
   $body.css('position', 'relative');
 
-  // 背景用 div
+  // 背景レイヤー2枚
   const $bg1 = $('<div class="bg-layer"></div>').appendTo($body);
   const $bg2 = $('<div class="bg-layer"></div>').appendTo($body);
 
-  // 白カバー div
-  const $cover = $('<div class="bg-cover"></div>').appendTo($body);
+  // 白カバー
+  $('<div class="bg-cover"></div>').appendTo($body);
 
   let showing = $bg1;
   let hidden = $bg2;
@@ -96,8 +96,15 @@ function startBackgroundSlideshow() {
   }, 10000);
 
   function setBackground($el, A, B) {
+    const url = `../../images/background/${A}_${B}.jpg`;
+
+    // ランダムでズームイン/アウト
+    const animations = ['zoomIn', 'zoomOut'];
+    const randomAnim =
+      animations[Math.floor(Math.random() * animations.length)];
+
     $el.css({
-      background: `url(../../images/background/${A}_${B}.jpg) no-repeat center center`,
+      background: `url(${url}) no-repeat center center`,
       'background-size': 'cover',
       'background-color': 'black',
       position: 'absolute',
@@ -105,6 +112,8 @@ function startBackgroundSlideshow() {
       'z-index': -1,
       width: '100%',
       height: '100%',
+      opacity: 1,
+      animation: `${randomAnim} 20s ease-in-out forwards`,
     });
   }
 }

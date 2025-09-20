@@ -48,7 +48,6 @@ button:hover {
   background-color: #04a94f;
 }
 
-/* 背景画像レイヤー */
 .bg-layer {
   position: absolute;
   inset: 0;
@@ -57,12 +56,24 @@ button:hover {
   background-repeat: no-repeat;
   background-color: black;
   z-index: -1;
+  width: 100%;
+  height: 100%;
 }
 
-/* 白カバー */
 .bg-cover {
   position: absolute;
   inset: 0;
-  background-color: rgba(255, 255, 255, 0.5); /* 白っぽさ */
+  background-color: rgba(255, 255, 255, 0.3);
   z-index: 0;
+}
+
+/* ズームイン・ズームアウト */
+@keyframes zoomIn {
+  from { transform: scale(1); }
+  to   { transform: scale(1.1); }
+}
+
+@keyframes zoomOut {
+  from { transform: scale(1.1); }
+  to   { transform: scale(1); }
 }
