@@ -172,12 +172,12 @@ let currentIndex = 0;
 async function initBlueNotes() {
   const snapshot = await utils.getDocs(utils.collection(utils.db, 'blueNotes'));
 
-  // youtubeId と docId を配列で保持
-  const notes = snapshot.docs.map((d) => ({
+  // youtubeId, title, docId を配列で保持
+  blueNotes = snapshot.docs.map((d) => ({
     id: d.id,
     youtubeId: d.data().youtubeId,
+    title: d.data().title || 'タイトル未設定', // titleが無いときの保険
   }));
-  blueNotes = notes.map((n) => n.youtubeId);
 
   // 今日の日付4桁 (例: 9月19日 → "0919")
   const now = new Date();
@@ -186,7 +186,7 @@ async function initBlueNotes() {
   const todayId = mm + dd;
 
   // 今日の曲を探す
-  let index = notes.findIndex((n) => n.id === todayId);
+  let index = blueNotes.findIndex((n) => n.id === todayId);
 
   // なければランダム
   if (index === -1) {
@@ -203,10 +203,17 @@ function showVideo(index) {
 
   $videos.empty();
 
-  const youtubeId = blueNotes[index];
-  $videos.append(`<div class="blue-note-video active">
-      ${utils.buildYouTubeHtml(youtubeId)}
-    </div>`);
+  const note = blueNotes[index];
+
+  // タイトル書き換え
+  $('#blue-note-title').text(note.title);
+
+  // YouTube埋め込み
+  $videos.append(`
+    <div class="blue-note-video active">
+      ${utils.buildYouTubeHtml(note.youtubeId)}
+    </div>
+  `);
 }
 
 // コンテンツを読み込んで表示する関数
