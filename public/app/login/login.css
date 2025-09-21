@@ -1,5 +1,7 @@
 html, body {
   overflow: hidden; /* スクロール禁止 */
+  background-color: black;
+  z-index: -2;
 }
 
 body.login-page {

@@ -50,7 +50,7 @@ function startBackgroundSlideshow() {
     3: 4,
     4: 5,
     5: 4,
-    6: 3,
+    6: 2,
     99: 1,
   };
   const keys = Object.keys(imageMap).map(Number);
