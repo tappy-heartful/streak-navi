@@ -171,51 +171,68 @@ let currentIndex = 0;
 
 async function initBlueNotes() {
   const snapshot = await utils.getDocs(utils.collection(utils.db, 'blueNotes'));
-
-  // youtubeId, title, docId を配列で保持
-  blueNotes = snapshot.docs.map((d) => ({
-    id: d.id,
-    youtubeId: d.data().youtubeId,
-    title: d.data().title || 'タイトル未設定', // titleが無いときの保険
+  blueNotes = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
   }));
 
-  // 今日の日付4桁 (例: 9月19日 → "0919")
-  const now = new Date();
-  const mm = String(now.getMonth() + 1).padStart(2, '0');
-  const dd = String(now.getDate()).padStart(2, '0');
-  const todayId = mm + dd;
+  if (blueNotes.length === 0) return;
 
-  // 今日の曲を探す
-  let index = blueNotes.findIndex((n) => n.id === todayId);
-
-  // なければランダム
-  if (index === -1) {
-    index = Math.floor(Math.random() * blueNotes.length);
-  }
-
-  // 初期表示
-  showVideo(index);
+  currentIndex = 0; // 初期は先頭でOK
+  renderBlueNoteVideos();
 }
 
-function showVideo(index) {
+function renderBlueNoteVideos() {
   const $videos = $('#blue-note-videos');
-  currentIndex = index;
-
   $videos.empty();
 
-  const note = blueNotes[index];
+  const prevIndex = (currentIndex - 1 + blueNotes.length) % blueNotes.length;
+  const nextIndex = (currentIndex + 1) % blueNotes.length;
+  const randomIndex = getRandomIndex(currentIndex);
 
-  // タイトル書き換え
-  $('#blue-note-title').text(note.title);
+  const indexes = [
+    { index: prevIndex, id: 'prev' },
+    { index: currentIndex, id: 'current' },
+    { index: nextIndex, id: 'next' },
+    { index: randomIndex, id: 'random' },
+  ];
 
-  // YouTube埋め込み
-  $videos.append(`
-    <div class="blue-note-video active">
-      ${utils.buildYouTubeHtml(note.youtubeId)}
-    </div>
-  `);
+  indexes.forEach((item) => {
+    const note = blueNotes[item.index];
+    $videos.append(`
+      <div class="blue-note-video ${item.id === 'current' ? 'active' : ''}" 
+           data-role="${item.id}" 
+           data-index="${item.index}">
+        ${utils.buildYouTubeHtml(note.youtubeId)}
+      </div>
+    `);
+  });
+
+  // タイトルも更新
+  $('#blue-note-title').text(blueNotes[currentIndex].title);
+}
+function showPrev() {
+  currentIndex = (currentIndex - 1 + blueNotes.length) % blueNotes.length;
+  renderBlueNoteVideos();
 }
 
+function showNext() {
+  currentIndex = (currentIndex + 1) % blueNotes.length;
+  renderBlueNoteVideos();
+}
+
+function showRandom() {
+  currentIndex = getRandomIndex(currentIndex);
+  renderBlueNoteVideos();
+}
+
+function getRandomIndex(exclude) {
+  let idx;
+  do {
+    idx = Math.floor(Math.random() * blueNotes.length);
+  } while (idx === exclude && blueNotes.length > 1);
+  return idx;
+}
 // コンテンツを読み込んで表示する関数
 async function loadMedias() {
   const mediasRef = utils.collection(utils.db, 'medias');
@@ -273,19 +290,7 @@ async function loadMedias() {
 
 // イベントハンドラ登録
 function setupEventHandlers() {
-  $('#blue-note-prev').on('click', () => {
-    showVideo((currentIndex - 1 + blueNotes.length) % blueNotes.length);
-  });
-
-  $('#blue-note-next').on('click', () => {
-    showVideo((currentIndex + 1) % blueNotes.length);
-  });
-
-  $('#blue-note-random').on('click', () => {
-    let newIndex;
-    do {
-      newIndex = Math.floor(Math.random() * blueNotes.length);
-    } while (newIndex === currentIndex); // 違う曲を検索
-    showVideo(newIndex);
-  });
+  $('#blue-note-prev').on('click', showPrev);
+  $('#blue-note-next').on('click', showNext);
+  $('#blue-note-random').on('click', showRandom);
 }
