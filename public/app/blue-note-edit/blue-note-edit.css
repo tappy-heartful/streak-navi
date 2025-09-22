@@ -1,3 +1,9 @@
+
+/* メニューを青系統に */
+h3 {
+  border-left: 5px solid #5360c4;
+}
+
 .page-description {
   font-size: 15px;
   line-height: 1.6;
@@ -112,4 +118,19 @@
 .error-container {
   grid-column: 1 / span 3; /* 日付・入力欄・ボタン全部にまたがる */
   margin-top: 2px;
+}
+
+.back-link {
+  color: #5360c4;
+  border: 2px solid #5360c4;
+}
+
+.back-link:hover {
+  background-color: #bac2fc;
+}
+
+
+/* リンクの色指定 */
+a {
+  color: #5360c4;
 }
