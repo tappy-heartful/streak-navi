@@ -53,8 +53,10 @@ function generateAndStoreState() {
 ////////////////////////////
 async function handleLineLoginCallback(code, state, error) {
   try {
-    $('#login').prop('disabled', true);
-    $('#login').text('ログイン中...');
+    $('#login')
+      .prop('disabled', true)
+      .addClass('logging-in')
+      .text('ログイン中...');
 
     if (error) throw new Error('LINEログインに失敗しました: ' + error);
     if (!code || !state) throw new Error('無効なLINEログイン応答です');
@@ -119,7 +121,7 @@ async function handleLineLoginCallback(code, state, error) {
       utils.setSession(key, value);
     }
 
-    $('#login').text('ログイン成功！');
+    $('#login').removeClass('logging-in').text('ログイン成功！');
 
     // リダイレクト
     const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
