@@ -199,11 +199,16 @@ function renderBlueNoteVideos() {
 
   indexes.forEach((item) => {
     const note = blueNotes[item.index];
+    // この動画を先頭にして全体配列を作る
+    const watchIds = getWatchVideosOrder(item.index, blueNotes);
+
+    const html = utils.buildYouTubeHtml(watchIds);
+
     $videos.append(`
-      <div class="blue-note-video ${item.role === 'current' ? 'active' : ''}" 
-           data-role="${item.role}" 
+      <div class="blue-note-video ${item.role === 'current' ? 'active' : ''}"
+           data-role="${item.role}"
            data-index="${item.index}">
-        ${utils.buildYouTubeHtml(note.youtubeId)}
+        ${html}
       </div>
     `);
   });
@@ -216,67 +221,18 @@ function updateBlueNoteTitle() {
 }
 
 function showPrev() {
-  const $videos = $('#blue-note-videos');
-  const $current = $videos.find('[data-role="current"]');
-  const $prev = $videos.find('[data-role="prev"]');
-  const $next = $videos.find('[data-role="next"]');
-
-  // current を next に
-  $current.attr('data-role', 'next').removeClass('active');
-
-  // prev を current に
-  $prev.attr('data-role', 'current').addClass('active');
-  currentIndex = parseInt($prev.attr('data-index'));
-
-  // 古い next を削除
-  $next.remove();
-
-  // 新しい prev を作成
-  const newPrevIndex = (currentIndex - 1 + blueNotes.length) % blueNotes.length;
-  const newPrev = blueNotes[newPrevIndex];
-  $videos.append(`
-    <div class="blue-note-video" data-role="prev" data-index="${newPrevIndex}">
-      ${utils.buildYouTubeHtml(newPrev.youtubeId)}
-    </div>
-  `);
-
-  updateBlueNoteTitle();
+  currentIndex = (currentIndex - 1 + blueNotes.length) % blueNotes.length;
+  renderBlueNoteVideos(); // 再描画して watch_videos 配列も更新
 }
 
 function showNext() {
-  const $videos = $('#blue-note-videos');
-  const $current = $videos.find('[data-role="current"]');
-  const $prev = $videos.find('[data-role="prev"]');
-  const $next = $videos.find('[data-role="next"]');
-
-  // current を prev に
-  $current.attr('data-role', 'prev').removeClass('active');
-
-  // next を current に
-  $next.attr('data-role', 'current').addClass('active');
-  currentIndex = parseInt($next.attr('data-index'));
-
-  // 古い prev を削除
-  $prev.remove();
-
-  // 新しい next を作成
-  const newNextIndex = (currentIndex + 1) % blueNotes.length;
-  const newNext = blueNotes[newNextIndex];
-  $videos.append(`
-    <div class="blue-note-video" data-role="next" data-index="${newNextIndex}">
-      ${utils.buildYouTubeHtml(newNext.youtubeId)}
-    </div>
-  `);
-
-  updateBlueNoteTitle();
+  currentIndex = (currentIndex + 1) % blueNotes.length;
+  renderBlueNoteVideos(); // 再描画して watch_videos 配列も更新
 }
 
 function showRandom() {
-  const $videos = $('#blue-note-videos');
-  $videos.empty();
-
   currentIndex = getRandomIndex(currentIndex);
-  renderBlueNoteVideos(); // 再構築
+  renderBlueNoteVideos(); // 再描画して watch_videos 配列も更新
 }
 
 function getRandomIndex(exclude) {
@@ -286,6 +242,16 @@ function getRandomIndex(exclude) {
   } while (idx === exclude && blueNotes.length > 1);
   return idx;
 }
+
+function getWatchVideosOrder(currentIndex, blueNotes) {
+  // 今のインデックスから最後まで
+  const after = blueNotes.slice(currentIndex).map((n) => n.youtubeId);
+  // 先頭から今のインデックス直前まで
+  const before = blueNotes.slice(0, currentIndex).map((n) => n.youtubeId);
+  // 連結
+  return [...after, ...before];
+}
+
 // コンテンツを読み込んで表示する関数
 async function loadMedias() {
   const mediasRef = utils.collection(utils.db, 'medias');

@@ -309,29 +309,51 @@ function formatDateForId(date = new Date()) {
 
 // YouTube埋め込みモーダルのHTMLを生成する関数
 export function buildYouTubeHtml(youtubeInput, showNotice = false) {
-  let videoId = '';
-
   if (!youtubeInput) return '';
 
-  // もし文字列がURLっぽければURLとして解析
-  try {
-    const url = new URL(youtubeInput);
-    videoId = url.searchParams.get('v') || url.pathname.split('/').pop();
-  } catch (e) {
-    // URLとして解析できなければ、入力をそのまま動画IDとして扱う
-    videoId = youtubeInput;
+  // youtubeInput が配列かどうかチェック
+  const isArray = Array.isArray(youtubeInput);
+
+  // 動画IDリストを取得する関数
+  const extractVideoId = (input) => {
+    try {
+      const url = new URL(input);
+      return url.searchParams.get('v') || url.pathname.split('/').pop();
+    } catch {
+      return input; // URLでなければそのまま
+    }
+  };
+
+  let videoIds = [];
+
+  if (isArray) {
+    videoIds = youtubeInput
+      .map(extractVideoId)
+      .filter((id) => /^[\w-]{11}$/.test(id));
+  } else {
+    const singleId = extractVideoId(youtubeInput);
+    if (/^[\w-]{11}$/.test(singleId)) {
+      videoIds = [singleId];
+    } else {
+      console.warn('YouTube動画IDとして不正です:', singleId);
+      return '';
+    }
   }
 
-  // 簡単にIDらしいかチェック（11文字の英数字・-_）
-  if (!/^[\w-]{11}$/.test(videoId)) {
-    console.warn('YouTube動画IDとして不正です:', videoId);
-    return '';
-  }
+  if (videoIds.length === 0) return '';
+
+  // 埋め込み用 → 最初の動画を表示
+  const embedId = videoIds[0];
+
+  // 「YouTubeでみる」リンク
+  const youtubeLink = isArray
+    ? `https://www.youtube.com/watch_videos?video_ids=${videoIds.join(',')}`
+    : `https://www.youtube.com/watch?v=${embedId}`;
 
   return `
     <div class="youtube-embed">
       <iframe
-        src="https://www.youtube.com/embed/${videoId}?loop=1&playlist=${videoId}"
+        src="https://www.youtube.com/embed/${embedId}?loop=1&playlist=${embedId}"
         allow="encrypted-media"
         allowfullscreen>
       </iframe>
@@ -342,8 +364,8 @@ export function buildYouTubeHtml(youtubeInput, showNotice = false) {
           ? `<span class="youtube-notice">🔒バンド内限定公開</span>`
           : ''
       }
-      <a href="https://www.youtube.com/watch?v=${videoId}" target="_blank">
-        YouTubeでみる
+      <a href="${youtubeLink}" target="_blank">
+        ${isArray ? 'プレイリストを聴く' : 'YouTubeでみる'}
         <i class="fas fa-arrow-up-right-from-square"></i>
       </a>
     </div>`;
