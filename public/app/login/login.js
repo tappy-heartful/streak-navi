@@ -9,6 +9,16 @@ $(document).ready(async function () {
 
   // 背景スライドショー開始
   startBackgroundSlideshow();
+
+  // URLにcode/stateが付いていたら → LINEログイン処理を開始
+  const urlParams = new URLSearchParams(window.location.search);
+  const code = urlParams.get('code');
+  const state = urlParams.get('state');
+  const error = urlParams.get('error');
+
+  if (code || state || error) {
+    await handleLineLoginCallback(code, state, error);
+  }
 });
 
 ////////////////////////////
@@ -16,7 +26,7 @@ $(document).ready(async function () {
 ////////////////////////////
 $('#login').click(async function () {
   const redirectUri = encodeURIComponent(
-    utils.globalBaseUrl + '/app/login/callback.html'
+    utils.globalBaseUrl + '/app/login/login.html'
   );
   const state = generateAndStoreState();
   const scope = 'openid profile';
@@ -34,10 +44,98 @@ function generateAndStoreState() {
   const array = new Uint32Array(10);
   window.crypto.getRandomValues(array);
   const state = Array.from(array, (dec) => dec.toString(16)).join('');
-  // LINEアプリ経由だと別タブでコールバックされることがあるため
-  // ローカルストレージに保存しておく
   localStorage.setItem('oauthState', state);
   return state;
+}
+
+////////////////////////////
+// LINEコールバック処理
+////////////////////////////
+async function handleLineLoginCallback(code, state, error) {
+  try {
+    utils.showSpinner();
+
+    if (error) throw new Error('LINEログインに失敗しました: ' + error);
+    if (!code || !state) throw new Error('無効なLINEログイン応答です');
+
+    // state検証
+    const savedState = localStorage.getItem('oauthState');
+    if (!savedState || savedState !== state) {
+      throw new Error('不正なリクエストです（state不一致）。');
+    }
+    localStorage.removeItem('oauthState');
+
+    // 認証サーバーにリクエスト
+    const redirectUri = utils.globalBaseUrl + '/app/login/login.html';
+    const loginResponse = await fetch(utils.globalAuthServerRender, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ code, redirectUri }),
+    });
+    const { customToken, profile } = await loginResponse.json();
+    if (!customToken) throw new Error('カスタムトークン取得失敗');
+
+    // Firebaseログイン
+    const userCredential = await utils.signInWithCustomToken(
+      utils.auth,
+      customToken
+    );
+    const user = userCredential.user;
+    utils.setSession('uid', user.uid);
+
+    // Firestoreにユーザーデータ保存 or 更新
+    const userRef = utils.doc(utils.db, 'users', user.uid);
+    const docSnap = await utils.getDoc(userRef);
+    const userExists = docSnap.exists();
+    const displayName = profile.displayName || '名無し';
+    const pictureUrl = profile.pictureUrl || utils.globalLineDefaultImage;
+
+    if (userExists) {
+      await utils.setDoc(
+        userRef,
+        {
+          displayName,
+          pictureUrl,
+          lastLoginAt: utils.serverTimestamp(),
+        },
+        { merge: true }
+      );
+    } else {
+      await utils.setDoc(userRef, {
+        displayName,
+        pictureUrl,
+        lastLoginAt: utils.serverTimestamp(),
+        createdAt: utils.serverTimestamp(),
+        roleId: utils.globalStrUnset,
+        sectionId: utils.globalStrUnset,
+      });
+    }
+
+    // 最新ユーザーデータをセッション保存
+    const latestUserSnap = await utils.getDoc(userRef);
+    const latestUserData = latestUserSnap.data();
+    for (const [key, value] of Object.entries(latestUserData)) {
+      utils.setSession(key, value);
+    }
+
+    // リダイレクト
+    const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
+    if (userExists) localStorage.removeItem('redirectAfterLogin');
+    window.location.href = userExists
+      ? redirectAfterLogin ??
+        utils.globalBaseUrl + '/app/home/home.html?fromLogin=1'
+      : utils.globalBaseUrl + '/app/login/consent.html';
+  } catch (e) {
+    alert('ログインエラー: ' + e.message);
+    await utils.writeLog({
+      dataId: 'none',
+      action: 'ログイン',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+  } finally {
+    utils.hideSpinner();
+  }
 }
 
 ////////////////////////////
