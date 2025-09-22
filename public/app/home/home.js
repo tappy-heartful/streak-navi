@@ -191,39 +191,92 @@ function renderBlueNoteVideos() {
   const randomIndex = getRandomIndex(currentIndex);
 
   const indexes = [
-    { index: prevIndex, id: 'prev' },
-    { index: currentIndex, id: 'current' },
-    { index: nextIndex, id: 'next' },
-    { index: randomIndex, id: 'random' },
+    { index: prevIndex, role: 'prev' },
+    { index: currentIndex, role: 'current' },
+    { index: nextIndex, role: 'next' },
+    { index: randomIndex, role: 'random' },
   ];
 
   indexes.forEach((item) => {
     const note = blueNotes[item.index];
     $videos.append(`
-      <div class="blue-note-video ${item.id === 'current' ? 'active' : ''}" 
-           data-role="${item.id}" 
+      <div class="blue-note-video ${item.role === 'current' ? 'active' : ''}" 
+           data-role="${item.role}" 
            data-index="${item.index}">
         ${utils.buildYouTubeHtml(note.youtubeId)}
       </div>
     `);
   });
 
-  // タイトルも更新
+  updateBlueNoteTitle();
+}
+
+function updateBlueNoteTitle() {
   $('#blue-note-title').text(blueNotes[currentIndex].title);
 }
+
 function showPrev() {
-  currentIndex = (currentIndex - 1 + blueNotes.length) % blueNotes.length;
-  renderBlueNoteVideos();
+  const $videos = $('#blue-note-videos');
+  const $current = $videos.find('[data-role="current"]');
+  const $prev = $videos.find('[data-role="prev"]');
+  const $next = $videos.find('[data-role="next"]');
+
+  // current を next に
+  $current.attr('data-role', 'next').removeClass('active');
+
+  // prev を current に
+  $prev.attr('data-role', 'current').addClass('active');
+  currentIndex = parseInt($prev.attr('data-index'));
+
+  // 古い next を削除
+  $next.remove();
+
+  // 新しい prev を作成
+  const newPrevIndex = (currentIndex - 1 + blueNotes.length) % blueNotes.length;
+  const newPrev = blueNotes[newPrevIndex];
+  $videos.append(`
+    <div class="blue-note-video" data-role="prev" data-index="${newPrevIndex}">
+      ${utils.buildYouTubeHtml(newPrev.youtubeId)}
+    </div>
+  `);
+
+  updateBlueNoteTitle();
 }
 
 function showNext() {
-  currentIndex = (currentIndex + 1) % blueNotes.length;
-  renderBlueNoteVideos();
+  const $videos = $('#blue-note-videos');
+  const $current = $videos.find('[data-role="current"]');
+  const $prev = $videos.find('[data-role="prev"]');
+  const $next = $videos.find('[data-role="next"]');
+
+  // current を prev に
+  $current.attr('data-role', 'prev').removeClass('active');
+
+  // next を current に
+  $next.attr('data-role', 'current').addClass('active');
+  currentIndex = parseInt($next.attr('data-index'));
+
+  // 古い prev を削除
+  $prev.remove();
+
+  // 新しい next を作成
+  const newNextIndex = (currentIndex + 1) % blueNotes.length;
+  const newNext = blueNotes[newNextIndex];
+  $videos.append(`
+    <div class="blue-note-video" data-role="next" data-index="${newNextIndex}">
+      ${utils.buildYouTubeHtml(newNext.youtubeId)}
+    </div>
+  `);
+
+  updateBlueNoteTitle();
 }
 
 function showRandom() {
+  const $videos = $('#blue-note-videos');
+  $videos.empty();
+
   currentIndex = getRandomIndex(currentIndex);
-  renderBlueNoteVideos();
+  renderBlueNoteVideos(); // 再構築
 }
 
 function getRandomIndex(exclude) {
