@@ -331,13 +331,19 @@ function setupEventHandlers() {
   // youtubeリンク
   $(document).on('click', '.youtube-link', async function (e) {
     e.preventDefault();
-    const videoUrl = $(this).data('video-url') || $(this).attr('href');
-    let title = $(this).data('video-title') || '参考音源';
-    // title += ' by ' + $(this).data('created-by') || ''; //TODO: 名前表示は保留
+    utils.showSpinner();
 
-    const iframeHtml = utils.buildYouTubeHtml(videoUrl);
+    const title = $(this).data('video-title') || '参考音源';
+    const currentDateId = $(this).closest('.blue-note-item').data('date');
 
-    await utils.showModal(title, iframeHtml);
+    // 並び替えたYouTubeIDリストを取得
+    const youtubeIds = await getOrderedYouTubeIds(currentDateId);
+
+    // HTML生成
+    const html = utils.buildYouTubeHtml(youtubeIds);
+
+    utils.hideSpinner();
+    await utils.showModal(title, html);
   });
 
   // ホームに戻る
@@ -358,4 +364,31 @@ function extractYouTubeId(input) {
     /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)?([\w\-]{11})/;
   const match = str.match(reg);
   return match ? match[1] : null;
+}
+
+// 今表示中の動画IDを先頭にして、日付順に後続を並べ、最後に最初に戻る形で配列を作る
+async function getOrderedYouTubeIds(currentDateId) {
+  const blueNotesSnap = await utils.getDocs(
+    utils.collection(utils.db, 'blueNotes')
+  );
+
+  // 日付順に並べる
+  const sortedNotes = blueNotesSnap.docs
+    .map((doc) => ({ dateId: doc.id, data: doc.data() }))
+    .sort((a, b) => a.dateId.localeCompare(b.dateId));
+
+  const ids = sortedNotes.map((note) => note.data.youtubeId).filter(Boolean);
+
+  // 先頭を今表示中にして、順序をローテーション
+  const currentIndex = ids.findIndex((id) => {
+    const note = sortedNotes.find((n) => n.data.youtubeId === id);
+    return note && note.dateId === currentDateId;
+  });
+
+  if (currentIndex === -1) return ids; // 現在の動画IDが存在しない場合そのまま
+
+  // 配列を回転
+  const rotated = ids.slice(currentIndex).concat(ids.slice(0, currentIndex));
+
+  return rotated;
 }
