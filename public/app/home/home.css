@@ -193,6 +193,33 @@
   background-color: #45a049;
 }
 
+/* ボタン内の文字右にバッジ */
+.menu-button.badge-inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px; /* 文字とバッジの間隔 */
+  position: relative;
+  justify-content: center;
+}
+
+.menu-button.badge-inline .badge {
+  background-color: #ff3b30; /* 赤で目立たせる */
+  color: #fff;
+  font-size: 10px;
+  font-weight: bold;
+  padding: 3px 6px;
+  border-radius: 12px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  white-space: nowrap;
+  animation: pulse 1.5s infinite; /* 点滅アニメーション */
+}
+
+/* バッジ点滅アニメーション */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.2); opacity: 0.8; }
+}
+
 /* 初回ログインポップアップ */
 /* 全画面ウェルカム演出 */
 .first-login-overlay {
