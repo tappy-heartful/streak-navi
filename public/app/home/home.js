@@ -178,7 +178,22 @@ async function initBlueNotes() {
 
   if (blueNotes.length === 0) return;
 
-  currentIndex = 0; // 初期は先頭でOK
+  // 今日の日付 (MMDD形式, 4桁ゼロ埋め)
+  const today = new Date();
+  const todayId =
+    String(today.getMonth() + 1).padStart(2, '0') +
+    String(today.getDate()).padStart(2, '0');
+
+  // 今日の日付に一致するdoc.idがあるか探す
+  const todayIndex = blueNotes.findIndex((note) => note.id === todayId);
+
+  if (todayIndex !== -1) {
+    currentIndex = todayIndex; // 今日の日付に一致
+  } else {
+    // ランダムで選ぶ
+    currentIndex = Math.floor(Math.random() * blueNotes.length);
+  }
+
   renderBlueNoteVideos();
 }
 
