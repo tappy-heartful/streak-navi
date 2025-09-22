@@ -55,7 +55,7 @@ button:hover {
 }
 
 button.logging-in {
-  animation: pulseText 1s infinite;
+  animation: pulseText 3s infinite;
 }
 
 @keyframes pulseText {
