@@ -224,6 +224,58 @@ export async function initDisplay(isShowSpinner = true) {
   for (const [key, value] of Object.entries(userSnap.data())) {
     setSession(key, value);
   }
+
+  // パンくずリストを描画
+  renderBreadcrumb();
+}
+
+// パンくずリスト取得
+function renderBreadcrumb() {
+  const crumbs = getBreadcrumb();
+  if (!crumbs || !crumbs.length) return;
+
+  const $container = $('#breadcrumb-container');
+  if ($container.length === 0) return;
+
+  $container.empty();
+
+  // <nav class="breadcrumb"> でラップ
+  const $nav = $('<nav class="breadcrumb"></nav>');
+
+  crumbs.forEach((c, idx) => {
+    if (idx > 0) {
+      // セパレーター
+      $nav.append('<span class="separator">›</span>');
+    }
+
+    const isLast = idx === crumbs.length - 1;
+
+    if (idx === 0) {
+      // 先頭はホーム扱い
+      $nav.append(
+        `<a href="${c.url}"><i class="fa fa-home"></i> ${c.title}</a>`
+      );
+    } else if (isLast) {
+      // 現在ページ
+      $nav.append(`<span class="current">${c.title}</span>`);
+    } else {
+      // 中間リンク
+      $nav.append(`<a href="${c.url}">${c.title}</a>`);
+    }
+  });
+
+  $container.append($nav);
+}
+
+// パンくず配列をセッションに保存 (画面遷移しても保持できるようにする)
+export function setBreadcrumb(crumbs) {
+  setSessionArray('breadcrumb', crumbs);
+}
+
+export function getBreadcrumb() {
+  const crumbs = getSessionArray('breadcrumb');
+  removeSession('breadcrumb'); // デバッグ用に一旦クリア
+  return crumbs;
 }
 
 // スピナー表示処理

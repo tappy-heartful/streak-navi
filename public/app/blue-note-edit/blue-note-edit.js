@@ -2,6 +2,11 @@ import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
   try {
+    // 画面ごとのパンくずをセット
+    utils.setBreadcrumb([
+      { title: 'ホーム', url: '../home/home.html' },
+      { title: 'Blue Notes' },
+    ]);
     await utils.initDisplay();
     await setupPage();
     setupEventHandlers();

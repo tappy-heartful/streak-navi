@@ -17,6 +17,53 @@ body {
   background-color: #f4f4f4;
 }
 
+/* パンくずリスト */
+.breadcrumb {
+  max-width: 768px;
+  margin: 0 auto 16px auto;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #666;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.breadcrumb a {
+  text-decoration: none;
+  color: #4CAF50;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.breadcrumb a:hover {
+  color: #388e3c;
+  text-decoration: underline;
+}
+
+.breadcrumb .separator {
+  color: #999;
+}
+
+.breadcrumb .current {
+  font-weight: bold;
+  color: #333;
+}
+
+/* スマホで長すぎる場合は省略対応 */
+@media (max-width: 480px) {
+  .breadcrumb {
+    font-size: 12px;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none; /* Firefox */
+  }
+  .breadcrumb::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+}
+
 /* 共通レイアウト */
 /* カード */
 .container {
