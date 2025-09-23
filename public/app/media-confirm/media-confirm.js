@@ -2,6 +2,11 @@ import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
   try {
+    // 画面ごとのパンくずをセット
+    utils.setBreadcrumb([
+      { title: 'メディア一覧', url: '../media-list/media-list.html' },
+      { title: 'メディア確認' },
+    ]);
     await utils.initDisplay();
     await renderMedia();
   } catch (e) {

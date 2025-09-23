@@ -7,9 +7,30 @@ let initialState = {};
 //===========================
 $(document).ready(async function () {
   try {
+    const mode = utils.globalGetParamMode; // new / edit / copy
+    // 画面ごとのパンくずをセット
+    let breadcrumb = [
+      { title: 'メディア一覧', url: '../media-list/media-list.html' },
+    ];
+    if (['new'].includes(mode)) {
+      breadcrumb.push({ title: 'メディア新規作成' });
+    } else if (['edit', 'copy'].includes(mode)) {
+      breadcrumb.push(
+        {
+          title: 'メディア確認',
+          url:
+            '../media-confirm/media-confirm.html?mediaId=' +
+            utils.globalGetParamMediaId,
+        },
+        {
+          title: mode === 'edit' ? 'メディア編集' : 'メディア新規作成',
+        }
+      );
+    }
+    utils.setBreadcrumb(breadcrumb);
+
     await utils.initDisplay();
 
-    const mode = utils.globalGetParamMode; // new / edit / copy
     await setupPage(mode);
     captureInitialState();
     setupEventHandlers(mode);
