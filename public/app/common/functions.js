@@ -242,20 +242,18 @@ function renderBreadcrumb() {
   // <nav class="breadcrumb"> でラップ
   const $nav = $('<nav class="breadcrumb"></nav>');
 
+  // 先頭にはホーム
+  $nav.append(
+    `<a href="../home/home.html"><i class="fa fa-home"></i> ホーム</a>`
+  );
+
   crumbs.forEach((c, idx) => {
-    if (idx > 0) {
-      // セパレーター
-      $nav.append('<span class="separator">›</span>');
-    }
+    // セパレーター
+    $nav.append('<span class="separator">›</span>');
 
     const isLast = idx === crumbs.length - 1;
 
-    if (idx === 0) {
-      // 先頭はホーム扱い
-      $nav.append(
-        `<a href="${c.url}"><i class="fa fa-home"></i> ${c.title}</a>`
-      );
-    } else if (isLast) {
+    if (isLast) {
       // 現在ページ
       $nav.append(`<span class="current">${c.title}</span>`);
     } else {

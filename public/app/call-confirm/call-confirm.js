@@ -2,6 +2,11 @@ import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
   try {
+    // 画面ごとのパンくずをセット
+    utils.setBreadcrumb([
+      { title: '曲募集一覧', url: '../call-list/call-list.html' },
+      { title: '曲募集確認' },
+    ]);
     await utils.initDisplay();
     await renderCall();
   } catch (e) {

@@ -5,6 +5,17 @@ $(document).ready(async function () {
     const callId = utils.globalGetParamCallId;
     const uid = utils.getSession('uid');
 
+    // 画面ごとのパンくずをセット
+    utils.setBreadcrumb([
+      { title: '曲募集一覧', url: '../call-list/call-list.html' },
+      {
+        title: '曲募集確認',
+        url:
+          '../call-confirm/call-confirm.html?callId=' +
+          utils.globalGetParamCallId,
+      },
+      { title: '回答登録/修正' },
+    ]);
     await utils.initDisplay();
 
     // 回答データがあるか確認

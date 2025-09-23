@@ -7,6 +7,29 @@ let initialState = {};
 //===========================
 $(document).ready(async function () {
   try {
+    // 画面ごとのパンくずをセット
+    let breadcrumb = [
+      { title: '曲募集一覧', url: '../call-list/call-list.html' },
+    ];
+    if (['new'].includes(utils.globalGetParamMode)) {
+      breadcrumb.push({ title: '曲募集新規作成' });
+    } else if (['edit', 'copy'].includes(utils.globalGetParamMode)) {
+      breadcrumb.push(
+        {
+          title: '曲募集確認',
+          url:
+            '../call-confirm/call-confirm.html?callId=' +
+            utils.globalGetParamCallId,
+        },
+        {
+          title:
+            utils.globalGetParamMode === 'edit'
+              ? '曲募集編集'
+              : '曲募集新規作成',
+        }
+      );
+    }
+    utils.setBreadcrumb(breadcrumb);
     await utils.initDisplay();
 
     const mode = utils.globalGetParamMode; // new / edit / copy
