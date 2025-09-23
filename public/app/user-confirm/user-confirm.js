@@ -2,6 +2,11 @@ import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
   try {
+    // 画面ごとのパンくずをセット
+    utils.setBreadcrumb([
+      { title: 'ユーザ一覧', url: '../user-list/user-list.html' },
+      { title: 'ユーザ確認' },
+    ]);
     await utils.initDisplay();
     await setUpPage();
     setupEventHandlers();
