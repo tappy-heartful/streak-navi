@@ -5,6 +5,17 @@ $(document).ready(async function () {
     const voteId = utils.globalGetParamVoteId;
     const uid = utils.getSession('uid');
 
+    // 画面ごとのパンくずをセット
+    utils.setBreadcrumb([
+      { title: '投票一覧', url: '../vote-list/vote-list.html' },
+      {
+        title: '投票確認',
+        url:
+          '../vote-confirm/vote-confirm.html?voteId=' +
+          utils.globalGetParamVoteId,
+      },
+      { title: '回答登録/修正' },
+    ]);
     await utils.initDisplay();
 
     // 回答データがあるか確認してモード判定

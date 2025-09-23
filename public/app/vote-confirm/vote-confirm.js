@@ -2,6 +2,11 @@ import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
   try {
+    // 画面ごとのパンくずをセット
+    utils.setBreadcrumb([
+      { title: '投票一覧', url: '../vote-list/vote-list.html' },
+      { title: '投票確認' },
+    ]);
     await utils.initDisplay();
     await renderVote();
   } catch (e) {

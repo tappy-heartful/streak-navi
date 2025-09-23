@@ -10,6 +10,17 @@ let initialStateHtml; // 初期表示状態の保存用
 //==================================
 $(document).ready(async function () {
   try {
+    // 画面ごとのパンくずをセット
+    utils.setBreadcrumb([
+      { title: '投票一覧', url: '../vote-list/vote-list.html' },
+      {
+        title: '投票確認',
+        url:
+          '../vote-confirm/vote-confirm.html?voteId=' +
+          utils.globalGetParamVoteId,
+      },
+      { title: '投票リンク設定' },
+    ]);
     await utils.initDisplay(); // 共通初期化
 
     // データ取得＆画面反映

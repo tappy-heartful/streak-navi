@@ -10,8 +10,41 @@ let initialStateHtml; // 初期表示状態の保存用
 //==================================
 $(document).ready(async function () {
   try {
-    await utils.initDisplay(); // 共通初期化
+    // 画面ごとのパンくずをセット
+    let breadcrumb = [];
     const mode = utils.globalGetParamMode; // URLパラメータからモード取得
+    if (['new'].includes(mode)) {
+      breadcrumb.push(
+        { title: '投票一覧', url: '../vote-list/vote-list.html' },
+        { title: '投票新規作成' }
+      );
+    } else if (['edit', 'copy'].includes(mode)) {
+      breadcrumb.push(
+        { title: '投票一覧', url: '../vote-list/vote-list.html' },
+        {
+          title: '投票確認',
+          url:
+            '../vote-confirm/vote-confirm.html?voteId=' +
+            utils.globalGetParamVoteId,
+        },
+        {
+          title: mode === 'edit' ? '投票編集' : '投票新規作成',
+        }
+      );
+    } else if (mode === 'createFromCall') {
+      breadcrumb.push(
+        { title: '曲募集一覧', url: '../call-list/call-list.html' },
+        {
+          title: '曲募集確認',
+          url:
+            '../call-confirm/call-confirm.html?callId=' +
+            utils.globalGetParamCallId,
+        },
+        { title: '曲募集から投票作成' }
+      );
+    }
+    utils.setBreadcrumb(breadcrumb);
+    await utils.initDisplay(); // 共通初期化
 
     // データ取得や初期表示の完了を待つ
     await setupPage(mode);
