@@ -32,13 +32,11 @@ body {
 
 .breadcrumb a {
   text-decoration: none;
-  color: #4CAF50;
   font-weight: 500;
   transition: color 0.2s;
 }
 
 .breadcrumb a:hover {
-  color: #388e3c;
   text-decoration: underline;
 }
 
