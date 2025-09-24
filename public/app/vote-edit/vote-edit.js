@@ -258,7 +258,8 @@ function setupEventHandlers(mode) {
     // 確認ダイアログ
     if (
       !(await utils.showDialog(
-        (['new', 'copy'].includes(mode) ? '登録' : '更新') + 'しますか？'
+        (['new', 'copy', 'createFromCall'].includes(mode) ? '登録' : '更新') +
+          'しますか？'
       ))
     )
       return;
@@ -268,7 +269,7 @@ function setupEventHandlers(mode) {
     try {
       const voteData = await collectVoteData(mode); // 投票本文を取得。コピーの時は一致した場合のリンクも引き継ぎ
 
-      if (['new', 'copy'].includes(mode)) {
+      if (['new', 'copy', 'createFromCall'].includes(mode)) {
         // --- 新規作成・コピー ---
         const docRef = await utils.addDoc(
           utils.collection(utils.db, 'votes'),
@@ -340,7 +341,9 @@ function setupEventHandlers(mode) {
       // ログ登録
       await utils.writeLog({
         dataId: utils.globalGetParamVoteId,
-        action: ['new', 'copy'].includes(mode) ? '登録' : '更新',
+        action: ['new', 'copy', 'createFromCall'].includes(mode)
+          ? '登録'
+          : '更新',
         status: 'error',
         errorDetail: { message: e.message, stack: e.stack },
       });
@@ -454,7 +457,7 @@ async function collectVoteData(mode) {
   };
 
   // 作成者は新規作成とコピー時のみ設定
-  if (['new', 'copy'].includes(mode)) {
+  if (['new', 'copy', 'createFromCall'].includes(mode)) {
     voteData.createdBy = utils.getSession('displayName');
   }
 
@@ -509,6 +512,36 @@ async function collectVoteData(mode) {
           };
         });
       }
+    }
+  }
+
+  // 募集確認からの作成時、回答データをもとにリンクを設定
+  if (mode === 'createFromCall') {
+    const callId = utils.globalGetParamCallId;
+    if (callId) {
+      const answersSnap = await utils.getDocs(
+        utils.collection(utils.db, 'callAnswers')
+      );
+      const allAnswers = answersSnap.docs
+        .filter((doc) => doc.id.startsWith(callId + '_'))
+        .map((doc) => doc.data());
+
+      voteData.items = voteData.items.map((item) => {
+        // 回答の中から一致する曲を探してリンクを引き継ぐ
+        const newChoices = item.choices.map((choice) => {
+          let link = '';
+          for (const ans of allAnswers) {
+            const songs = ans.answers?.[item.name] || [];
+            const matched = songs.find((s) => s.title === choice.name);
+            if (matched && matched.url) {
+              link = matched.url;
+              break; // 最初に見つかったURLを採用
+            }
+          }
+          return { ...choice, link };
+        });
+        return { ...item, choices: newChoices };
+      });
     }
   }
 
