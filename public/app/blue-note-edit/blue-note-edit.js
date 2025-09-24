@@ -335,8 +335,8 @@ function setupEventHandlers() {
     e.preventDefault();
     utils.showSpinner();
 
-    const title = $(this).data('video-title') || '参考音源';
-    const currentDateId = $(this).closest('.blue-note-item').data('date');
+    const title = $(this).attr('data-video-title') || '参考音源';
+    const currentDateId = $(this).closest('.blue-note-item').attr('data-date');
 
     // 並び替えたYouTubeIDリストを取得
     const youtubeIds = await getOrderedYouTubeIds(currentDateId);
