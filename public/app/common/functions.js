@@ -135,6 +135,22 @@ export function setSessionArray(key, array) {
   );
 }
 
+// オブジェクトを保存
+export function setSessionObject(key, obj) {
+  sessionStorage.setItem(globalAppName + '.' + key, JSON.stringify(obj ?? {}));
+}
+
+// オブジェクトを取得
+export function getSessionObject(key) {
+  const raw = sessionStorage.getItem(globalAppName + '.' + key);
+  if (!raw) return null;
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return null;
+  }
+}
+
 export function scrollToTop() {
   // 一番上にスクロール
   window.scrollTo({
