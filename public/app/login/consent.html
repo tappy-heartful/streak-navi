@@ -154,8 +154,7 @@
       button.addEventListener('click', async () => {
         // ユーザ編集画面へ
         window.location.href =
-          utils.globalBaseUrl +
-          '/app/user-edit/user-edit.html?isInit=true&uid=' +
+          '../user-edit/user-edit.html?isInit=true&uid=' +
           utils.getSession('uid');
       });
     </script>

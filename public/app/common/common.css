@@ -17,6 +17,23 @@ body {
   background-color: #f4f4f4;
 }
 
+/* 初回ログインポップアップ */
+/* 全画面ウェルカム演出 */
+.first-login-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(240, 255, 240, 0.96); /* 薄い緑がかった背景 */
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
 .first-login-overlay.show {
   opacity: 1;
   z-index: 9999;

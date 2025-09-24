@@ -121,7 +121,7 @@ function setupEventHandlers() {
     utils.showSpinner();
 
     const uid = utils.globalGetParamUid;
-    const isInit = utils.globalGetParamIsInit;
+    const isInit = utils.globalGetParamIsInit === 'true';
 
     utils.clearErrors(); // エラークリア
 
@@ -197,11 +197,13 @@ function setupEventHandlers() {
       const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
       localStorage.removeItem('redirectAfterLogin');
 
+      // 初回ログインウェルカム演出用にフラグ保持
+      if (isInit) utils.setSession('isInit', true);
+
       // 画面遷移
-      window.location.href =
-        isInit === utils.globalStrTrue
-          ? redirectAfterLogin ?? '../home/home.html?isInit=1'
-          : '../user-confirm/user-confirm.html?uid=' + uid;
+      window.location.href = isInit
+        ? redirectAfterLogin ?? '../home/home.html?'
+        : '../user-confirm/user-confirm.html?uid=' + uid;
     } catch (e) {
       // ログ登録
       await utils.writeLog({

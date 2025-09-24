@@ -80,7 +80,6 @@ export const globalGetParamState = globalGetparams.get('state');
 export const globalGetParamError = globalGetparams.get('error');
 export const globalGetParamUid = globalGetparams.get('uid');
 export const globalGetParamIsInit = globalGetparams.get('isInit');
-export const globalGetParamFromLogin = globalGetparams.get('fromLogin');
 export const globalGetParamMode = globalGetparams.get('mode');
 export const globalGetParamVoteId = globalGetparams.get('voteId');
 export const globalGetParamMediaId = globalGetparams.get('mediaId');
@@ -191,7 +190,7 @@ export async function initDisplay(isShowSpinner = true) {
 
   // 不正遷移チェック
   if (!getSession('uid')) {
-    // ログイン画面への遷移ではない場合、ログイン後にコールバック画面からその画面へ遷移
+    // ログイン画面への遷移ではない場合、ログイン後にその画面へ遷移
     if (!window.location.href.includes('app/login/login.html')) {
       localStorage.setItem('redirectAfterLogin', window.location.href);
     }
@@ -289,8 +288,8 @@ function renderWelcomeOverlay() {
     if (hour >= 11 && hour < 17) return 'こんにちは🎵';
     return 'こんばんは🌙';
   }
-  const fromLogin = globalGetParamFromLogin === '1'; // ログイン画面から
-  const isInit = globalGetParamIsInit === '1'; // ユーザ編集画面から
+  const fromLogin = getSession('fromLogin') === 'true';
+  const isInit = getSession('isInit') === 'true';
 
   // 初回遷移時ウェルカム演出
   if (fromLogin || isInit) {
@@ -301,11 +300,7 @@ function renderWelcomeOverlay() {
     $('#welcome-line-name').text(lineAccountName);
 
     // 挨拶メッセージ
-    const greetingMessage = isInit
-      ? 'ようこそ🌸'
-      : fromLogin
-      ? getGreetingMessage()
-      : '';
+    const greetingMessage = isInit ? 'ようこそ🌸' : getGreetingMessage();
     $('#greeting-message').text(greetingMessage);
 
     const $overlay = $('#first-login-overlay');
@@ -323,6 +318,10 @@ function renderWelcomeOverlay() {
         $overlay.addClass('hidden');
       }, 500);
     }, 2000);
+
+    // フラグクリア
+    removeSession('fromLogin');
+    removeSession('isInit');
   }
 }
 // スピナー表示処理
