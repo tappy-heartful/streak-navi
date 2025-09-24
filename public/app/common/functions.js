@@ -227,6 +227,9 @@ export async function initDisplay(isShowSpinner = true) {
 
   // パンくずリストを描画
   renderBreadcrumb();
+
+  // ウェルカム演出
+  renderWelcomeOverlay();
 }
 
 // パンくずリスト取得
@@ -276,6 +279,52 @@ export function getBreadcrumb() {
   return crumbs;
 }
 
+// ウェルカムオーバーレイ表示
+function renderWelcomeOverlay() {
+  // 挨拶メッセージを取得する関数
+  function getGreetingMessage() {
+    const now = new Date();
+    const hour = now.getHours();
+    if (hour >= 5 && hour < 11) return 'おはようございます☀️';
+    if (hour >= 11 && hour < 17) return 'こんにちは🎵';
+    return 'こんばんは🌙';
+  }
+  const fromLogin = globalGetParamFromLogin === '1'; // ログイン画面から
+  const isInit = globalGetParamIsInit === '1'; // ユーザ編集画面から
+
+  // 初回遷移時ウェルカム演出
+  if (fromLogin || isInit) {
+    const lineIconPath = getSession('pictureUrl');
+    const lineAccountName = getSession('displayName');
+
+    $('#welcome-line-icon').attr('src', lineIconPath);
+    $('#welcome-line-name').text(lineAccountName);
+
+    // 挨拶メッセージ
+    const greetingMessage = isInit
+      ? 'ようこそ🌸'
+      : fromLogin
+      ? getGreetingMessage()
+      : '';
+    $('#greeting-message').text(greetingMessage);
+
+    const $overlay = $('#first-login-overlay');
+    $overlay.removeClass('hidden');
+    // 表示
+    setTimeout(() => {
+      $overlay.addClass('show');
+    }, 10); // 少し遅延させてCSS transitionを確実に動かす
+
+    // 1.5秒表示 → フェードアウト（0.5秒）
+    setTimeout(() => {
+      $overlay.removeClass('show');
+      // 完全に非表示に
+      setTimeout(() => {
+        $overlay.addClass('hidden');
+      }, 500);
+    }, 2000);
+  }
+}
 // スピナー表示処理
 export async function showSpinner() {
   if ($('#spinner-overlay').length === 0) {
