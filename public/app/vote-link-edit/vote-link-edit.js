@@ -54,32 +54,6 @@ async function loadVoteData(voteId) {
   }
   const data = docSnap.data();
 
-  // ★ セッションにコピー元があればリンク情報を上書きする
-  const copiedData = utils.getSessionObject('copiedVoteLinks');
-  if (copiedData && copiedData.items) {
-    data.items.forEach((item) => {
-      const copiedItem = copiedData.items.find((ci) => ci.name === item.name);
-      if (copiedItem) {
-        item.link = copiedItem.link || '';
-        if (item.choices && copiedItem.choices) {
-          item.choices.forEach((choice) => {
-            const copiedChoice = copiedItem.choices.find(
-              (cc) => cc.name === choice.name
-            );
-            if (copiedChoice) {
-              choice.link = copiedChoice.link || '';
-            }
-          });
-        }
-      }
-    });
-    // 説明リンクもコピーしておく
-    if (copiedData.descriptionLink) {
-      data.descriptionLink = copiedData.descriptionLink;
-    }
-  }
-  removeSession('copiedVoteLinks');
-
   // 投票名表示
   $('#vote-title').text(data.name);
 

@@ -4,7 +4,6 @@ import * as utils from '../common/functions.js'; // 共通関数群読み込み
 // グローバル変数
 //==================================
 let initialStateHtml; // 初期表示状態の保存用
-let voteDataForLink;
 
 //==================================
 // 初期化処理（ページ読込時）
@@ -151,11 +150,6 @@ async function loadVoteData(voteId, mode) {
     });
     $('#vote-items-container').append($item);
   });
-
-  if (mode === 'copy') {
-    // コピー元のリンク情報を保持しておく
-    voteDataForLink = data;
-  }
 }
 
 //==================================
@@ -287,9 +281,7 @@ function setupEventHandlers(mode) {
         await utils.showDialog('登録しました', true);
 
         if (await utils.showDialog('続いて選択肢のリンクを設定しますか？')) {
-          // はいでリンク設定画面へ(コピー元のリンク情報保持)
-          if (mode === 'copy')
-            utils.setSessionObject('copiedVoteLinks', voteDataForLink);
+          // はいでリンク設定画面へ
           window.location.href = `../vote-link-edit/vote-link-edit.html?voteId=${docRef.id}`;
         } else {
           // いいえで確認画面へ
