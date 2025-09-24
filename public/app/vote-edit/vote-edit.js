@@ -266,7 +266,7 @@ function setupEventHandlers(mode) {
     utils.showSpinner(); // スピナー表示
 
     try {
-      const voteData = collectVoteData(mode); // 投票本文だけ取得
+      const voteData = await collectVoteData(mode); // 投票本文を取得。コピーの時は一致した場合のリンクも引き継ぎ
 
       if (['new', 'copy'].includes(mode)) {
         // --- 新規作成・コピー ---
@@ -442,7 +442,7 @@ function restoreInitialState() {
 //==================================
 // 投票データ収集
 //==================================
-function collectVoteData(mode) {
+async function collectVoteData(mode) {
   const voteData = {
     name: $('#vote-title').val().trim(),
     description: $('#vote-description').val().trim(),
@@ -458,6 +458,7 @@ function collectVoteData(mode) {
     voteData.createdBy = utils.getSession('displayName');
   }
 
+  // 入力欄から項目・選択肢を収集
   $('#vote-items-container .vote-item').each(function () {
     const itemName = $(this).find('.vote-item-title').val().trim();
     if (!itemName) return;
@@ -473,6 +474,43 @@ function collectVoteData(mode) {
 
     voteData.items.push(itemObj);
   });
+
+  // コピー時のみリンクを引き継ぐ
+  if (mode === 'copy') {
+    const srcVoteId = utils.globalGetParamVoteId;
+    if (srcVoteId) {
+      const srcDocSnap = await utils.getDoc(
+        utils.doc(utils.db, 'votes', srcVoteId)
+      );
+      if (srcDocSnap.exists()) {
+        const srcData = srcDocSnap.data();
+
+        // 説明が一致すればリンクをコピー
+        if (voteData.description === srcData.description) {
+          voteData.descriptionLink = srcData.descriptionLink || '';
+        }
+
+        // 項目ごとにリンクをマージ
+        voteData.items = voteData.items.map((item) => {
+          const srcItem = (srcData.items || []).find(
+            (si) => si.name === item.name
+          );
+          if (!srcItem) return item;
+
+          return {
+            ...item,
+            link: srcItem.link || '',
+            choices: item.choices.map((choice) => {
+              const srcChoice = srcItem.choices?.find(
+                (sc) => sc.name === choice.name
+              );
+              return { ...choice, link: srcChoice?.link || '' };
+            }),
+          };
+        });
+      }
+    }
+  }
 
   return voteData;
 }
