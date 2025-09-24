@@ -25,7 +25,7 @@ $(document).ready(async function () {
           title:
             utils.globalGetParamMode === 'edit'
               ? '曲募集編集'
-              : '曲募集新規作成',
+              : '曲募集新規作成(コピー)',
         }
       );
     }
@@ -67,8 +67,8 @@ async function setupPage(mode) {
     // 回答を受け付けにチェック
     $('#is-active').prop('checked', true);
   } else if (mode === 'edit' || mode === 'copy') {
-    pageTitle.text(mode === 'edit' ? '曲募集編集' : '曲募集新規作成');
-    title.text(mode === 'edit' ? '曲募集編集' : '曲募集新規作成');
+    pageTitle.text(mode === 'edit' ? '曲募集編集' : '曲募集新規作成(コピー)');
+    title.text(mode === 'edit' ? '曲募集編集' : '曲募集新規作成(コピー)');
     submitButton.text(mode === 'edit' ? '更新' : '登録');
     backLink.text('← 曲募集確認に戻る');
     await loadCallData(utils.globalGetParamCallId, mode);

@@ -23,7 +23,7 @@ $(document).ready(async function () {
             utils.globalGetParamMediaId,
         },
         {
-          title: mode === 'edit' ? 'メディア編集' : 'メディア新規作成',
+          title: mode === 'edit' ? 'メディア編集' : 'メディア新規作成(コピー)',
         }
       );
     }
@@ -64,8 +64,10 @@ async function setupPage(mode) {
     backLink.text('← メディア一覧に戻る');
     $('#is-disp-top').prop('checked', true); // 新規作成時はホームに表示をデフォルトON
   } else if (mode === 'edit' || mode === 'copy') {
-    pageTitle.text(mode === 'edit' ? 'メディア編集' : 'メディア新規作成');
-    title.text(mode === 'edit' ? 'メディア編集' : 'メディア新規作成');
+    pageTitle.text(
+      mode === 'edit' ? 'メディア編集' : 'メディア新規作成(コピー)'
+    );
+    title.text(mode === 'edit' ? 'メディア編集' : 'メディア新規作成(コピー)');
     submitButton.text(mode === 'edit' ? '更新' : '登録');
     backLink.text('← メディア確認に戻る');
     await loadMediaData(utils.globalGetParamMediaId, mode);

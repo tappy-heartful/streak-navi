@@ -28,7 +28,7 @@ $(document).ready(async function () {
             utils.globalGetParamVoteId,
         },
         {
-          title: mode === 'edit' ? '投票編集' : '投票新規作成',
+          title: mode === 'edit' ? '投票編集' : '投票新規作成(コピー)',
         }
       );
     } else if (mode === 'createFromCall') {
@@ -95,8 +95,8 @@ async function setupPage(mode) {
     await loadCallData();
   } else if (mode === 'copy') {
     // 表示文言設定
-    pageTitle.text('投票新規作成');
-    title.text('投票新規作成');
+    pageTitle.text('投票新規作成(コピー)');
+    title.text('投票新規作成(コピー)');
     submitButton.text('登録');
     backLink.text('← 投票確認に戻る');
     // 既存データ取得
