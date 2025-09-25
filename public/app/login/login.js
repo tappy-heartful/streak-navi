@@ -28,7 +28,7 @@ $('#login').click(async function () {
   $('#login')
     .prop('disabled', true)
     .addClass('logging-in')
-    .text('ログイン中...');
+    .text('ログイン準備中...');
   try {
     // サーバーにリクエストしてLINEログインURLとstateを取得
     const res = await fetch(
@@ -40,12 +40,6 @@ $('#login').click(async function () {
     window.location.href = loginUrl;
   } catch (err) {
     alert('ログインURL取得失敗: ' + err.message);
-  } finally {
-    // ログイン後 or エラー時は元に戻す
-    $('#login')
-      .prop('disabled', false)
-      .removeClass('logging-in')
-      .text('LINEでログイン');
   }
 });
 
