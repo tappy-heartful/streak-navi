@@ -29,53 +29,54 @@ $(document).ready(async function () {
 async function renderScore() {
   const scoreId = utils.globalGetParamScoreId;
 
-  // score コレクションから取得
   const scoreSnap = await utils.getDoc(utils.doc(utils.db, 'scores', scoreId));
-  if (!scoreSnap.exists()) {
-    throw new Error('譜面が見つかりません：' + scoreId);
-  }
+  if (!scoreSnap.exists()) throw new Error('譜面が見つかりません：' + scoreId);
+
   const scoreData = scoreSnap.data();
 
-  $('#score-date').text(scoreData.date || '');
+  // タイトル
   $('#score-title').text(scoreData.title || '');
 
-  // Instagramリンク
-  if (scoreData.instagramUrl) {
-    $('#score-instagram').html(
-      utils.buildInstagramHtml(scoreData.instagramUrl)
+  // 譜面（Google Driveリンク）
+  if (scoreData.scoreUrl) {
+    $('#score-drive').html(
+      `<a href="${scoreData.scoreUrl}" target="_blank">譜面を見る</a>`
     );
-  } else {
-    $('#score-instagram').text('未設定');
-  }
-
-  // YouTubeリンク
-  if (scoreData.youtubeUrl) {
-    $('#score-youtube').html(utils.buildYouTubeHtml(scoreData.youtubeUrl));
-  } else {
-    $('#score-youtube').text('未設定');
-  }
-
-  // GoogleDriveリンク
-  if (scoreData.driveUrl) {
-    $('#score-drive').html(utils.buildGoogleDriveHtml(scoreData.driveUrl));
   } else {
     $('#score-drive').text('未設定');
   }
 
-  // ホーム表示
-  $('#is-disp-top').text(
-    scoreData.isDispTop === true ? '表示する' : '表示しない'
-  );
+  // 参考音源（YouTube埋め込み）
+  if (scoreData.referenceTrack) {
+    $('#reference-track').html(
+      utils.buildYouTubeHtml(scoreData.referenceTrack)
+    );
+  } else {
+    $('#reference-track').text('未設定');
+  }
 
-  // 管理者の場合のみ編集・削除ボタン表示
+  // ジャンル（複数結合）
+  if (scoreData.genres && scoreData.genres.length > 0) {
+    const genreNames = await Promise.all(
+      scoreData.genres.map(async (genreId) => {
+        const genreSnap = await utils.getDoc(
+          utils.doc(utils.db, 'genres', genreId)
+        );
+        return genreSnap.exists() ? genreSnap.data().name : '';
+      })
+    );
+    $('#score-genre').text(genreNames.filter(Boolean).join(' / '));
+  } else {
+    $('#score-genre').text('未設定');
+  }
+
+  // 備考
+  $('#score-note').text(scoreData.note || '未設定');
+
+  // ボタン制御
   utils.getSession('isScoreAdmin') === utils.globalStrTrue
     ? $('.confirm-buttons').show()
     : $('.confirm-buttons').hide();
-
-  // Instagram埋め込みを処理
-  if (window.instgrm) {
-    window.instgrm.Embeds.process();
-  }
   setupEventHandlers(scoreId);
 }
 

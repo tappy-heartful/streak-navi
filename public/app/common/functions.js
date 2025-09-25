@@ -81,6 +81,7 @@ export const globalGetParamError = globalGetparams.get('error');
 export const globalGetParamUid = globalGetparams.get('uid');
 export const globalGetParamIsInit = globalGetparams.get('isInit');
 export const globalGetParamMode = globalGetparams.get('mode');
+export const globalGetParamScoreId = globalGetparams.get('scoreId');
 export const globalGetParamVoteId = globalGetparams.get('voteId');
 export const globalGetParamMediaId = globalGetparams.get('mediaId');
 export const globalGetParamCallId = globalGetparams.get('callId');
