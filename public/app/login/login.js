@@ -25,28 +25,23 @@ $(document).ready(async function () {
 // ログインボタン押下
 ////////////////////////////
 $('#login').click(async function () {
-  const redirectUri = encodeURIComponent(
-    utils.globalBaseUrl + '/app/login/login.html'
-  );
-  const state = generateAndStoreState();
-  const scope = 'openid profile';
+  $('#login')
+    .prop('disabled', true)
+    .addClass('logging-in')
+    .text('ログイン中...');
+  try {
+    // サーバーにリクエストしてLINEログインURLとstateを取得
+    const res = await fetch(
+      `${utils.globalAuthServerRender}/get-line-login-url`
+    );
+    const { loginUrl } = await res.json();
 
-  const loginUrl =
-    `https://access.line.me/oauth2/v2.1/authorize?` +
-    `response_type=code&client_id=${utils.globalClientId}&redirect_uri=${redirectUri}` +
-    `&state=${state}&scope=${scope}`;
-
-  window.location.href = loginUrl;
+    // LINEログインURLへ遷移
+    window.location.href = loginUrl;
+  } catch (err) {
+    alert('ログインURL取得失敗: ' + err.message);
+  }
 });
-
-// 認証開始直前に呼ぶ
-function generateAndStoreState() {
-  const array = new Uint32Array(10);
-  window.crypto.getRandomValues(array);
-  const state = Array.from(array, (dec) => dec.toString(16)).join('');
-  localStorage.setItem('oauthState', state);
-  return state;
-}
 
 ////////////////////////////
 // LINEコールバック処理
@@ -61,24 +56,26 @@ async function handleLineLoginCallback(code, state, error) {
     if (error) throw new Error('LINEログインに失敗しました: ' + error);
     if (!code || !state) throw new Error('無効なLINEログイン応答です');
 
-    // state検証
-    const savedState = localStorage.getItem('oauthState');
-    if (!savedState || savedState !== state) {
-      throw new Error('不正なリクエストです（state不一致）。');
-    }
-    localStorage.removeItem('oauthState');
-
-    // 認証サーバーにリクエスト
+    // 認証サーバーにstateも含めて送信
     const redirectUri = utils.globalBaseUrl + '/app/login/login.html';
-    const loginResponse = await fetch(utils.globalAuthServerRender, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ code, redirectUri }),
-    });
-    const { customToken, profile } = await loginResponse.json();
+    const loginResponse = await fetch(
+      `${utils.globalAuthServerRender}/line-login`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ code, state, redirectUri }),
+      }
+    );
+    const {
+      customToken,
+      profile,
+      error: loginError,
+    } = await loginResponse.json();
+
+    if (loginError) throw new Error(loginError);
     if (!customToken) throw new Error('カスタムトークン取得失敗');
 
-    // Firebaseログイン
+    // 以下は既存処理（Firebaseログイン～リダイレクト）
     const userCredential = await utils.signInWithCustomToken(
       utils.auth,
       customToken
@@ -86,7 +83,7 @@ async function handleLineLoginCallback(code, state, error) {
     const user = userCredential.user;
     utils.setSession('uid', user.uid);
 
-    // Firestoreにユーザーデータ保存 or 更新
+    // Firestore保存／更新処理もそのまま
     const userRef = utils.doc(utils.db, 'users', user.uid);
     const docSnap = await utils.getDoc(userRef);
     const userExists = docSnap.exists();
@@ -96,11 +93,7 @@ async function handleLineLoginCallback(code, state, error) {
     if (userExists) {
       await utils.setDoc(
         userRef,
-        {
-          displayName,
-          pictureUrl,
-          lastLoginAt: utils.serverTimestamp(),
-        },
+        { displayName, pictureUrl, lastLoginAt: utils.serverTimestamp() },
         { merge: true }
       );
     } else {
@@ -114,7 +107,6 @@ async function handleLineLoginCallback(code, state, error) {
       });
     }
 
-    // 最新ユーザーデータをセッション保存
     const latestUserSnap = await utils.getDoc(userRef);
     const latestUserData = latestUserSnap.data();
     for (const [key, value] of Object.entries(latestUserData)) {
@@ -123,22 +115,13 @@ async function handleLineLoginCallback(code, state, error) {
 
     $('#login').removeClass('logging-in').text('ログイン成功！');
 
-    if (userExists) {
-      //ユーザ存在
-      // redirectAfterLoginは削除
-      const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
-      localStorage.removeItem('redirectAfterLogin');
+    const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
+    localStorage.removeItem('redirectAfterLogin');
+    utils.setSession('fromLogin', true);
 
-      // ログイン後ウェルカム演出用にフラグ保持
-      utils.setSession('fromLogin', true);
-
-      // リダイレクト(指定されたURLがある：そこへ、通常ログイン：ホームへ)
-      window.location.href = redirectAfterLogin ?? '../home/home.html';
-    } else {
-      // ユーザ非存在
-      // 同意画面へ
-      window.location.href = '../login/consent.html';
-    }
+    window.location.href =
+      redirectAfterLogin ??
+      (userExists ? '../home/home.html' : '../login/consent.html');
   } catch (e) {
     alert('ログインエラー: ' + e.message);
     await utils.writeLog({
