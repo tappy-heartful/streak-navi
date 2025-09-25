@@ -173,6 +173,10 @@
   content: "🎼";
 }
 
+.menu-button.event::after {
+  content: "🎺";
+}
+
 .menu-button.call::after {
   content: "🎶";
 }
