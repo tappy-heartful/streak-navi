@@ -72,7 +72,7 @@ async function renderScore() {
 
   // ホーム表示
   $('#is-disp-top').text(
-    mediaData.isDispTop === true ? '表示する' : '表示しない'
+    scoreData.isDispTop === true ? '表示する' : '表示しない'
   );
 
   // ボタン制御
