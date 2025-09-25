@@ -21,6 +21,10 @@ $(document).ready(async function () {
 });
 
 async function setUpPage() {
+  utils.getSession('isVoteAdmin') === utils.globalStrTrue
+    ? $('#add-button').show()
+    : $('#add-button').hide();
+
   const $list = $('#vote-list').empty();
 
   const votesRef = utils.collection(utils.db, 'votes');
@@ -75,10 +79,6 @@ async function setUpPage() {
   pendingItems.forEach((item) => $list.append(item));
   votedItems.forEach((item) => $list.append(item));
   closedItems.forEach((item) => $list.append(item));
-
-  utils.getSession('isVoteAdmin') === utils.globalStrTrue
-    ? $('#add-button').show()
-    : $('#add-button').hide();
 }
 
 function makeVoteItem(voteId, name, status, statusClass) {

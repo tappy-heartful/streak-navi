@@ -21,6 +21,11 @@ $(document).ready(async function () {
 });
 
 async function setUpPage() {
+  // 管理者の場合のみ新規登録ボタン表示
+  utils.getSession('isScoreAdmin') === utils.globalStrTrue
+    ? $('#add-button').show()
+    : $('#add-button').hide();
+
   const $list = $('#score-list').empty();
 
   const scoresRef = utils.collection(utils.db, 'scores');
@@ -38,10 +43,6 @@ async function setUpPage() {
 
     $list.append(makeScoreItem(scoreId, scoreData.title));
   }
-  // 管理者の場合のみ新規登録ボタン表示
-  utils.getSession('isScoreAdmin') === utils.globalStrTrue
-    ? $('#add-button').show()
-    : $('#add-button').hide();
 }
 
 function makeScoreItem(scoreId, title) {

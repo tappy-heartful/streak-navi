@@ -20,6 +20,10 @@ $(document).ready(async function () {
 });
 
 async function setUpPage() {
+  utils.getSession('isCallAdmin') === utils.globalStrTrue
+    ? $('#add-button').show()
+    : $('#add-button').hide();
+
   const $list = $('#call-list').empty();
 
   const callsRef = utils.collection(utils.db, 'calls');
@@ -75,10 +79,6 @@ async function setUpPage() {
   pendingItems.forEach((item) => $list.append(item));
   calledItems.forEach((item) => $list.append(item));
   closedItems.forEach((item) => $list.append(item));
-
-  utils.getSession('isCallAdmin') === utils.globalStrTrue
-    ? $('#add-button').show()
-    : $('#add-button').hide();
 }
 
 function makeCallItem(callId, name, status, statusClass) {

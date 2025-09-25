@@ -21,6 +21,11 @@ $(document).ready(async function () {
 });
 
 async function setUpPage() {
+  // 管理者の場合のみ新規登録ボタン表示
+  utils.getSession('isMediaAdmin') === utils.globalStrTrue
+    ? $('#add-button').show()
+    : $('#add-button').hide();
+
   const $list = $('#media-list').empty();
 
   const mediasRef = utils.collection(utils.db, 'medias');
@@ -38,10 +43,6 @@ async function setUpPage() {
 
     $list.append(makeMediaItem(mediaId, mediaData.date, mediaData.title));
   }
-  // 管理者の場合のみ新規登録ボタン表示
-  utils.getSession('isMediaAdmin') === utils.globalStrTrue
-    ? $('#add-button').show()
-    : $('#add-button').hide();
 }
 
 function makeMediaItem(mediaId, date, title) {

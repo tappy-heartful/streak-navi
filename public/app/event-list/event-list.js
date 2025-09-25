@@ -21,6 +21,11 @@ $(document).ready(async function () {
 });
 
 async function setUpPage() {
+  // 管理者の場合のみ新規登録ボタン表示
+  utils.getSession('isEventAdmin') === utils.globalStrTrue
+    ? $('#add-button').show()
+    : $('#add-button').hide();
+
   const $list = $('#event-list').empty();
 
   const eventsRef = utils.collection(utils.db, 'events');
@@ -38,10 +43,6 @@ async function setUpPage() {
 
     $list.append(makeEventItem(eventId, eventData.date, eventData.title));
   }
-  // 管理者の場合のみ新規登録ボタン表示
-  utils.getSession('isEventAdmin') === utils.globalStrTrue
-    ? $('#add-button').show()
-    : $('#add-button').hide();
 }
 
 function makeEventItem(eventId, date, title) {
