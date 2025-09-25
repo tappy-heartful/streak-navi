@@ -169,6 +169,10 @@
 }
 
 /* 各アイコン例 */
+.menu-button.score::after {
+  content: "🎼";
+}
+
 .menu-button.call::after {
   content: "🎶";
 }
