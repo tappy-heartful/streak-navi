@@ -113,7 +113,7 @@ async function handleLineLoginCallback(code, state, error) {
       utils.setSession(key, value);
     }
 
-    $('#login').removeClass('logging-in').text('ログイン成功！');
+    $('#login').removeClass('logging-in').text('ようこそ！');
 
     if (userExists) {
       //ユーザ存在
