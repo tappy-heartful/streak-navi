@@ -40,6 +40,12 @@ $('#login').click(async function () {
     window.location.href = loginUrl;
   } catch (err) {
     alert('ログインURL取得失敗: ' + err.message);
+  } finally {
+    // ログイン後 or エラー時は元に戻す
+    $('#login')
+      .prop('disabled', false)
+      .removeClass('logging-in')
+      .text('LINEでログイン');
   }
 });
 
