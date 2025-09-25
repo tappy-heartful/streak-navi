@@ -6,29 +6,32 @@ footer {
   color: #888;
 }
 
-.footer-note {
-  font-size: 0.9rem;
+.footer-actions {
   margin-top: 1rem;
-  margin-bottom: 3rem;
-  text-align: center;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
 }
 
-/* サイト情報リンク */
-.footer-note a {
-  display: inline-block;
+/* サイト情報リンクをボタン風に */
+.footer-actions a {
+  display: inline-flex;
+  align-items: center;
   padding: 6px 12px;
   font-size: 14px;
   color: #fff;
+  background-color: #4CAF50; /* 緑系 */
   border-radius: 6px;
   text-decoration: none;
   transition: background-color 0.2s, transform 0.1s;
 }
 
-.footer-note a:hover {
+.footer-actions a:hover {
+  background-color: #45a049;
   transform: translateY(-1px);
 }
 
-.footer-note a:active {
+.footer-actions a:active {
   background-color: #1e5c39;
   transform: translateY(1px);
 }
@@ -38,7 +41,6 @@ footer {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  margin: 10px 5px;
   padding: 6px 12px;
   font-size: 14px;
   color: #fff;
@@ -62,6 +64,6 @@ footer {
 
 /* 押下時 */
 .share-button:active {
-  background-color: #45a049;
+  background-color: #1e5c39;
   transform: translateY(1px);
 }
