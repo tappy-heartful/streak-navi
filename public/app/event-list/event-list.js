@@ -52,8 +52,13 @@ async function setUpPage() {
     let statusClass = '';
 
     // 日付判定
-    const today = new Date().toISOString().split('T')[0]; // yyyy-mm-dd 形式
-    if (eventDate < today) {
+    const today = new Date(); // 今日の日付（時刻含む）
+
+    // eventDate は 'yyyy.MM.dd' 形式
+    const [year, month, day] = eventDate.split('.').map(Number);
+    const eventDateObj = new Date(year, month - 1, day); // JSの月は0始まり
+
+    if (eventDateObj < today) {
       status = '終了';
       statusClass = 'closed';
       closedItems.push(
