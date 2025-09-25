@@ -23,6 +23,9 @@ $(document).ready(async function () {
   $('#menu-score-list').on('click', function () {
     window.location.href = '../score-list/score-list.html';
   });
+  $('#menu-event-list').on('click', function () {
+    window.location.href = '../event-list/event-list.html';
+  });
   $('#menu-call-list').on('click', function () {
     window.location.href = '../call-list/call-list.html';
   });
