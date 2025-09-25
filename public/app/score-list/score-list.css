@@ -1,15 +1,15 @@
 
-.media-list {
+.score-list {
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.media-list li {
+.score-list li {
   margin-bottom: 15px;
 }
 
-.media-link {
+.score-link {
   display: flex;
   flex-direction: column;
   padding: 14px 18px;
@@ -20,22 +20,22 @@
   transition: background-color 0.3s ease;
 }
 
-.media-link:hover {
+.score-link:hover {
   background-color: #e0f5e9;
 }
 
-.media-date {
+.score-date {
   font-size: 14px;
   color: #555;
   margin-bottom: 5px;
 }
 
-.media-title {
+.score-title {
   font-size: 18px;
   font-weight: bold;
 }
 
-.media-link.empty {
+.score-link.empty {
   text-align: center;
   color: #777;
   background-color: #f0f0f0;

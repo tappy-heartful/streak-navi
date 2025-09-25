@@ -48,7 +48,7 @@ function makeScoreItem(scoreId, title) {
   return $(`
     <li>
       <a href="../score-confirm/score-confirm.html?scoreId=${scoreId}" class="score-link">
-        <span class="score-title">${title}</span>
+        <span class="score-title">🎼 ${title}</span>
       </a>
     </li>
   `);
