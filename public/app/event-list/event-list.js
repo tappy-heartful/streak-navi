@@ -37,20 +37,65 @@ async function setUpPage() {
     return;
   }
 
+  // ステータスごとに配列を分ける
+  const pendingItems = [];
+  const answeredItems = [];
+  const closedItems = [];
+
   for (const eventDoc of eventSnap.docs) {
     const eventData = eventDoc.data();
     const eventId = eventDoc.id;
+    const eventDate = eventData.date;
+    const eventTitle = eventData.title;
 
-    $list.append(makeEventItem(eventId, eventData.date, eventData.title));
+    let status = '';
+    let statusClass = '';
+
+    // 日付判定
+    const today = new Date().toISOString().split('T')[0]; // yyyy-mm-dd 形式
+    if (eventDate < today) {
+      status = '終了';
+      statusClass = 'closed';
+      closedItems.push(
+        makeEventItem(eventId, eventDate, eventTitle, status, statusClass)
+      );
+    } else {
+      // 回答チェック
+      const answerId = `${eventId}_${utils.getSession('uid')}`;
+      const answerDocRef = utils.doc(utils.db, 'eventAnswers', answerId);
+      const answerSnap = await utils.getDoc(answerDocRef);
+
+      if (answerSnap.exists()) {
+        status = '回答済';
+        statusClass = 'answered';
+        answeredItems.push(
+          makeEventItem(eventId, eventDate, eventTitle, status, statusClass)
+        );
+      } else {
+        status = '未回答';
+        statusClass = 'pending';
+        pendingItems.push(
+          makeEventItem(eventId, eventDate, eventTitle, status, statusClass)
+        );
+      }
+    }
   }
+
+  // 表示順: 未回答 → 回答済 → 終了
+  pendingItems.forEach((item) => $list.append(item));
+  answeredItems.forEach((item) => $list.append(item));
+  closedItems.forEach((item) => $list.append(item));
 }
 
-function makeEventItem(eventId, date, title) {
+function makeEventItem(eventId, date, title, status, statusClass) {
   return $(`
     <li>
       <a href="../event-confirm/event-confirm.html?eventId=${eventId}" class="event-link">
-        <span class="event-date">📅 ${date}</span>
-        <span class="event-title">${title}</span>
+        <div class="event-info">
+          <span class="event-date">📅 ${date}</span>
+          <span class="event-title">${title}</span>
+        </div>
+        <span class="answer-status ${statusClass}">${status}</span>
       </a>
     </li>
   `);
