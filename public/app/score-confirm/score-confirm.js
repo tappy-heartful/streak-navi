@@ -70,6 +70,11 @@ async function renderScore() {
   // 備考
   $('#score-note').text(scoreData.note || '未設定');
 
+  // ホーム表示
+  $('#is-disp-top').text(
+    mediaData.isDispTop === true ? '表示する' : '表示しない'
+  );
+
   // ボタン制御
   utils.getSession('isScoreAdmin') === utils.globalStrTrue
     ? $('.confirm-buttons').show()
