@@ -35,11 +35,11 @@ $(document).ready(async function () {
   $('#menu-user-list').on('click', function () {
     window.location.href = '../user-list/user-list.html';
   });
-  $('#menu-media-list').on('click', function () {
-    window.location.href = '../media-list/media-list.html';
-  });
   $('#menu-blue-note-edit').on('click', function () {
     window.location.href = '../blue-note-edit/blue-note-edit.html';
+  });
+  $('#menu-media-list').on('click', function () {
+    window.location.href = '../media-list/media-list.html';
   });
 
   // --- 右側メニュー制御 ---
