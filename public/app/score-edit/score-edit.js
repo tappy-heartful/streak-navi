@@ -199,7 +199,7 @@ function collectData(mode) {
   return data;
 }
 
-// バリデーション修正
+// バリデーション修正（YouTube / Google Drive URLチェック追加）
 function validateData() {
   let isValid = true;
   utils.clearErrors();
@@ -209,6 +209,7 @@ function validateData() {
   const referenceTrack = $('#reference-track').val().trim();
   const genre = $('#score-genre').val();
 
+  // 必須チェック
   if (!title) {
     utils.markError($('#score-title'), '必須項目です');
     isValid = false;
@@ -226,7 +227,49 @@ function validateData() {
     isValid = false;
   }
 
-  // URL形式チェックは既存の関数を流用
+  // URLチェック関数
+  const isValidURL = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  // YouTube URLチェック
+  if (referenceTrack) {
+    if (!isValidURL(referenceTrack)) {
+      utils.markError($('#reference-track'), '正しいURLを入力してください');
+      isValid = false;
+    } else if (
+      !/^https:\/\/(www\.)?youtube\.com\/watch\?v=[\w\-]+/.test(
+        referenceTrack
+      ) &&
+      !/^https:\/\/youtu\.be\/[\w\-]+/.test(referenceTrack)
+    ) {
+      utils.markError($('#reference-track'), 'YouTube動画URLではありません');
+      isValid = false;
+    }
+  }
+
+  // Google Drive URLチェック（ファイルまたはフォルダ対応）
+  if (scoreUrl) {
+    if (!isValidURL(scoreUrl)) {
+      utils.markError($('#score-url'), '正しいURLを入力してください');
+      isValid = false;
+    } else if (
+      !/^https:\/\/drive\.google\.com\/file\/d\/[\w\-]+\/view/.test(scoreUrl) &&
+      !/^https:\/\/drive\.google\.com\/drive\/folders\/[\w\-]+/.test(scoreUrl)
+    ) {
+      utils.markError(
+        $('#score-url'),
+        'Google DriveのファイルまたはフォルダURLではありません'
+      );
+      isValid = false;
+    }
+  }
+
   return isValid;
 }
 
