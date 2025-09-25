@@ -40,7 +40,7 @@ async function renderScore() {
   // 譜面（Google Driveリンク）
   if (scoreData.scoreUrl) {
     $('#score-drive').html(
-      `<a href="${scoreData.scoreUrl}" target="_blank">譜面を見る</a>`
+      `<a href="${scoreData.scoreUrl}" target="_blank">譜面をみる<i class="fas fa-arrow-up-right-from-square"></i></a>`
     );
   } else {
     $('#score-drive').text('未設定');
@@ -55,17 +55,14 @@ async function renderScore() {
     $('#reference-track').text('未設定');
   }
 
-  // ジャンル（複数結合）
-  if (scoreData.genres && scoreData.genres.length > 0) {
-    const genreNames = await Promise.all(
-      scoreData.genres.map(async (genreId) => {
-        const genreSnap = await utils.getDoc(
-          utils.doc(utils.db, 'genres', genreId)
-        );
-        return genreSnap.exists() ? genreSnap.data().name : '';
-      })
+  // ジャンル（1つだけ）
+  if (scoreData.genre) {
+    const genreSnap = await utils.getDoc(
+      utils.doc(utils.db, 'genres', scoreData.genre)
     );
-    $('#score-genre').text(genreNames.filter(Boolean).join(' / '));
+    $('#score-genre').text(
+      genreSnap.exists() ? genreSnap.data().name : '未設定'
+    );
   } else {
     $('#score-genre').text('未設定');
   }
