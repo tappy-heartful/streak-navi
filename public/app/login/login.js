@@ -121,13 +121,22 @@ async function handleLineLoginCallback(code, state, error) {
 
     $('#login').removeClass('logging-in').text('ログイン成功！');
 
-    const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
-    localStorage.removeItem('redirectAfterLogin');
-    utils.setSession('fromLogin', true);
+    if (userExists) {
+      //ユーザ存在
+      // redirectAfterLoginは削除
+      const redirectAfterLogin = localStorage.getItem('redirectAfterLogin');
+      localStorage.removeItem('redirectAfterLogin');
 
-    window.location.href =
-      redirectAfterLogin ??
-      (userExists ? '../home/home.html' : '../login/consent.html');
+      // ログイン後ウェルカム演出用にフラグ保持
+      utils.setSession('fromLogin', true);
+
+      // リダイレクト(指定されたURLがある：そこへ、通常ログイン：ホームへ)
+      window.location.href = redirectAfterLogin ?? '../home/home.html';
+    } else {
+      // ユーザ非存在
+      // 同意画面へ
+      window.location.href = '../login/consent.html';
+    }
   } catch (e) {
     alert('ログインエラー: ' + e.message);
     await utils.writeLog({
