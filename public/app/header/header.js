@@ -4,6 +4,11 @@ import { globalBaseUrl } from '../common/functions.js';
 // 初期表示
 ////////////////////////////
 $(document).ready(async function () {
+  // TODO削除 システム管理者用制御
+  utils.getSession('isSystemAdmin') === utils.globalStrTrue
+    ? $('#menu-event-list').show()
+    : $('#menu-event-list').hide();
+
   // ログイン情報反映
   const lineIconPath = utils.getSession('pictureUrl');
   const lineAccountName = utils.getSession('displayName');
