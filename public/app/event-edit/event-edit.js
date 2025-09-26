@@ -133,7 +133,7 @@ async function loadEventData(eventId, mode) {
   $('#event-other').val(data.other || '');
 
   // やる曲（scores）を反映
-  $('#score-select-container').empty();
+  $('#event-scores-container').empty();
   (data.scores || []).forEach((score) => {
     const $selectWrapper = $(`
       <div class="score-select-wrapper">
@@ -146,7 +146,7 @@ async function loadEventData(eventId, mode) {
         <button class="remove-score">×</button>
       </div>
     `);
-    $('#score-select-container').append($selectWrapper);
+    $('#event-scores-container').append($selectWrapper);
   });
   // 空のプルダウンを最低1つ表示
   if (!data.scores || !data.scores.length) addScoreSelect();
@@ -195,6 +195,12 @@ function setupEventHandlers(mode) {
     .on('click', '.remove-item', function () {
       $(this).closest('.event-item').remove();
     });
+
+  // scores追加・削除イベント
+  $(document).on('click', '#add-score', addScoreSelect);
+  $(document).on('click', '.remove-score', function () {
+    $(this).parent('.score-select-wrapper').remove();
+  });
 
   // 【クリアボタン】初期状態に戻す
   $('#clear-button').on('click', async () => {
@@ -366,7 +372,7 @@ function captureInitialState() {
     schedule: $('#event-schedule').val(),
     dress: $('#event-dress').val(),
     other: $('#event-other').val(),
-    scores: $('#score-select-container select')
+    scores: $('#event-scores-container select')
       .map((i, el) => $(el).val())
       .get(),
     items: $('#event-items-container .event-item')
@@ -399,7 +405,7 @@ function restoreInitialState() {
   $('#event-other').val(initialStateHtml.other || '');
 
   // scores
-  $('#score-select-container').empty();
+  $('#event-scores-container').empty();
   (initialStateHtml.scores || []).forEach((score) => {
     const $selectWrapper = $(`
       <div class="score-select-wrapper">
@@ -412,7 +418,7 @@ function restoreInitialState() {
         <button class="remove-score">×</button>
       </div>
     `);
-    $('#score-select-container').append($selectWrapper);
+    $('#event-scores-container').append($selectWrapper);
   });
   if (!initialStateHtml.scores || !initialStateHtml.scores.length)
     addScoreSelect();
@@ -456,7 +462,7 @@ async function collectEventData(mode) {
   };
 
   // scores取得（プルダウン複数）
-  $('#score-select-container select').each(function () {
+  $('#event-scores-container select').each(function () {
     const val = $(this).val();
     if (val) eventData.scores.push(val);
   });
@@ -504,19 +510,19 @@ function validateEventData() {
   if (!placeName)
     utils.markError($('#event-place-name'), '必須項目です'), (isValid = false);
 
-  const scoreValues = $('#score-select-container select')
+  const scoreValues = $('#event-scores-container select')
     .map((i, el) => $(el).val())
     .get()
     .filter((v) => v); // 空は除外
 
   if (!scoreValues.length) {
-    $('#score-select-container').after(
+    $('#event-scores-container').after(
       '<div class="error-message">やる曲を1つ以上選択してください</div>'
     );
     isValid = false;
   }
   if (new Set(scoreValues).size !== scoreValues.length) {
-    $('#score-select-container').after(
+    $('#event-scores-container').after(
       '<div class="error-message">やる曲が重複しています</div>'
     );
     isValid = false;
@@ -581,7 +587,7 @@ function validateEventData() {
 
 // scores用プルダウンを追加
 function addScoreSelect() {
-  const selectHtml = $(`
+  const selectHtml = `
     <div class="score-select-wrapper">
       <select class="score-select">
         <option value="">選択してください</option>
@@ -591,12 +597,6 @@ function addScoreSelect() {
       </select>
       <button type="button" class="remove-score">×</button>
     </div>
-  `);
-  $('#score-select-container').append(selectHtml);
+  `;
+  $('#event-scores-container').append(selectHtml);
 }
-
-// scores追加・削除イベント
-$(document).on('click', '#add-score', addScoreSelect);
-$(document).on('click', '.remove-score', function () {
-  $(this).parent('.score-select-wrapper').remove();
-});
