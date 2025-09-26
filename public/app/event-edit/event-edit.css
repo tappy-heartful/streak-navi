@@ -1,0 +1,136 @@
+/* --- イベントフォーム全体 --- */
+.event-form {
+  max-width: 768px;
+  margin: 0 auto 40px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* --- イベント基本情報 --- */
+.event-basic-group {
+  margin-bottom: 20px;
+}
+
+/* 日付・場所 */
+#event-date, #event-place-name {
+  margin-bottom: 12px;
+}
+
+/* --- スコア選択 --- */
+#score-select-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+#score-select-container select {
+  width: 100%;
+}
+
+/* --- イベント項目 --- */
+.event-item {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background-color: #fafafa;
+}
+
+.event-item-title {
+  margin-bottom: 8px;
+}
+
+.event-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 選択肢 input テキストボックス */
+.event-choice {
+  padding: 8px 10px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* 選択肢追加・削除ボタン */
+.event-choice-buttons {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.event-choice-buttons button {
+  flex: 1;
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+/* --- エラー表示 --- */
+.event-item .error-message {
+  margin-top: 6px;
+  color: #e53935;
+  font-size: 13px;
+}
+
+/* --- 項目追加ボタン --- */
+#add-item-button {
+  display: inline-block;
+  padding: 10px 14px;
+  font-size: 15px;
+  background-color: #2196F3;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background-color 0.2s;
+}
+
+#add-item-button:hover {
+  background-color: #1976d2;
+}
+
+/* --- 保存ボタン --- */
+#save-event-button {
+  display: block;
+  width: 100%;
+  padding: 14px 0;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#save-event-button:hover {
+  background-color: #45a049;
+}
+
+/* --- 確認用ボタン類（項目編集・コピー・削除） --- */
+.item-action-buttons {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.item-action-buttons button {
+  flex: 1;
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+/* --- レスポンシブ対応 --- */
+@media (max-width: 480px) {
+  .event-choices {
+    gap: 4px;
+  }
+  #add-item-button, #save-event-button {
+    font-size: 14px;
+    padding: 12px 0;
+  }
+}

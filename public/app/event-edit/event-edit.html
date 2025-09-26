@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title id="title">練習・本番管理</title>
     <link rel="icon" href="../../images/favicon.png" type="image/png" />
     <link
       rel="apple-touch-icon"
       href="../../images/favicon.png"
       type="image/png"
     />
+    <title id="title">練習・本番管理</title>
     <link rel="stylesheet" href="../common/common.css" />
     <link rel="stylesheet" href="event-edit.css" />
     <link
@@ -20,48 +20,99 @@
   <body>
     <div id="header-placeholder"></div>
 
+    <!-- ページタイトル -->
     <div class="page-header">
       <h1 id="page-title">練習・本番管理</h1>
     </div>
 
     <main class="container">
+      <!-- 日付（必須） -->
       <div class="form-group">
-        <label for="event-date">日付</label>
+        <label for="event-date">日付 <span class="required">*</span></label>
         <input type="date" id="event-date" />
       </div>
 
+      <!-- タイトル（必須） -->
       <div class="form-group">
-        <label for="event-title">タイトル</label>
-        <input type="text" id="event-title" placeholder="タイトルを入力..." />
-      </div>
-
-      <div class="form-group">
-        <label for="instagram-url">Instagram URL</label>
+        <label for="event-title"
+          >タイトル <span class="required">*</span></label
+        >
         <input
           type="text"
-          id="instagram-url"
-          placeholder="InstagramのURLを入力..."
+          id="event-title"
+          placeholder="練習・本番名を入力..."
         />
       </div>
 
+      <!-- 場所名 -->
       <div class="form-group">
-        <label for="youtube-url">YouTube URL</label>
+        <label for="event-location">場所名</label>
+        <input type="text" id="event-location" placeholder="場所名を入力..." />
+      </div>
+
+      <!-- 場所URL（Google Maps） -->
+      <div class="form-group">
+        <label for="event-location-url">場所URL (Google Maps)</label>
         <input
           type="text"
-          id="youtube-url"
-          placeholder="YouTubeのURLを入力..."
+          id="event-location-url"
+          placeholder="Google Maps URLを入力..."
         />
       </div>
 
+      <!-- 駐車場情報 -->
       <div class="form-group">
-        <label for="drive-url">Google Drive URL</label>
-        <input type="text" id="drive-url" placeholder="Drive共有URLを入力..." />
+        <label for="event-parking">駐車場情報</label>
+        <input
+          type="text"
+          id="event-parking"
+          placeholder="URLまたは文字列で入力..."
+        />
       </div>
 
+      <!-- タイムスケジュール -->
+      <div class="form-group">
+        <label for="event-schedule">タイムスケジュール</label>
+        <textarea
+          id="event-schedule"
+          rows="4"
+          placeholder="スケジュールを入力..."
+        ></textarea>
+      </div>
+
+      <!-- やる曲（scoresから選択、複数可） -->
+      <div class="form-group">
+        <label>やる曲</label>
+        <div id="event-scores-container">
+          <select class="event-score-select">
+            <option value="">選択してください</option>
+            <!-- scores一覧はJSで動的に挿入 -->
+          </select>
+        </div>
+        <button type="button" id="add-score">＋ 曲を追加</button>
+      </div>
+
+      <!-- 服装 -->
+      <div class="form-group">
+        <label for="event-attire">服装</label>
+        <input type="text" id="event-attire" placeholder="服装を入力..." />
+      </div>
+
+      <!-- その他 -->
+      <div class="form-group">
+        <label for="event-note">その他</label>
+        <textarea
+          id="event-note"
+          rows="3"
+          placeholder="その他情報を入力..."
+        ></textarea>
+      </div>
+
+      <!-- 出欠を受け付ける -->
       <div class="form-group checkbox-group">
         <label>
-          <input type="checkbox" id="is-disp-top" />
-          ホームに表示
+          <input type="checkbox" id="event-attendance" />
+          出欠を受け付ける
         </label>
       </div>
 
@@ -72,6 +123,7 @@
       </div>
     </main>
 
+    <!-- フッター -->
     <div class="page-footer">
       <a class="back-link">← 練習・本番一覧に戻る</a>
     </div>
