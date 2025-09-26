@@ -16,21 +16,20 @@ $(document).ready(async function () {
     const mode = utils.globalGetParamMode; // URLパラメータからモード取得
     if (['new'].includes(mode)) {
       breadcrumb.push(
-        { title: '練習・本番一覧', url: '../event-list/event-list.html' },
-        { title: '練習・本番新規作成' }
+        { title: 'イベント一覧', url: '../event-list/event-list.html' },
+        { title: 'イベント新規作成' }
       );
     } else if (['edit', 'copy'].includes(mode)) {
       breadcrumb.push(
-        { title: '練習・本番一覧', url: '../event-list/event-list.html' },
+        { title: 'イベント一覧', url: '../event-list/event-list.html' },
         {
-          title: '練習・本番確認',
+          title: 'イベント確認',
           url:
             '../event-confirm/event-confirm.html?eventId=' +
             utils.globalGetParamEventId,
         },
         {
-          title:
-            mode === 'edit' ? '練習・本番編集' : '練習・本番新規作成(コピー)',
+          title: mode === 'edit' ? 'イベント編集' : 'イベント新規作成(コピー)',
         }
       );
     } else if (mode === 'createFromCall') {
@@ -42,7 +41,7 @@ $(document).ready(async function () {
             '../call-confirm/call-confirm.html?callId=' +
             utils.globalGetParamCallId,
         },
-        { title: '曲募集から練習・本番作成' }
+        { title: '曲募集からイベント作成' }
       );
     }
     utils.setBreadcrumb(breadcrumb);
@@ -88,10 +87,10 @@ async function setupPage(mode) {
   const backLink = $('.back-link');
 
   if (mode === 'new') {
-    pageTitle.text('練習・本番新規作成');
-    title.text('練習・本番新規作成');
+    pageTitle.text('イベント新規作成');
+    title.text('イベント新規作成');
     submitButton.text('登録');
-    backLink.text('← 練習・本番一覧に戻る');
+    backLink.text('← イベント一覧に戻る');
 
     // 初期値セット
     $('#event-date').val('');
@@ -111,12 +110,12 @@ async function setupPage(mode) {
 }
 
 //==================================
-// 練習・本番データ取得＆画面反映
+// イベントデータ取得＆画面反映
 //==================================
 async function loadEventData(eventId, mode) {
   const docSnap = await utils.getDoc(utils.doc(utils.db, 'events', eventId));
   if (!docSnap.exists()) {
-    throw new Error('練習・本番が見つかりません：' + eventId);
+    throw new Error('イベントが見つかりません：' + eventId);
   }
   const data = docSnap.data();
 
@@ -227,7 +226,7 @@ function setupEventHandlers(mode) {
     utils.showSpinner(); // スピナー表示
 
     try {
-      const eventData = await collectEventData(mode); // 練習・本番本文を取得。コピーの時は一致した場合のリンクも引き継ぎ
+      const eventData = await collectEventData(mode); // イベント本文を取得。コピーの時は一致した場合のリンクも引き継ぎ
 
       if (['new', 'copy', 'createFromCall'].includes(mode)) {
         // --- 新規作成・コピー ---
@@ -256,7 +255,7 @@ function setupEventHandlers(mode) {
         // 既存データ取得
         const docSnap = await utils.getDoc(eventRef);
         if (!docSnap.exists)
-          throw new Error('練習・本番が見つかりません：' + eventId);
+          throw new Error('イベントが見つかりません：' + eventId);
         const existingData = docSnap.data();
 
         // --- リンク情報を名前で統合 ---
@@ -437,7 +436,7 @@ function restoreInitialState() {
 }
 
 //==================================
-// 練習・本番データ収集
+// イベントデータ収集
 //==================================
 async function collectEventData(mode) {
   const eventData = {

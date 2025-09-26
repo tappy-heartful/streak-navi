@@ -3,7 +3,7 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   try {
     // 画面ごとのパンくずをセット
-    utils.setBreadcrumb([{ title: '練習・本番一覧' }]);
+    utils.setBreadcrumb([{ title: 'イベント一覧' }]);
     await utils.initDisplay();
     await setUpPage();
   } catch (e) {
@@ -110,7 +110,7 @@ function showEmptyMessage($list) {
   $list.append(`
     <li class="empty-message">
       <div class="event-link empty">
-        該当の練習・本番はありません🍀
+        該当のイベントはありません🍀
       </div>
     </li>
   `);
