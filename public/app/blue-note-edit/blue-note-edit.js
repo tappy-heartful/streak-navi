@@ -242,7 +242,7 @@ function setupEventHandlers() {
     }
     if (hasError) return;
 
-    const videoId = extractYouTubeId(youtubeUrl);
+    const videoId = utils.extractYouTubeId(youtubeUrl);
     if (!videoId) {
       $errorContainer.append(
         '<div class="error-message">YouTubeのURLを正しく入力してください</div>'
@@ -352,20 +352,6 @@ function setupEventHandlers() {
   $('.back-link').on('click', () => {
     window.location.href = '../home/home.html';
   });
-}
-
-//===========================
-// YouTube動画ID抽出
-//===========================
-function extractYouTubeId(input) {
-  if (!input) return null;
-  const str = String(input).trim();
-  if (!str) return null;
-
-  const reg =
-    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)?([\w\-]{11})/;
-  const match = str.match(reg);
-  return match ? match[1] : null;
 }
 
 // 今表示中の動画IDを先頭にして、日付順に後続を並べ、最後に最初に戻る形で配列を作る

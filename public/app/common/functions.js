@@ -416,24 +416,14 @@ export function buildYouTubeHtml(youtubeInput, showNotice = false) {
   // youtubeInput が配列かどうかチェック
   const isArray = Array.isArray(youtubeInput);
 
-  // 動画IDリストを取得する関数
-  const extractVideoId = (input) => {
-    try {
-      const url = new URL(input);
-      return url.searchParams.get('v') || url.pathname.split('/').pop();
-    } catch {
-      return input; // URLでなければそのまま
-    }
-  };
-
   let videoIds = [];
 
   if (isArray) {
     videoIds = youtubeInput
-      .map(extractVideoId)
+      .map(extractYouTubeId)
       .filter((id) => /^[\w-]{11}$/.test(id));
   } else {
-    const singleId = extractVideoId(youtubeInput);
+    const singleId = extractYouTubeId(youtubeInput);
     if (/^[\w-]{11}$/.test(singleId)) {
       videoIds = [singleId];
     } else {
@@ -533,6 +523,15 @@ export function formatDateToYMDHyphen(dateStr) {
  */
 export function generateId(prefix = 'id') {
   return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
+}
+
+export function extractYouTubeId(input) {
+  try {
+    const url = new URL(input);
+    return url.searchParams.get('v') || url.pathname.split('/').pop();
+  } catch {
+    return input; // URLでなければそのまま
+  }
 }
 
 //===========================

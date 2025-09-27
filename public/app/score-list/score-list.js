@@ -102,12 +102,33 @@ function filterScores() {
 
 function renderScores(scoreArray) {
   const $list = $('#score-list').empty();
+
   if (scoreArray.length === 0) {
     showEmptyMessage($list);
+    $('#playlist-link').hide();
     return;
   }
+
+  // 譜面一覧描画
   for (const s of scoreArray) {
     $list.append(makeScoreItem(s.id, s.title));
+  }
+
+  // --- プレイリストリンク生成 ---
+  const watchIds = scoreArray
+    .map((s) => utils.extractYouTubeId(s.referenceTrack))
+    .filter((id) => !!id)
+    .join(',');
+
+  if (watchIds) {
+    $('#playlist-link')
+      .attr(
+        'href',
+        `https://www.youtube.com/watch_videos?video_ids=${watchIds}`
+      )
+      .show();
+  } else {
+    $('#playlist-link').hide();
   }
 }
 
