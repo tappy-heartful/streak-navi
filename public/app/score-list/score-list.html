@@ -41,9 +41,9 @@
       </div>
 
       <div class="container">
-        <h3>譜面</h3>
-        <!-- 追加: プレイリストリンク -->
-        <div class="playlist-container">
+        <!-- 見出しとプレイリストリンクを同じ行にする -->
+        <div class="score-header">
+          <h3>譜面</h3>
           <a
             id="playlist-link"
             href="#"
@@ -51,9 +51,10 @@
             class="playlist-button"
             style="display: none"
           >
-            ▶ プレイリストを聴く
+            <i class="fa-brands fa-youtube"></i> プレイリスト
           </a>
         </div>
+
         <section class="score-list">
           <ul class="score-list" id="score-list"></ul>
         </section>

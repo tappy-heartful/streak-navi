@@ -17,9 +17,12 @@
   margin-bottom: 15px;
 }
 
-/* 親コンテナ */
-.playlist-container {
-  text-align: right;
+/* 見出しとリンクを同じ行に配置 */
+.score-header {
+  display: flex;
+  justify-content: space-between; /* 左右に分ける */
+  align-items: center; /* 高さを揃える */
+  margin-bottom: 10px;
 }
 
 .playlist-button {
@@ -27,6 +30,14 @@
   padding: 10px 16px;
   font-weight: bold;
   transition: background-color 0.3s ease;
+  background-color: #ff0000;
+  color: #fff;
+  border-radius: 6px;
+  text-decoration: none;
+}
+
+.playlist-button:hover {
+  background-color: #cc0000;
 }
 
 .score-link {
