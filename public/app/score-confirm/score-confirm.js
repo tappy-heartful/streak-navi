@@ -55,14 +55,16 @@ async function renderScore() {
     $('#reference-track').text('未設定');
   }
 
-  // ジャンル（1つだけ）
-  if (scoreData.genre) {
-    const genreSnap = await utils.getDoc(
-      utils.doc(utils.db, 'genres', scoreData.genre)
-    );
-    $('#score-genre').text(
-      genreSnap.exists() ? genreSnap.data().name : '未設定'
-    );
+  // ジャンル（複数対応）
+  if (Array.isArray(scoreData.genres) && scoreData.genres.length > 0) {
+    const genreNames = [];
+    for (const gid of scoreData.genres) {
+      const gSnap = await utils.getDoc(utils.doc(utils.db, 'genres', gid));
+      if (gSnap.exists()) {
+        genreNames.push(gSnap.data().name);
+      }
+    }
+    $('#score-genre').text(genreNames.join('、'));
   } else {
     $('#score-genre').text('未設定');
   }
