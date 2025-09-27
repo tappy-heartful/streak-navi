@@ -54,8 +54,8 @@ async function setUpPage() {
 
   renderScores(scores);
 
-  // ▼ 検索イベント（タイトル & ジャンル）
-  $('#search-box, #genre-select').on('input change', function () {
+  // ▼ 検索イベント（タイトル & ジャンル & 並び順）
+  $('#search-box, #genre-select, #sort-select').on('input change', function () {
     filterScores();
   });
 
@@ -63,20 +63,38 @@ async function setUpPage() {
   $('#clear-button').on('click', () => {
     $('#search-box').val('');
     $('#genre-select').val('');
-    // 必要ならここで検索結果リセット処理を呼ぶ
+    $('#sort-select').val('createdAt-desc');
     filterScores();
   });
 }
 
 // フィルタリング処理
+// フィルタリング処理
 function filterScores() {
   const keyword = $('#search-box').val().toLowerCase();
   const selectedGenre = $('#genre-select').val();
+  const sortValue = $('#sort-select').val();
 
-  const filtered = scores.filter((s) => {
+  let filtered = scores.filter((s) => {
     const matchTitle = s.title.toLowerCase().includes(keyword);
     const matchGenre = !selectedGenre || s.genres?.includes(selectedGenre);
     return matchTitle && matchGenre;
+  });
+
+  // 並び替え処理
+  filtered.sort((a, b) => {
+    switch (sortValue) {
+      case 'createdAt-asc':
+        return a.createdAt?.toMillis?.() - b.createdAt?.toMillis?.();
+      case 'createdAt-desc':
+        return b.createdAt?.toMillis?.() - a.createdAt?.toMillis?.();
+      case 'title-asc':
+        return a.title.localeCompare(b.title, 'ja');
+      case 'title-desc':
+        return b.title.localeCompare(a.title, 'ja');
+      default:
+        return 0;
+    }
   });
 
   renderScores(filtered);
