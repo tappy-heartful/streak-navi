@@ -1,6 +1,7 @@
 import * as utils from '../common/functions.js';
 
 let initialState = {};
+let genresList = [];
 
 //===========================
 // 初期化
@@ -81,9 +82,41 @@ async function setupPage(mode) {
     genreSelect.append(`<option value="${doc.id}">${data.name}</option>`);
   });
 
+  if (mode === 'new') {
+    // 新規作成のときだけ初期プルダウンを1つ生成
+    addGenreSelect();
+  }
+
   if (['edit', 'copy'].includes(mode)) {
     await loadScoreData(utils.globalGetParamScoreId, mode);
   }
+}
+
+//===========================
+// ジャンルセレクトを追加
+//===========================
+function addGenreSelect(selectedId = '') {
+  const wrapper = $(`
+    <div class="genre-select-wrapper">
+      <select class="score-genre">
+        <option value="">選択してください</option>
+        ${genresList
+          .map((g) => `<option value="${g.id}">${g.name}</option>`)
+          .join('')}
+      </select>
+      <button type="button" class="remove-genre">×</button>
+    </div>
+  `);
+
+  // 値をセット（編集時）
+  wrapper.find('select').val(selectedId);
+
+  // 最初の1つ目は削除ボタン非表示
+  if ($('#genre-container .genre-select-wrapper').length === 0) {
+    wrapper.find('.remove-genre').hide();
+  }
+
+  $('#genre-container').append(wrapper);
 }
 
 //===========================
@@ -97,9 +130,16 @@ async function loadScoreData(docId, mode) {
   $('#score-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
   $('#score-url').val(data.scoreUrl || '');
   $('#reference-track').val(data.referenceTrack || '');
-  $('#score-genre').val(data.genre || '');
   $('#score-note').val(data.note || '');
   $('#is-disp-top').prop('checked', data.isDispTop || false);
+
+  // ジャンル（配列）をロード
+  $('#genre-container').empty();
+  if (Array.isArray(data.genres) && data.genres.length > 0) {
+    data.genres.forEach((gid) => addGenreSelect(gid));
+  } else {
+    addGenreSelect();
+  }
 }
 
 //===========================
@@ -177,19 +217,32 @@ function setupEventHandlers(mode) {
         ? `../score-confirm/score-confirm.html?scoreId=${utils.globalGetParamScoreId}`
         : '../score-list/score-list.html')
   );
+
+  // ジャンル追加
+  $('#add-genre').on('click', () => addGenreSelect());
+
+  // ジャンル削除
+  $(document).on('click', '.remove-genre', function () {
+    $(this).closest('.genre-select-wrapper').remove();
+  });
 }
 
 //===========================
 // データ収集
 //===========================
-
-// データ収集にジャンル・譜面・参考音源・備考追加
 function collectData(mode) {
+  const genres = $('.score-genre')
+    .map(function () {
+      return $(this).val();
+    })
+    .get()
+    .filter((v) => v); // 空を除外
+
   const data = {
     title: $('#score-title').val().trim(),
     scoreUrl: $('#score-url').val().trim(),
     referenceTrack: $('#reference-track').val().trim(),
-    genre: $('#score-genre').val(),
+    genres: genres, // ←配列で保存
     note: $('#score-note').val().trim(),
     isDispTop: $('#is-disp-top').prop('checked'),
     createdAt: utils.serverTimestamp(),
@@ -222,8 +275,14 @@ function validateData() {
     utils.markError($('#reference-track'), '必須項目です');
     isValid = false;
   }
-  if (!genre) {
-    utils.markError($('#score-genre'), '必須項目です');
+  const genres = $('.score-genre')
+    .map(function () {
+      return $(this).val();
+    })
+    .get();
+
+  if (genres.length === 0 || !genres[0]) {
+    utils.markError($('#genre-container'), '最低1つは選択してください');
     isValid = false;
   }
 
