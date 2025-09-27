@@ -64,7 +64,7 @@ async function setUpPage() {
     $('#search-box').val('');
     $('#genre-select').val('');
     // 必要ならここで検索結果リセット処理を呼ぶ
-    renderScoreList();
+    filterScores();
   });
 }
 
@@ -75,7 +75,7 @@ function filterScores() {
 
   const filtered = scores.filter((s) => {
     const matchTitle = s.title.toLowerCase().includes(keyword);
-    const matchGenre = !selectedGenre || s.genre === selectedGenre;
+    const matchGenre = !selectedGenre || s.genres?.includes(selectedGenre);
     return matchTitle && matchGenre;
   });
 
