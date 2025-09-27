@@ -76,11 +76,10 @@ async function setupPage(mode) {
 
   // ジャンル一覧をロード
   const genreSnap = await utils.getDocs(utils.collection(utils.db, 'genres'));
-  const genreSelect = $('#score-genre');
-  genreSnap.forEach((doc) => {
-    const data = doc.data();
-    genreSelect.append(`<option value="${doc.id}">${data.name}</option>`);
-  });
+  genresList = genreSnap.docs.map((doc) => ({
+    id: doc.id,
+    name: doc.data().name,
+  }));
 
   if (mode === 'new') {
     // 新規作成のときだけ初期プルダウンを1つ生成
