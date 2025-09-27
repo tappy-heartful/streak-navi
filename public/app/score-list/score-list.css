@@ -32,10 +32,6 @@
   transition: background-color 0.3s ease;
 }
 
-.playlist-button:hover {
-  background-color: #cc0000;
-}
-
 .score-link {
   display: flex;
   flex-direction: column;
