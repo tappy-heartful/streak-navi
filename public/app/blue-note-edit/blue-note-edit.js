@@ -3,8 +3,8 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   try {
     // 画面ごとのパンくずをセット
-    utils.setBreadcrumb([{ title: 'Blue Notes' }]);
     await utils.initDisplay();
+    utils.renderBreadcrumb([{ title: 'Blue Notes' }]);
     await setupPage();
     setupEventHandlers();
   } catch (e) {

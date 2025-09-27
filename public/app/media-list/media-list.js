@@ -2,9 +2,9 @@ import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
   try {
-    // 画面ごとのパンくずをセット
-    utils.setBreadcrumb([{ title: 'メディア一覧' }]);
     await utils.initDisplay();
+    // 画面ごとのパンくずをセット
+    utils.renderBreadcrumb([{ title: 'メディア一覧' }]);
     await setUpPage();
   } catch (e) {
     // ログ登録

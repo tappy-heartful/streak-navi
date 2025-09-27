@@ -7,6 +7,8 @@ let initialState = {};
 //===========================
 $(document).ready(async function () {
   try {
+    await utils.initDisplay();
+
     // 画面ごとのパンくずをセット
     let breadcrumb = [
       { title: '曲募集一覧', url: '../call-list/call-list.html' },
@@ -29,8 +31,7 @@ $(document).ready(async function () {
         }
       );
     }
-    utils.setBreadcrumb(breadcrumb);
-    await utils.initDisplay();
+    utils.renderBreadcrumb(breadcrumb);
 
     const mode = utils.globalGetParamMode; // new / edit / copy
     await setupPage(mode);

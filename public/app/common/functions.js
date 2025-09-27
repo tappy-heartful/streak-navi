@@ -228,16 +228,12 @@ export async function initDisplay(isShowSpinner = true) {
     setSession(key, value);
   }
 
-  // パンくずリストを描画
-  renderBreadcrumb();
-
   // ウェルカム演出
   renderWelcomeOverlay();
 }
 
 // パンくずリスト取得
-function renderBreadcrumb() {
-  const crumbs = getBreadcrumb();
+export function renderBreadcrumb(crumbs) {
   if (!crumbs || !crumbs.length) return;
 
   const $container = $('#breadcrumb-container');
@@ -269,17 +265,6 @@ function renderBreadcrumb() {
   });
 
   $container.append($nav);
-}
-
-// パンくず配列をセッションに保存 (画面遷移しても保持できるようにする)
-export function setBreadcrumb(crumbs) {
-  setSessionArray('breadcrumb', crumbs);
-}
-
-export function getBreadcrumb() {
-  const crumbs = getSessionArray('breadcrumb');
-  removeSession('breadcrumb'); // デバッグ用に一旦クリア
-  return crumbs;
 }
 
 // ウェルカムオーバーレイ表示

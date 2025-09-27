@@ -2,8 +2,8 @@ import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
   try {
-    utils.setBreadcrumb([{ title: '曲募集一覧' }]);
     await utils.initDisplay();
+    utils.renderBreadcrumb([{ title: '曲募集一覧' }]);
     await setUpPage();
   } catch (e) {
     // ログ登録

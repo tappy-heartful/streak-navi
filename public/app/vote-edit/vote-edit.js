@@ -10,6 +10,7 @@ let initialStateHtml; // 初期表示状態の保存用
 //==================================
 $(document).ready(async function () {
   try {
+    await utils.initDisplay(); // 共通初期化
     // 画面ごとのパンくずをセット
     let breadcrumb = [];
     const mode = utils.globalGetParamMode; // URLパラメータからモード取得
@@ -43,8 +44,7 @@ $(document).ready(async function () {
         { title: '曲募集から投票作成' }
       );
     }
-    utils.setBreadcrumb(breadcrumb);
-    await utils.initDisplay(); // 共通初期化
+    utils.renderBreadcrumb(breadcrumb);
 
     // データ取得や初期表示の完了を待つ
     await setupPage(mode);

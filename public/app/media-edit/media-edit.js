@@ -8,6 +8,7 @@ let initialState = {};
 $(document).ready(async function () {
   try {
     const mode = utils.globalGetParamMode; // new / edit / copy
+    await utils.initDisplay();
     // 画面ごとのパンくずをセット
     let breadcrumb = [
       { title: 'メディア一覧', url: '../media-list/media-list.html' },
@@ -27,9 +28,7 @@ $(document).ready(async function () {
         }
       );
     }
-    utils.setBreadcrumb(breadcrumb);
-
-    await utils.initDisplay();
+    utils.renderBreadcrumb(breadcrumb);
 
     await setupPage(mode);
     captureInitialState();

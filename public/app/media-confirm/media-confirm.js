@@ -2,12 +2,12 @@ import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
   try {
+    await utils.initDisplay();
     // 画面ごとのパンくずをセット
-    utils.setBreadcrumb([
+    utils.renderBreadcrumb([
       { title: 'メディア一覧', url: '../media-list/media-list.html' },
       { title: 'メディア確認' },
     ]);
-    await utils.initDisplay();
     await renderMedia();
   } catch (e) {
     // ログ登録

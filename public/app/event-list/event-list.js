@@ -3,7 +3,7 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   try {
     // 画面ごとのパンくずをセット
-    utils.setBreadcrumb([{ title: 'イベント一覧' }]);
+    utils.renderBreadcrumb([{ title: 'イベント一覧' }]);
     await utils.initDisplay();
     await setUpPage();
   } catch (e) {

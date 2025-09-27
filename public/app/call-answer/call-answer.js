@@ -5,8 +5,10 @@ $(document).ready(async function () {
     const callId = utils.globalGetParamCallId;
     const uid = utils.getSession('uid');
 
+    await utils.initDisplay();
+
     // 画面ごとのパンくずをセット
-    utils.setBreadcrumb([
+    utils.renderBreadcrumb([
       { title: '曲募集一覧', url: '../call-list/call-list.html' },
       {
         title: '曲募集確認',
@@ -16,7 +18,6 @@ $(document).ready(async function () {
       },
       { title: '回答登録/修正' },
     ]);
-    await utils.initDisplay();
 
     // 回答データがあるか確認
     let mode = 'new';

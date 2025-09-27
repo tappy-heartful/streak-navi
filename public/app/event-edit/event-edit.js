@@ -11,6 +11,7 @@ let scoresList = []; // scoresをグローバルに持つ
 //==================================
 $(document).ready(async function () {
   try {
+    await utils.initDisplay(); // 共通初期化
     // 画面ごとのパンくずをセット
     let breadcrumb = [];
     const mode = utils.globalGetParamMode; // URLパラメータからモード取得
@@ -44,8 +45,7 @@ $(document).ready(async function () {
         { title: '曲募集からイベント作成' }
       );
     }
-    utils.setBreadcrumb(breadcrumb);
-    await utils.initDisplay(); // 共通初期化
+    utils.renderBreadcrumb(breadcrumb);
 
     // 譜面リスト保持
     const scoresSnapshot = await utils.getDocs(

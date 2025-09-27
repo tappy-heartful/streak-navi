@@ -9,6 +9,7 @@ let genresList = [];
 $(document).ready(async function () {
   try {
     const mode = utils.globalGetParamMode; // new / edit / copy
+    await utils.initDisplay();
     // 画面ごとのパンくずをセット
     let breadcrumb = [
       { title: '譜面一覧', url: '../score-list/score-list.html' },
@@ -28,9 +29,7 @@ $(document).ready(async function () {
         }
       );
     }
-    utils.setBreadcrumb(breadcrumb);
-
-    await utils.initDisplay();
+    utils.renderBreadcrumb(breadcrumb);
 
     await setupPage(mode);
     captureInitialState();

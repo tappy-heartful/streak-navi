@@ -4,12 +4,12 @@ import * as utils from '../common/functions.js';
 // 初期表示
 ////////////////////////////
 $(document).ready(async function () {
-  // 画面ごとのパンくずをセット
-  utils.setBreadcrumb([
-    { title: 'ユーザ一覧', url: '../user-list/user-list.html' },
-  ]);
   // 初期処理
   await utils.initDisplay();
+  // 画面ごとのパンくずをセット
+  utils.renderBreadcrumb([
+    { title: 'ユーザ一覧', url: '../user-list/user-list.html' },
+  ]);
 
   const $list = $('#user-list');
   $list.empty();
