@@ -34,6 +34,7 @@ import {
   deleteDoc,
   collection,
   serverTimestamp,
+  limit,
 } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';
 const db = getFirestore();
 export {
@@ -50,6 +51,7 @@ export {
   deleteDoc,
   collection,
   serverTimestamp,
+  limit,
 };
 
 // ダイアログ関連

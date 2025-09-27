@@ -8,6 +8,7 @@ $(document).ready(async function () {
     // 初期処理
     await utils.initDisplay();
     await loadPendingAnnouncements();
+    await loadQuickScores();
     await initBlueNotes();
     await loadMedias();
 
@@ -123,6 +124,45 @@ async function loadPendingAnnouncements() {
       </li>
     `);
   }
+}
+
+// ホーム画面に譜面クイックアクセスを表示
+async function loadQuickScores() {
+  const $scoreList = $('.score-list');
+  $scoreList.empty();
+
+  // scoresコレクションを作成日時降順で取得
+  const scoresRef = utils.collection(utils.db, 'scores');
+  const q = utils.query(
+    scoresRef,
+    utils.orderBy('createdAt', 'desc'),
+    utils.limit(4)
+  );
+  const snap = await utils.getDocs(q);
+
+  if (snap.empty) {
+    $scoreList.append(
+      '<div class="empty-message">譜面はまだ登録されていません🍀</div>'
+    );
+    return;
+  }
+
+  // 1行に2つずつ配置
+  let rowDiv;
+  snap.docs.forEach((doc, idx) => {
+    const data = doc.data();
+    if (idx % 2 === 0) {
+      rowDiv = $('<div class="quick-score-row"></div>');
+      $scoreList.append(rowDiv);
+    }
+
+    const scoreLink = $(`
+      <a href="../score-confirm/score-confirm.html?scoreId=${doc.id}" class="quick-score-link">
+        🎼 ${data.title}
+      </a>
+    `);
+    rowDiv.append(scoreLink);
+  });
 }
 
 // Blue Notesを読み込んで表示する関数
