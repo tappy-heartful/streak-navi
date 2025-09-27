@@ -244,10 +244,13 @@ function collectData(mode) {
     genres: genres, // ←配列で保存
     note: $('#score-note').val().trim(),
     isDispTop: $('#is-disp-top').prop('checked'),
-    createdAt: utils.serverTimestamp(),
   };
-  if (['new', 'copy'].includes(mode))
+
+  // 新規作成時のみ
+  if (['new', 'copy'].includes(mode)) {
+    data.createdAt = utils.serverTimestamp();
     data.createdBy = utils.getSession('displayName');
+  }
   return data;
 }
 
