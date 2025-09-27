@@ -20,7 +20,8 @@ $(document).ready(async function () {
   }
 });
 
-let scores = []; // Firestoreから取得した譜面データを保持
+let scores = []; // 譜面データ
+let genres = []; // ジャンルデータ
 
 async function setUpPage() {
   // 管理者の場合のみ新規登録ボタン表示
@@ -37,16 +38,48 @@ async function setUpPage() {
     ...doc.data(),
   }));
 
+  // ▼ ジャンルデータ取得
+  const genresRef = utils.collection(utils.db, 'genres');
+  const genreSnap = await utils.getDocs(genresRef);
+  genres = genreSnap.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  // ▼ ジャンルプルダウンに反映
+  const $genreSelect = $('#genre-select');
+  genres.forEach((g) => {
+    $genreSelect.append(`<option value="${g.id}">${g.name}</option>`);
+  });
+
   renderScores(scores);
 
-  // 検索イベント
-  $('#search-box').on('input', function () {
-    const keyword = $(this).val().toLowerCase();
-    const filtered = scores.filter((s) =>
-      s.title.toLowerCase().includes(keyword)
-    );
-    renderScores(filtered);
+  // ▼ 検索イベント（タイトル & ジャンル）
+  $('#search-box, #genre-select').on('input change', function () {
+    filterScores();
   });
+
+  // クリアボタン
+  $('#clear-button').on('click', () => {
+    $('#search-box').val('');
+    $('#genre-select').val('');
+    // 必要ならここで検索結果リセット処理を呼ぶ
+    renderScoreList();
+  });
+}
+
+// フィルタリング処理
+function filterScores() {
+  const keyword = $('#search-box').val().toLowerCase();
+  const selectedGenre = $('#genre-select').val();
+
+  const filtered = scores.filter((s) => {
+    const matchTitle = s.title.toLowerCase().includes(keyword);
+    const matchGenre = !selectedGenre || s.genre === selectedGenre;
+    return matchTitle && matchGenre;
+  });
+
+  renderScores(filtered);
 }
 
 function renderScores(scoreArray) {
