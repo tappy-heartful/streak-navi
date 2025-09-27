@@ -122,3 +122,94 @@
 .logout-button:hover {
   background-color: #d32f2f;
 }
+
+/* パンくず＋シェアボタンを横並びに */
+.breadcrumb-bar {
+  max-width: 768px;
+  margin: 8px auto;
+  padding: 0 12px;
+  display: flex;
+  justify-content: space-between; /* 左:パンくず / 右:シェア */
+  align-items: center;
+}
+
+.breadcrumb-bar #breadcrumb-container {
+  flex: 1; /* 可能なら広がる */
+}
+
+/* パンくずリスト */
+.breadcrumb {
+  max-width: 768px;
+  margin: 8px auto 8px auto;
+  padding: 8px 12px;
+  font-size: 14px;
+  color: #666;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.breadcrumb a {
+  text-decoration: none;
+  font-weight: 500;
+  transition: color 0.2s;
+}
+
+.breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumb .separator {
+  color: #999;
+}
+
+.breadcrumb .current {
+  font-weight: bold;
+  color: #333;
+}
+
+/* スマホで長すぎる場合は省略対応 */
+@media (max-width: 480px) {
+  .breadcrumb {
+    font-size: 12px;
+    overflow-x: auto;
+    white-space: nowrap;
+    scrollbar-width: none; /* Firefox */
+  }
+  .breadcrumb::-webkit-scrollbar {
+    display: none; /* Chrome/Safari */
+  }
+}
+
+/* フッター内のシェアボタン */
+.share-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  font-size: 14px;
+  color: #fff;
+  background-color: #4CAF50; /* 緑系 */
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background-color 0.2s, transform 0.1s;
+}
+
+/* アイコン調整 */
+.share-button i {
+  font-size: 14px;
+}
+
+/* ホバー時 */
+.share-button:hover {
+  background-color: #45a049;
+  transform: translateY(-1px);
+}
+
+/* 押下時 */
+.share-button:active {
+  background-color: #1e5c39;
+  transform: translateY(1px);
+}

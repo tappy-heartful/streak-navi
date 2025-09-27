@@ -70,4 +70,21 @@ $(document).ready(async function () {
     $('#logout-menu').slideUp(200);
     $('#side-menu').slideUp(200);
   });
+
+  // シェアボタン
+  document.getElementById('share-button').addEventListener('click', () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      navigator
+        .share({
+          title: document.title,
+          url: url,
+        })
+        .catch(console.error);
+    } else {
+      navigator.clipboard.writeText(url).then(() => {
+        alert('URLをコピーしました');
+      });
+    }
+  });
 });
