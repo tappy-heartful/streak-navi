@@ -12,6 +12,9 @@ $(document).ready(async function () {
     await initBlueNotes();
     await loadMedias();
 
+    // パンくずリスト
+    utils.renderBreadcrumb();
+
     // TODO削除 システム管理者用制御
     utils.getSession('isSystemAdmin') === utils.globalStrTrue
       ? $('.menu-button.event').show()
