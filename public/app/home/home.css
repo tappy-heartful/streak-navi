@@ -90,18 +90,23 @@
 
 /* メニューボタン */
 .menu-list {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 15px; /* ボタン間のスペース */
+  display: grid;
+  grid-template-columns: repeat(2, 1fr); /* 2列にする */
+  gap: 12px; /* ボタン間の余白 */
+}
+
+.menu-title {
+  grid-column: 1 / -1; /* タイトルは列をまたがせて1行全体を占有 */
+  margin-top: 16px;
+  font-size: 1.1em;
+  font-weight: bold;
 }
 
 .menu-button {
   display: block;
-  width: 90%;                /* 幅を少し余白持たせる */
-  max-width: 300px;
-  padding: 16px 20px;
-  font-size: 18px;
+  padding: 12px;
+  text-align: center;
+  
   background-color: #4CAF50;
   color: white;
   border-radius: 10px;
@@ -195,7 +200,7 @@
   transform: translateY(-50%);
   font-size: 40px;
   color: white;         /* 透過は opacity で調整 */
-  opacity: 0.2;         /* Safariでも効く */
+  opacity: 0.05;         /* Safariでも効く */
   pointer-events: none;
 }
 
