@@ -17,21 +17,6 @@
   margin-bottom: 15px;
 }
 
-/* 見出しとリンクを同じ行に配置 */
-.score-header {
-  display: flex;
-  justify-content: space-between; /* 左右に分ける */
-  align-items: center; /* 高さを揃える */
-  margin-bottom: 10px;
-}
-
-.playlist-button {
-  display: inline-block;
-  padding: 10px 16px;
-  font-weight: bold;
-  transition: background-color 0.3s ease;
-}
-
 .score-link {
   display: flex;
   flex-direction: column;

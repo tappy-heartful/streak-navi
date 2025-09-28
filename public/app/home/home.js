@@ -131,10 +131,30 @@ async function loadQuickScores() {
   const $scoreList = $('.score-list');
   $scoreList.empty();
 
-  // scoresコレクションを作成日時降順で取得
-  const scoresRef = utils.collection(utils.db, 'scores');
+  // 全件（降順）
+  const allScoresRef = utils.collection(utils.db, 'scores');
+  const qAll = utils.query(allScoresRef, utils.orderBy('createdAt', 'desc'));
+  const allSnap = await utils.getDocs(qAll);
+
+  // 全曲プレイリストリンク生成
+  const allWatchIds = allSnap.docs
+    .map((doc) => utils.extractYouTubeId(doc.data().referenceTrack))
+    .filter((id) => !!id)
+    .join(',');
+  if (allWatchIds) {
+    $('#playlist-link')
+      .attr(
+        'href',
+        `https://www.youtube.com/watch_videos?video_ids=${allWatchIds}`
+      )
+      .show();
+  } else {
+    $('#playlist-link').hide();
+  }
+
+  // クイック表示用（最新4件）
   const q = utils.query(
-    scoresRef,
+    allScoresRef,
     utils.orderBy('createdAt', 'desc'),
     utils.limit(4)
   );
@@ -147,7 +167,7 @@ async function loadQuickScores() {
     return;
   }
 
-  // 1行に2つずつ配置
+  // 1行に2つずつ
   let rowDiv;
   snap.docs.forEach((doc, idx) => {
     const data = doc.data();
