@@ -242,33 +242,32 @@ export function renderBreadcrumb(crumbs = {}) {
   // <nav class="breadcrumb"> でラップ
   const $nav = $('<nav class="breadcrumb"></nav>');
 
-  // 先頭にはホーム
+  // タグ生成
   if (crumbs) {
-    // 中間リンク
+    // 先頭にはホーム
     $nav.append(
       `<a href="../home/home.html"><i class="fa fa-home"></i> ホーム</a>`
     );
+    crumbs.forEach((c, idx) => {
+      // セパレーター
+      $nav.append('<span class="separator">›</span>');
+
+      const isLast = idx === crumbs.length - 1;
+
+      if (isLast) {
+        // 現在ページ
+        $nav.append(`<span class="current">${c.title}</span>`);
+      } else {
+        // 中間リンク
+        $nav.append(`<a href="${c.url}">${c.title}</a>`);
+      }
+    });
   } else {
-    // 現在ページ
+    // ホームのみ表示
     $nav.append(
       `<span class="current"><i class="fa fa-home"></i> ホーム</span>`
     );
   }
-
-  crumbs.forEach((c, idx) => {
-    // セパレーター
-    $nav.append('<span class="separator">›</span>');
-
-    const isLast = idx === crumbs.length - 1;
-
-    if (isLast) {
-      // 現在ページ
-      $nav.append(`<span class="current">${c.title}</span>`);
-    } else {
-      // 中間リンク
-      $nav.append(`<a href="${c.url}">${c.title}</a>`);
-    }
-  });
 
   $container.append($nav);
 }
