@@ -349,7 +349,7 @@ export async function writeLog({
     const uid = getSession('uid') || 'unknown';
     const id = `${formatDateForId()}_${uid}`; // ← ここで使う
 
-    await setDoc(doc(db, 'logs', id), {
+    await setDoc(doc(db, status === 'success' ? 'logs' : 'errorLogs', id), {
       uid,
       screen: globalScreenName,
       action,
@@ -358,8 +358,8 @@ export async function writeLog({
       errorDetail,
       createdAt: serverTimestamp(), // Firestoreサーバ時刻
     });
-    // エラーの場合
-    if (status === 'error') {
+    // 正常ではない場合
+    if (status !== 'success') {
       errorHandler(errorDetail.message || 'Unknown error');
     }
   } catch (e) {
