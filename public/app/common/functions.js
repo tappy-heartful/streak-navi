@@ -233,7 +233,9 @@ export async function initDisplay(isShowSpinner = true) {
 }
 
 // パンくずリスト取得
-export function renderBreadcrumb(crumbs = {}) {
+export function renderBreadcrumb(crumbs) {
+  if (!crumbs || !crumbs.length) return;
+
   const $container = $('#breadcrumb-container');
   if ($container.length === 0) return;
 
@@ -243,17 +245,9 @@ export function renderBreadcrumb(crumbs = {}) {
   const $nav = $('<nav class="breadcrumb"></nav>');
 
   // 先頭にはホーム
-  if (crumbs) {
-    // 中間リンク
-    $nav.append(
-      `<a href="../home/home.html"><i class="fa fa-home"></i> ホーム</a>`
-    );
-  } else {
-    // 現在ページ
-    $nav.append(
-      `<span class="current"><i class="fa fa-home"></i> ホーム</span>`
-    );
-  }
+  $nav.append(
+    `<a href="../home/home.html"><i class="fa fa-home"></i> ホーム</a>`
+  );
 
   crumbs.forEach((c, idx) => {
     // セパレーター
