@@ -237,17 +237,22 @@
   background-color: #45a049;
 }
 
-/* ボタン内の文字右にバッジ */
+/* バッジ（右上固定） */
+/* Blue Notesボタン用（右上バッジ付き） */
 .menu-button.badge-inline {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px; /* 文字とバッジの間隔 */
-  position: relative;
-  justify-content: center;
+  position: relative; /* バッジをこの中で絶対配置 */
+  display: block;     /* ボタン全体が基準になる */
+  text-align: center;
+  padding: 12px;
+  box-sizing: border-box;
 }
 
+/* 右上に浮かせるバッジ */
 .menu-button.badge-inline .badge {
-  background-color: #ff3b30; /* 赤で目立たせる */
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  background-color: #ff3b30;
   color: #fff;
   font-size: 10px;
   font-weight: bold;
@@ -255,7 +260,8 @@
   border-radius: 12px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.3);
   white-space: nowrap;
-  animation: pulse 1.5s infinite; /* 点滅アニメーション */
+  animation: pulse 1.5s infinite;
+  pointer-events: none; /* クリック邪魔しない */
 }
 
 /* バッジ点滅アニメーション */
