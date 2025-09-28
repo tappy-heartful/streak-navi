@@ -233,7 +233,7 @@ export async function initDisplay(isShowSpinner = true) {
 }
 
 // パンくずリスト取得
-export function renderBreadcrumb(crumbs = {}) {
+export function renderBreadcrumb(crumbs) {
   const $container = $('#breadcrumb-container');
   if ($container.length === 0) return;
 
