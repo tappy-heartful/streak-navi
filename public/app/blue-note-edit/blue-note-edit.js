@@ -50,26 +50,25 @@ async function setupPage() {
 
     if (month === currentMonth) $li.addClass('active');
 
-    $li.on('click', () => {
+    $li.on('click', async () => {
+      utils.showSpinner();
       $('#month-tabs li').removeClass('active');
       $li.addClass('active');
-      loadBlueNotes(month);
+      await loadBlueNotes(month);
+      utils.hideSpinner();
     });
 
     $tabsContainer.append($li);
   });
-
-  // スピナー非表示(ユーザの待ち時間を減らす)
-  utils.hideSpinner();
 
   // 初期表示
   await loadBlueNotes(Number(currentMonth));
 }
 
 //===========================
-// 選択月のBlue Notes読み込み（修正版）
+// 選択月のBlue Notes読み込み（改善版）
 //===========================
-let currentLoadId = 0; // グローバルに管理
+let currentLoadId = 0;
 
 async function loadBlueNotes(month) {
   // プレイリストリンク
@@ -84,7 +83,7 @@ async function loadBlueNotes(month) {
     )
     .html(`<i class="fa-brands fa-youtube"></i> ${month}月のプレイリスト`);
 
-  const loadId = ++currentLoadId; // 呼び出しごとにIDを更新
+  const loadId = ++currentLoadId;
   const year = 2024;
   const daysInMonth = new Date(year, Number(month), 0).getDate();
 
@@ -92,24 +91,29 @@ async function loadBlueNotes(month) {
 
   const $container = $('#blue-note-container').empty();
 
+  // 🔽 blueNotes を一括取得
+  const notesSnap = await utils.getDocs(
+    utils.collection(utils.db, 'blueNotes')
+  );
+  const notesMap = {};
+  notesSnap.docs.forEach((doc) => {
+    notesMap[doc.id] = doc.data();
+  });
+
+  // 🔽 user の displayName をキャッシュする辞書
+  const userCache = {};
+
   for (let day = 1; day <= daysInMonth; day++) {
-    // 途中で別の月の読み込みが始まったら中断
-    if (loadId !== currentLoadId) return;
+    if (loadId !== currentLoadId) return; // 中断チェック
 
     const dayStr = String(day).padStart(2, '0');
-    const monthStr = String(month).padStart(2, '0'); // ← Firestore IDはゼロ埋めで統一
+    const monthStr = String(month).padStart(2, '0');
     const dateId = `${monthStr}${dayStr}`;
     const displayDay = String(day);
 
-    const docRef = utils.doc(utils.db, 'blueNotes', dateId);
-    const docSnap = await utils.getDoc(docRef);
+    const data = notesMap[dateId];
 
-    // 再度チェック（await 後に別の月に切り替わった場合）
-    if (loadId !== currentLoadId) return;
-
-    if (docSnap.exists()) {
-      const data = docSnap.data();
-
+    if (data) {
       // 削除ボタン表示判定
       const showDelete =
         data.createdBy === utils.getSession('uid') ||
@@ -119,19 +123,23 @@ async function loadBlueNotes(month) {
         ? `https://youtu.be/${data.youtubeId}`
         : '';
 
-      // 🔽 createdBy の displayName を取得
+      // 🔽 displayName をキャッシュ取得
       let displayName = '';
       if (data.createdBy) {
-        try {
-          const userDoc = await utils.getDoc(
-            utils.doc(utils.db, 'users', data.createdBy)
-          );
-          if (userDoc.exists()) {
-            displayName = userDoc.data().displayName || '';
+        if (userCache[data.createdBy] === undefined) {
+          try {
+            const userDoc = await utils.getDoc(
+              utils.doc(utils.db, 'users', data.createdBy)
+            );
+            userCache[data.createdBy] = userDoc.exists()
+              ? userDoc.data().displayName || ''
+              : '';
+          } catch (e) {
+            console.warn('ユーザー名取得に失敗:', e);
+            userCache[data.createdBy] = '';
           }
-        } catch (e) {
-          console.warn('ユーザー名取得に失敗:', e);
         }
+        displayName = userCache[data.createdBy];
       }
 
       $container.append(`
@@ -140,7 +148,10 @@ async function loadBlueNotes(month) {
           <span class="label-value title-value">
             ${
               data.youtubeId
-                ? `<a href="${videoUrl}" class="youtube-link" data-video-url="${videoUrl}" data-video-title="${data.title}" data-created-by="${displayName}" >
+                ? `<a href="${videoUrl}" class="youtube-link" 
+                      data-video-url="${videoUrl}" 
+                      data-video-title="${data.title}" 
+                      data-created-by="${displayName}">
                     <i class="fa-brands fa-youtube"></i>${data.title}</a>`
                 : data.title || ''
             }
@@ -162,6 +173,7 @@ async function loadBlueNotes(month) {
     }
   }
 }
+
 // ===========================
 // 特定の日付だけUIを更新する関数
 // ===========================
