@@ -12,10 +12,10 @@ $(document).ready(async function () {
     await initBlueNotes();
     await loadMedias();
 
-    // TODO削除 システム管理者用制御
-    utils.getSession('isSystemAdmin') === utils.globalStrTrue
-      ? $('.menu-button.event').show()
-      : $('.menu-button.event').hide();
+    // // TODO削除 システム管理者用制御
+    // utils.getSession('isSystemAdmin') === utils.globalStrTrue
+    //   ? $('.menu-button.event').show()
+    //   : $('.menu-button.event').hide();
 
     // イベント登録
     setupEventHandlers();
