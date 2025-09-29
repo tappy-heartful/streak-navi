@@ -43,10 +43,10 @@ async function renderEvent() {
   $('#event-title').text(eventData.title || '');
 
   // 場所（リンク有りならリンク化）
-  if (eventData.placeURL) {
+  if (eventData.placeUrl) {
     $('#event-place').html(
       `<a href="${
-        eventData.placeURL
+        eventData.placeUrl
       }" target="_blank" rel="noopener noreferrer">${
         eventData.placeName || ''
       }</a>`
@@ -55,7 +55,20 @@ async function renderEvent() {
     $('#event-place').text(eventData.placeName || '');
   }
 
-  $('#event-parking').text(eventData.parking || '');
+  // 交通アクセス（TODOリンク or text）
+  if (eventData.accessUrl) {
+    $('#event-access-url').html(
+      `<a href="${
+        eventData.accessUrl
+      }" target="_blank" rel="noopener noreferrer">${
+        eventData.accessUrl || ''
+      }</a>`
+    );
+  } else {
+    $('#event-parking').text('');
+  }
+
+  $('#event-parking').text(eventData.parking?.replace(/\n/g, '<br>') || '');
   $('#event-schedule').html(eventData.schedule?.replace(/\n/g, '<br>') || '');
   $('#event-dress').text(eventData.dress || '');
 
