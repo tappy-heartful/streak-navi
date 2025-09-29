@@ -2,9 +2,9 @@ import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
   try {
+    await utils.initDisplay();
     // 画面ごとのパンくずをセット
     utils.renderBreadcrumb([{ title: 'イベント一覧' }]);
-    await utils.initDisplay();
     await setUpPage();
   } catch (e) {
     // ログ登録
