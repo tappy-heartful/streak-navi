@@ -36,7 +36,7 @@
 
     <main class="container">
       <div class="score-header">
-        <h3>新着譜面</h3>
+        <h3>譜面</h3>
         <a
           id="playlist-link-score"
           href="#"
@@ -47,11 +47,31 @@
           <i class="fa-brands fa-youtube"></i> プレイリスト
         </a>
       </div>
+
+      <!-- クイックリンク一覧 -->
       <div class="score-list"></div>
+
       <div style="text-align: center">
         <a href="../score-list/score-list.html" style="font-weight: bold"
           >もっと見る</a
         >
+      </div>
+
+      <!-- 🎵 YouTube埋め込みプレイヤー -->
+      <div class="player-wrapper">
+        <h2 id="score-player-title" class="player-title">参考演奏</h2>
+        <div id="score-videos"></div>
+        <div class="player-controls">
+          <button id="score-prev" class="player-control">
+            <i class="fa-solid fa-backward-step"></i>
+          </button>
+          <button id="score-random" class="player-control">
+            ランダム <i class="fa-solid fa-arrows-rotate"></i>
+          </button>
+          <button id="score-next" class="player-control">
+            <i class="fa-solid fa-forward-step"></i>
+          </button>
+        </div>
       </div>
     </main>
 
@@ -102,24 +122,24 @@
           <i class="fa-brands fa-youtube"></i> プレイリスト
         </a>
       </div>
-      <h2 id="blue-note-title" class="blue-note-title">誰かのお気に入り</h2>
+      <h2 id="blue-note-title" class="player-title">誰かのお気に入り</h2>
 
       <!-- プレイヤー本体 -->
-      <div class="blue-note-player-wrapper">
+      <div class="player-wrapper">
         <!-- 動画表示部分 -->
         <div id="blue-note-videos"></div>
 
         <!-- ボタン部分 -->
-        <div class="blue-note-controls">
-          <button id="blue-note-prev" class="blue-note-control">
+        <div class="player-controls">
+          <button id="blue-note-prev" class="player-control">
             <i class="fa-solid fa-backward-step"></i>
           </button>
 
-          <button id="blue-note-random" class="blue-note-control">
+          <button id="blue-note-random" class="player-control">
             ランダム <i class="fa-solid fa-arrows-rotate"></i>
           </button>
 
-          <button id="blue-note-next" class="blue-note-control">
+          <button id="blue-note-next" class="player-control">
             <i class="fa-solid fa-forward-step"></i>
           </button>
         </div>

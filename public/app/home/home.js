@@ -9,6 +9,7 @@ $(document).ready(async function () {
     await utils.initDisplay();
     await loadPendingAnnouncements();
     await loadQuickScores();
+    await initScorePlayer();
     await initBlueNotes();
     await loadMedias();
 
@@ -185,6 +186,82 @@ async function loadQuickScores() {
   });
 }
 
+// 譜面プレイヤー用
+let scores = [];
+let currentScoreIndex = 0;
+
+async function initScorePlayer() {
+  const snapshot = await utils.getDocs(
+    utils.query(
+      utils.collection(utils.db, 'scores'),
+      utils.orderBy('createdAt', 'desc')
+    )
+  );
+  scores = snapshot.docs
+    .map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+      youtubeId: utils.extractYouTubeId(doc.data().referenceTrack),
+    }))
+    .filter((s) => !!s.youtubeId);
+
+  if (scores.length === 0) return;
+
+  // デフォルト → 最新曲
+  currentScoreIndex = 0;
+  renderScoreVideos();
+}
+
+function renderScoreVideos() {
+  const $videos = $('#score-videos');
+  $videos.empty();
+
+  const score = scores[currentScoreIndex];
+  const watchIds = getWatchVideosOrder(currentScoreIndex, scores);
+
+  const html = utils.buildYouTubeHtml(watchIds, false, false);
+  $videos.append(`
+    <div class="video active" data-index="${currentScoreIndex}">
+      ${html}
+    </div>
+  `);
+
+  $('#score-player-title').text(score.title || '参考演奏');
+  updateScorePlaylistLink(watchIds);
+}
+
+function updateScorePlaylistLink(watchIds) {
+  if (watchIds && watchIds.length > 0) {
+    $('#playlist-link-score')
+      .attr(
+        'href',
+        `https://www.youtube.com/watch_videos?video_ids=${watchIds.join(',')}`
+      )
+      .show();
+  } else {
+    $('#playlist-link-score').hide();
+  }
+}
+
+function showScoreNext() {
+  currentScoreIndex = (currentScoreIndex + 1) % scores.length;
+  renderScoreVideos();
+}
+
+function showScorePrev() {
+  currentScoreIndex = (currentScoreIndex - 1 + scores.length) % scores.length;
+  renderScoreVideos();
+}
+
+function showScoreRandom() {
+  let newIndex;
+  do {
+    newIndex = Math.floor(Math.random() * scores.length);
+  } while (newIndex === currentScoreIndex && scores.length > 1);
+  currentScoreIndex = newIndex;
+  renderScoreVideos();
+}
+
 // Blue Notesを読み込んで表示する関数
 let blueNotes = [];
 let currentIndex = 0;
@@ -240,7 +317,7 @@ function renderBlueNoteVideos() {
     const html = utils.buildYouTubeHtml(watchIds, false, false);
 
     $videos.append(`
-      <div class="blue-note-video ${item.role === 'current' ? 'active' : ''}"
+      <div class="video ${item.role === 'current' ? 'active' : ''}"
            data-role="${item.role}"
            data-index="${item.index}">
         ${html}
@@ -294,7 +371,7 @@ function showNext() {
   const html = utils.buildYouTubeHtml(watchIds, false, false);
 
   $videos.append(`
-    <div class="blue-note-video" data-role="next" data-index="${newNextIndex}">
+    <div class="video" data-role="next" data-index="${newNextIndex}">
       ${html}
     </div>
   `);
@@ -326,7 +403,7 @@ function showPrev() {
   const html = utils.buildYouTubeHtml(watchIds, false, false);
 
   $videos.prepend(`
-    <div class="blue-note-video" data-role="prev" data-index="${newPrevIndex}">
+    <div class="video" data-role="prev" data-index="${newPrevIndex}">
       ${html}
     </div>
   `);
@@ -358,7 +435,7 @@ function showRandom() {
     const watchIds = getWatchVideosOrder(item.index, blueNotes);
     const html = utils.buildYouTubeHtml(watchIds, false, false);
     $videos.append(`
-      <div class="blue-note-video ${item.role === 'current' ? 'active' : ''}"
+      <div class="video ${item.role === 'current' ? 'active' : ''}"
            data-role="${item.role}"
            data-index="${item.index}">
         ${html}
@@ -447,4 +524,7 @@ function setupEventHandlers() {
   $('#blue-note-prev').on('click', showPrev);
   $('#blue-note-next').on('click', showNext);
   $('#blue-note-random').on('click', showRandom);
+  $('#score-next').on('click', showScoreNext);
+  $('#score-prev').on('click', showScorePrev);
+  $('#score-random').on('click', showScoreRandom);
 }
