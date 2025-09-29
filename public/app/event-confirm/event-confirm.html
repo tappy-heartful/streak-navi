@@ -9,46 +9,47 @@
       href="../../images/favicon.png"
       type="image/png"
     />
-    <title>投票確認</title>
+    <title>イベント確認</title>
     <link rel="stylesheet" href="../common/common.css" />
-    <link rel="stylesheet" href="vote-confirm.css" />
+    <link rel="stylesheet" href="event-confirm.css" />
   </head>
   <body>
     <div id="header-placeholder"></div>
 
-    <!-- タイトル（カード外） -->
+    <!-- タイトル -->
     <div class="page-header">
-      <h1 id="page-title">投票確認</h1>
+      <h1 id="page-title">イベント確認</h1>
     </div>
 
     <main class="container">
-      <div class="answer-status-container">
-        <span id="answer-status-label" class="answer-status"></span>
+      <div class="form-group">
+        <label class="label-title">日付</label>
+        <div class="label-value" id="event-date"></div>
       </div>
 
       <div class="form-group">
-        <label class="label-title">投票名</label>
-        <div class="label-value" id="vote-title"></div>
+        <label class="label-title">タイトル</label>
+        <div class="label-value" id="event-title"></div>
       </div>
 
       <div class="form-group">
-        <label class="label-title">投票説明</label>
-        <div class="label-value" id="vote-description"></div>
+        <label class="label-title">場所</label>
+        <div class="label-value" id="event-place"></div>
       </div>
 
       <div class="form-group">
-        <label for="vote-items-container">投票項目</label>
-        <div id="vote-items-container"></div>
+        <label class="label-title">駐車場情報</label>
+        <div class="label-value" id="event-parking"></div>
       </div>
 
       <div class="form-group">
-        <label class="label-title">投票状況</label>
-        <div class="label-value" id="answer-status"></div>
+        <label class="label-title">タイムスケジュール</label>
+        <div class="label-value" id="event-schedule"></div>
       </div>
 
       <div class="form-group">
-        <label class="label-title">作成者</label>
-        <div class="label-value" id="created-by"></div>
+        <label class="label-title">服装</label>
+        <div class="label-value" id="event-dress"></div>
       </div>
 
       <div id="answer-menu" class="menu-section">
@@ -63,25 +64,20 @@
         </div>
       </div>
 
-      <div id="vote-menu" class="menu-section">
-        <h2 class="menu-title">投票管理メニュー</h2>
+      <div id="event-menu" class="menu-section">
+        <h2 class="menu-title">イベント管理メニュー</h2>
         <div class="confirm-buttons">
-          <button id="vote-edit-button" class="edit-button">編集</button>
-          <button id="vote-copy-button" class="copy-button">コピー</button>
-        </div>
-        <div class="confirm-buttons">
-          <button id="vote-link-edit-button" class="edit-button">
-            リンク設定
-          </button>
-          <button id="vote-delete-button" class="delete-button">削除</button>
+          <button id="event-edit-button" class="edit-button">編集</button>
+          <button id="event-copy-button" class="copy-button">コピー</button>
+          <button id="event-delete-button" class="delete-button">削除</button>
         </div>
       </div>
     </main>
 
-    <!-- フッター部（カード外） -->
+    <!-- フッター -->
     <div class="page-footer">
-      <a href="../vote-list/vote-list.html" class="back-link"
-        >← 投票一覧に戻る</a
+      <a href="../event-list/event-list.html" class="back-link"
+        >← イベント一覧に戻る</a
       >
     </div>
 
@@ -95,6 +91,6 @@
     />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="module" src="../common/functions.js"></script>
-    <script type="module" src="vote-confirm.js"></script>
+    <script type="module" src="event-confirm.js"></script>
   </body>
 </html>
