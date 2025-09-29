@@ -144,6 +144,12 @@
   aspect-ratio: 16/9;
 }
 
+#score-videos {
+  width: 100%;          /* 横幅いっぱい */
+  max-width: 800px;     /* 任意で最大幅 */
+  aspect-ratio: 16/9;
+}
+
 .player-controls {
   display: flex;
   justify-content: center;
