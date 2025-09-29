@@ -23,6 +23,7 @@ $(document).ready(async function () {
 // ページ設定（タブ対応）
 //===========================
 async function setupPage() {
+  // タブを作成
   const months = [
     '1月',
     '2月',
@@ -38,7 +39,6 @@ async function setupPage() {
     '12月',
   ];
 
-  // タブを作成
   const $tabsContainer = $('#month-tabs');
 
   const currentMonth =
@@ -72,6 +72,16 @@ async function setupPage() {
 let currentLoadId = 0; // グローバルに管理
 
 async function loadBlueNotes(month) {
+  // プレイリストリンク
+  const watchIds = await getOrderedYouTubeIds(
+    String(month).padStart(2, '0') + '01'
+  );
+
+  $('#playlist-link-blue-note').attr(
+    'href',
+    `https://www.youtube.com/watch_videos?video_ids=${watchIds.join(',')}`
+  );
+
   const loadId = ++currentLoadId; // 呼び出しごとにIDを更新
   const year = 2024;
   const daysInMonth = new Date(year, Number(month), 0).getDate();
@@ -367,16 +377,26 @@ async function getOrderedYouTubeIds(currentDateId) {
 
   const ids = sortedNotes.map((note) => note.data.youtubeId).filter(Boolean);
 
-  // 先頭を今表示中にして、順序をローテーション
-  const currentIndex = ids.findIndex((id) => {
-    const note = sortedNotes.find((n) => n.data.youtubeId === id);
-    return note && note.dateId === currentDateId;
-  });
+  if (ids.length === 0) return [];
 
-  if (currentIndex === -1) return ids; // 現在の動画IDが存在しない場合そのまま
+  // 最短の未来 (currentDateId 以上) を探す
+  let pivotIndex = sortedNotes.findIndex((n) => n.dateId >= currentDateId);
 
-  // 配列を回転
-  const rotated = ids.slice(currentIndex).concat(ids.slice(0, currentIndex));
+  // なければ最初に戻す
+  if (pivotIndex === -1) pivotIndex = 0;
+
+  // youtubeId の位置に合わせる
+  // (dateId はあるけど youtubeId が空の可能性を考慮)
+  while (
+    pivotIndex < sortedNotes.length &&
+    !sortedNotes[pivotIndex].data.youtubeId
+  ) {
+    pivotIndex++;
+  }
+  if (pivotIndex >= sortedNotes.length) pivotIndex = 0;
+
+  // youtubeId の配列を回転
+  const rotated = ids.slice(pivotIndex).concat(ids.slice(0, pivotIndex));
 
   return rotated;
 }
