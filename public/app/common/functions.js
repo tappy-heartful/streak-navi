@@ -395,7 +395,11 @@ function formatDateForId(date = new Date()) {
 }
 
 // YouTube埋め込みモーダルのHTMLを生成する関数
-export function buildYouTubeHtml(youtubeInput, showNotice = false) {
+export function buildYouTubeHtml(
+  youtubeInput,
+  showNotice = false,
+  showLink = true
+) {
   if (!youtubeInput) return '';
 
   // youtubeInput が配列かどうかチェック
@@ -441,10 +445,14 @@ export function buildYouTubeHtml(youtubeInput, showNotice = false) {
           ? `<span class="youtube-notice">🔒バンド内限定公開</span>`
           : ''
       }
-      <a href="${youtubeLink}" target="_blank">
-        ${isArray ? 'プレイリストを聴く' : 'YouTubeでみる'}
-        <i class="fas fa-arrow-up-right-from-square"></i>
-      </a>
+      ${
+        showLink
+          ? `<a href="${youtubeLink}" target="_blank">
+              ${isArray ? 'プレイリストを聴く' : 'YouTubeでみる'}
+              <i class="fas fa-arrow-up-right-from-square"></i>
+            </a>`
+          : ''
+      }
     </div>`;
 }
 

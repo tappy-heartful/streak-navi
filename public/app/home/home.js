@@ -142,14 +142,14 @@ async function loadQuickScores() {
     .filter((id) => !!id)
     .join(',');
   if (allWatchIds) {
-    $('#playlist-link')
+    $('#playlist-link-score')
       .attr(
         'href',
         `https://www.youtube.com/watch_videos?video_ids=${allWatchIds}`
       )
       .show();
   } else {
-    $('#playlist-link').hide();
+    $('#playlist-link-score').hide();
   }
 
   // クイック表示用（最新4件）
@@ -237,7 +237,7 @@ function renderBlueNoteVideos() {
     // この動画を先頭にして全体配列を作る
     const watchIds = getWatchVideosOrder(item.index, blueNotes);
 
-    const html = utils.buildYouTubeHtml(watchIds);
+    const html = utils.buildYouTubeHtml(watchIds, false, false);
 
     $videos.append(`
       <div class="blue-note-video ${item.role === 'current' ? 'active' : ''}"
@@ -246,6 +246,8 @@ function renderBlueNoteVideos() {
         ${html}
       </div>
     `);
+
+    if (item.role === 'current') updateBlueNoteLink(watchIds);
   });
 
   updateBlueNoteTitle();
@@ -253,6 +255,20 @@ function renderBlueNoteVideos() {
 
 function updateBlueNoteTitle() {
   $('#blue-note-title').text(blueNotes[currentIndex].title);
+}
+
+function updateBlueNoteLink(watchIds) {
+  // 全曲プレイリストリンク更新
+  if (watchIds) {
+    $('#playlist-link-blue-note')
+      .attr(
+        'href',
+        `https://www.youtube.com/watch_videos?video_ids=${watchIds.join(',')}`
+      )
+      .show();
+  } else {
+    $('#playlist-link-blue-note').hide();
+  }
 }
 
 function showNext() {
@@ -275,7 +291,7 @@ function showNext() {
   // 新しい next を生成
   const newNextIndex = (currentIndex + 1) % blueNotes.length;
   const watchIds = getWatchVideosOrder(newNextIndex, blueNotes);
-  const html = utils.buildYouTubeHtml(watchIds);
+  const html = utils.buildYouTubeHtml(watchIds, false, false);
 
   $videos.append(`
     <div class="blue-note-video" data-role="next" data-index="${newNextIndex}">
@@ -284,6 +300,7 @@ function showNext() {
   `);
 
   updateBlueNoteTitle();
+  updateBlueNoteLink(getWatchVideosOrder(currentIndex, blueNotes));
 }
 
 function showPrev() {
@@ -306,7 +323,7 @@ function showPrev() {
   // 新しい prev を生成
   const newPrevIndex = (currentIndex - 1 + blueNotes.length) % blueNotes.length;
   const watchIds = getWatchVideosOrder(newPrevIndex, blueNotes);
-  const html = utils.buildYouTubeHtml(watchIds);
+  const html = utils.buildYouTubeHtml(watchIds, false, false);
 
   $videos.prepend(`
     <div class="blue-note-video" data-role="prev" data-index="${newPrevIndex}">
@@ -315,6 +332,7 @@ function showPrev() {
   `);
 
   updateBlueNoteTitle();
+  updateBlueNoteLink(getWatchVideosOrder(currentIndex, blueNotes));
 }
 
 function showRandom() {
@@ -338,7 +356,7 @@ function showRandom() {
 
   indexes.forEach((item) => {
     const watchIds = getWatchVideosOrder(item.index, blueNotes);
-    const html = utils.buildYouTubeHtml(watchIds);
+    const html = utils.buildYouTubeHtml(watchIds, false, false);
     $videos.append(`
       <div class="blue-note-video ${item.role === 'current' ? 'active' : ''}"
            data-role="${item.role}"
@@ -346,6 +364,7 @@ function showRandom() {
         ${html}
       </div>
     `);
+    if (item.role === 'current') updateBlueNoteLink(watchIds);
   });
 
   updateBlueNoteTitle();
