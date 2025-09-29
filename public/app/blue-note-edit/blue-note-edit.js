@@ -77,10 +77,12 @@ async function loadBlueNotes(month) {
     String(month).padStart(2, '0') + '01'
   );
 
-  $('#playlist-link-blue-note').attr(
-    'href',
-    `https://www.youtube.com/watch_videos?video_ids=${watchIds.join(',')}`
-  );
+  $('#playlist-link-blue-note')
+    .attr(
+      'href',
+      `https://www.youtube.com/watch_videos?video_ids=${watchIds.join(',')}`
+    )
+    .html(`<i class="fa-brands fa-youtube"></i> ${month}月のプレイリスト`);
 
   const loadId = ++currentLoadId; // 呼び出しごとにIDを更新
   const year = 2024;
