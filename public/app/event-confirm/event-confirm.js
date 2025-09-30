@@ -41,36 +41,58 @@ async function renderEvent() {
   // 各項目を反映
   $('#event-date').text(eventData.date || '');
   $('#event-title').text(eventData.title || '');
+  // TODO出欠は未実装のまま
 
   // 場所（リンク有りならリンク化）
   if (eventData.placeUrl) {
     $('#event-place').html(
       `<a href="${
         eventData.placeUrl
-      }" target="_blank" rel="noopener noreferrer">${
-        eventData.placeName || ''
-      }</a>`
+      }" target="_blank" rel="noopener noreferrer">
+        ${eventData.placeName || eventData.placeUrl}
+      </a>`
     );
   } else {
     $('#event-place').text(eventData.placeName || '');
   }
 
-  // 交通アクセス（TODOリンク or text）
-  if (eventData.accessUrl) {
-    $('#event-access-url').html(
-      `<a href="${
-        eventData.accessUrl
-      }" target="_blank" rel="noopener noreferrer">${
-        eventData.accessUrl || ''
-      }</a>`
-    );
+  // 交通アクセス（URLかテキストか判定）
+  if (eventData.access) {
+    if (/^https?:\/\//.test(eventData.access)) {
+      $('#event-access').html(
+        `<a href="${eventData.access}" target="_blank" rel="noopener noreferrer">${eventData.access}</a>`
+      );
+    } else {
+      $('#event-access').html(eventData.access.replace(/\n/g, '<br>'));
+    }
+  } else {
+    $('#event-access').text('');
+  }
+
+  // 駐車場情報（URLかテキストか判定）
+  if (eventData.parking) {
+    if (/^https?:\/\//.test(eventData.parking)) {
+      $('#event-parking').html(
+        `<a href="${eventData.parking}" target="_blank" rel="noopener noreferrer">${eventData.parking}</a>`
+      );
+    } else {
+      $('#event-parking').html(eventData.parking.replace(/\n/g, '<br>'));
+    }
   } else {
     $('#event-parking').text('');
   }
 
-  $('#event-parking').text(eventData.parking?.replace(/\n/g, '<br>') || '');
+  // やる曲
+  $('#event-songs').html(eventData.songs?.replace(/\n/g, '<br>') || '');
+
+  // タイムスケジュール
   $('#event-schedule').html(eventData.schedule?.replace(/\n/g, '<br>') || '');
-  $('#event-dress').text(eventData.dress || '');
+
+  // 服装
+  $('#event-dress').html(eventData.dress?.replace(/\n/g, '<br>') || '');
+
+  // その他
+  $('#event-other').html(eventData.other?.replace(/\n/g, '<br>') || '');
 
   setupEventHandlers(eventId, isAdmin, eventData.isActive, uid);
 }
