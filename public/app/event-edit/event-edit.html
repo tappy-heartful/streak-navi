@@ -9,7 +9,7 @@
       href="../../images/favicon.png"
       type="image/png"
     />
-    <title id="title">イベント管理</title>
+    <title>イベント管理</title>
     <link rel="stylesheet" href="../common/common.css" />
     <link rel="stylesheet" href="event-edit.css" />
     <link
@@ -42,8 +42,8 @@
 
       <!-- 場所名 -->
       <div class="form-group">
-        <label for="event-location">場所名</label>
-        <input type="text" id="event-location" placeholder="場所名を入力..." />
+        <label for="event-place">場所名</label>
+        <input type="text" id="event-place" placeholder="場所名を入力..." />
       </div>
 
       <!-- 場所URL（Google Maps） -->
@@ -53,6 +53,16 @@
           type="text"
           id="event-location-url"
           placeholder="Google Maps URLを入力..."
+        />
+      </div>
+
+      <!-- 交通アクセス（Google Maps URLなど） -->
+      <div class="form-group">
+        <label for="event-access-url">交通アクセス</label>
+        <input
+          type="text"
+          id="event-access-url"
+          placeholder="Google Maps URLなどを入力..."
         />
       </div>
 
@@ -76,24 +86,27 @@
         ></textarea>
       </div>
 
-      <!-- やる曲（scoresから選択、複数可） -->
+      <!-- やる曲 -->
       <div class="form-group">
-        <label>やる曲</label>
-        <div id="event-scores-container"></div>
-        <button type="button" id="add-score">＋ 曲を追加</button>
+        <label for="event-songs">やる曲</label>
+        <textarea
+          id="event-songs"
+          rows="4"
+          placeholder="やる曲を入力..."
+        ></textarea>
       </div>
 
       <!-- 服装 -->
       <div class="form-group">
-        <label for="event-attire">服装</label>
-        <input type="text" id="event-attire" placeholder="服装を入力..." />
+        <label for="event-dress">服装</label>
+        <input type="text" id="event-dress" placeholder="服装を入力..." />
       </div>
 
       <!-- その他 -->
       <div class="form-group">
-        <label for="event-note">その他</label>
+        <label for="event-other">その他</label>
         <textarea
-          id="event-note"
+          id="event-other"
           rows="3"
           placeholder="その他情報を入力..."
         ></textarea>
