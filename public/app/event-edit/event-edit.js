@@ -99,9 +99,8 @@ async function loadEventData(eventId, mode) {
   }
   const data = docSnap.data();
 
-  // 基本情報をセット
   $('#event-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
-  $('#event-date').val(data.date || '');
+  $('#event-date').val(formatDateForInput(data.date) || ''); // ← 変換してセット
   $('#event-place').val(data.place || '');
   $('#event-place-url').val(data.locationUrl || '');
   $('#event-access-url').val(data.accessUrl || '');
@@ -119,7 +118,7 @@ async function loadEventData(eventId, mode) {
 function captureInitialState() {
   initialStateHtml = {
     title: $('#event-title').val(),
-    date: $('#event-date').val(),
+    date: $('#event-date').val(), // ← inputのyyyy-MM-ddをそのまま保存
     place: $('#event-place').val(),
     locationUrl: $('#event-place-url').val(),
     accessUrl: $('#event-access-url').val(),
@@ -130,6 +129,21 @@ function captureInitialState() {
     other: $('#event-other').val(),
     attendance: $('#event-attendance').prop('checked'),
   };
+}
+function restoreInitialState() {
+  $('#event-title').val(initialStateHtml.title);
+  $('#event-date').val(initialStateHtml.date || ''); // ← yyyy-MM-dd形式
+  $('#event-place').val(initialStateHtml.place || '');
+  $('#event-place-url').val(initialStateHtml.locationUrl || '');
+  $('#event-access-url').val(initialStateHtml.accessUrl || '');
+  $('#event-parking').val(initialStateHtml.parking || '');
+  $('#event-schedule').val(initialStateHtml.schedule || '');
+  $('#event-songs').val(initialStateHtml.songs || '');
+  $('#event-dress').val(initialStateHtml.dress || '');
+  $('#event-other').val(initialStateHtml.other || '');
+  $('#event-attendance').prop('checked', initialStateHtml.attendance);
+
+  utils.clearErrors();
 }
 
 //==================================
@@ -241,29 +255,15 @@ function setupEventHandlers(mode) {
   });
 }
 
-function restoreInitialState() {
-  $('#event-title').val(initialStateHtml.title);
-  $('#event-date').val(initialStateHtml.date || '');
-  $('#event-place').val(initialStateHtml.place || '');
-  $('#event-place-url').val(initialStateHtml.locationUrl || '');
-  $('#event-access-url').val(initialStateHtml.accessUrl || '');
-  $('#event-parking').val(initialStateHtml.parking || '');
-  $('#event-schedule').val(initialStateHtml.schedule || '');
-  $('#event-songs').val(initialStateHtml.songs || '');
-  $('#event-dress').val(initialStateHtml.dress || '');
-  $('#event-other').val(initialStateHtml.other || '');
-  $('#event-attendance').prop('checked', initialStateHtml.attendance);
-
-  utils.clearErrors();
-}
-
 //==================================
 // イベントデータ収集
 //==================================
 async function collectEventData(mode) {
+  const rawDate = $('#event-date').val();
+
   const eventData = {
     title: $('#event-title').val().trim(),
-    date: $('#event-date').val(),
+    date: formatDateForSave(rawDate), // ← 保存用に変換
     place: $('#event-place').val().trim(),
     locationUrl: $('#event-place-url').val().trim(),
     accessUrl: $('#event-access-url').val().trim(),
@@ -301,4 +301,13 @@ function validateEventData() {
   }
 
   return isValid;
+}
+// yyyy-MM-dd → yyyy.MM.dd
+function formatDateForSave(dateStr) {
+  return dateStr ? dateStr.replace(/-/g, '.') : '';
+}
+
+// yyyy.MM.dd → yyyy-MM-dd
+function formatDateForInput(dateStr) {
+  return dateStr ? dateStr.replace(/\./g, '-') : '';
 }
