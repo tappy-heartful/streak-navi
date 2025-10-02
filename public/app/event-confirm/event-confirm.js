@@ -41,7 +41,13 @@ async function renderEvent() {
   // 各項目を反映
   $('#event-date').text(eventData.date || '');
   $('#event-title').text(eventData.title || '');
-  // TODO出欠は未実装のまま
+
+  // 出欠
+  if (eventData.attendance) {
+    //TODO
+  } else {
+    $('#event-access').text('受け付けない');
+  }
 
   // 場所（リンク有りならリンク化）
   if (eventData.placeUrl) {
