@@ -100,14 +100,14 @@ async function renderEvent() {
   // その他
   $('#event-other').html(eventData.other?.replace(/\n/g, '<br>') || '');
 
-  setupEventHandlers(eventId, isAdmin, eventData.isActive, uid);
+  setupEventHandlers(eventId, isAdmin, eventData.attendance, uid);
 }
 
 ////////////////////////////
 // イベント & 表示制御
 ////////////////////////////
-function setupEventHandlers(eventId, isAdmin, isActive, uid) {
-  if (!isActive) {
+function setupEventHandlers(eventId, isAdmin, attendance, uid) {
+  if (!attendance) {
     $('#answer-menu').hide();
   }
   if (!isAdmin) {
