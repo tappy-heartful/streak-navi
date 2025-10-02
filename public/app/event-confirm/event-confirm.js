@@ -44,6 +44,24 @@ async function renderEvent() {
   const myAnswer = myAnswerData?.data()?.status || '';
 
   // 各項目を反映
+  let statusClass = '';
+  let statusText = '';
+  if (!eventData.attendance) {
+    statusClass = 'closed';
+    statusText = '回答を受け付けてません';
+  } else if (myAnswer) {
+    statusClass = 'answered';
+    statusText = '回答済';
+  } else {
+    statusClass = 'pending';
+    statusText = '未回答';
+  }
+
+  $('#answer-status-label')
+    .removeClass('pending answered closed')
+    .addClass(statusClass)
+    .text(statusText);
+
   $('#event-date').text(eventData.date || '');
   $('#event-title').text(eventData.title || '');
 
