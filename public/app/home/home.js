@@ -13,11 +13,6 @@ $(document).ready(async function () {
     await initBlueNotes();
     await loadMedias();
 
-    // // TODO削除 システム管理者用制御
-    // utils.getSession('isSystemAdmin') === utils.globalStrTrue
-    //   ? $('.menu-button.event').show()
-    //   : $('.menu-button.event').hide();
-
     // イベント登録
     setupEventHandlers();
 
@@ -37,7 +32,7 @@ $(document).ready(async function () {
   }
 });
 
-// 未回答の投票・募集をまとめて「お知らせ」に表示
+// 未回答の投票・募集・イベントをまとめて「お知らせ」に表示
 async function loadPendingAnnouncements() {
   const uid = utils.getSession('uid');
   const $announcementList = $('.notification-list');
@@ -64,9 +59,7 @@ async function loadPendingAnnouncements() {
     if (!answerSnap.exists()) {
       if (!hasPendingVotes) {
         $announcementList.append(`
-          <li class="pending-message">
-            📌未回答の投票があります
-          </li>
+          <li class="pending-message">📌未回答の投票があります</li>
         `);
         hasPendingVotes = true;
         hasPending = true;
@@ -100,9 +93,7 @@ async function loadPendingAnnouncements() {
     if (!answerSnap.exists()) {
       if (!hasPendingCalls) {
         $announcementList.append(`
-          <li class="pending-message">
-            📌候補曲、募集中！
-          </li>
+          <li class="pending-message">📌候補曲、募集中！</li>
         `);
         hasPendingCalls = true;
         hasPending = true;
@@ -117,7 +108,51 @@ async function loadPendingAnnouncements() {
     }
   }
 
-  // どちらも未回答がなければ空メッセージ
+  // --- 未回答かつ今日以降のイベント ---
+  const eventsRef = utils.collection(utils.db, 'events');
+  const qEvents = utils.query(eventsRef, utils.orderBy('date', 'desc'));
+  const eventsSnap = await utils.getDocs(qEvents);
+
+  let hasPendingEvents = false;
+
+  const now = new Date();
+  const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // 今日の0:00
+
+  for (const eventDoc of eventsSnap.docs) {
+    const eventData = eventDoc.data();
+    if (!eventData.attendance) continue; // 出欠受付なしは除外
+
+    // eventDate 'yyyy.MM.dd'
+    const [year, month, day] = (eventData.date || '').split('.').map(Number);
+    if (!year || !month || !day) continue;
+
+    const eventDateObj = new Date(year, month - 1, day);
+    if (eventDateObj < todayOnly) continue; // 今日より前は対象外
+
+    const eventId = eventDoc.id;
+    const answerId = `${eventId}_${uid}`;
+    const answerDocRef = utils.doc(utils.db, 'eventAnswers', answerId);
+    const answerSnap = await utils.getDoc(answerDocRef);
+
+    if (!answerSnap.exists()) {
+      if (!hasPendingEvents) {
+        $announcementList.append(`
+          <li class="pending-message">📌未回答のイベントがあります</li>
+        `);
+        hasPendingEvents = true;
+        hasPending = true;
+      }
+      $announcementList.append(`
+        <li>
+          <a href="../event-confirm/event-confirm.html?eventId=${eventId}" class="notification-link">
+            📅${eventData.date} ${eventData.title}
+          </a>
+        </li>
+      `);
+    }
+  }
+
+  // どれも未回答がなければ空メッセージ
   if (!hasPending) {
     $announcementList.append(`
       <li class="empty-message">
