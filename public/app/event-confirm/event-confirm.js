@@ -218,7 +218,7 @@ async function renderEvent() {
     $('#event-menu').hide();
   }
 
-  setupEventHandlers(eventId, isAdmin, eventData.attendance, uid);
+  setupEventHandlers(eventId, uid);
 }
 
 ////////////////////////////
