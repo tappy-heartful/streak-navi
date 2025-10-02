@@ -69,6 +69,7 @@ async function setupPage(mode) {
 
   if (mode === 'new') {
     pageTitle.text('イベント新規作成');
+    title.text('イベント新規作成');
     submitButton.text('登録');
     backLink.text('← イベント一覧に戻る');
 
