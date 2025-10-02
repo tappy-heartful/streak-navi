@@ -63,6 +63,7 @@ $(document).ready(async function () {
 //==================================
 async function setupPage(mode) {
   const pageTitle = $('#page-title');
+  const title = $('#title');
   const submitButton = $('#save-button');
   const backLink = $('.back-link');
 
@@ -84,6 +85,12 @@ async function setupPage(mode) {
     $('#event-other').val('');
     $('#event-attendance').prop('checked', true);
   } else {
+    pageTitle.text(
+      mode === 'edit' ? 'イベント編集' : 'イベント新規作成(コピー)'
+    );
+    title.text(mode === 'edit' ? 'イベント編集' : 'イベント新規作成(コピー)');
+    submitButton.text(mode === 'edit' ? '更新' : '登録');
+    backLink.text('← イベント確認に戻る');
     // 編集 or コピー
     await loadEventData(utils.globalGetParamEventId, mode);
   }
@@ -193,14 +200,8 @@ function setupEventHandlers(mode) {
         await utils.writeLog({ dataId: docRef.id, action: '登録' });
         utils.hideSpinner();
         await utils.showDialog('登録しました', true);
-
-        if (await utils.showDialog('続いて選択肢のリンクを設定しますか？')) {
-          // はいでリンク設定画面へ
-          window.location.href = `../event-link-edit/event-link-edit.html?eventId=${docRef.id}`;
-        } else {
-          // いいえで確認画面へ
-          window.location.href = `../event-confirm/event-confirm.html?eventId=${docRef.id}`;
-        }
+        // 確認画面へ
+        window.location.href = `../event-confirm/event-confirm.html?eventId=${docRef.id}`;
       } else {
         // --- 編集 ---
         const eventId = utils.globalGetParamEventId;
@@ -221,13 +222,8 @@ function setupEventHandlers(mode) {
         utils.hideSpinner();
         await utils.showDialog('更新しました', true);
 
-        if (await utils.showDialog('続いて選択肢のリンクを設定しますか？')) {
-          // はいでリンク設定画面へ
-          window.location.href = `../event-link-edit/event-link-edit.html?eventId=${eventId}`;
-        } else {
-          // いいえで確認画面へ
-          window.location.href = `../event-confirm/event-confirm.html?eventId=${eventId}`;
-        }
+        // 確認画面へ
+        window.location.href = `../event-confirm/event-confirm.html?eventId=${eventId}`;
       }
     } catch (e) {
       // ログ登録
@@ -249,8 +245,6 @@ function setupEventHandlers(mode) {
   $(document).on('click', '.back-link', function (e) {
     window.location.href = ['edit', 'copy'].includes(mode)
       ? `../event-confirm/event-confirm.html?eventId=${utils.globalGetParamEventId}`
-      : mode === 'createFromCall'
-      ? `../call-confirm/call-confirm.html?callId=${utils.globalGetParamCallId}`
       : '../event-list/event-list.html';
   });
 }
