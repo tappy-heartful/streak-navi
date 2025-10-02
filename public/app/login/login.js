@@ -118,6 +118,12 @@ async function handleLineLoginCallback(code, state, error) {
       utils.setSession(key, value);
     }
 
+    // セッション有効期限登録
+    setSession(
+      'expiresAt',
+      Date.now() + 1000 * 60 * utils.globalSessionExpireMinutes
+    );
+
     $('#login').removeClass('logging-in').text('ようこそ！');
 
     if (userExists) {

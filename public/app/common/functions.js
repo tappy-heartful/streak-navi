@@ -74,6 +74,7 @@ export const globalAuthServerRailway =
   'https://streak-navi-auth-server-production.up.railway.app'; // railwayの認証サーバーURL
 export const globalAuthServerRender =
   'https://streak-navi-auth-server-kz3v.onrender.com'; // 新しい Render の認証サーバーURL
+export const globalSessionExpireMinutes = 1;
 
 // GETパラメータたち
 export const globalGetparams = new URLSearchParams(window.location.search);
@@ -192,8 +193,9 @@ export async function initDisplay(isShowSpinner = true) {
     showSpinner();
   }
 
-  // 不正遷移チェック
-  if (!getSession('uid')) {
+  // 不正遷移チェック、セッション有効期限チェック
+  const expiresAt = getSession('expiresAt');
+  if (!getSession('uid') || !expiresAt || Date.now() > Number(expiresAt)) {
     // ログイン画面への遷移ではない場合、ログイン後にその画面へ遷移
     if (!window.location.href.includes('app/login/login.html')) {
       localStorage.setItem('redirectAfterLogin', window.location.href);
@@ -217,16 +219,18 @@ export async function initDisplay(isShowSpinner = true) {
     window.location.href = window.location.origin;
   }
 
+  // セッションにあるユーザ情報を更新
+  for (const [key, value] of Object.entries(userSnap.data())) {
+    setSession(key, value);
+  }
+  // セッション有効期限更新
+  setSession('expiresAt', Date.now() + 1000 * 60 * globalSessionExpireMinutes);
+
   // コンポーネント読み込み(終了を待つため非同期)
   await loadComponent('header');
   await loadComponent('footer');
   await loadComponent('dialog');
   await loadComponent('modal');
-
-  // セッションにあるユーザ情報を更新
-  for (const [key, value] of Object.entries(userSnap.data())) {
-    setSession(key, value);
-  }
 
   // ウェルカム演出
   renderWelcomeOverlay();
