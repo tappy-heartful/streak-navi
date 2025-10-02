@@ -119,7 +119,7 @@ async function handleLineLoginCallback(code, state, error) {
     }
 
     // セッション有効期限登録
-    setSession(
+    utils.setSession(
       'expiresAt',
       Date.now() + 1000 * 60 * utils.globalSessionExpireMinutes
     );
