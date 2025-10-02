@@ -47,25 +47,39 @@ async function setUpPage() {
     const eventId = eventDoc.id;
     const eventDate = eventData.date;
     const eventTitle = eventData.title;
+    const eventAttendance = eventData.attendance;
 
     let status = '';
     let statusClass = '';
 
-    // 日付判定
-    const today = new Date(); // 今日の日付（時刻含む）
+    // 日付判定（当日は終了扱いしない）
+    const now = new Date(); // 現在の日時
+    const todayOnly = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      now.getDate()
+    ); // 今日の0:00
 
     // eventDate は 'yyyy.MM.dd' 形式
     const [year, month, day] = eventDate.split('.').map(Number);
     const eventDateObj = new Date(year, month - 1, day); // JSの月は0始まり
 
-    if (eventDateObj < today) {
+    if (eventDateObj < todayOnly) {
+      // 昨日以前
       status = '終了';
       statusClass = 'closed';
       closedItems.push(
         makeEventItem(eventId, eventDate, eventTitle, status, statusClass)
       );
+    } else if (!eventAttendance) {
+      // 出欠を受け付けていない未来イベント → ラベルなし
+      status = '';
+      statusClass = '';
+      pendingItems.push(
+        makeEventItem(eventId, eventDate, eventTitle, status, statusClass)
+      );
     } else {
-      // 回答チェック
+      // 出欠を受け付けている未来イベント
       const answerId = `${eventId}_${utils.getSession('uid')}`;
       const answerDocRef = utils.doc(utils.db, 'eventAnswers', answerId);
       const answerSnap = await utils.getDoc(answerDocRef);
@@ -93,6 +107,10 @@ async function setUpPage() {
 }
 
 function makeEventItem(eventId, date, title, status, statusClass) {
+  const statusHtml = status
+    ? `<span class="answer-status ${statusClass}">${status}</span>`
+    : ''; // ステータスが空ならラベル自体を非表示
+
   return $(`
     <li>
       <a href="../event-confirm/event-confirm.html?eventId=${eventId}" class="event-link">
@@ -100,7 +118,7 @@ function makeEventItem(eventId, date, title, status, statusClass) {
           <span class="event-date">📅 ${date}</span>
           <span class="event-title">${title}</span>
         </div>
-        <span class="answer-status ${statusClass}">${status}</span>
+        ${statusHtml}
       </a>
     </li>
   `);
