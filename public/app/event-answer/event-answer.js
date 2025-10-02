@@ -2,55 +2,55 @@ import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
   try {
-    const voteId = utils.globalGetParamVoteId;
+    const eventId = utils.globalGetParamEventId;
     const uid = utils.getSession('uid');
 
     await utils.initDisplay();
-    // 画面ごとのパンくずをセット
-    utils.renderBreadcrumb([
-      { title: '投票一覧', url: '../vote-list/vote-list.html' },
-      {
-        title: '投票確認',
-        url:
-          '../vote-confirm/vote-confirm.html?voteId=' +
-          utils.globalGetParamVoteId,
-      },
-      { title: '回答登録/修正' },
-    ]);
 
-    // 回答データがあるか確認してモード判定
-    let mode = 'new';
-    let answerData = await fetchAnswerData(voteId, uid);
-    if (answerData) {
-      mode = 'edit';
-    }
+    // 回答データがあるか確認
+    let answerData = await fetchAnswerData(eventId, uid);
+    let mode = answerData ? 'edit' : 'new';
 
     setupPageMode(mode);
 
-    // 投票データ取得
-    const voteData = await fetchVoteData(voteId);
+    // イベント情報取得
+    const eventData = await fetchEventData(eventId);
+
+    // 出欠ステータス取得
+    const statuses = await fetchAttendanceStatuses();
 
     // 回答データがなければ空オブジェクト
     answerData = answerData || {};
 
-    renderVote(voteData, answerData);
+    renderEvent(eventData, statuses, answerData);
 
-    setupEventHandlers(mode, voteId, uid);
+    setupEventHandlers(mode, eventId, uid);
   } catch (e) {
-    // ログ登録
     await utils.writeLog({
-      dataId: utils.globalGetParamVoteId,
+      dataId: utils.globalGetParamEventId,
       action: '初期表示',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
     });
   } finally {
-    // スピナー非表示
     utils.hideSpinner();
   }
 });
 
+// -------------------------------------
+// ページ表示モードの設定
+// -------------------------------------
 function setupPageMode(mode) {
+  // パンくず
+  utils.renderBreadcrumb([
+    { title: 'イベント一覧', url: '../event-list/event-list.html' },
+    {
+      title: 'イベント確認',
+      url: `../event-confirm/event-confirm.html?eventId=${eventId}`,
+    },
+    { title: mode === 'edit' ? '回答修正' : '回答登録' },
+  ]);
+
   const title = mode === 'edit' ? '回答修正' : '回答登録';
   const buttonText = mode === 'edit' ? '回答を修正する' : '回答を登録する';
   $('#title').text(title);
@@ -58,103 +58,69 @@ function setupPageMode(mode) {
   $('#answer-submit').text(buttonText);
 }
 
-async function fetchVoteData(voteId) {
-  const voteDoc = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
-  if (!voteDoc.exists()) {
-    throw new Error('投票が見つかりません：' + voteId);
-  }
-  return voteDoc.data();
+// -------------------------------------
+// データ取得
+// -------------------------------------
+async function fetchEventData(eventId) {
+  const docSnap = await utils.getDoc(utils.doc(utils.db, 'events', eventId));
+  if (!docSnap.exists())
+    throw new Error('イベントが見つかりません：' + eventId);
+  return docSnap.data();
 }
 
-async function fetchAnswerData(voteId, uid) {
+async function fetchAttendanceStatuses() {
+  const snapshot = await utils.getDocs(
+    utils.collection(utils.db, 'attendanceStatuses')
+  );
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+}
+
+async function fetchAnswerData(eventId, uid) {
   const ansDoc = await utils.getDoc(
-    utils.doc(utils.db, 'voteAnswers', `${voteId}_${uid}`)
+    utils.doc(utils.db, 'eventAnswers', `${eventId}_${uid}`)
   );
   if (ansDoc.exists()) {
-    return ansDoc.data().answers;
+    return ansDoc.data();
   }
   return null;
 }
 
-function renderVote(voteData, answerData = {}) {
-  $('#vote-title').text(voteData.name);
-  $('#vote-description').text(voteData.description);
+// -------------------------------------
+// 画面描画
+// -------------------------------------
+function renderEvent(eventData, statuses, answerData) {
+  $('#event-title').text(eventData.title || '');
+  $('#event-date').text(eventData.date || '');
 
-  const container = $('#vote-items-container').empty();
+  const container = $('#event-items-container').empty();
 
-  voteData.items.forEach((item, index) => {
-    const groupName = `question-${index}`;
-    const choicesHtml = item.choices
-      .map((choice, i) => {
-        const choiceId = `${groupName}-choice-${i}`;
-        const checked = answerData[item.name] === choice.name ? 'checked' : '';
+  statuses.forEach((status) => {
+    const radioId = `status-${status.id}`;
+    const checked = answerData.status === status.id ? 'checked' : '';
 
-        // リンクアイコン用HTML（枠外に配置）
-        let iconHtml = '';
-        if (choice.link) {
-          const url = choice.link;
-          try {
-            const u = new URL(url);
-            if (
-              u.hostname.includes('youtube.com') ||
-              u.hostname.includes('youtu.be')
-            ) {
-              iconHtml = `<a href="#" class="vote-choice-link youtube-link" data-video-url="${url}" data-video-title="${choice.name}"><i class="fa-brands fa-youtube"></i></a>`;
-            } else {
-              iconHtml = `<a href="${url}" class="vote-choice-link" target="_blank" rel="noopener noreferrer"><i class="fas fa-arrow-up-right-from-square"></i></a>`;
-            }
-          } catch (e) {
-            iconHtml = '';
-          }
-        }
-
-        return `
-          <div class="vote-choice-wrapper">
-            <label class="vote-choice-label" for="${choiceId}">
-              <input type="radio" name="${groupName}" id="${choiceId}" value="${choice.name}" ${checked}/>
-              ${choice.name}
-            </label>
-            ${iconHtml}
-          </div>
-        `;
-      })
-      .join('');
-
-    const itemHtml = $(`
-      <div class="vote-item">
-        <div class="vote-item-title">${item.name}</div>
-        <div class="vote-choices">${choicesHtml}</div>
+    const itemHtml = `
+      <div class="status-choice">
+        <label for="${radioId}">
+          <input type="radio" name="attendance-status" id="${radioId}" value="${status.id}" ${checked}/>
+          ${status.name}
+        </label>
       </div>
-    `);
+    `;
     container.append(itemHtml);
   });
 }
 
-function setupEventHandlers(mode, voteId, uid) {
+// -------------------------------------
+// イベントハンドラ登録
+// -------------------------------------
+function setupEventHandlers(mode, eventId, uid) {
+  // 回答送信
   $('#answer-submit').on('click', async function () {
-    const answers = {};
-    let hasError = false;
+    const selected = $('input[name="attendance-status"]:checked').val();
 
-    // 既存のエラーメッセージをクリア
-    $('.error-message').remove();
-
-    $('.vote-item').each(function () {
-      const questionTitle = $(this).find('.vote-item-title').text();
-      const selected = $(this).find('input[type="radio"]:checked').val();
-      answers[questionTitle] = selected || null;
-
-      // 未回答ならエラーメッセージ追加
-      if (!selected) {
-        hasError = true;
-        $(this)
-          .find('.vote-choices')
-          .after(`<div class="error-message">回答を選択してください。</div>`);
-      }
-    });
-
-    if (hasError) {
-      await utils.showDialog(`すべての質問に回答してください。`, true);
-      // エラーがある場合は送信処理中断
+    // 入力チェック
+    if (!selected) {
+      await utils.showDialog('出欠を選択してください。', true);
       return;
     }
 
@@ -167,11 +133,11 @@ function setupEventHandlers(mode, voteId, uid) {
       utils.showSpinner();
 
       await utils.setDoc(
-        utils.doc(utils.db, 'voteAnswers', `${voteId}_${uid}`),
+        utils.doc(utils.db, 'eventAnswers', `${eventId}_${uid}`),
         {
-          voteId,
+          eventId,
           uid,
-          answers,
+          status: selected,
           updatedAt: utils.serverTimestamp(),
         },
         { merge: true }
@@ -179,7 +145,7 @@ function setupEventHandlers(mode, voteId, uid) {
 
       // ログ登録
       await utils.writeLog({
-        dataId: utils.globalGetParamVoteId,
+        dataId: eventId,
         action: mode === 'edit' ? '修正' : '登録',
       });
 
@@ -188,12 +154,11 @@ function setupEventHandlers(mode, voteId, uid) {
         `回答を${mode === 'edit' ? '修正' : '登録'}しました`,
         true
       );
-      window.location.href =
-        '../vote-confirm/vote-confirm.html?voteId=' + voteId;
+      window.location.href = `../event-confirm/event-confirm.html?eventId=${eventId}`;
     } catch (e) {
       // ログ登録
       await utils.writeLog({
-        dataId: utils.globalGetParamVoteId,
+        dataId: eventId,
         action: mode === 'edit' ? '修正' : '登録',
         status: 'error',
         errorDetail: { message: e.message, stack: e.stack },
@@ -204,17 +169,8 @@ function setupEventHandlers(mode, voteId, uid) {
     }
   });
 
-  $(document).on('click', '.youtube-link', async function (e) {
-    e.preventDefault();
-    const videoUrl = $(this).data('video-url') || $(this).attr('href');
-    const title = $(this).attr('data-video-title') || '参考音源';
-
-    const iframeHtml = utils.buildYouTubeHtml(videoUrl);
-
-    await utils.showModal(title, iframeHtml);
-  });
-
+  // 戻るリンク
   $(document).on('click', '.back-link', function () {
-    window.location.href = '../vote-confirm/vote-confirm.html?voteId=' + voteId;
+    window.location.href = `../event-confirm/event-confirm.html?eventId=${eventId}`;
   });
 }
