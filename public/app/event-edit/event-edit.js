@@ -74,9 +74,9 @@ async function setupPage(mode) {
     // 初期値セット
     $('#event-date').val('');
     $('#event-title').val('');
-    $('#event-place').val('');
+    $('#event-place-name').val('');
     $('#event-place-url').val('');
-    $('#event-access-url').val('');
+    $('#event-access').val('');
     $('#event-parking').val('');
     $('#event-schedule').val('');
     $('#event-songs').val('');
@@ -101,9 +101,9 @@ async function loadEventData(eventId, mode) {
 
   $('#event-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
   $('#event-date').val(formatDateForInput(data.date) || ''); // ← 変換してセット
-  $('#event-place').val(data.place || '');
-  $('#event-place-url').val(data.locationUrl || '');
-  $('#event-access-url').val(data.accessUrl || '');
+  $('#event-place-name').val(data.placeName || '');
+  $('#event-place-url').val(data.placeUrl || '');
+  $('#event-access').val(data.access || '');
   $('#event-parking').val(data.parking || '');
   $('#event-schedule').val(data.schedule || '');
   $('#event-songs').val(data.songs || '');
@@ -119,9 +119,9 @@ function captureInitialState() {
   initialStateHtml = {
     title: $('#event-title').val(),
     date: $('#event-date').val(), // ← inputのyyyy-MM-ddをそのまま保存
-    place: $('#event-place').val(),
-    locationUrl: $('#event-place-url').val(),
-    accessUrl: $('#event-access-url').val(),
+    placeName: $('#event-place-name').val(),
+    placeUrl: $('#event-place-url').val(),
+    access: $('#event-access').val(),
     parking: $('#event-parking').val(),
     schedule: $('#event-schedule').val(),
     songs: $('#event-songs').val(),
@@ -133,9 +133,9 @@ function captureInitialState() {
 function restoreInitialState() {
   $('#event-title').val(initialStateHtml.title);
   $('#event-date').val(initialStateHtml.date || ''); // ← yyyy-MM-dd形式
-  $('#event-place').val(initialStateHtml.place || '');
-  $('#event-place-url').val(initialStateHtml.locationUrl || '');
-  $('#event-access-url').val(initialStateHtml.accessUrl || '');
+  $('#event-place-name').val(initialStateHtml.placeName || '');
+  $('#event-place-url').val(initialStateHtml.placeUrl || '');
+  $('#event-access').val(initialStateHtml.access || '');
   $('#event-parking').val(initialStateHtml.parking || '');
   $('#event-schedule').val(initialStateHtml.schedule || '');
   $('#event-songs').val(initialStateHtml.songs || '');
@@ -264,9 +264,9 @@ async function collectEventData(mode) {
   const eventData = {
     title: $('#event-title').val().trim(),
     date: formatDateForSave(rawDate), // ← 保存用に変換
-    place: $('#event-place').val().trim(),
-    locationUrl: $('#event-place-url').val().trim(),
-    accessUrl: $('#event-access-url').val().trim(),
+    placeName: $('#event-place-name').val().trim(),
+    placeUrl: $('#event-place-url').val().trim(),
+    access: $('#event-access').val().trim(),
     parking: $('#event-parking').val().trim(),
     schedule: $('#event-schedule').val().trim(),
     songs: $('#event-songs').val().trim(),
