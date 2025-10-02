@@ -67,9 +67,71 @@ async function renderEvent() {
 
   // 出欠
   if (eventData.attendance) {
-    //TODO
+    // ステータス一覧取得
+    const statusesSnap = await utils.getDocs(
+      utils.collection(utils.db, 'attendanceStatuses')
+    );
+    const statuses = statusesSnap.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+
+    // 回答一覧取得
+    const answersSnap = await utils.getDocs(
+      utils.collection(utils.db, 'eventAnswers')
+    );
+    const answers = answersSnap.docs
+      .filter((doc) => doc.id.startsWith(eventId + '_'))
+      .map((doc) => ({ id: doc.id, ...doc.data() }));
+
+    // 全ユーザ情報取得
+    const usersSnap = await utils.getDocs(utils.collection(utils.db, 'users'));
+    const users = {};
+    usersSnap.docs.forEach((doc) => {
+      users[doc.id] = doc.data();
+    });
+
+    // 出欠エリアをクリア
+    const $container = $('#event-attendance');
+    $container.empty();
+
+    // ステータスごとに表示
+    for (const status of statuses) {
+      const $statusBlock = $(`
+      <div class="attendance-status-block">
+        <h3>${status.name}</h3>
+        <div class="attendance-users" id="status-${status.id}"></div>
+      </div>
+    `);
+
+      // このステータスに該当するユーザを追加
+      const filteredAnswers = answers.filter((ans) => ans.status === status.id);
+
+      if (filteredAnswers.length === 0) {
+        $statusBlock
+          .find('.attendance-users')
+          .append('<p class="no-user">該当者なし</p>');
+      } else {
+        for (const ans of filteredAnswers) {
+          const uid = ans.id.replace(eventId + '_', '');
+          const user = users[uid];
+          if (!user) continue;
+
+          const $userItem = $(`
+          <div class="attendance-user">
+            <img src="${user.pictureUrl}" alt="${user.displayName}" />
+            <span>${user.displayName}</span>
+          </div>
+        `);
+
+          $statusBlock.find('.attendance-users').append($userItem);
+        }
+      }
+
+      $container.append($statusBlock);
+    }
   } else {
-    $('#event-access').text('受け付けない');
+    $('#event-attendance').addClass('label-value').text('受け付けない');
   }
 
   // 場所（リンク有りならリンク化）

@@ -1,79 +1,50 @@
-.vote-item {
-  margin-bottom: 20px;
-  padding: 15px;
+/* 出欠状況ブロック */
+.attendance-status-block {
+  margin-bottom: 24px;
+  padding: 12px;
   border: 1px solid #ddd;
   border-radius: 8px;
-  background: #f9f9f9;
+  background: #fafafa;
 }
 
-.vote-item-title {
-  font-weight: bold;
-  margin-bottom: 10px;
-  font-size: 18px;
-}
-
-.vote-choices {
-  padding-left: 20px;
-}
-
-.vote-choice {
-  margin-bottom: 6px;
+.attendance-status-block h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: #333;
+  border-left: 4px solid #4caf50;
   padding-left: 8px;
 }
 
-.vote-results {
-  margin-top: 10px;
-}
-
-.result-bar {
+/* ユーザ一覧 */
+.attendance-users {
   display: flex;
-  align-items: center;
-  margin-bottom: 10px;
-  font-size: 15px;
+  flex-wrap: wrap;
+  gap: 16px;
 }
 
-.result-bar .label {
-  width: 100px;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* 個別ユーザ */
+.attendance-user {
+  width: 80px;
+  text-align: center;
+  font-size: 13px;
 }
 
-.result-bar .bar-container {
-  flex-grow: 1;
-  background: #e0e0e0;
-  border-radius: 4px;
-  overflow: hidden;
-  margin: 0 10px;
-  height: 18px;
-}
-
-.result-bar .bar {
-  height: 100%;
-  background: linear-gradient(to right, #4CAF50, #81C784);
-  border-radius: 4px;
-  transition: width 0.5s;
-}
-
-.result-bar .vote-count {
-  min-width: 40px;
-  text-align: right;
-  font-weight: bold;
-}
-
-.section-label {
-  margin: 20px 0 10px;
-  font-size: 14px;
-  font-weight: bold;
-  color: #888;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 4px;
-}
-
-.my-choice-icon {
-  width: 18px;
-  height: 18px;
+.attendance-user img {
+  width: 60px;
+  height: 60px;
   border-radius: 50%;
-  vertical-align: middle;
-  margin-right: 4px;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 6px;
+}
+
+.attendance-user span {
+  display: block;
+  word-break: break-word;
+}
+
+/* 該当者なし */
+.no-user {
+  font-size: 13px;
+  color: #888;
 }
