@@ -74,7 +74,7 @@ export const globalAuthServerRailway =
   'https://streak-navi-auth-server-production.up.railway.app'; // railwayの認証サーバーURL
 export const globalAuthServerRender =
   'https://streak-navi-auth-server-kz3v.onrender.com'; // 新しい Render の認証サーバーURL
-export const globalSessionExpireMinutes = 1;
+export const globalSessionExpireMinutes = 30;
 
 // GETパラメータたち
 export const globalGetparams = new URLSearchParams(window.location.search);
