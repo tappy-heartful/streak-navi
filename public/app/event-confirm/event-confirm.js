@@ -53,8 +53,9 @@ async function renderEvent() {
 
   const [year, month, day] = (eventData.date || '').split('.').map(Number);
   const eventDateObj = new Date(year, month - 1, day);
+  const isPast = eventDateObj < todayOnly;
 
-  if (eventDateObj < todayOnly) {
+  if (isPast) {
     // 終了
     statusClass = 'closed';
     statusText = '終了';
@@ -201,11 +202,20 @@ async function renderEvent() {
   $('#event-other').html(eventData.other?.replace(/\n/g, '<br>') || '');
 
   // 🔽 回答メニュー制御
-  if (myAnswer) {
-    $('#answer-save-button').text('回答を修正する');
+  if (!eventData.attendance || isPast) {
+    $('#answer-menu').hide();
   } else {
-    $('#answer-save-button').text('回答する');
-    $('#answer-delete-button').hide();
+    if (myAnswer) {
+      $('#answer-save-button').text('回答を修正する');
+    } else {
+      $('#answer-save-button').text('回答する');
+      $('#answer-delete-button').hide();
+    }
+  }
+
+  // 🔽 管理者用メニュー制御
+  if (!isAdmin) {
+    $('#event-menu').hide();
   }
 
   setupEventHandlers(eventId, isAdmin, eventData.attendance, uid);
@@ -214,14 +224,7 @@ async function renderEvent() {
 ////////////////////////////
 // イベント & 表示制御
 ////////////////////////////
-function setupEventHandlers(eventId, isAdmin, attendance, uid) {
-  if (!attendance) {
-    $('#answer-menu').hide();
-  }
-  if (!isAdmin) {
-    $('#event-menu').hide();
-  }
-
+function setupEventHandlers(eventId, uid) {
   // 回答する
   $('#answer-save-button')
     .off('click')
