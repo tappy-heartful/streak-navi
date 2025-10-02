@@ -46,13 +46,28 @@ async function renderEvent() {
   // 各項目を反映
   let statusClass = '';
   let statusText = '';
-  if (!eventData.attendance) {
+
+  // 日付判定（終了の追加）
+  const now = new Date(); // 現在日時
+  const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // 今日0:00
+
+  const [year, month, day] = (eventData.date || '').split('.').map(Number);
+  const eventDateObj = new Date(year, month - 1, day);
+
+  if (eventDateObj < todayOnly) {
+    // 終了
+    statusClass = 'closed';
+    statusText = '終了';
+  } else if (!eventData.attendance) {
+    // 回答受付なし
     statusClass = 'closed';
     statusText = '回答を受け付けてません';
   } else if (myAnswer) {
+    // 回答済
     statusClass = 'answered';
     statusText = '回答済';
   } else {
+    // 未回答
     statusClass = 'pending';
     statusText = '未回答';
   }
