@@ -37,6 +37,11 @@ async function renderEvent() {
     throw new Error('イベントが見つかりません：' + eventId);
   }
   const eventData = eventSnap.data();
+  // eventAnswers から自分の回答取得
+  const myAnswerData = await utils.getDoc(
+    utils.doc(utils.db, 'eventAnswers', `${eventId}_${uid}`)
+  );
+  const myAnswer = myAnswerData?.data()?.status || '';
 
   // 各項目を反映
   $('#event-date').text(eventData.date || '');
@@ -99,6 +104,14 @@ async function renderEvent() {
 
   // その他
   $('#event-other').html(eventData.other?.replace(/\n/g, '<br>') || '');
+
+  // 🔽 回答メニュー制御
+  if (myAnswer) {
+    $('#answer-save-button').text('回答を修正する');
+  } else {
+    $('#answer-save-button').text('回答する');
+    $('#answer-delete-button').hide();
+  }
 
   setupEventHandlers(eventId, isAdmin, eventData.attendance, uid);
 }

@@ -11,6 +11,16 @@ $(document).ready(async function () {
     let answerData = await fetchAnswerData(eventId, uid);
     let mode = answerData ? 'edit' : 'new';
 
+    // パンくず
+    utils.renderBreadcrumb([
+      { title: 'イベント一覧', url: '../event-list/event-list.html' },
+      {
+        title: 'イベント確認',
+        url: `../event-confirm/event-confirm.html?eventId=${eventId}`,
+      },
+      { title: mode === 'edit' ? '回答修正' : '回答登録' },
+    ]);
+
     setupPageMode(mode);
 
     // イベント情報取得
@@ -41,16 +51,6 @@ $(document).ready(async function () {
 // ページ表示モードの設定
 // -------------------------------------
 function setupPageMode(mode) {
-  // パンくず
-  utils.renderBreadcrumb([
-    { title: 'イベント一覧', url: '../event-list/event-list.html' },
-    {
-      title: 'イベント確認',
-      url: `../event-confirm/event-confirm.html?eventId=${eventId}`,
-    },
-    { title: mode === 'edit' ? '回答修正' : '回答登録' },
-  ]);
-
   const title = mode === 'edit' ? '回答修正' : '回答登録';
   const buttonText = mode === 'edit' ? '回答を修正する' : '回答を登録する';
   $('#title').text(title);
