@@ -546,66 +546,21 @@ export function markError($field, message) {
 
 //===========================
 // XSS対策ユーティリティ
+// TODO：appendしちゃダメなタグの選別、オブジェクトだった場合の対応
+// 対象は.html、.append、(innerHtml)
 //===========================
 (function ($) {
   /**
-   * 安全にHTMLをセット
-   * $(selector).safeHTML(content)
+   * そのままHTMLをセット（.html() と同じ）
    */
   $.fn.safeHTML = function (content) {
-    if (typeof DOMPurify === 'undefined') {
-      console.error('DOMPurify is not loaded.');
-      return this;
-    }
-
-    return this.each(function () {
-      let htmlToSet;
-
-      if (typeof content === 'string') {
-        // 文字列の場合のみサニタイズ
-        htmlToSet = DOMPurify.sanitize(content, {
-          ALLOWED_TAGS: ['b', 'i', 'strong', 'em', 'p', 'br', 'a'],
-          ALLOWED_ATTR: ['href', 'title', 'target', 'rel'],
-        });
-        htmlToSet = content; // TODO 削除
-      } else if (content instanceof jQuery || content instanceof HTMLElement) {
-        // jQueryオブジェクトやDOM要素はそのまま挿入
-        htmlToSet = content.outerHTML || content.prop?.('outerHTML') || '';
-      } else {
-        // その他のオブジェクトや値は文字列化
-        htmlToSet = String(content);
-      }
-
-      this.innerHTML = htmlToSet;
-    });
+    return this.html(content);
   };
 
   /**
-   * 安全にHTMLをappend
-   * $(selector).safeAppend(content)
+   * そのままHTMLをappend（.append() と同じ）
    */
   $.fn.safeAppend = function (content) {
-    if (typeof DOMPurify === 'undefined') {
-      console.error('DOMPurify is not loaded.');
-      return this;
-    }
-
-    return this.each(function () {
-      let htmlToAppend;
-
-      if (typeof content === 'string') {
-        htmlToAppend = DOMPurify.sanitize(content, {
-          ALLOWED_TAGS: ['b', 'i', 'strong', 'em', 'p', 'br', 'a'],
-          ALLOWED_ATTR: ['href', 'title', 'target', 'rel'],
-        });
-        htmlToAppend = content; // TODO 削除
-      } else if (content instanceof jQuery || content instanceof HTMLElement) {
-        htmlToAppend = content.outerHTML || content.prop?.('outerHTML') || '';
-      } else {
-        htmlToAppend = String(content);
-      }
-
-      this.innerHTML += htmlToAppend;
-    });
+    return this.append(content);
   };
 })(jQuery);
