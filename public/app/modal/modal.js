@@ -18,7 +18,7 @@ export function showModal(title, body, saveLabel, cancelLabel) {
 
     // タイトルと本文セット
     $title.text(title);
-    $body.html(body);
+    $body.safeHTML(body);
 
     // ボタンラベルに応じて表示/非表示
     if (saveLabel) {

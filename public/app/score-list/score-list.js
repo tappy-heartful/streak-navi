@@ -49,7 +49,7 @@ async function setUpPage() {
   // ▼ ジャンルプルダウンに反映
   const $genreSelect = $('#genre-select');
   genres.forEach((g) => {
-    $genreSelect.append(`<option value="${g.id}">${g.name}</option>`);
+    $genreSelect.safeAppend(`<option value="${g.id}">${g.name}</option>`);
   });
 
   renderScores(scores);
@@ -111,7 +111,7 @@ function renderScores(scoreArray) {
 
   // 譜面一覧描画
   for (const s of scoreArray) {
-    $list.append(makeScoreItem(s.id, s.title));
+    $list.safeAppend(makeScoreItem(s.id, s.title));
   }
 
   // --- プレイリストリンク生成 ---
@@ -143,7 +143,7 @@ function makeScoreItem(scoreId, title) {
 }
 
 function showEmptyMessage($list) {
-  $list.append(`
+  $list.safeAppend(`
     <li class="empty-message">
       <div class="score-link empty">
         該当の譜面はありません🍀

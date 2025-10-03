@@ -64,7 +64,7 @@ async function setupPage(mode) {
     submitButton.text('登録');
     backLink.text('← 曲募集一覧に戻る');
     // 初期表示で投票項目一つ表示
-    $('#call-items-container').append(addItemToForm());
+    $('#call-items-container').safeAppend(addItemToForm());
     // 回答を受け付けにチェック
     $('#is-active').prop('checked', true);
   } else if (mode === 'edit' || mode === 'copy') {
@@ -257,7 +257,7 @@ function addItemToForm(value = '') {
     </div>
   `);
   $item.find('.remove-item').on('click', () => $item.remove());
-  $container.append($item);
+  $container.safeAppend($item);
 }
 
 //===========================

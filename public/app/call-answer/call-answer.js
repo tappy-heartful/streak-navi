@@ -93,7 +93,7 @@ async function renderCall(callData, answerData = {}) {
         <button class="add-song" data-genre-id="${genreId}">＋ 曲を追加</button>
       </div>
     `;
-    container.append(genreHtml);
+    container.safeAppend(genreHtml);
 
     // 生成された select を初期化
     const $selects = $(`#${genreId} .song-scorestatus`);
@@ -134,7 +134,7 @@ function setupEventHandlers(mode, callId, uid, callData) {
     const genreId = $(this).data('genre-id');
     const $container = $(`#${genreId} .songs-container`);
     const $newForm = $(buildSongForm(genreId));
-    $container.append($newForm);
+    $container.safeAppend($newForm);
 
     // 追加した select を初期化
     const $select = $newForm.find('.song-scorestatus');
@@ -261,7 +261,7 @@ async function populateScoreStatusSelect($select, selectedValue = '') {
     .val(0)
     .text('譜面状況(必須)')
     .prop('selected', true);
-  $select.append(defaultOption);
+  $select.safeAppend(defaultOption);
 
   statusList.forEach((status) => {
     const option = $('<option>')
@@ -271,6 +271,6 @@ async function populateScoreStatusSelect($select, selectedValue = '') {
     if (selectedValue && selectedValue === status.id) {
       option.prop('selected', true);
     }
-    $select.append(option);
+    $select.safeAppend(option);
   });
 }

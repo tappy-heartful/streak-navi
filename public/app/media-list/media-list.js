@@ -41,7 +41,7 @@ async function setUpPage() {
     const mediaData = mediaDoc.data();
     const mediaId = mediaDoc.id;
 
-    $list.append(makeMediaItem(mediaId, mediaData.date, mediaData.title));
+    $list.safeAppend(makeMediaItem(mediaId, mediaData.date, mediaData.title));
   }
 }
 
@@ -57,7 +57,7 @@ function makeMediaItem(mediaId, date, title) {
 }
 
 function showEmptyMessage($list) {
-  $list.append(`
+  $list.safeAppend(`
     <li class="empty-message">
       <div class="media-link empty">
         該当のメディアはありません🍀

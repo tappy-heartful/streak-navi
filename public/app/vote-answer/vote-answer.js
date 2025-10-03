@@ -126,7 +126,7 @@ function renderVote(voteData, answerData = {}) {
         <div class="vote-choices">${choicesHtml}</div>
       </div>
     `);
-    container.append(itemHtml);
+    container.safeAppend(itemHtml);
   });
 }
 
