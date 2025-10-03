@@ -73,7 +73,7 @@ async function populateSections(selectedId) {
     if (doc.id === selectedId) {
       option.prop('selected', true);
     }
-    $select.safeAppend(option);
+    $select.append(option);
   });
 }
 
@@ -90,7 +90,7 @@ async function populateRoles(selectedId) {
     if (doc.id === selectedId) {
       option.prop('selected', true);
     }
-    $select.safeAppend(option);
+    $select.append(option);
   });
 }
 
@@ -106,7 +106,7 @@ function setupEventHandlers() {
         <button type="button" class="remove-secret-word">×</button>
       </div>
     `);
-    $list.safeAppend($item);
+    $list.append($item);
   });
 
   // 合言葉削除ボタン

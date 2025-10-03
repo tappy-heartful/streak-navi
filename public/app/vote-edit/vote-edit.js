@@ -83,7 +83,7 @@ async function setupPage(mode) {
     submitButton.text('登録');
     backLink.text('← 投票一覧に戻る');
     // 初期表示で投票項目一つ表示
-    $('#vote-items-container').safeAppend(createVoteItemTemplate());
+    $('#vote-items-container').append(createVoteItemTemplate());
     // 回答を受け付けにチェック
     $('#is-active').prop('checked', true);
   } else if (mode === 'createFromCall') {
@@ -139,7 +139,7 @@ async function loadVoteData(voteId, mode) {
     $item.find('.vote-item-title').val(item.name);
     const $choices = $item.find('.vote-choices').empty();
     item.choices.forEach((choice, idx) => {
-      $choices.safeAppend(`
+      $choices.append(`
           <div class="choice-wrapper">
             ・<input type="text" class="vote-choice" placeholder="選択肢${
               idx + 1
@@ -148,7 +148,7 @@ async function loadVoteData(voteId, mode) {
           </div>
         `);
     });
-    $('#vote-items-container').safeAppend($item);
+    $('#vote-items-container').append($item);
   });
 }
 
@@ -196,18 +196,18 @@ async function loadCallData() {
     if (songs.length > 0) {
       // 回答がある場合は全曲を選択肢に追加
       songs.forEach((song, idx) => {
-        $choices.safeAppend(choiceTemplate(idx + 1));
+        $choices.append(choiceTemplate(idx + 1));
         $choices.find('.vote-choice').last().val(song.title);
       });
       // 回答が1件だけの場合は空の選択肢を追加
-      if (songs.length === 1) $choices.safeAppend(choiceTemplate(2));
+      if (songs.length === 1) $choices.append(choiceTemplate(2));
     } else {
       // 回答が1件もない場合は空の選択肢を2つ表示
-      $choices.safeAppend(choiceTemplate(1));
-      $choices.safeAppend(choiceTemplate(2));
+      $choices.append(choiceTemplate(1));
+      $choices.append(choiceTemplate(2));
     }
 
-    $('#vote-items-container').safeAppend($item);
+    $('#vote-items-container').append($item);
   });
 }
 
@@ -217,7 +217,7 @@ async function loadCallData() {
 function setupEventHandlers(mode) {
   // 【項目追加ボタン】
   $('#add-item').on('click', () => {
-    $('#vote-items-container').safeAppend(createVoteItemTemplate());
+    $('#vote-items-container').append(createVoteItemTemplate());
   });
 
   // 【項目内ボタン（動的要素用イベント委任）】
@@ -226,7 +226,7 @@ function setupEventHandlers(mode) {
     .on('click', '.add-choice', function () {
       const $choices = $(this).siblings('.vote-choices');
       const index = $choices.find('.choice-wrapper').length + 1;
-      $choices.safeAppend(choiceTemplate(index));
+      $choices.append(choiceTemplate(index));
     })
     // 選択肢削除
     .on('click', '.remove-choice', function () {
@@ -432,11 +432,11 @@ function restoreInitialState() {
 
     const $choices = $item.find('.vote-choices').empty();
     item.choices.forEach((choice, idx) => {
-      $choices.safeAppend(choiceTemplate(idx + 1));
+      $choices.append(choiceTemplate(idx + 1));
       $choices.find('.vote-choice').last().val(choice);
     });
 
-    $('#vote-items-container').safeAppend($item);
+    $('#vote-items-container').append($item);
   });
 
   utils.clearErrors();

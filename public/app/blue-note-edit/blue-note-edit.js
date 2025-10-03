@@ -58,7 +58,7 @@ async function setupPage() {
       utils.hideSpinner();
     });
 
-    $tabsContainer.safeAppend($li);
+    $tabsContainer.append($li);
   });
 
   // 初期表示
@@ -81,7 +81,7 @@ async function loadBlueNotes(month) {
       'href',
       `https://www.youtube.com/watch_videos?video_ids=${watchIds.join(',')}`
     )
-    .safeHTML(`<i class="fa-brands fa-youtube"></i> ${month}月のプレイリスト`);
+    .html(`<i class="fa-brands fa-youtube"></i> ${month}月のプレイリスト`);
 
   const loadId = ++currentLoadId;
   const year = 2024;
@@ -142,7 +142,7 @@ async function loadBlueNotes(month) {
         displayName = userCache[data.createdBy];
       }
 
-      $container.safeAppend(`
+      $container.append(`
         <div class="form-group blue-note-item" data-date="${dateId}">
           <label class="day-label">${displayDay}日</label>
           <span class="label-value title-value">
@@ -162,7 +162,7 @@ async function loadBlueNotes(month) {
         </div>
       `);
     } else {
-      $container.safeAppend(`
+      $container.append(`
         <div class="form-group blue-note-item" data-date="${dateId}">
           <label class="day-label">${displayDay}日</label>
           <input type="text" class="title-input" placeholder="曲名" />
@@ -247,19 +247,19 @@ function setupEventHandlers() {
     let $errorContainer = $item.find('.error-container');
     if ($errorContainer.length === 0) {
       $errorContainer = $('<div class="error-container"></div>');
-      $item.safeAppend($errorContainer);
+      $item.append($errorContainer);
     }
     $errorContainer.empty();
 
     let hasError = false;
     if (!title) {
-      $errorContainer.safeAppend(
+      $errorContainer.append(
         '<div class="error-message">タイトルを入力してください</div>'
       );
       hasError = true;
     }
     if (!youtubeUrl) {
-      $errorContainer.safeAppend(
+      $errorContainer.append(
         '<div class="error-message">URLを入力してください</div>'
       );
       hasError = true;
@@ -268,7 +268,7 @@ function setupEventHandlers() {
 
     const videoId = utils.extractYouTubeId(youtubeUrl);
     if (!videoId) {
-      $errorContainer.safeAppend(
+      $errorContainer.append(
         '<div class="error-message">YouTubeのURLを正しく入力してください</div>'
       );
       return;
@@ -284,7 +284,7 @@ function setupEventHandlers() {
       const data = doc.data();
       const existingId = data.youtubeId || '';
       if (existingId && existingId === videoId) {
-        $errorContainer.safeAppend(
+        $errorContainer.append(
           `<div class="error-message">この動画は既に登録されています：${parseInt(
             doc.id.slice(0, 2),
             10

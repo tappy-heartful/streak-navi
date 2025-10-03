@@ -76,9 +76,9 @@ async function setUpPage() {
   }
 
   // 表示順: 未回答 → 回答済 → 終了
-  pendingItems.forEach((item) => $list.safeAppend(item));
-  votedItems.forEach((item) => $list.safeAppend(item));
-  closedItems.forEach((item) => $list.safeAppend(item));
+  pendingItems.forEach((item) => $list.append(item));
+  votedItems.forEach((item) => $list.append(item));
+  closedItems.forEach((item) => $list.append(item));
 }
 
 function makeVoteItem(voteId, name, status, statusClass) {
@@ -93,7 +93,7 @@ function makeVoteItem(voteId, name, status, statusClass) {
 }
 
 function showEmptyMessage($list) {
-  $list.safeAppend(`
+  $list.append(`
     <li class="empty-message">
       <div class="vote-link empty">
         該当の投票はありません🍀

@@ -106,7 +106,7 @@ function renderEvent(eventData, statuses, answerData) {
         </label>
       </div>
     `;
-    container.safeAppend(itemHtml);
+    container.append(itemHtml);
   });
 }
 

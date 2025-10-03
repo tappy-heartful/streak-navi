@@ -139,7 +139,7 @@ function renderView(voteData, voteResults, container, myAnswer, myProfileUrl) {
       ? getLinkHtml(voteData.descriptionLink, voteData.description)
       : voteData.description
     : '';
-  $('#vote-description').safeHTML(voteDescription);
+  $('#vote-description').html(voteDescription);
 
   items.forEach((item) => {
     const results = voteResults[item.name] || {};
@@ -197,7 +197,7 @@ function renderView(voteData, voteResults, container, myAnswer, myProfileUrl) {
       </div>
     `;
 
-    container.safeAppend(html);
+    container.append(html);
   });
 }
 

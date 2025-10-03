@@ -114,7 +114,7 @@ function addGenreSelect(selectedId = '') {
     wrapper.find('.remove-genre').hide();
   }
 
-  $('#genre-container').safeAppend(wrapper);
+  $('#genre-container').append(wrapper);
 }
 
 //===========================

@@ -39,7 +39,7 @@ async function renderScore() {
 
   // 譜面（Google Driveリンク）
   if (scoreData.scoreUrl) {
-    $('#score-drive').safeHTML(
+    $('#score-drive').html(
       `<a href="${scoreData.scoreUrl}" target="_blank">譜面をみる<i class="fas fa-arrow-up-right-from-square"></i></a>`
     );
   } else {
@@ -48,7 +48,7 @@ async function renderScore() {
 
   // 参考音源（YouTube埋め込み）
   if (scoreData.referenceTrack) {
-    $('#reference-track').safeHTML(
+    $('#reference-track').html(
       utils.buildYouTubeHtml(scoreData.referenceTrack)
     );
   } else {

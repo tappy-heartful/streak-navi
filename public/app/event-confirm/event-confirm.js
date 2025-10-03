@@ -126,7 +126,7 @@ async function renderEvent() {
       if (filteredAnswers.length === 0) {
         $statusBlock
           .find('.attendance-users')
-          .safeAppend('<p class="no-user">該当者なし</p>');
+          .append('<p class="no-user">該当者なし</p>');
       } else {
         for (const ans of filteredAnswers) {
           const uid = ans.id.replace(eventId + '_', '');
@@ -140,11 +140,11 @@ async function renderEvent() {
           </div>
         `);
 
-          $statusBlock.find('.attendance-users').safeAppend($userItem);
+          $statusBlock.find('.attendance-users').append($userItem);
         }
       }
 
-      $container.safeAppend($statusBlock);
+      $container.append($statusBlock);
     }
   } else {
     $('#event-attendance').addClass('label-value').text('受け付けない');
@@ -152,7 +152,7 @@ async function renderEvent() {
 
   // 場所（リンク有りならリンク化）
   if (eventData.placeUrl) {
-    $('#event-place').safeHTML(
+    $('#event-place').html(
       `<a href="${
         eventData.placeUrl
       }" target="_blank" rel="noopener noreferrer">
@@ -166,11 +166,11 @@ async function renderEvent() {
   // 交通アクセス（URLかテキストか判定）
   if (eventData.access) {
     if (/^https?:\/\//.test(eventData.access)) {
-      $('#event-access').safeHTML(
+      $('#event-access').html(
         `<a href="${eventData.access}" target="_blank" rel="noopener noreferrer">${eventData.access}</a>`
       );
     } else {
-      $('#event-access').safeHTML(eventData.access.replace(/\n/g, '<br>'));
+      $('#event-access').html(eventData.access.replace(/\n/g, '<br>'));
     }
   } else {
     $('#event-access').text('');
@@ -179,29 +179,27 @@ async function renderEvent() {
   // 駐車場情報（URLかテキストか判定）
   if (eventData.parking) {
     if (/^https?:\/\//.test(eventData.parking)) {
-      $('#event-parking').safeHTML(
+      $('#event-parking').html(
         `<a href="${eventData.parking}" target="_blank" rel="noopener noreferrer">${eventData.parking}</a>`
       );
     } else {
-      $('#event-parking').safeHTML(eventData.parking.replace(/\n/g, '<br>'));
+      $('#event-parking').html(eventData.parking.replace(/\n/g, '<br>'));
     }
   } else {
     $('#event-parking').text('');
   }
 
   // やる曲
-  $('#event-songs').safeHTML(eventData.songs?.replace(/\n/g, '<br>') || '');
+  $('#event-songs').html(eventData.songs?.replace(/\n/g, '<br>') || '');
 
   // タイムスケジュール
-  $('#event-schedule').safeHTML(
-    eventData.schedule?.replace(/\n/g, '<br>') || ''
-  );
+  $('#event-schedule').html(eventData.schedule?.replace(/\n/g, '<br>') || '');
 
   // 服装
-  $('#event-dress').safeHTML(eventData.dress?.replace(/\n/g, '<br>') || '');
+  $('#event-dress').html(eventData.dress?.replace(/\n/g, '<br>') || '');
 
   // その他
-  $('#event-other').safeHTML(eventData.other?.replace(/\n/g, '<br>') || '');
+  $('#event-other').html(eventData.other?.replace(/\n/g, '<br>') || '');
 
   // 🔽 回答メニュー制御
   if (!eventData.attendance || isPast) {
