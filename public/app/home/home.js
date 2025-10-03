@@ -555,11 +555,20 @@ async function loadMedias() {
 }
 
 // イベントハンドラ登録
-function setupEventHandlers() {
+async function setupEventHandlers() {
   $('#blue-note-prev').on('click', showPrev);
   $('#blue-note-next').on('click', showNext);
   $('#blue-note-random').on('click', showRandom);
   $('#score-next').on('click', showScoreNext);
   $('#score-prev').on('click', showScorePrev);
   $('#score-random').on('click', showScoreRandom);
+
+  // 以下管理者のみ
+  if (utils.getSession('isSystemAdmin') === utils.globalStrTrue) {
+    $('#home-title').on('click', async () => {
+      utils.showSpinner();
+      await utils.fetchAllFieldNames();
+      utils.hideSpinner();
+    });
+  }
 }

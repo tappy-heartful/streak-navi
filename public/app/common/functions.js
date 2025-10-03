@@ -564,3 +564,25 @@ export function markError($field, message) {
     return this.append(content);
   };
 })(jQuery);
+
+//===========================
+// Firestore 全フィールド取得ユーティリティ
+//===========================
+export async function fetchAllFieldNames() {
+  try {
+    const res = await fetch(`${globalAuthServerRender}/list-fields`);
+    if (!res.ok) {
+      throw new Error('Failed to fetch field names');
+    }
+    const data = await res.json();
+
+    console.log('全フィールド一覧:', data.fields);
+    console.log('ルール用関数スニペット:\n', data.ruleSnippet);
+
+    // ここで data.ruleSnippet を表示したり、
+    // ルールファイルに反映する処理を組み込める
+    return data;
+  } catch (err) {
+    console.error('Error fetching field names:', err);
+  }
+}
