@@ -81,7 +81,7 @@ async function loadVoteData(voteId) {
 
     const $choicesContainer = $item.find('.vote-choices');
     item.choices.forEach((choice, choiceIdx) => {
-      $choicesContainer.append(`
+      $choicesContainer.safeAppend(`
         <div class="choice-wrapper">
           ・${choice.name}
           <input type="text" class="vote-choice-link" placeholder="${
@@ -91,7 +91,7 @@ async function loadVoteData(voteId) {
       `);
     });
 
-    $container.append($item);
+    $container.safeAppend($item);
   });
 }
 

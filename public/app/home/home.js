@@ -58,13 +58,13 @@ async function loadPendingAnnouncements() {
 
     if (!answerSnap.exists()) {
       if (!hasPendingVotes) {
-        $announcementList.append(`
+        $announcementList.safeAppend(`
           <li class="pending-message">📌未回答の投票があります</li>
         `);
         hasPendingVotes = true;
         hasPending = true;
       }
-      $announcementList.append(`
+      $announcementList.safeAppend(`
         <li>
           <a href="../vote-confirm/vote-confirm.html?voteId=${voteId}" class="notification-link">
             📝${voteData.name}
@@ -92,13 +92,13 @@ async function loadPendingAnnouncements() {
 
     if (!answerSnap.exists()) {
       if (!hasPendingCalls) {
-        $announcementList.append(`
+        $announcementList.safeAppend(`
           <li class="pending-message">📌候補曲、募集中！</li>
         `);
         hasPendingCalls = true;
         hasPending = true;
       }
-      $announcementList.append(`
+      $announcementList.safeAppend(`
         <li>
           <a href="../call-confirm/call-confirm.html?callId=${callId}" class="notification-link">
             🎶${callData.title}
@@ -136,13 +136,13 @@ async function loadPendingAnnouncements() {
 
     if (!answerSnap.exists()) {
       if (!hasPendingEvents) {
-        $announcementList.append(`
+        $announcementList.safeAppend(`
           <li class="pending-message">📌未回答のイベントがあります</li>
         `);
         hasPendingEvents = true;
         hasPending = true;
       }
-      $announcementList.append(`
+      $announcementList.safeAppend(`
         <li>
           <a href="../event-confirm/event-confirm.html?eventId=${eventId}" class="notification-link">
             📅${eventData.date} ${eventData.title}
@@ -154,7 +154,7 @@ async function loadPendingAnnouncements() {
 
   // どれも未回答がなければ空メッセージ
   if (!hasPending) {
-    $announcementList.append(`
+    $announcementList.safeAppend(`
       <li class="empty-message">
         <div class="notification-link">お知らせはありません🍀</div>
       </li>
@@ -197,7 +197,7 @@ async function loadQuickScores() {
   const snap = await utils.getDocs(q);
 
   if (snap.empty) {
-    $scoreList.append(
+    $scoreList.safeAppend(
       '<div class="empty-message">譜面はまだ登録されていません🍀</div>'
     );
     return;
@@ -209,7 +209,7 @@ async function loadQuickScores() {
     const data = doc.data();
     if (idx % 2 === 0) {
       rowDiv = $('<div class="quick-score-row"></div>');
-      $scoreList.append(rowDiv);
+      $scoreList.safeAppend(rowDiv);
     }
 
     const scoreLink = $(`
@@ -217,7 +217,7 @@ async function loadQuickScores() {
         🎼 ${data.title}
       </a>
     `);
-    rowDiv.append(scoreLink);
+    rowDiv.safeAppend(scoreLink);
   });
 }
 
@@ -255,7 +255,7 @@ function renderScoreVideos() {
   const watchIds = getWatchVideosOrder(currentScoreIndex, scores);
 
   const html = utils.buildYouTubeHtml(watchIds, false, false);
-  $videos.append(`
+  $videos.safeAppend(`
     <div class="video active" data-index="${currentScoreIndex}">
       ${html}
     </div>
@@ -351,7 +351,7 @@ function renderBlueNoteVideos() {
 
     const html = utils.buildYouTubeHtml(watchIds, false, false);
 
-    $videos.append(`
+    $videos.safeAppend(`
       <div class="video ${item.role === 'current' ? 'active' : ''}"
            data-role="${item.role}"
            data-index="${item.index}">
@@ -405,7 +405,7 @@ function showNext() {
   const watchIds = getWatchVideosOrder(newNextIndex, blueNotes);
   const html = utils.buildYouTubeHtml(watchIds, false, false);
 
-  $videos.append(`
+  $videos.safeAppend(`
     <div class="video" data-role="next" data-index="${newNextIndex}">
       ${html}
     </div>
@@ -469,7 +469,7 @@ function showRandom() {
   indexes.forEach((item) => {
     const watchIds = getWatchVideosOrder(item.index, blueNotes);
     const html = utils.buildYouTubeHtml(watchIds, false, false);
-    $videos.append(`
+    $videos.safeAppend(`
       <div class="video ${item.role === 'current' ? 'active' : ''}"
            data-role="${item.role}"
            data-index="${item.index}">
@@ -539,7 +539,7 @@ async function loadMedias() {
     }
 
     html += `</div>`;
-    $contentList.append(html);
+    $contentList.safeAppend(html);
   });
 
   // Instagram埋め込みを処理
@@ -548,7 +548,7 @@ async function loadMedias() {
   }
 
   if (!isExist) {
-    $contentList.append(
+    $contentList.safeAppend(
       `<div class="content-item">メディアはまだ登録されていません🍀</div>`
     );
   }

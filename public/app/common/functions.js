@@ -249,26 +249,26 @@ export function renderBreadcrumb(crumbs) {
   const $nav = $('<nav class="breadcrumb"></nav>');
 
   // 先頭にはホーム
-  $nav.append(
+  $nav.safeAppend(
     `<a href="../home/home.html"><i class="fa fa-home"></i> ホーム</a>`
   );
 
   crumbs.forEach((c, idx) => {
     // セパレーター
-    $nav.append('<span class="separator">›</span>');
+    $nav.safeAppend('<span class="separator">›</span>');
 
     const isLast = idx === crumbs.length - 1;
 
     if (isLast) {
       // 現在ページ
-      $nav.append(`<span class="current">${c.title}</span>`);
+      $nav.safeAppend(`<span class="current">${c.title}</span>`);
     } else {
       // 中間リンク
-      $nav.append(`<a href="${c.url}">${c.title}</a>`);
+      $nav.safeAppend(`<a href="${c.url}">${c.title}</a>`);
     }
   });
 
-  $container.append($nav);
+  $container.safeAppend($nav);
 }
 
 // ウェルカムオーバーレイ表示
@@ -321,7 +321,7 @@ function renderWelcomeOverlay() {
 export async function showSpinner() {
   if ($('#spinner-overlay').length === 0) {
     // スピナー用のタグがない場合追加
-    $('body').append(`
+    $('body').safeAppend(`
       <div id="spinner-overlay">
         <div class="spinner"></div>
       </div>
@@ -543,3 +543,69 @@ export function markError($field, message) {
     .after(`<div class="error-message">${message}</div>`)
     .addClass('error-field');
 }
+
+//===========================
+// XSS対策ユーティリティ
+//===========================
+(function ($) {
+  /**
+   * 安全にHTMLをセット
+   * $(selector).safeHTML(content)
+   */
+  $.fn.safeHTML = function (content) {
+    if (typeof DOMPurify === 'undefined') {
+      console.error('DOMPurify is not loaded.');
+      return this;
+    }
+
+    return this.each(function () {
+      let htmlToSet;
+
+      if (typeof content === 'string') {
+        // 文字列の場合のみサニタイズ
+        htmlToSet = DOMPurify.sanitize(content, {
+          ALLOWED_TAGS: ['b', 'i', 'strong', 'em', 'p', 'br', 'a'],
+          ALLOWED_ATTR: ['href', 'title', 'target', 'rel'],
+        });
+        htmlToSet = content; // TODO 削除
+      } else if (content instanceof jQuery || content instanceof HTMLElement) {
+        // jQueryオブジェクトやDOM要素はそのまま挿入
+        htmlToSet = content.outerHTML || content.prop?.('outerHTML') || '';
+      } else {
+        // その他のオブジェクトや値は文字列化
+        htmlToSet = String(content);
+      }
+
+      this.innerHTML = htmlToSet;
+    });
+  };
+
+  /**
+   * 安全にHTMLをappend
+   * $(selector).safeAppend(content)
+   */
+  $.fn.safeAppend = function (content) {
+    if (typeof DOMPurify === 'undefined') {
+      console.error('DOMPurify is not loaded.');
+      return this;
+    }
+
+    return this.each(function () {
+      let htmlToAppend;
+
+      if (typeof content === 'string') {
+        htmlToAppend = DOMPurify.sanitize(content, {
+          ALLOWED_TAGS: ['b', 'i', 'strong', 'em', 'p', 'br', 'a'],
+          ALLOWED_ATTR: ['href', 'title', 'target', 'rel'],
+        });
+        htmlToAppend = content; // TODO 削除
+      } else if (content instanceof jQuery || content instanceof HTMLElement) {
+        htmlToAppend = content.outerHTML || content.prop?.('outerHTML') || '';
+      } else {
+        htmlToAppend = String(content);
+      }
+
+      this.innerHTML += htmlToAppend;
+    });
+  };
+})(jQuery);

@@ -80,7 +80,7 @@ async function setUpPage() {
   });
 
   if (adminList.length > 0) {
-    $('label:contains("管理者権限")').html(
+    $('label:contains("管理者権限")').safeHTML(
       `管理者権限：${adminList.join('、')}
        <span class="tooltip-icon" data-tooltip="管理者はデータ操作ができます。">？</span>`
     );
@@ -89,11 +89,11 @@ async function setUpPage() {
   }
 
   // パート・役職
-  $('label:contains("パート")').html(
+  $('label:contains("パート")').safeHTML(
     `パート：${sectionName || '未設定'}
     <span class="tooltip-icon" data-tooltip="所属しているパート">？</span>`
   );
-  $('label:contains("役職")').html(
+  $('label:contains("役職")').safeHTML(
     `役職：${roleName || '未設定'}
     <span class="tooltip-icon" data-tooltip="このユーザの役職">？</span>`
   );
