@@ -74,7 +74,7 @@ async function renderCall() {
   $('#answer-status').text(
     `${callData.isActive ? '受付中' : '終了'}（${participantCount}人が回答中）`
   );
-  $('#call-anonymous').text(callData.isAnonymous ? 'はい' : 'いいえ');
+  $('#call-created-by').text(callData.createdBy);
 
   // 募集ジャンル＋回答を表示
   const container = $('#call-items').empty();
