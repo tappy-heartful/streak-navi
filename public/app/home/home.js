@@ -502,7 +502,11 @@ function getWatchVideosOrder(currentIndex, blueNotes) {
 // コンテンツを読み込んで表示する関数
 async function loadMedias() {
   const mediasRef = utils.collection(utils.db, 'medias');
-  const q = utils.query(mediasRef, utils.orderBy('date', 'desc'));
+  const q = utils.query(
+    mediasRef,
+    utils.orderBy('date', 'desc'),
+    utils.limit(3)
+  );
   const snap = await utils.getDocs(q);
   let isExist = false;
 
