@@ -113,7 +113,7 @@ function buildSongForm(genreId, song = {}, idx = 0) {
       <input type="text" placeholder="曲名(必須)" class="song-title" value="${
         song.title || ''
       }">
-      <input type="text" placeholder="参考音源URL(任意)" class="song-url" value="${
+      <input type="text" placeholder="参考音源URL(必須)" class="song-url" value="${
         song.url || ''
       }">
       <select class="song-scorestatus"></select>
@@ -170,6 +170,12 @@ function setupEventHandlers(mode, callId, uid, callData) {
           if (!title) {
             hasError = true;
             utils.markError($item.find('.song-title'), '曲名は必須です。');
+          }
+
+          // 参考音源チェック
+          if (!url) {
+            hasError = true;
+            utils.markError($item.find('.song-url'), '参考音源は必須です。');
           }
 
           // 譜面状況チェック（value=0ならエラー）
