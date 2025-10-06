@@ -4,7 +4,7 @@ $(document).ready(async function () {
   try {
     // 画面ごとのパンくずをセット
     await utils.initDisplay();
-    utils.renderBreadcrumb([{ title: 'Blue Notes' }]);
+    utils.renderBreadcrumb([{ title: '今日の一曲' }]);
     await setupPage();
     setupEventHandlers();
   } catch (e) {
@@ -66,7 +66,7 @@ async function setupPage() {
 }
 
 //===========================
-// 選択月のBlue Notes読み込み（改善版）
+// 選択月の今日の一曲読み込み（改善版）
 //===========================
 let currentLoadId = 0;
 

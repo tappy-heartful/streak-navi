@@ -29,7 +29,7 @@
 }
 
 .notification-link::after {
-  content: "›"; /* 矢印アイコン */
+  content: '›'; /* 矢印アイコン */
   position: absolute;
   right: 12px;
   top: 50%;
@@ -106,8 +106,8 @@
   display: block;
   padding: 12px;
   text-align: center;
-  
-  background-color: #4CAF50;
+
+  background-color: #4caf50;
   color: white;
   border-radius: 10px;
   text-decoration: none;
@@ -120,18 +120,18 @@
 }
 
 .player-title {
-  display: block;        /* ブロックにする */
-  width: fit-content;    /* 下線は文字幅に合わせる */
-  margin: 0 auto 0.5em;  /* 自動マージンで中央揃え */
+  display: block; /* ブロックにする */
+  width: fit-content; /* 下線は文字幅に合わせる */
+  margin: 0 auto 0.5em; /* 自動マージンで中央揃え */
   font-size: 16px;
   color: #666;
   border-bottom: 1px solid #ccc;
   padding-bottom: 0.2em;
-  text-align: center;    /* 念のためテキストも中央 */
+  text-align: center; /* 念のためテキストも中央 */
 }
 
 .player-wrapper {
-  display: block;       /* flex をやめる */
+  display: block; /* flex をやめる */
   position: relative;
   width: 100%;
   max-width: 560px;
@@ -139,14 +139,14 @@
 }
 
 #blue-note-videos {
-  width: 100%;          /* 横幅いっぱい */
-  max-width: 800px;     /* 任意で最大幅 */
+  width: 100%; /* 横幅いっぱい */
+  max-width: 800px; /* 任意で最大幅 */
   aspect-ratio: 16/9;
 }
 
 #score-videos {
-  width: 100%;          /* 横幅いっぱい */
-  max-width: 800px;     /* 任意で最大幅 */
+  width: 100%; /* 横幅いっぱい */
+  max-width: 800px; /* 任意で最大幅 */
   aspect-ratio: 16/9;
 }
 
@@ -154,8 +154,8 @@
   display: flex;
   justify-content: center;
   gap: 10px;
-  flex-wrap: wrap;      /* 狭い画面では改行 */
-  margin-top: 10px;     /* 動画とボタンの間隔 */
+  flex-wrap: wrap; /* 狭い画面では改行 */
+  margin-top: 10px; /* 動画とボタンの間隔 */
 }
 
 .player-control {
@@ -166,11 +166,11 @@
   font-size: 16px;
   border: none;
   border-radius: 8px;
-  background-color: #4CAF50;
+  background-color: #4caf50;
   color: white;
   cursor: pointer;
   transition: background 0.3s ease;
-  white-space: nowrap;  /* ボタン内折返し防止 */
+  white-space: nowrap; /* ボタン内折返し防止 */
 }
 
 .player-control i {
@@ -192,10 +192,13 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
-
 
 /* 背景アイコン */
 .menu-button::after {
@@ -205,38 +208,38 @@
   top: 50%;
   transform: translateY(-50%);
   font-size: 40px;
-  color: white;         /* 透過は opacity で調整 */
-  opacity: 0.05;         /* Safariでも効く */
+  color: white; /* 透過は opacity で調整 */
+  opacity: 0.05; /* Safariでも効く */
   pointer-events: none;
 }
 
 /* 各アイコン例 */
 .menu-button.score::after {
-  content: "🎼";
+  content: '🎼';
 }
 
 .menu-button.event::after {
-  content: "🎺";
+  content: '🎺';
 }
 
 .menu-button.call::after {
-  content: "🎶";
+  content: '🎶';
 }
 
 .menu-button.vote::after {
-  content: "📊";
+  content: '📊';
 }
 
 .menu-button.user::after {
-  content: "👥";
+  content: '👥';
 }
 
 .menu-button.blue-note::after {
-  content: "🎧";
+  content: '🎧';
 }
 
 .menu-button.media::after {
-  content: "🎬";
+  content: '🎬';
 }
 
 .menu-button:hover {
@@ -244,10 +247,10 @@
 }
 
 /* バッジ（右上固定） */
-/* Blue Notesボタン用（右上バッジ付き） */
+/* 今日の一曲ボタン用（右上バッジ付き） */
 .menu-button.badge-inline {
   position: relative; /* バッジをこの中で絶対配置 */
-  display: block;     /* ボタン全体が基準になる */
+  display: block; /* ボタン全体が基準になる */
   text-align: center;
   padding: 12px;
   box-sizing: border-box;
@@ -264,7 +267,7 @@
   font-weight: bold;
   padding: 3px 6px;
   border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   white-space: nowrap;
   animation: pulse 1.5s infinite;
   pointer-events: none; /* クリック邪魔しない */
@@ -272,8 +275,15 @@
 
 /* バッジ点滅アニメーション */
 @keyframes pulse {
-  0%, 100% { transform: scale(1); opacity: 1; }
-  50% { transform: scale(1.2); opacity: 0.8; }
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+  50% {
+    transform: scale(1.2);
+    opacity: 0.8;
+  }
 }
 
 /* コンテンツ一覧 */
@@ -303,11 +313,10 @@
 .media-date {
   text-align: center;
   font-family: 'Roboto', sans-serif; /* 読みやすいシンプルなフォント */
-  font-size: 0.75em;  /* 小さめ */
-  color: #999;        /* 薄めグレー */
+  font-size: 0.75em; /* 小さめ */
+  color: #999; /* 薄めグレー */
   margin-bottom: 2em;
 }
-
 
 /* iframe（YouTubeなど） */
 .content-item iframe {
@@ -324,7 +333,7 @@
   gap: 6px;
   margin-top: 10px;
   font-weight: bold;
-  color: #4CAF50;
+  color: #4caf50;
   text-decoration: none;
 }
 

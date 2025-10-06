@@ -297,7 +297,7 @@ function showScoreRandom() {
   renderScoreVideos();
 }
 
-// Blue Notesを読み込んで表示する関数
+// 今日の一曲を読み込んで表示する関数
 let blueNotes = [];
 let currentIndex = 0;
 
