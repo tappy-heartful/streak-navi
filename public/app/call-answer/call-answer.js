@@ -192,6 +192,13 @@ function setupEventHandlers(mode, callId, uid, callData) {
       return;
     }
 
+    // 一つも回答がない場合はエラーにする
+    const totalSongs = Object.values(answers).flat().length;
+    if (totalSongs === 0) {
+      await utils.showDialog('少なくとも1曲は入力してください。', true);
+      return;
+    }
+
     const confirmed = await utils.showDialog(
       `回答を${mode === 'edit' ? '修正' : '登録'}しますか？`
     );
