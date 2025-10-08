@@ -45,6 +45,8 @@ export function showModal(title, body, saveLabel, cancelLabel) {
 
     // クリーンアップ関数
     const cleanup = () => {
+      $title.text('');
+      $body.safeHTML('');
       $modal.addClass('hidden');
       $buttons.addClass('hidden');
       $saveBtn.off('click');
