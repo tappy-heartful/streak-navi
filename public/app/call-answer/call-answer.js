@@ -80,9 +80,12 @@ async function renderCall(callData, answerData = {}) {
 
   for (const genre of callData.items || []) {
     const genreId = utils.generateId();
+    const songs = answerData[genre] || [];
 
-    // 各ジャンルの曲フォームを生成
-    const songsHtml = (answerData[genre] || [])
+    // 🔽 新規モードでは空でも1つ表示
+    const songList = songs.length > 0 ? songs : [{}];
+
+    const songsHtml = songList
       .map((song, idx) => buildSongForm(genreId, song, idx))
       .join('');
 
@@ -90,20 +93,15 @@ async function renderCall(callData, answerData = {}) {
       <div class="genre-card" data-genre="${genre}" id="${genreId}">
         <div class="genre-title">🎵 ${genre}</div>
         <div class="songs-container">${songsHtml}</div>
-        <button class="add-song" data-genre-id="${genreId}">＋ 曲を追加</button>
       </div>
     `;
     container.safeAppend(genreHtml);
 
-    // 生成された select を初期化
+    // select 初期化
     const $selects = $(`#${genreId} .song-scorestatus`);
-    (answerData[genre] || []).forEach(async (song, idx) => {
+    songList.forEach(async (song, idx) => {
       await populateScoreStatusSelect($selects.eq(idx), song.scorestatus);
     });
-    // 新規の場合でも1件目があれば初期化
-    if ((answerData[genre] || []).length === 0) {
-      await populateScoreStatusSelect($selects.eq(0));
-    }
   }
 }
 
@@ -123,7 +121,6 @@ function buildSongForm(genreId, song = {}, idx = 0) {
       <input type="text" placeholder="備考(任意)" class="song-note" value="${
         song.note || ''
       }">
-      <button class="remove-song">× 削除</button>
     </div>
   `;
 }
@@ -151,6 +148,7 @@ function setupEventHandlers(mode, callId, uid, callData) {
     utils.clearErrors();
     const answers = {};
     let hasError = false;
+    let hasAnyInput = false; // ← 入力があるか確認用
 
     $('.genre-card').each(function () {
       const genre = $(this).data('genre');
@@ -166,6 +164,13 @@ function setupEventHandlers(mode, callId, uid, callData) {
           const purchase = $item.find('.song-purchase').val().trim();
           const note = $item.find('.song-note').val().trim();
 
+          // 🔽 1項目でも入力があれば「入力あり」とする
+          if (title || url || purchase || note || scorestatus !== '0') {
+            hasAnyInput = true;
+          } else {
+            return; // 全く入力なしならこの行はスキップ
+          }
+
           // 曲名チェック
           if (!title) {
             hasError = true;
@@ -178,7 +183,7 @@ function setupEventHandlers(mode, callId, uid, callData) {
             utils.markError($item.find('.song-url'), '参考音源は必須です。');
           }
 
-          // 譜面状況チェック（value=0ならエラー）
+          // 譜面状況チェック
           if (scorestatus === '0') {
             hasError = true;
             utils.markError(
@@ -193,15 +198,14 @@ function setupEventHandlers(mode, callId, uid, callData) {
       answers[genre] = songs;
     });
 
-    if (hasError) {
-      await utils.showDialog(`入力内容を確認してください。`, true);
+    // 🔽 まったく入力がない場合はチェック不要
+    if (!hasAnyInput) {
+      await utils.showDialog('少なくとも1曲は入力してください。', true);
       return;
     }
 
-    // 一つも回答がない場合はエラーにする
-    const totalSongs = Object.values(answers).flat().length;
-    if (totalSongs === 0) {
-      await utils.showDialog('少なくとも1曲は入力してください。', true);
+    if (hasError) {
+      await utils.showDialog(`入力内容を確認してください。`, true);
       return;
     }
 
