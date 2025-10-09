@@ -86,26 +86,21 @@ async function loadPendingAnnouncements() {
     if (callData.isActive === false) continue;
 
     const callId = callDoc.id;
-    const answerId = `${callId}_${uid}`;
-    const answerDocRef = utils.doc(utils.db, 'callAnswers', answerId);
-    const answerSnap = await utils.getDoc(answerDocRef);
 
-    if (!answerSnap.exists()) {
-      if (!hasPendingCalls) {
-        $announcementList.append(`
+    if (!hasPendingCalls) {
+      $announcementList.append(`
           <li class="pending-message">📌候補曲、募集中！</li>
         `);
-        hasPendingCalls = true;
-        hasPending = true;
-      }
-      $announcementList.append(`
+      hasPendingCalls = true;
+      hasPending = true;
+    }
+    $announcementList.append(`
         <li>
           <a href="../call-confirm/call-confirm.html?callId=${callId}" class="notification-link">
             🎶${callData.title}
           </a>
         </li>
       `);
-    }
   }
 
   // --- 未回答かつ今日以降のイベント ---
