@@ -249,26 +249,26 @@ export function renderBreadcrumb(crumbs) {
   const $nav = $('<nav class="breadcrumb"></nav>');
 
   // 先頭にはホーム
-  $nav.safeAppend(
+  $nav.append(
     `<a href="../home/home.html"><i class="fa fa-home"></i> ホーム</a>`
   );
 
   crumbs.forEach((c, idx) => {
     // セパレーター
-    $nav.safeAppend('<span class="separator">›</span>');
+    $nav.append('<span class="separator">›</span>');
 
     const isLast = idx === crumbs.length - 1;
 
     if (isLast) {
       // 現在ページ
-      $nav.safeAppend(`<span class="current">${c.title}</span>`);
+      $nav.append(`<span class="current">${c.title}</span>`);
     } else {
       // 中間リンク
-      $nav.safeAppend(`<a href="${c.url}">${c.title}</a>`);
+      $nav.append(`<a href="${c.url}">${c.title}</a>`);
     }
   });
 
-  $container.safeAppend($nav);
+  $container.append($nav);
 }
 
 // ウェルカムオーバーレイ表示
@@ -321,7 +321,7 @@ function renderWelcomeOverlay() {
 export async function showSpinner() {
   if ($('#spinner-overlay').length === 0) {
     // スピナー用のタグがない場合追加
-    $('body').safeAppend(`
+    $('body').append(`
       <div id="spinner-overlay">
         <div class="spinner"></div>
       </div>
@@ -542,47 +542,4 @@ export function markError($field, message) {
   $field
     .after(`<div class="error-message">${message}</div>`)
     .addClass('error-field');
-}
-
-//===========================
-// XSS対策ユーティリティ
-// TODO：appendしちゃダメなタグの選別、オブジェクトだった場合の対応
-// 対象は.html、.append、(innerHtml)
-//===========================
-(function ($) {
-  /**
-   * そのままHTMLをセット（.html() と同じ）
-   */
-  $.fn.safeHTML = function (content) {
-    return this.html(content);
-  };
-
-  /**
-   * そのままHTMLをappend（.append() と同じ）
-   */
-  $.fn.safeAppend = function (content) {
-    return this.append(content);
-  };
-})(jQuery);
-
-//===========================
-// Firestore 全フィールド取得ユーティリティ
-//===========================
-export async function fetchAllFieldNames() {
-  try {
-    const res = await fetch(`${globalAuthServerRender}/list-fields`);
-    if (!res.ok) {
-      throw new Error('Failed to fetch field names');
-    }
-    const data = await res.json();
-
-    console.log('全フィールド一覧:', data.fields);
-    console.log('ルール用関数スニペット:\n', data.ruleSnippet);
-
-    // ここで data.ruleSnippet を表示したり、
-    // ルールファイルに反映する処理を組み込める
-    return data;
-  } catch (err) {
-    console.error('Error fetching field names:', err);
-  }
 }

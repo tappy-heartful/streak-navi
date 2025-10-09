@@ -41,7 +41,7 @@ async function renderMedia() {
 
   // Instagramリンク
   if (mediaData.instagramUrl) {
-    $('#media-instagram').safeHTML(
+    $('#media-instagram').html(
       utils.buildInstagramHtml(mediaData.instagramUrl)
     );
   } else {
@@ -50,14 +50,14 @@ async function renderMedia() {
 
   // YouTubeリンク
   if (mediaData.youtubeUrl) {
-    $('#media-youtube').safeHTML(utils.buildYouTubeHtml(mediaData.youtubeUrl));
+    $('#media-youtube').html(utils.buildYouTubeHtml(mediaData.youtubeUrl));
   } else {
     $('#media-youtube').text('未設定');
   }
 
   // GoogleDriveリンク
   if (mediaData.driveUrl) {
-    $('#media-drive').safeHTML(utils.buildGoogleDriveHtml(mediaData.driveUrl));
+    $('#media-drive').html(utils.buildGoogleDriveHtml(mediaData.driveUrl));
   } else {
     $('#media-drive').text('未設定');
   }

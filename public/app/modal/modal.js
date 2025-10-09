@@ -18,7 +18,7 @@ export function showModal(title, body, saveLabel, cancelLabel) {
 
     // タイトルと本文セット
     $title.text(title);
-    $body.safeHTML(body);
+    $body.html(body);
 
     // ボタンラベルに応じて表示/非表示
     if (saveLabel) {
@@ -46,7 +46,7 @@ export function showModal(title, body, saveLabel, cancelLabel) {
     // クリーンアップ関数
     const cleanup = () => {
       $title.text('');
-      $body.safeHTML('');
+      $body.html('');
       $modal.addClass('hidden');
       $buttons.addClass('hidden');
       $saveBtn.off('click');

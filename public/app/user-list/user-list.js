@@ -85,11 +85,11 @@ $(document).ready(async function () {
             ${roleBadgeHtml}
           </li>
         `);
-        $sectionList.safeAppend(li);
+        $sectionList.append(li);
       });
 
-      $sectionContainer.safeAppend($sectionTitle).safeAppend($sectionList);
-      $list.safeAppend($sectionContainer);
+      $sectionContainer.append($sectionTitle).append($sectionList);
+      $list.append($sectionContainer);
     }
   } catch (e) {
     // ログ登録

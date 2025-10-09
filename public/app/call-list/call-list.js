@@ -76,9 +76,9 @@ async function setUpPage() {
   }
 
   // 表示順: 未回答 → 回答済 → 終了
-  pendingItems.forEach((item) => $list.safeAppend(item));
-  calledItems.forEach((item) => $list.safeAppend(item));
-  closedItems.forEach((item) => $list.safeAppend(item));
+  pendingItems.forEach((item) => $list.append(item));
+  calledItems.forEach((item) => $list.append(item));
+  closedItems.forEach((item) => $list.append(item));
 }
 
 function makeCallItem(callId, name, status, statusClass) {
@@ -93,7 +93,7 @@ function makeCallItem(callId, name, status, statusClass) {
 }
 
 function showEmptyMessage($list) {
-  $list.safeAppend(`
+  $list.append(`
     <li class="empty-message">
       <div class="call-link empty">
         該当の曲募集はありません🍀

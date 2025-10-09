@@ -121,7 +121,7 @@ async function renderCall() {
   // 各ジャンルの表示
   for (const genre of items) {
     const genreBlock = $(`<div class="genre-block"></div>`);
-    genreBlock.safeAppend(`<div class="genre-title">🎵 ${genre}</div>`);
+    genreBlock.append(`<div class="genre-title">🎵 ${genre}</div>`);
 
     const genreList = $('<div class="genre-answers"></div>');
 
@@ -131,7 +131,7 @@ async function renderCall() {
         // 回答者名（匿名でなければ表示）
         if (!callData.isAnonymous) {
           const displayName = usersMap[ans.uid] || '(不明)';
-          genreList.safeAppend(
+          genreList.append(
             `<div class="answer-user">回答者: ${displayName}</div>`
           );
         }
@@ -169,18 +169,18 @@ async function renderCall() {
           ${song.note ? `<div>備考: ${song.note}</div>` : ''}
         </div>
       `;
-          genreList.safeAppend(songHtml);
+          genreList.append(songHtml);
         });
       }
     });
 
     if (genreList.children().length > 0) {
-      genreBlock.safeAppend(genreList);
+      genreBlock.append(genreList);
     } else {
-      genreBlock.safeAppend(`<div class="no-answer">（回答なし）</div>`);
+      genreBlock.append(`<div class="no-answer">（回答なし）</div>`);
     }
 
-    container.safeAppend(genreBlock);
+    container.append(genreBlock);
   }
 
   // 🔽 回答メニュー制御
