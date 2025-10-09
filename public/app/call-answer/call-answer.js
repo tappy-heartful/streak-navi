@@ -200,7 +200,10 @@ function setupEventHandlers(mode, callId, uid, callData) {
 
     // 🔽 まったく入力がない場合はチェック不要
     if (!hasAnyInput) {
-      await utils.showDialog('少なくとも1曲は入力してください。', true);
+      await utils.showDialog(
+        '少なくとも1曲は入力してください。(回答を取り消す場合は前の画面でお願いします)',
+        true
+      );
       return;
     }
 
