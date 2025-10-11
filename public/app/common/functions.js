@@ -185,18 +185,25 @@ export async function loadComponent(
     document.body.appendChild(script);
   }
 }
-
-// 画面共通初期処理
+// 画面共通初期処理 (セキュリティと継続ログインを考慮した完全版)
 export async function initDisplay(isShowSpinner = true) {
   if (isShowSpinner) {
     // スピナー表示
     showSpinner();
   }
 
-  // 不正遷移チェック、セッション有効期限チェック
-  const expiresAt = getSession('expiresAt');
-  if (!getSession('uid') || !expiresAt || Date.now() > Number(expiresAt)) {
-    // ログイン画面への遷移ではない場合、ログイン後にその画面へ遷移
+  // --- 1. Firebase Auth の認証状態が確立されるのを待つ --- // セッションが有効であれば、認証済みユーザー (user) が返される
+  const user = await new Promise((resolve) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      unsubscribe(); // 購読を解除
+      resolve(user);
+    });
+  });
+
+  // --- 2. 認証チェック ---
+  if (!user) {
+    // 認証情報がない、またはセッションが完全に期限切れの場合
+    // ログイン画面への遷移ではない場合、ログイン後にその画面へ遷移するためのリダイレクト先を保存
     if (!window.location.href.includes('app/login/login.html')) {
       localStorage.setItem('redirectAfterLogin', window.location.href);
     }
@@ -204,29 +211,24 @@ export async function initDisplay(isShowSpinner = true) {
     window.location.href = window.location.origin;
   }
 
-  // アカウント存在チェック
-  const userRef = doc(db, 'users', getSession('uid'));
+  // --- 3. アカウント存在チェック (Firestore) --- // 認証された user.uid を使用
+  const userRef = doc(db, 'users', user.uid);
   const userSnap = await getDoc(userRef);
   if (!userSnap.exists()) {
-    // ログインページへ遷移
+    // Firebase Authにはユーザーがいるが、Firestoreからデータが削除されている場合
+    // セッションもクリアし、ログインページへ遷移させる
+    await auth.signOut(); // Firebase Authからもサインアウト
+    clearAllAppSession();
     window.location.href = window.location.origin;
+    hideSpinner();
+    return; // 処理を中断
   }
-
-  // ログイン済みチェック
-  const user = auth.currentUser;
-  if (!user) {
-    // ログインページへ遷移
-    window.location.href = window.location.origin;
-  }
-
-  // セッションにあるユーザ情報を更新
+  // --- 4. ユーザー情報をセッション (カスタムデータ) に更新 --- // Firebase Authのセッションとは別に、アプリ固有のユーザーデータを最新化
   for (const [key, value] of Object.entries(userSnap.data())) {
     setSession(key, value);
   }
-  // セッション有効期限更新
-  setSession('expiresAt', Date.now() + 1000 * 60 * globalSessionExpireMinutes);
 
-  // コンポーネント読み込み(終了を待つため非同期)
+  // // --- 5. コンポーネント読み込み ---
   await loadComponent('header');
   await loadComponent('footer');
   await loadComponent('dialog');
