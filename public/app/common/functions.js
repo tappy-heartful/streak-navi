@@ -227,6 +227,8 @@ export async function initDisplay(isShowSpinner = true) {
   for (const [key, value] of Object.entries(userSnap.data())) {
     setSession(key, value);
   }
+  // 継続ログインの場合uidだけはセットされていないので、ここでセット
+  setSession('uid', user.uid);
 
   // // --- 5. コンポーネント読み込み ---
   await loadComponent('header');
