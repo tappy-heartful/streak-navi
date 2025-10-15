@@ -55,7 +55,7 @@ async function renderCall() {
   let statusText = '';
   if (!callData.isActive) {
     statusClass = 'closed';
-    statusText = '終了';
+    statusText = '期間外';
   } else if (myAnswer && Object.keys(myAnswer).length > 0) {
     statusClass = 'answered';
     statusText = '回答済';
@@ -72,7 +72,9 @@ async function renderCall() {
   $('#call-title').text(callData.title);
   $('#call-description').text(callData.description);
   $('#answer-status').text(
-    `${callData.isActive ? '受付中' : '終了'}（${participantCount}人が回答中）`
+    `${
+      callData.isActive ? '受付中' : '期間外'
+    }（${participantCount}人が回答中）`
   );
   $('#call-created-by').text(callData.createdBy);
 

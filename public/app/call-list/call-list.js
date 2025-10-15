@@ -49,7 +49,7 @@ async function setUpPage() {
     let statusClass = '';
 
     if (callData.isActive === false) {
-      status = '終了';
+      status = '期間外';
       statusClass = 'closed';
       closedItems.push(
         makeCallItem(callId, callData.title, status, statusClass)

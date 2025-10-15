@@ -49,7 +49,7 @@ async function setUpPage() {
     let statusClass = '';
 
     if (voteData.isActive === false) {
-      status = '終了';
+      status = '期間外';
       statusClass = 'closed';
       closedItems.push(
         makeVoteItem(voteId, voteData.name, status, statusClass)

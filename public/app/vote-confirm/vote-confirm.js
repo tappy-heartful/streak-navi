@@ -58,7 +58,7 @@ async function renderVote() {
   let statusText = '';
   if (!voteData.isActive) {
     statusClass = 'closed';
-    statusText = '終了';
+    statusText = '期間外';
   } else if (myAnswer && Object.keys(myAnswer).length > 0) {
     statusClass = 'answered';
     statusText = '回答済';
@@ -73,7 +73,9 @@ async function renderVote() {
   $('#vote-title').text(voteData.name);
   $('#vote-description').text(voteData.description);
   $('#answer-status').text(
-    `${voteData.isActive ? '受付中' : '終了'}（${participantCount}人が回答済）`
+    `${
+      voteData.isActive ? '受付中' : '期間外'
+    }（${participantCount}人が回答済）`
   );
   $('#created-by').text(voteData.createdBy);
   if (myAnswer && Object.keys(myAnswer).length > 0) {
