@@ -91,7 +91,7 @@ async function renderVote() {
 
   // 集計結果表示
   const voteResults = await getVoteResults(voteId, voteData.items);
-  renderView(voteData, voteResults, container, myAnswer, myProfileUrl);
+  renderView(voteData, voteResults, container, myAnswer, myProfileUrl, isAdmin);
 
   setupEventHandlers(voteId, isAdmin, voteData.isActive, uid);
 }
@@ -130,9 +130,17 @@ async function getVoteResults(voteId, items) {
 ////////////////////////////
 // 投票結果表示
 ////////////////////////////
-function renderView(voteData, voteResults, container, myAnswer, myProfileUrl) {
-  const isAnonymous = !!voteData.isAnonymous;
-  const hideVotes = !!voteData.hideVotes;
+function renderView(
+  voteData,
+  voteResults,
+  container,
+  myAnswer,
+  myProfileUrl,
+  isAdmin
+) {
+  // 各表示フラグ設定(管理者権限があるときは強制的に表示)
+  const isAnonymous = !isAdmin && !!voteData.isAnonymous;
+  const hideVotes = !isAdmin && !!voteData.hideVotes;
   const items = voteData.items || [];
 
   // 投票説明リンク対応
