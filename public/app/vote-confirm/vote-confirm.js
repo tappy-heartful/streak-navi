@@ -184,7 +184,9 @@ function renderView(voteData, voteResults, container, myAnswer, myProfileUrl) {
 
         return `
           <div class="result-bar ${isMyChoice ? 'my-choice' : ''}">
-            <div class="label">${iconHtml}${choiceLabel}</div>
+            <div class="label" style="${
+              hideVotes ? 'width: 100%;' : ''
+            }">${iconHtml}${choiceLabel}</div>
             ${barHtml}
             <div class="vote-count">${voteCountView}</div>
           </div>
