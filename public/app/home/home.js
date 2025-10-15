@@ -32,7 +32,7 @@ $(document).ready(async function () {
   }
 });
 
-// 未回答の投票・募集・イベントをまとめて「お知らせ」に表示
+// 投票・募集・イベントをまとめて「お知らせ」に表示
 async function loadPendingAnnouncements() {
   const uid = utils.getSession('uid');
   const $announcementList = $('.notification-list');
@@ -40,7 +40,7 @@ async function loadPendingAnnouncements() {
 
   let hasPending = false;
 
-  // --- 未回答の投票 ---
+  // --- 受付中の投票 ---
   const votesRef = utils.collection(utils.db, 'votes');
   const qVotes = utils.query(votesRef, utils.orderBy('createdAt', 'desc'));
   const votesSnap = await utils.getDocs(qVotes);
@@ -52,29 +52,24 @@ async function loadPendingAnnouncements() {
     if (voteData.isActive === false) continue;
 
     const voteId = voteDoc.id;
-    const answerId = `${voteId}_${uid}`;
-    const answerDocRef = utils.doc(utils.db, 'voteAnswers', answerId);
-    const answerSnap = await utils.getDoc(answerDocRef);
 
-    if (!answerSnap.exists()) {
-      if (!hasPendingVotes) {
-        $announcementList.append(`
+    if (!hasPendingVotes) {
+      $announcementList.append(`
           <li class="pending-message">📌未回答の投票があります</li>
         `);
-        hasPendingVotes = true;
-        hasPending = true;
-      }
-      $announcementList.append(`
+      hasPendingVotes = true;
+      hasPending = true;
+    }
+    $announcementList.append(`
         <li>
           <a href="../vote-confirm/vote-confirm.html?voteId=${voteId}" class="notification-link">
             📝${voteData.name}
           </a>
         </li>
       `);
-    }
   }
 
-  // --- 未回答の曲募集 ---
+  // --- 募集中の曲募集 ---
   const callsRef = utils.collection(utils.db, 'calls');
   const qCalls = utils.query(callsRef, utils.orderBy('createdAt', 'desc'));
   const callsSnap = await utils.getDocs(qCalls);
@@ -125,26 +120,21 @@ async function loadPendingAnnouncements() {
     if (eventDateObj < todayOnly) continue; // 今日より前は対象外
 
     const eventId = eventDoc.id;
-    const answerId = `${eventId}_${uid}`;
-    const answerDocRef = utils.doc(utils.db, 'eventAnswers', answerId);
-    const answerSnap = await utils.getDoc(answerDocRef);
 
-    if (!answerSnap.exists()) {
-      if (!hasPendingEvents) {
-        $announcementList.append(`
+    if (!hasPendingEvents) {
+      $announcementList.append(`
           <li class="pending-message">📌未回答のイベントがあります</li>
         `);
-        hasPendingEvents = true;
-        hasPending = true;
-      }
-      $announcementList.append(`
+      hasPendingEvents = true;
+      hasPending = true;
+    }
+    $announcementList.append(`
         <li>
           <a href="../event-confirm/event-confirm.html?eventId=${eventId}" class="notification-link">
             📅${eventData.date} ${eventData.title}
           </a>
         </li>
       `);
-    }
   }
 
   // どれも未回答がなければ空メッセージ
