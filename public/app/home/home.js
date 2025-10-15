@@ -55,7 +55,7 @@ async function loadPendingAnnouncements() {
 
     if (!hasPendingVotes) {
       $announcementList.append(`
-          <li class="pending-message">📌未回答の投票があります</li>
+          <li class="pending-message">📌投票、受付中です！</li>
         `);
       hasPendingVotes = true;
       hasPending = true;
@@ -84,7 +84,7 @@ async function loadPendingAnnouncements() {
 
     if (!hasPendingCalls) {
       $announcementList.append(`
-          <li class="pending-message">📌候補曲、募集中！</li>
+          <li class="pending-message">📌候補曲、募集中です！</li>
         `);
       hasPendingCalls = true;
       hasPending = true;
@@ -108,6 +108,10 @@ async function loadPendingAnnouncements() {
   const now = new Date();
   const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // 今日の0:00
 
+  // ★★★ 2週間後(14日後)の0:00 を計算 ★★★
+  const twoWeeksLater = new Date(todayOnly);
+  twoWeeksLater.setDate(todayOnly.getDate() + 14); // 14日加算
+
   for (const eventDoc of eventsSnap.docs) {
     const eventData = eventDoc.data();
     if (!eventData.attendance) continue; // 出欠受付なしは除外
@@ -117,13 +121,19 @@ async function loadPendingAnnouncements() {
     if (!year || !month || !day) continue;
 
     const eventDateObj = new Date(year, month - 1, day);
-    if (eventDateObj < todayOnly) continue; // 今日より前は対象外
+
+    // ★★★ フィルタリング 1: 今日より前は対象外 ★★★
+    if (eventDateObj < todayOnly) continue;
+
+    // ★★★ フィルタリング 2: 14日後より先は対象外 (追加) ★★★
+    // 14日後の 0:00 以降のイベントを除外します
+    if (eventDateObj >= twoWeeksLater) continue;
 
     const eventId = eventDoc.id;
 
     if (!hasPendingEvents) {
       $announcementList.append(`
-          <li class="pending-message">📌未回答のイベントがあります</li>
+            <li class="pending-message">📌イベントが近いです！</li>
         `);
       hasPendingEvents = true;
       hasPending = true;
