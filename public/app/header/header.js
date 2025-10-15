@@ -1,14 +1,9 @@
 import * as utils from '../common/functions.js';
-import { globalBaseUrl } from '../common/functions.js';
+
 ////////////////////////////
 // 初期表示
 ////////////////////////////
 $(document).ready(async function () {
-  // // TODO削除 システム管理者用制御
-  // utils.getSession('isSystemAdmin') === utils.globalStrTrue
-  //   ? $('#menu-event-list').show()
-  //   : $('#menu-event-list').hide();
-
   // ログイン情報反映
   const lineIconPath = utils.getSession('pictureUrl');
   const lineAccountName = utils.getSession('displayName');
@@ -61,8 +56,11 @@ $(document).ready(async function () {
 
   // ログアウトボタンクリック時にログイン画面へ遷移
   $('#logout-button').on('click', function () {
+    // セッションストレージ全削除
+    utils.clearAllAppSession();
+
     // ログインページへ遷移
-    window.location.href = globalBaseUrl;
+    window.location.href = utils.globalBaseUrl;
   });
 
   // 外部クリックで閉じる
