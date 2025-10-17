@@ -139,8 +139,8 @@ function renderView(
   isAdmin
 ) {
   // 各表示フラグ設定(管理者権限があるときは強制的に表示)
-  const isAnonymous = !isAdmin && !!voteData.isAnonymous;
-  const hideVotes = !isAdmin && !!voteData.hideVotes;
+  const isAnonymous = !isAdmin && voteData.isAnonymous;
+  const hideVotes = !isAdmin && voteData.hideVotes;
   const items = voteData.items || [];
 
   // 投票説明リンク対応
@@ -150,6 +150,13 @@ function renderView(
       : voteData.description
     : '';
   $('#vote-description').html(voteDescription);
+
+  // 投票メッセージ表示
+  $('#vote-msg').text(
+    isAdmin && voteData.hideVotes
+      ? '※「票数を非公開」のため投票結果は一般メンバーには見えていません'
+      : ''
+  );
 
   items.forEach((item) => {
     const results = voteResults[item.name] || {};
