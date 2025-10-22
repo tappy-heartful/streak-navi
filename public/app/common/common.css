@@ -107,6 +107,12 @@ h3 {
   text-align: left;
 }
 
+/* 必須項目 */
+.required {
+  color: red;
+  margin-left: 4px;
+}
+
 /* 見出しとリンクを同じ行に配置 */
 .score-header {
   display: flex;
