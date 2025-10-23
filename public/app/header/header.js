@@ -9,69 +9,73 @@ $(document).ready(async function () {
     $('#logo-text').html('Streak <span class="logo-n">T</span>est');
   }
 
-  // ICONのみ表示
-  const lineIconPath = utils.getSession('pictureUrl');
-  $('#header-line-icon').attr('src', lineIconPath);
-
   // ✅ロゴクリック → HOMEへ
   $('#logo-text').on('click', function () {
     window.location.href = '../home/home.html';
   });
 
-  // ✅ハンバーガーメニュー開閉
-  $('#hamburger-menu').on('click', function (e) {
-    e.stopPropagation();
-    $('#side-menu').slideToggle(200);
+  const icon = utils.getSession('pictureUrl');
+  const name = utils.getSession('displayName');
+
+  $('#menu-user-icon').attr('src', icon);
+  $('#menu-user-name').text(name);
+
+  // 開く
+  $('#hamburger-menu').on('click', function () {
+    $('#menu-overlay').fadeIn(150);
+    $('#slide-menu').addClass('open');
   });
 
-  // ✅ユーザアイコンクリック → プロフィールメニュー
-  $('#header-line-icon').on('click', function (e) {
-    e.stopPropagation();
-    $('#logout-menu').slideToggle(200);
-  });
+  // 閉じる
+  $('#close-menu').on('click', closeMenu);
+  $('#menu-overlay').on('click', closeMenu);
 
-  // メニュー項目クリック
-  $('#menu-top').on('click', function () {
-    window.location.href = '../home/home.html';
-  });
-  $('#menu-score-list').on('click', function () {
-    window.location.href = '../score-list/score-list.html';
-  });
-  $('#menu-event-list').on('click', function () {
-    window.location.href = '../event-list/event-list.html';
-  });
-  $('#menu-call-list').on('click', function () {
-    window.location.href = '../call-list/call-list.html';
-  });
-  $('#menu-vote-list').on('click', function () {
-    window.location.href = '../vote-list/vote-list.html';
-  });
-  $('#menu-user-list').on('click', function () {
-    window.location.href = '../user-list/user-list.html';
-  });
-  $('#menu-blue-note-edit').on('click', function () {
-    window.location.href = '../blue-note-edit/blue-note-edit.html';
-  });
-  $('#menu-media-list').on('click', function () {
-    window.location.href = '../media-list/media-list.html';
-  });
+  function closeMenu() {
+    $('#menu-overlay').fadeOut(150);
+    $('#slide-menu').removeClass('open');
+  }
 
-  // ✅プロフィール画面
-  $('#profile-button').on('click', function () {
-    window.location.href =
-      '../user-confirm/user-confirm.html?uid=' + utils.getSession('uid');
-  });
+  // 各遷移（※既存）
+  $('#menu-top').on('click', () => (location.href = '../home/home.html'));
+  $('#menu-score-list').on(
+    'click',
+    () => (location.href = '../score-list/score-list.html')
+  );
+  $('#menu-event-list').on(
+    'click',
+    () => (location.href = '../event-list/event-list.html')
+  );
+  $('#menu-call-list').on(
+    'click',
+    () => (location.href = '../call-list/call-list.html')
+  );
+  $('#menu-vote-list').on(
+    'click',
+    () => (location.href = '../vote-list/vote-list.html')
+  );
+  $('#menu-user-list').on(
+    'click',
+    () => (location.href = '../user-list/user-list.html')
+  );
+  $('#menu-blue-note-edit').on(
+    'click',
+    () => (location.href = '../blue-note-edit/blue-note-edit.html')
+  );
+  $('#menu-media-list').on(
+    'click',
+    () => (location.href = '../media-list/media-list.html')
+  );
 
-  // ✅ログアウト
-  $('#logout-button').on('click', function () {
+  $('#profile-button').on(
+    'click',
+    () =>
+      (location.href =
+        '../user-confirm/user-confirm.html?uid=' + utils.getSession('uid'))
+  );
+
+  $('#logout-button').on('click', () => {
     utils.clearAllAppSession();
-    window.location.href = utils.globalBaseUrl;
-  });
-
-  // ✅外部クリックで閉じる
-  $(document).on('click', function () {
-    $('#side-menu').slideUp(200);
-    $('#logout-menu').slideUp(200);
+    location.href = utils.globalBaseUrl;
   });
 
   // ✅既存：シェア
