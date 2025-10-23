@@ -15,8 +15,6 @@ $(document).ready(async function () {
     $('#title').html(
       '<h1>Streak <span style="color: rgb(208, 2, 2)">T</span>est</h1>'
     );
-  } else {
-    $('#title').append('test');
   }
 
   // URLにcode/stateが付いていたら → LINEログイン処理を開始
