@@ -27,33 +27,111 @@
   color: rgb(208, 2, 2);
 }
 
-.side-menu {
-  position: absolute;
-  top: 100%;
-  left: 0;
+/* === Overlay === */
+.menu-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0,0,0,0.45);
+  display: none;
+  z-index: 90;
+}
+
+/* === Slide Menu === */
+.slide-menu {
+  position: fixed;
+  top: 0; right: -75%;
+  width: 75%;
+  max-width: 320px;
+  height: 100vh;
   background: white;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 10px;
-  margin-top: 8px;
-  z-index: 10;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  box-shadow: 3px 0 10px rgba(0,0,0,0.2);
+  z-index: 100;
+  padding: 16px;
+  box-sizing: border-box;
+  transition: right 0.25s ease;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  max-height: 100dvh;
 }
 
-.side-menu button {
-  width: 100%;
-  padding: 8px 16px;
-  border-radius: 4px;
+/* 開いた状態 */
+.slide-menu.open {
+  right: 0;
+}
+
+.menu-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 16px;
+  position: relative;
+}
+
+.menu-user-icon {
+  width: 60px; height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.menu-user-name {
+  font-size: 16px;
+  font-weight: bold;
+}
+
+.close-menu {
+  position: absolute;
+  top: 4px; right: 4px;
+  font-size: 24px;
   cursor: pointer;
-  white-space: nowrap;
-  margin-bottom: 6px;
-  border: none;
-  background-color: #4CAF50;
-  color: white;
+  padding: 4px;
+  border-radius: 6px;
+}
+.close-menu:hover {
+  background: #f2f2f2;
 }
 
-.side-menu button:hover {
-  background-color: #45a049;
+.menu-section {
+  border-top: 1px solid #ddd;
+  padding-top: 12px;
+  margin-top: 12px;
+
+  /* ▼ 追加（縦→2列レイアウト） */
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 12px; /* 行、列の余白 */
+}
+
+.menu-section a {
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 16px;
+  color: #222;
+  text-decoration: none;
+  padding: 8px 4px;
+
+  /* ▼ 追加（見た目整える） */
+  text-align: center;
+  background: #f5f5f7;
+  border-radius: 6px;
+}
+
+.menu-section a:hover {
+  opacity: 0.7;
+}
+
+/* 下段（設定・ログアウト） */
+.menu-bottom {
+  margin-top: auto;
+  border-top: 1px solid #ccc;
+  padding-top: 16px;
+  grid-template-columns: 1fr;
+}
+
+.logout-text {
+  color: #c92626 !important;
 }
 
 .header-left {
@@ -68,58 +146,16 @@
   position: relative; /* ← これが重要 */
 }
 
-.header-right .line-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%; /* 丸型にする */
-  object-fit: cover;
-}
-
-.header-right .line-name {
-  font-size: 16px;
-}
-
-/* ログアウトメニュー */
-.logout-menu {
-  position: absolute;
-  top: 100%; /* アカウント名の真下に出す */
-  width: 100%;
-  left: 0;   /* ← これで親の左端に揃える */
-  background: white;
-  border: 1px solid #ccc;
-  border-radius: 6px;
-  padding: 10px;
-  margin-top: 8px;
-  z-index: 10;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-}
-
-.logout-menu button {
-  width: 100%;
-  padding: 8px 16px;
-  border-radius: 4px;
+/* ハンバーガー */
+.hamburger-menu {
+  font-size: 28px;
   cursor: pointer;
-  white-space: nowrap;
-  margin-bottom: 6px;
-  border: none;
+  padding: 8px;
+  border-radius: 6px;
 }
 
-.profile-button {
-  background-color: #2196f3;
-  color: white;
-}
-
-.profile-button:hover {
-  background-color: #1976d2;
-}
-
-.logout-button {
-  background-color: #f44336;
-  color: white;
-}
-
-.logout-button:hover {
-  background-color: #d32f2f;
+.hamburger-menu:hover {
+  background-color: #f0f0f0;
 }
 
 /* パンくず＋シェアボタンを横並びに */

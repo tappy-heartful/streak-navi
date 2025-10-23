@@ -156,8 +156,8 @@ async function loadBlueNotes(month) {
                 : data.title || ''
             }
           </span>
-          <button class="delete-button" style="display: ${
-            showDelete ? 'inline-block' : 'none'
+          <button class="delete-button" style="${
+            showDelete ? 'display: inline-block' : 'visibility: hidden'
           };">削除</button>
         </div>
       `);
@@ -207,8 +207,8 @@ async function refreshBlueNoteItem(dateId) {
               : data.title || ''
           }
         </span>
-        <button class="delete-button" style="display: ${
-          showDelete ? 'inline-block' : 'none'
+        <button class="delete-button" style="${
+          showDelete ? 'display: inline-block' : 'visibility: hidden'
         };">削除</button>
       </div>
     `);

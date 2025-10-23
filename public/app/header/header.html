@@ -3,26 +3,45 @@
     <div class="logo-text" id="logo-text">
       Streak <span class="logo-n">N</span>avi
     </div>
-    <div id="side-menu" class="side-menu" style="display: none">
-      <button id="menu-top"><i class="fa fa-home"></i> ホーム</button>
-      <button id="menu-score-list">譜面</button>
-      <button id="menu-event-list">イベント</button>
-      <button id="menu-call-list">曲募集</button>
-      <button id="menu-vote-list">投票</button>
-      <button id="menu-user-list">ユーザ</button>
-      <button id="menu-blue-note-edit">今日の一曲</button>
-      <button id="menu-media-list">メディア</button>
+  </div>
+
+  <div class="header-right">
+    <div class="hamburger-menu" id="hamburger-menu">
+      <i class="fa-solid fa-bars"></i>
     </div>
   </div>
-  <div class="header-right">
-    <img id="header-line-icon" alt="LINE" class="line-icon" />
-    <a id="header-line-name" class="line-name"></a>
-    <div id="logout-menu" class="logout-menu" style="display: none">
-      <button id="profile-button" class="profile-button">ユーザ情報</button>
-      <button id="logout-button" class="logout-button">ログアウト</button>
+
+  <!-- Overlay (背景暗く) -->
+  <div id="menu-overlay" class="menu-overlay"></div>
+
+  <!-- Slide Menu -->
+  <div id="slide-menu" class="slide-menu">
+    <div class="menu-header">
+      <img id="menu-user-icon" class="menu-user-icon" alt="user" />
+      <span id="menu-user-name" class="menu-user-name"></span>
+      <div id="close-menu" class="close-menu">
+        <i class="fa-solid fa-xmark"></i>
+      </div>
+    </div>
+
+    <div class="menu-section">
+      <a id="menu-top">ホーム</a>
+      <a id="menu-score-list">譜面</a>
+      <a id="menu-event-list">イベント</a>
+      <a id="menu-call-list">曲募集</a>
+      <a id="menu-vote-list">投票</a>
+      <a id="menu-user-list">ユーザ</a>
+      <a id="menu-blue-note-edit">今日の一曲</a>
+      <a id="menu-media-list">メディア</a>
+    </div>
+
+    <div class="menu-section menu-bottom">
+      <a id="profile-button">ユーザ情報</a>
+      <a id="logout-button" class="logout-text">ログアウト</a>
     </div>
   </div>
 </header>
+
 <div class="breadcrumb-bar">
   <div id="breadcrumb-container"></div>
   <button id="share-button" class="share-button">
