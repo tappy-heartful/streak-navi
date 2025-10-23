@@ -52,6 +52,10 @@ async function setUpPage() {
   // ユーザー名
   $('#user-name').text(userData.displayName || '名無し');
   $('.user-icon').attr('src', userData.pictureUrl || utils.globalBandLogoImage);
+  $('.user-icon').attr(
+    'onerror',
+    "this.onerror=null; this.src='" + utils.globalLineDefaultImage + "';"
+  );
 
   // パートと役職をプルダウンに反映
   await populateSections(userData.sectionId);
