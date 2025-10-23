@@ -1,7 +1,3 @@
-# Firebase Hosting auto-deploy workflow
-# main → 本番 / develop → テスト
-# npm等のビルド処理は行わない構成
-
 name: Deploy to Firebase Hosting
 
 on:
@@ -21,22 +17,24 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Deploy to Firebase Hosting
+      - name: Deploy to Firebase Hosting (prod)
+        if: ${{ github.ref_name == 'main' }}
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: ${{ secrets.GITHUB_TOKEN }}
           firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STREAK_NAVI }}
           projectId: streak-navi
-          channelId: live
+          target: prod
         env:
           FIREBASE_CLI_PREVIEWS: hostingchannels
 
-      - name: Select target site
-        run: |
-          if [ "${{ github.ref_name }}" = "main" ]; then
-            echo "Deploying to production site: streak-navi"
-            firebase deploy --only hosting:prod --token "${{ secrets.FIREBASE_DEPLOY_TOKEN }}"
-          elif [ "${{ github.ref_name }}" = "develop" ]; then
-            echo "Deploying to test site: streak-navi-test"
-            firebase deploy --only hosting:test --token "${{ secrets.FIREBASE_DEPLOY_TOKEN }}"
-          fi
+      - name: Deploy to Firebase Hosting (test)
+        if: ${{ github.ref_name == 'develop' }}
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: ${{ secrets.GITHUB_TOKEN }}
+          firebaseServiceAccount: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_STREAK_NAVI }}
+          projectId: streak-navi
+          target: test
+        env:
+          FIREBASE_CLI_PREVIEWS: hostingchannels
