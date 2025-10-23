@@ -122,6 +122,23 @@
   background-color: #d32f2f;
 }
 
+/* ユーザ名非表示 */
+.line-name {
+  display: none;
+}
+
+/* ハンバーガー */
+.hamburger-menu {
+  font-size: 28px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+}
+
+.hamburger-menu:hover {
+  background-color: #f0f0f0;
+}
+
 /* パンくず＋シェアボタンを横並びに */
 .breadcrumb-bar {
   max-width: 768px;

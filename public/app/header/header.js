@@ -4,24 +4,33 @@ import * as utils from '../common/functions.js';
 // 初期表示
 ////////////////////////////
 $(document).ready(async function () {
-  // テスト環境用表示
+  // テスト環境
   if (utils.isTest) {
     $('#logo-text').html('Streak <span class="logo-n">T</span>est');
   }
 
-  // ログイン情報反映
+  // ICONのみ表示
   const lineIconPath = utils.getSession('pictureUrl');
-  const lineAccountName = utils.getSession('displayName');
   $('#header-line-icon').attr('src', lineIconPath);
-  $('#header-line-name').text(lineAccountName);
 
-  // --- 左ロゴクリックでサイドメニュー表示 ---
-  $('.header-left').on('click', function (e) {
+  // ✅ロゴクリック → HOMEへ
+  $('#logo-text').on('click', function () {
+    window.location.href = '../home/home.html';
+  });
+
+  // ✅ハンバーガーメニュー開閉
+  $('#hamburger-menu').on('click', function (e) {
     e.stopPropagation();
     $('#side-menu').slideToggle(200);
   });
 
-  // サイドメニュー項目クリック
+  // ✅ユーザアイコンクリック → プロフィールメニュー
+  $('#header-line-icon').on('click', function (e) {
+    e.stopPropagation();
+    $('#logout-menu').slideToggle(200);
+  });
+
+  // メニュー項目クリック
   $('#menu-top').on('click', function () {
     window.location.href = '../home/home.html';
   });
@@ -47,34 +56,25 @@ $(document).ready(async function () {
     window.location.href = '../media-list/media-list.html';
   });
 
-  // --- 右側メニュー制御 ---
-  $('.header-right').on('click', function (e) {
-    e.stopPropagation(); // 外側のクリックイベントを防ぐ
-    $('#logout-menu').slideToggle(200);
-  });
-
-  // プロフィールボタンクリック時にユーザ確認画面に遷移
+  // ✅プロフィール画面
   $('#profile-button').on('click', function () {
     window.location.href =
       '../user-confirm/user-confirm.html?uid=' + utils.getSession('uid');
   });
 
-  // ログアウトボタンクリック時にログイン画面へ遷移
+  // ✅ログアウト
   $('#logout-button').on('click', function () {
-    // セッションストレージ全削除
     utils.clearAllAppSession();
-
-    // ログインページへ遷移
     window.location.href = utils.globalBaseUrl;
   });
 
-  // 外部クリックで閉じる
+  // ✅外部クリックで閉じる
   $(document).on('click', function () {
-    $('#logout-menu').slideUp(200);
     $('#side-menu').slideUp(200);
+    $('#logout-menu').slideUp(200);
   });
 
-  // シェアボタン
+  // ✅既存：シェア
   document.getElementById('share-button').addEventListener('click', () => {
     const url = window.location.href;
     if (navigator.share) {
