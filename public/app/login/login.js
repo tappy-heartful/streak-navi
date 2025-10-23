@@ -10,6 +10,13 @@ $(document).ready(async function () {
   // 背景スライドショー開始
   startBackgroundSlideshow();
 
+  // テスト環境用表示
+  if (utils.isTest) {
+    $('#title').html(
+      '<h1>Streak <span style="color: rgb(208, 2, 2)">T</span>est</h1>'
+    );
+  }
+
   // URLにcode/stateが付いていたら → LINEログイン処理を開始
   const urlParams = new URLSearchParams(window.location.search);
   const code = urlParams.get('code');

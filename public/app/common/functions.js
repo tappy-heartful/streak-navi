@@ -63,7 +63,8 @@ import { showModal } from '../modal/modal.js';
 export { showModal };
 
 // グローバル定数
-export const globalAppName = 'streakNavi';
+export const isTest = location.hostname.includes('streak-navi-test');
+export const globalAppName = isTest ? 'streakNaviTest' : 'streakNavi';
 export const globalClientId = '2007808275';
 export const globalBaseUrl = window.location.origin;
 export const globalStrTrue = 'true';

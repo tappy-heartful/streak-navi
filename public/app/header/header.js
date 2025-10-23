@@ -4,6 +4,11 @@ import * as utils from '../common/functions.js';
 // 初期表示
 ////////////////////////////
 $(document).ready(async function () {
+  // テスト環境用表示
+  if (utils.isTest) {
+    $('#logo-text').html('Streak <span class="logo-n">T</span>est');
+  }
+
   // ログイン情報反映
   const lineIconPath = utils.getSession('pictureUrl');
   const lineAccountName = utils.getSession('displayName');

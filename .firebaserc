@@ -1,5 +1,18 @@
 {
   "projects": {
     "default": "streak-navi"
-  }
+  },
+  "targets": {
+    "streak-navi": {
+      "hosting": {
+        "prod": [
+          "streak-navi"
+        ],
+        "test": [
+          "streak-navi-test"
+        ]
+      }
+    }
+  },
+  "etags": {}
 }
