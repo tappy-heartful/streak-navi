@@ -93,7 +93,7 @@
   background: #f2f2f2;
 }
 
-.menu-section {
+.slide-menu-section {
   border-top: 1px solid #ddd;
   padding-top: 12px;
   margin-top: 12px;
@@ -104,7 +104,7 @@
   gap: 8px 12px; /* 行、列の余白 */
 }
 
-.menu-section a {
+.slide-menu-section a {
   font-weight: 600;
   cursor: pointer;
   font-size: 16px;
@@ -118,7 +118,7 @@
   border-radius: 6px;
 }
 
-.menu-section a:hover {
+.slide-menu-section a:hover {
   opacity: 0.7;
 }
 
