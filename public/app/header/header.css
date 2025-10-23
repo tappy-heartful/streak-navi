@@ -27,6 +27,13 @@
   color: rgb(208, 2, 2);
 }
 
+.header-right .line-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%; /* 丸型にする */
+  object-fit: cover;
+}
+
 /* === Overlay === */
 .menu-overlay {
   position: fixed;
