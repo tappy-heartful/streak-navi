@@ -17,11 +17,14 @@ $(document).ready(async function () {
   const icon = utils.getSession('pictureUrl');
   const name = utils.getSession('displayName');
 
+  // LINEアイコン
+  $('#header-line-icon').attr('src', icon || utils.globalLineDefaultImage);
+
   $('#menu-user-icon').attr('src', icon);
   $('#menu-user-name').text(name);
 
   // 開く
-  $('#hamburger-menu').on('click', function () {
+  $('#header-right').on('click', function () {
     $('#menu-overlay').fadeIn(150);
     $('#slide-menu').addClass('open');
   });
@@ -36,7 +39,6 @@ $(document).ready(async function () {
   }
 
   // 各遷移（※既存）
-  $('#menu-top').on('click', () => (location.href = '../home/home.html'));
   $('#menu-score-list').on(
     'click',
     () => (location.href = '../score-list/score-list.html')

@@ -66,6 +66,10 @@ async function setUpPage() {
   // 表示設定
   $('#user-name').text(userData.displayName || '');
   $('.user-icon').attr('src', userData.pictureUrl || utils.globalBandLogoImage);
+  $('.user-icon').attr(
+    'onerror',
+    "this.onerror=null; this.src='" + utils.globalLineDefaultImage + "';"
+  );
 
   // 管理者権限表示
   const secretWordsSnap = await utils.getDocs(

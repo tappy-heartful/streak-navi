@@ -292,7 +292,8 @@ function setupEventHandlers(voteId, isAdmin, isActive, uid) {
         .map(
           (v) => `
         <div class="voter">
-          <img src="${v.pictureUrl}" alt="${v.name}" class="voter-icon"/>
+          <img src="${v.pictureUrl}" alt="${v.name}" class="voter-icon"
+            onerror="this.onerror=null; this.src='${utils.globalLineDefaultImage}';"/>
           <span>${v.name}</span>
         </div>
       `

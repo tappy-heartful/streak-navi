@@ -80,7 +80,10 @@ $(document).ready(async function () {
           }'">
             <img src="${user.pictureUrl || utils.globalBandLogoImage}" alt="${
           user.displayName || '名無し'
-        }のアイコン">
+        }のアイコン"
+             onerror="this.onerror=null; this.src='${
+               utils.globalLineDefaultImage
+             }';">
             <a class="username">${user.displayName || '名無し'}</a>
             ${roleBadgeHtml}
           </li>
