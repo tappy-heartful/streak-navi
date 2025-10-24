@@ -578,12 +578,12 @@ function validateVoteData() {
     utils.markError($('#vote-description'), '必須項目です'), (isValid = false);
   // 開始日付必須
   if (!acceptStartDate) {
-    utils.markError($('#accept-start-date'), '必須項目です');
+    utils.markError($('#accept-date'), '必須項目です');
     isValid = false;
   }
   // 終了日付必須
-  if (!acceptEndDate) {
-    utils.markError($('#accept-end-date'), '必須項目です');
+  else if (!acceptEndDate) {
+    utils.markError($('#accept-date'), '必須項目です');
     isValid = false;
   }
   // ✅ 開始日 > 終了日のチェック（両方入力されている場合に判定）
@@ -592,14 +592,7 @@ function validateVoteData() {
     const end = new Date(acceptEndDate + 'T23:59:59');
 
     if (start.getTime() > end.getTime()) {
-      utils.markError(
-        $('#accept-start-date'),
-        '開始日は終了日以前にしてください'
-      );
-      utils.markError(
-        $('#accept-end-date'),
-        '終了日は開始日以降にしてください'
-      );
+      utils.markError($('#accept-date'), '終了日は開始日以降にしてください');
       isValid = false;
     }
   }
