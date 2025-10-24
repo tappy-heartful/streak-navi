@@ -50,10 +50,16 @@ async function renderCall() {
     doc.id.startsWith(callId + '_')
   ).length;
 
+  // 受付中かどうかを判定
+  const isActive = utils.isInTerm(
+    callData.acceptStartDate,
+    callData.acceptEndDate
+  );
+
   // 画面に反映
   let statusClass = '';
   let statusText = '';
-  if (!callData.isActive) {
+  if (!isActive) {
     statusClass = 'closed';
     statusText = '期間外';
   } else if (myAnswer && Object.keys(myAnswer).length > 0) {
@@ -71,10 +77,12 @@ async function renderCall() {
 
   $('#call-title').text(callData.title);
   $('#call-description').text(callData.description);
+  $('#call-acceept-term').text(
+    `${callData.acceptStartDate ? callData.acceptStartDate : ''} ～
+    ${callData.acceptEndDate ? callData.acceptEndDate : ''}`
+  );
   $('#answer-status').text(
-    `${
-      callData.isActive ? '受付中' : '期間外'
-    }（${participantCount}人が回答中）`
+    `${isActive ? '受付中' : '期間外'}（${participantCount}人が回答中）`
   );
   $('#call-created-by').text(callData.createdBy);
 
@@ -193,7 +201,7 @@ async function renderCall() {
     $('#answer-delete-button').hide();
   }
 
-  setupEventHandlers(callId, isAdmin, callData.isActive, uid);
+  setupEventHandlers(callId, isAdmin, isActive, uid);
 }
 
 ////////////////////////////

@@ -48,7 +48,12 @@ async function setUpPage() {
     let status = '';
     let statusClass = '';
 
-    if (voteData.isActive === false) {
+    const isActive = utils.isInTerm(
+      voteData.acceptStartDate,
+      voteData.acceptEndDate
+    );
+
+    if (isActive === false) {
       status = '期間外';
       statusClass = 'closed';
       closedItems.push(

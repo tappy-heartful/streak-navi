@@ -196,6 +196,16 @@ select:disabled {
   margin-bottom: 6px;
 }
 
+.form-group-dates {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-group-dates label {
+  width: 100px;
+}
+
 .label-title {
   display: block;
   margin-bottom: 0.5em;

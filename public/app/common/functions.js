@@ -518,6 +518,21 @@ export function formatDateToYMDHyphen(dateStr) {
   const [yyyy, mm, dd] = parts;
   return `${yyyy}-${mm}-${dd}`;
 }
+
+export function isInTerm(startDateStr, endDateStr) {
+  const now = Date.now(); // 現在時刻（ミリ秒）
+  return (
+    (!startDateStr ||
+      now >=
+        new Date(
+          formatDateToYMDHyphen(startDateStr) + 'T00:00:00'
+        ).getTime()) &&
+    (!endDateStr ||
+      now <=
+        new Date(formatDateToYMDHyphen(endDateStr) + 'T23:59:59').getTime())
+  );
+}
+
 /**
  * ランダムなユニークIDを生成する関数
  * @param {string} prefix - 先頭に付与する文字列（省略可）

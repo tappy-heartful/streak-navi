@@ -48,7 +48,12 @@ async function setUpPage() {
     let status = '';
     let statusClass = '';
 
-    if (callData.isActive === false) {
+    const isActive = utils.isInTerm(
+      callData.acceptStartDate,
+      callData.acceptEndDate
+    );
+
+    if (isActive === false) {
       status = '期間外';
       statusClass = 'closed';
       closedItems.push(

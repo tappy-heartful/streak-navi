@@ -84,8 +84,6 @@ async function setupPage(mode) {
     backLink.text('← 投票一覧に戻る');
     // 初期表示で投票項目一つ表示
     $('#vote-items-container').append(createVoteItemTemplate());
-    // 回答を受け付けにチェック
-    $('#is-active').prop('checked', true);
   } else if (mode === 'createFromCall') {
     // --- 曲募集から投票作成 ---
     pageTitle.text('曲募集から投票作成');
@@ -128,7 +126,14 @@ async function loadVoteData(voteId, mode) {
   // 投票名・説明・公開状態
   $('#vote-title').val(data.name + (mode === 'copy' ? '（コピー）' : ''));
   $('#vote-description').val(data.description);
-  $('#is-active').prop('checked', !!data.isActive);
+  $('#accept-start-date').val(
+    data.acceptStartDate
+      ? utils.formatDateToYMDHyphen(data.acceptStartDate)
+      : ''
+  );
+  $('#accept-end-date').val(
+    data.acceptEndDate ? utils.formatDateToYMDHyphen(data.acceptEndDate) : ''
+  );
   $('#is-anonymous').prop('checked', !!data.isAnonymous);
   $('#hide-votes').prop('checked', !!data.hideVotes);
 
@@ -167,7 +172,6 @@ async function loadCallData() {
   // タイトル・説明を引き継ぎ
   $('#vote-title').val((callData.title || '') + ' の投票');
   $('#vote-description').val(callData.description || '');
-  $('#is-active').prop('checked', true); // 常に有効
 
   $('#vote-items-container').empty();
 
@@ -399,8 +403,9 @@ function captureInitialState() {
   initialStateHtml = {
     title: $('#vote-title').val(),
     description: $('#vote-description').val(),
-    isActive: $('#is-active').prop('checked'),
     isAnonymous: $('#is-anonymous').prop('checked'),
+    acceptStartDate: $('#accept-start-date').val(),
+    acceptEndDate: $('#accept-end-date').val(),
     hideVotes: $('#hide-votes').prop('checked'),
     items: $('#vote-items-container .vote-item')
       .map(function () {
@@ -421,7 +426,8 @@ function captureInitialState() {
 function restoreInitialState() {
   $('#vote-title').val(initialStateHtml.title);
   $('#vote-description').val(initialStateHtml.description);
-  $('#is-active').prop('checked', initialStateHtml.isActive);
+  $('#accept-start-date').val(initialStateHtml.acceptStartDate || ''); // ← yyyy-MM-dd形式
+  $('#accept-end-date').val(initialStateHtml.acceptEndDate || ''); // ← yyyy-MM-dd形式
   $('#is-anonymous').prop('checked', initialStateHtml.isAnonymous);
   $('#hide-votes').prop('checked', initialStateHtml.hideVotes);
 
@@ -449,16 +455,17 @@ async function collectVoteData(mode) {
   const voteData = {
     name: $('#vote-title').val().trim(),
     description: $('#vote-description').val().trim(),
-    isActive: $('#is-active').prop('checked'),
+    acceptStartDate: utils.formatDateToYMDDot($('#accept-start-date').val()),
+    acceptEndDate: utils.formatDateToYMDDot($('#accept-end-date').val()),
     isAnonymous: $('#is-anonymous').prop('checked'),
     hideVotes: $('#hide-votes').prop('checked'),
-    createdAt: utils.serverTimestamp(),
     items: [],
   };
 
-  // 作成者は新規作成とコピー時のみ設定
+  // 作成、作成日時は新規作成とコピー時のみ設定
   if (['new', 'copy', 'createFromCall'].includes(mode)) {
     voteData.createdBy = utils.getSession('displayName');
+    voteData.createdAt = utils.serverTimestamp();
   }
 
   // 入力欄から項目・選択肢を収集
@@ -557,6 +564,8 @@ function validateVoteData() {
 
   const title = $('#vote-title').val().trim();
   const description = $('#vote-description').val().trim();
+  const acceptStartDate = $('#accept-start-date').val().trim();
+  const acceptEndDate = $('#accept-end-date').val().trim();
 
   // 投票名必須
   if (!title)
@@ -564,6 +573,26 @@ function validateVoteData() {
   // 説明必須
   if (!description)
     utils.markError($('#vote-description'), '必須項目です'), (isValid = false);
+  // 開始日付必須
+  if (!acceptStartDate) {
+    utils.markError($('#accept-date'), '必須項目です');
+    isValid = false;
+  }
+  // 終了日付必須
+  else if (!acceptEndDate) {
+    utils.markError($('#accept-date'), '必須項目です');
+    isValid = false;
+  }
+  // ✅ 開始日 > 終了日のチェック（両方入力されている場合に判定）
+  if (acceptStartDate && acceptEndDate) {
+    const start = new Date(acceptStartDate + 'T00:00:00');
+    const end = new Date(acceptEndDate + 'T23:59:59');
+
+    if (start.getTime() > end.getTime()) {
+      utils.markError($('#accept-date'), '終了日は開始日以降にしてください');
+      isValid = false;
+    }
+  }
 
   // 項目名チェック
   const itemNames = [];
