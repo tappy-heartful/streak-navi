@@ -54,18 +54,10 @@ async function renderVote() {
   ).length;
 
   // 受付中かどうかを判定
-  const now = Date.now(); // 現在時刻（ミリ秒）
-  const isActive =
-    (!voteData.acceptStartDate ||
-      now >=
-        new Date(
-          utils.formatDateToYMDHyphen(voteData.acceptStartDate) + 'T00:00:00'
-        ).getTime()) &&
-    (!voteData.acceptEndDate ||
-      now <=
-        new Date(
-          utils.formatDateToYMDHyphen(voteData.acceptEndDate) + 'T23:59:59'
-        ).getTime());
+  const isActive = utils.isInTerm(
+    voteData.acceptStartDate,
+    voteData.acceptEndDate
+  );
 
   // 画面に反映
   let statusClass = '';

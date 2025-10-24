@@ -49,7 +49,9 @@ async function loadPendingAnnouncements() {
 
   for (const voteDoc of votesSnap.docs) {
     const voteData = voteDoc.data();
-    if (voteData.isActive === false) continue;
+
+    if (!utils.isInTerm(voteData.acceptStartDate, voteData.acceptEndDate))
+      continue;
 
     const voteId = voteDoc.id;
 

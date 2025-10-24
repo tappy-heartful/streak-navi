@@ -41,26 +41,17 @@ async function setUpPage() {
   const votedItems = [];
   const closedItems = [];
 
-  // 現在時刻（ミリ秒）
-  const now = Date.now();
-
   for (const voteDoc of votesSnap.docs) {
     const voteData = voteDoc.data();
     const voteId = voteDoc.id;
 
     let status = '';
     let statusClass = '';
-    const isActive =
-      (!voteData.acceptStartDate ||
-        now >=
-          new Date(
-            utils.formatDateToYMDHyphen(voteData.acceptStartDate) + 'T00:00:00'
-          ).getTime()) &&
-      (!voteData.acceptEndDate ||
-        now <=
-          new Date(
-            utils.formatDateToYMDHyphen(voteData.acceptEndDate) + 'T23:59:59'
-          ).getTime());
+
+    const isActive = utils.isInTerm(
+      voteData.acceptStartDate,
+      voteData.acceptEndDate
+    );
 
     if (isActive === false) {
       status = '期間外';

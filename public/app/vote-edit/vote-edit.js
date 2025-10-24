@@ -84,8 +84,6 @@ async function setupPage(mode) {
     backLink.text('← 投票一覧に戻る');
     // 初期表示で投票項目一つ表示
     $('#vote-items-container').append(createVoteItemTemplate());
-    // 回答を受け付けにチェック
-    $('#is-active').prop('checked', true);
   } else if (mode === 'createFromCall') {
     // --- 曲募集から投票作成 ---
     pageTitle.text('曲募集から投票作成');
@@ -174,7 +172,6 @@ async function loadCallData() {
   // タイトル・説明を引き継ぎ
   $('#vote-title').val((callData.title || '') + ' の投票');
   $('#vote-description').val(callData.description || '');
-  $('#is-active').prop('checked', true); // 常に有効
 
   $('#vote-items-container').empty();
 
@@ -462,13 +459,13 @@ async function collectVoteData(mode) {
     acceptEndDate: utils.formatDateToYMDDot($('#accept-end-date').val()),
     isAnonymous: $('#is-anonymous').prop('checked'),
     hideVotes: $('#hide-votes').prop('checked'),
-    createdAt: utils.serverTimestamp(),
     items: [],
   };
 
-  // 作成者は新規作成とコピー時のみ設定
+  // 作成、作成日時は新規作成とコピー時のみ設定
   if (['new', 'copy', 'createFromCall'].includes(mode)) {
     voteData.createdBy = utils.getSession('displayName');
+    voteData.createdAt = utils.serverTimestamp();
   }
 
   // 入力欄から項目・選択肢を収集
