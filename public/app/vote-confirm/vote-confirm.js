@@ -53,10 +53,24 @@ async function renderVote() {
     doc.id.startsWith(voteId + '_')
   ).length;
 
+  // 受付中かどうかを判定
+  const now = Date.now(); // 現在時刻（ミリ秒）
+  const isActive =
+    (!voteData.acceptStartDate ||
+      now >=
+        new Date(
+          utils.formatDateToYMDHyphen(voteData.acceptStartDate) + 'T00:00:00'
+        ).getTime()) &&
+    (!voteData.acceptEndDate ||
+      now <=
+        new Date(
+          utils.formatDateToYMDHyphen(voteData.acceptEndDate) + 'T23:59:59'
+        ).getTime());
+
   // 画面に反映
   let statusClass = '';
   let statusText = '';
-  if (!voteData.isActive) {
+  if (!isActive) {
     statusClass = 'closed';
     statusText = '期間外';
   } else if (myAnswer && Object.keys(myAnswer).length > 0) {
@@ -72,10 +86,12 @@ async function renderVote() {
     .text(statusText);
   $('#vote-title').text(voteData.name);
   $('#vote-description').text(voteData.description);
+  $('#vote-acceept-term').text(
+    `${voteData.acceptStartDate ? voteData.acceptStartDate : ''} ～
+    ${voteData.acceptEndDate ? voteData.acceptEndDate : ''}`
+  );
   $('#answer-status').text(
-    `${
-      voteData.isActive ? '受付中' : '期間外'
-    }（${participantCount}人が回答済）`
+    `${isActive ? '受付中' : '期間外'}（${participantCount}人が回答済）`
   );
   $('#created-by').text(voteData.createdBy);
   if (myAnswer && Object.keys(myAnswer).length > 0) {
@@ -93,7 +109,7 @@ async function renderVote() {
   const voteResults = await getVoteResults(voteId, voteData.items);
   renderView(voteData, voteResults, container, myAnswer, myProfileUrl, isAdmin);
 
-  setupEventHandlers(voteId, isAdmin, voteData.isActive, uid);
+  setupEventHandlers(voteId, isAdmin, isActive, uid);
 }
 
 ////////////////////////////

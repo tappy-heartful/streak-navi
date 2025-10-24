@@ -24,17 +24,27 @@
     <main class="container">
       <!-- 投票名 -->
       <div class="form-group">
-        <label for="vote-title">投票名</label>
+        <label for="vote-title">投票名 <span class="required">*</span></label>
         <input type="text" id="vote-title" placeholder="投票名を入力..." />
       </div>
 
       <!-- 投票説明 -->
       <div class="form-group">
-        <label for="vote-description">投票説明</label>
+        <label for="vote-description">投票説明 <span class="required">*</span></label>
         <input type="text"
           id="vote-description"
           placeholder="説明を入力..."
         ></input>
+      </div>
+
+      <!-- 受付期間 -->
+      <div class="form-group">
+        <label>受付期間 <span class="required">*</span></label>
+        <div class="form-group-dates">
+          <input type="date" id="accept-start-date" />
+          ～
+          <input type="date" id="accept-end-date" />
+        </div>
       </div>
 
       <!-- 投票項目 -->
@@ -42,14 +52,6 @@
         <label for="vote-items-container">投票項目</label>
         <div id="vote-items-container"></div>
         <button id="add-item">＋ 投票項目を追加</button>
-      </div>
-
-      <!-- 回答受付 -->
-      <div class="form-group checkbox-group">
-        <label>
-          <input type="checkbox" id="is-active" />
-          回答を受付
-        </label>
       </div>
 
       <div class="form-group checkbox-group">

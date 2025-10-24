@@ -47,8 +47,19 @@ async function setUpPage() {
 
     let status = '';
     let statusClass = '';
+    const isActive =
+      (!voteData.acceptStartDate ||
+        now >=
+          new Date(
+            utils.formatDateToYMDHyphen(voteData.acceptStartDate) + 'T00:00:00'
+          ).getTime()) &&
+      (!voteData.acceptEndDate ||
+        now <=
+          new Date(
+            utils.formatDateToYMDHyphen(voteData.acceptEndDate) + 'T23:59:59'
+          ).getTime());
 
-    if (voteData.isActive === false) {
+    if (isActive === false) {
       status = '期間外';
       statusClass = 'closed';
       closedItems.push(
