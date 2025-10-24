@@ -24,14 +24,26 @@
     <main class="container">
       <!-- 募集タイトル -->
       <div class="form-group">
-        <label for="call-title">タイトル</label>
+        <label for="call-title">タイトル <span class="required">*</span></label>
         <input type="text" id="call-title" placeholder="タイトルを入力..." />
       </div>
 
       <!-- 募集説明 -->
       <div class="form-group">
-        <label for="call-description">説明</label>
+        <label for="call-description"
+          >説明 <span class="required">*</span></label
+        >
         <input type="text" id="call-description" placeholder="説明を入力..." />
+      </div>
+
+      <!-- 受付期間 -->
+      <div class="form-group">
+        <label>受付期間 <span class="required">*</span></label>
+        <div class="form-group-dates" id="accept-date">
+          <input type="date" id="accept-start-date" />
+          ～
+          <input type="date" id="accept-end-date" />
+        </div>
       </div>
 
       <!-- 募集ジャンル -->
@@ -39,14 +51,6 @@
         <label for="call-items-container">募集ジャンル</label>
         <div id="call-items-container"></div>
         <button id="add-item">＋ 募集ジャンルを追加</button>
-      </div>
-
-      <!-- 回答受付 -->
-      <div class="form-group checkbox-group">
-        <label>
-          <input type="checkbox" id="is-active" />
-          回答を受付
-        </label>
       </div>
 
       <!-- 匿名募集 -->

@@ -89,7 +89,14 @@ async function loadCallData(docId, mode) {
 
   $('#call-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
   $('#call-description').val(data.description || '');
-  $('#is-active').prop('checked', data.isActive || false);
+  $('#accept-start-date').val(
+    data.acceptStartDate
+      ? utils.formatDateToYMDHyphen(data.acceptStartDate)
+      : ''
+  );
+  $('#accept-end-date').val(
+    data.acceptEndDate ? utils.formatDateToYMDHyphen(data.acceptEndDate) : ''
+  );
   $('#is-anonymous').prop('checked', data.isAnonymous || false);
 
   // 募集ジャンルを復元
@@ -190,8 +197,9 @@ function collectData(mode) {
   const data = {
     title: $('#call-title').val().trim(),
     description: $('#call-description').val().trim(),
+    acceptStartDate: utils.formatDateToYMDDot($('#accept-start-date').val()),
+    acceptEndDate: utils.formatDateToYMDDot($('#accept-end-date').val()),
     items,
-    isActive: $('#is-active').prop('checked'),
     isAnonymous: $('#is-anonymous').prop('checked'),
     createdAt: utils.serverTimestamp(),
   };
@@ -217,6 +225,29 @@ function validateData() {
   if (!description) {
     utils.markError($('#call-description'), '必須項目です');
     isValid = false;
+  }
+
+  const acceptStartDate = $('#accept-start-date').val().trim();
+  const acceptEndDate = $('#accept-end-date').val().trim();
+  // 開始日付必須
+  if (!acceptStartDate) {
+    utils.markError($('#accept-date'), '必須項目です');
+    isValid = false;
+  }
+  // 終了日付必須
+  else if (!acceptEndDate) {
+    utils.markError($('#accept-date'), '必須項目です');
+    isValid = false;
+  }
+  // ✅ 開始日 > 終了日のチェック（両方入力されている場合に判定）
+  if (acceptStartDate && acceptEndDate) {
+    const start = new Date(acceptStartDate + 'T00:00:00');
+    const end = new Date(acceptEndDate + 'T23:59:59');
+
+    if (start.getTime() > end.getTime()) {
+      utils.markError($('#accept-date'), '終了日は開始日以降にしてください');
+      isValid = false;
+    }
   }
 
   const items = [];
@@ -267,12 +298,13 @@ function captureInitialState() {
   initialState = {
     title: $('#call-title').val(),
     description: $('#call-description').val(),
+    acceptStartDate: $('#accept-start-date').val(),
+    acceptEndDate: $('#accept-end-date').val(),
     items: $('#call-items-container .call-item-input')
       .map(function () {
         return $(this).val();
       })
       .get(),
-    isActive: $('#is-active').prop('checked'),
     isAnonymous: $('#is-anonymous').prop('checked'),
   };
 }
@@ -280,9 +312,10 @@ function captureInitialState() {
 function restoreInitialState() {
   $('#call-title').val(initialState.title);
   $('#call-description').val(initialState.description);
+  $('#accept-start-date').val(initialStateHtml.acceptStartDate || ''); // ← yyyy-MM-dd形式
+  $('#accept-end-date').val(initialStateHtml.acceptEndDate || ''); // ← yyyy-MM-dd形式
   $('#call-items-container').empty();
   initialState.items.forEach((item) => addItemToForm(item));
-  $('#is-active').prop('checked', initialState.isActive);
   $('#is-anonymous').prop('checked', initialState.isAnonymous);
   utils.clearErrors();
 }
