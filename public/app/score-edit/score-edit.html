@@ -26,17 +26,23 @@
 
     <main class="container">
       <div class="form-group">
-        <label for="score-title">タイトル</label>
+        <label for="score-title"
+          >タイトル <span class="required">*</span></label
+        >
         <input type="text" id="score-title" placeholder="タイトルを入力..." />
       </div>
 
       <div class="form-group">
-        <label for="score-url">譜面（Google Drive URL）</label>
+        <label for="score-url"
+          >譜面（Google Drive URL） <span class="required">*</span></label
+        >
         <input type="text" id="score-url" placeholder="譜面URLを入力..." />
       </div>
 
       <div class="form-group">
-        <label for="reference-track">参考音源（YouTube URL）</label>
+        <label for="reference-track"
+          >参考音源（YouTube URL） <span class="required">*</span></label
+        >
         <input
           type="text"
           id="reference-track"
@@ -45,7 +51,9 @@
       </div>
 
       <div class="form-group">
-        <label for="score-genre">ジャンル</label>
+        <label for="score-genre"
+          >ジャンル <span class="required">*</span></label
+        >
         <div id="genre-container"></div>
         <button type="button" id="add-genre">＋ ジャンルを追加</button>
       </div>
