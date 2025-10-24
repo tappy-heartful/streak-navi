@@ -80,7 +80,8 @@ async function loadPendingAnnouncements() {
 
   for (const callDoc of callsSnap.docs) {
     const callData = callDoc.data();
-    if (callData.isActive === false) continue;
+    if (!utils.isInTerm(callData.acceptStartDate, callData.acceptEndDate))
+      continue;
 
     const callId = callDoc.id;
 
