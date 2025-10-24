@@ -41,6 +41,9 @@ async function setUpPage() {
   const votedItems = [];
   const closedItems = [];
 
+  // 現在時刻（ミリ秒）
+  const now = Date.now();
+
   for (const voteDoc of votesSnap.docs) {
     const voteData = voteDoc.data();
     const voteId = voteDoc.id;
