@@ -170,11 +170,17 @@ async function loadQuickScores() {
   const qAll = utils.query(allScoresRef, utils.orderBy('createdAt', 'desc'));
   const allSnap = await utils.getDocs(qAll);
 
-  // 全曲プレイリストリンク生成
-  const allWatchIds = allSnap.docs
+  // --- isDispTop === true のみ抽出 ---
+  const filteredDocs = allSnap.docs.filter(
+    (doc) => doc.data().isDispTop === true
+  );
+
+  // 全曲プレイリストリンク生成（isDispTop=true のみ）
+  const allWatchIds = filteredDocs
     .map((doc) => utils.extractYouTubeId(doc.data().referenceTrack))
     .filter((id) => !!id)
     .join(',');
+
   if (allWatchIds) {
     $('#playlist-link-score')
       .attr(
@@ -187,23 +193,18 @@ async function loadQuickScores() {
   }
 
   // クイック表示用（最新4件）
-  const q = utils.query(
-    allScoresRef,
-    utils.orderBy('createdAt', 'desc'),
-    utils.limit(4)
-  );
-  const snap = await utils.getDocs(q);
+  const limitedDocs = filteredDocs.slice(0, 4);
 
-  if (snap.empty) {
+  if (limitedDocs.length === 0) {
     $scoreList.append(
       '<div class="empty-message">譜面はまだ登録されていません🍀</div>'
     );
     return;
   }
 
-  // 1行に2つずつ
+  // 1行に2つずつ表示
   let rowDiv;
-  snap.docs.forEach((doc, idx) => {
+  limitedDocs.forEach((doc, idx) => {
     const data = doc.data();
     if (idx % 2 === 0) {
       rowDiv = $('<div class="quick-score-row"></div>');
@@ -230,13 +231,15 @@ async function initScorePlayer() {
       utils.orderBy('createdAt', 'desc')
     )
   );
+
+  // --- isDispTop === true のみ抽出 ---
   scores = snapshot.docs
     .map((doc) => ({
       id: doc.id,
       ...doc.data(),
       youtubeId: utils.extractYouTubeId(doc.data().referenceTrack),
     }))
-    .filter((s) => !!s.youtubeId);
+    .filter((s) => s.isDispTop === true && !!s.youtubeId);
 
   if (scores.length === 0) return;
 
