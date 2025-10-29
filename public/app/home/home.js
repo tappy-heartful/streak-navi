@@ -111,9 +111,9 @@ async function loadPendingAnnouncements() {
   const now = new Date();
   const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // 今日の0:00
 
-  // ★★★ 2週間後(14日後)の0:00 を計算 ★★★
+  // ★★★ 2週間後(30日後)の0:00 を計算 ★★★
   const twoWeeksLater = new Date(todayOnly);
-  twoWeeksLater.setDate(todayOnly.getDate() + 14); // 14日加算
+  twoWeeksLater.setDate(todayOnly.getDate() + 30); // 30日加算
 
   for (const eventDoc of eventsSnap.docs) {
     const eventData = eventDoc.data();
@@ -128,15 +128,15 @@ async function loadPendingAnnouncements() {
     // ★★★ フィルタリング 1: 今日より前は対象外 ★★★
     if (eventDateObj < todayOnly) continue;
 
-    // ★★★ フィルタリング 2: 14日後より先は対象外 (追加) ★★★
-    // 14日後の 0:00 以降のイベントを除外します
+    // ★★★ フィルタリング 2: 30日後より先は対象外 (追加) ★★★
+    // 30日後の 0:00 以降のイベントを除外します
     if (eventDateObj >= twoWeeksLater) continue;
 
     const eventId = eventDoc.id;
 
     if (!hasPendingEvents) {
       $announcementList.append(`
-            <li class="pending-message">📌イベントが近いです！</li>
+            <li class="pending-message">📌もうすぐイベントです！</li>
         `);
       hasPendingEvents = true;
       hasPending = true;
