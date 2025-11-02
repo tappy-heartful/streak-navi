@@ -99,7 +99,7 @@ function renderEvent(eventData, statuses, answerData) {
     const checked = answerData.status === status.id ? 'checked' : '';
 
     const itemHtml = `
-      <div class="status-choice">
+      <div class="status-choice" data-radio-id="${radioId}">
         <label for="${radioId}">
           <input type="radio" name="attendance-status" id="${radioId}" value="${status.id}" ${checked}/>
           ${status.name}
@@ -107,6 +107,28 @@ function renderEvent(eventData, statuses, answerData) {
       </div>
     `;
     container.append(itemHtml);
+  });
+
+  // 🎉 div.status-choice にクリックイベントを設定
+  // div全体がクリックされたときに、内側のラジオボタンをクリックする
+  $('.status-choice').on('click', function (event) {
+    // クリックされた要素がラジオボタン本体、またはlabelタグでないことを確認
+    // ラジオボタンやラベルを直接クリックした場合は、ブラウザの標準動作に任せる
+    if (
+      $(event.target).is('input[type="radio"]') ||
+      $(event.target).is('label') ||
+      $(event.target).closest('label').length
+    ) {
+      return;
+    }
+
+    // div全体がクリックされた場合、対応するラジオボタンを取得してクリックをトリガーする
+    const $radio = $(this).find('input[type="radio"]');
+
+    // 現在選択されていない場合のみクリックをトリガー（既にチェックされているものをクリックすると二重イベントになるため）
+    if (!$radio.prop('checked')) {
+      $radio.trigger('click');
+    }
   });
 }
 
