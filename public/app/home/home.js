@@ -384,68 +384,22 @@ function updateBlueNoteLink(watchIds) {
   }
 }
 
+// 修正後の showNext()
 function showNext() {
   // インデックス更新
   currentIndex = (currentIndex + 1) % blueNotes.length;
 
-  const $videos = $('#blue-note-videos');
-  const $current = $videos.find('[data-role="current"]');
-  const $prev = $videos.find('[data-role="prev"]');
-  const $next = $videos.find('[data-role="next"]');
-
-  // current → prev に役割変更
-  $current.attr('data-role', 'prev').removeClass('active');
-  // 古い prev は破棄
-  $prev.remove();
-
-  // next を current に昇格
-  $next.attr('data-role', 'current').addClass('active');
-
-  // 新しい next を生成
-  const newNextIndex = (currentIndex + 1) % blueNotes.length;
-  const watchIds = getWatchVideosOrder(newNextIndex, blueNotes);
-  const html = utils.buildYouTubeHtml(watchIds, false, false);
-
-  $videos.append(`
-    <div class="video" data-role="next" data-index="${newNextIndex}">
-      ${html}
-    </div>
-  `);
-
-  updateBlueNoteTitle();
-  updateBlueNoteLink(getWatchVideosOrder(currentIndex, blueNotes));
+  // DOMをクリアして再構築することで、以前のプレーヤーの状態をリセットします
+  renderBlueNoteVideos();
 }
 
+// 修正後の showPrev()
 function showPrev() {
   // インデックス更新
   currentIndex = (currentIndex - 1 + blueNotes.length) % blueNotes.length;
 
-  const $videos = $('#blue-note-videos');
-  const $current = $videos.find('[data-role="current"]');
-  const $prev = $videos.find('[data-role="prev"]');
-  const $next = $videos.find('[data-role="next"]');
-
-  // current → next に役割変更
-  $current.attr('data-role', 'next').removeClass('active');
-  // 古い next は破棄
-  $next.remove();
-
-  // prev を current に昇格
-  $prev.attr('data-role', 'current').addClass('active');
-
-  // 新しい prev を生成
-  const newPrevIndex = (currentIndex - 1 + blueNotes.length) % blueNotes.length;
-  const watchIds = getWatchVideosOrder(newPrevIndex, blueNotes);
-  const html = utils.buildYouTubeHtml(watchIds, false, false);
-
-  $videos.prepend(`
-    <div class="video" data-role="prev" data-index="${newPrevIndex}">
-      ${html}
-    </div>
-  `);
-
-  updateBlueNoteTitle();
-  updateBlueNoteLink(getWatchVideosOrder(currentIndex, blueNotes));
+  // DOMをクリアして再構築することで、以前のプレーヤーの状態をリセットします
+  renderBlueNoteVideos();
 }
 
 function showRandom() {
