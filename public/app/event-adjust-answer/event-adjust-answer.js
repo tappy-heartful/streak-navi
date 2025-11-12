@@ -1,5 +1,19 @@
 import * as utils from '../common/functions.js';
 
+// ** 曜日を取得するヘルパー関数を追加 **
+function getDayOfWeek(dateStr) {
+  // dateStrは "YYYY.MM.DD" 形式を想定
+  try {
+    const parts = dateStr.split('.').map(Number);
+    // 月は0から始まるため -1 する
+    const date = new Date(parts[0], parts[1] - 1, parts[2]);
+    const days = ['日', '月', '火', '水', '木', '金', '土'];
+    return days[date.getDay()];
+  } catch (e) {
+    return ''; // パースエラー時は空文字
+  }
+}
+
 //==================================
 // 初期化処理（ページ読込時）
 //==================================
@@ -48,6 +62,9 @@ $(document).ready(async function () {
     setupPageMode(mode);
     renderEvent(eventData, statuses, answerData);
     setupEventHandlers(mode, eventId, uid, eventData.candidateDates); // 候補日をハンドラに渡す
+
+    // ** 【修正】選択状態のスタイルを切り替えるイベントリスナーを設定 **
+    setupStyleSwitching();
   } catch (e) {
     await utils.writeLog({
       dataId: utils.globalGetParamEventId,
@@ -110,7 +127,6 @@ async function fetchAnswerData(eventId, uid) {
 // -------------------------------------
 function renderEvent(eventData, statuses, answerData) {
   $('#event-title').text(eventData.title || '');
-  // 日付表示欄は削除されたため、ここでの処理は不要
 
   const container = $('#date-answer-container').empty();
   const $table = $('<div class="adjust-table"></div>');
@@ -119,7 +135,7 @@ function renderEvent(eventData, statuses, answerData) {
 
   // ヘッダー行
   const $headerRow = $('<div class="adjust-row header-row"></div>');
-  $headerRow.append('<div class="date-cell">日付</div>');
+  $headerRow.append('<div class="date-cell">日付<br>(曜日)</div>'); // 【修正】ヘッダーも変更
   statuses.forEach((status) => {
     $headerRow.append(`<div class="status-cell">${status.name}</div>`);
   });
@@ -127,16 +143,27 @@ function renderEvent(eventData, statuses, answerData) {
 
   // データ行
   candidateDates.forEach((date) => {
+    const dayOfWeek = getDayOfWeek(date); // 曜日を取得
+    const dateParts = date.split('.');
+    const monthDay = `${dateParts[1]}/${dateParts[2]}`; // 月/日 形式
+
     const $row = $('<div class="adjust-row"></div>');
-    $row.append(`<div class="date-cell">${date}</div>`);
+    // 【修正】日付と曜日を結合して表示
+    $row.append(
+      `<div class="date-cell"><span class="date-part">${monthDay}</span><span class="day-part">(${dayOfWeek})</span></div>`
+    );
 
     statuses.forEach((status) => {
       const radioId = `date-${date.replace(/\./g, '-')}-${status.id}`;
       // 候補日(yyyy.MM.dd)に対応する回答ステータスを取得
-      const checked = existingAnswers[date] === status.id ? 'checked' : '';
+      const isChecked = existingAnswers[date] === status.id;
+      const checked = isChecked ? 'checked' : '';
 
+      // ** 【修正】ラベル内にステータス名を表示するspanタグを追加 **
       const $statusCell = $(`
-        <div class="status-cell">
+        <div class="status-cell ${
+          isChecked ? 'selected' : ''
+        }" data-date="${date}"> 
           <label for="${radioId}">
             <input 
               type="radio" 
@@ -145,8 +172,8 @@ function renderEvent(eventData, statuses, answerData) {
               value="${status.id}" 
               ${checked}
               data-date="${date}"
-              data-status-name="${status.name}"
             />
+            <span class="status-name">${status.name}</span>
           </label>
         </div>
       `);
@@ -159,7 +186,47 @@ function renderEvent(eventData, statuses, answerData) {
 }
 
 // -------------------------------------
-// イベントハンドラ登録
+// スタイル切替イベントハンドラ
+// -------------------------------------
+function setupStyleSwitching() {
+  // status-cell全体がクリックされたときの処理
+  $('.adjust-table').on('click', '.status-cell', function (event) {
+    const $cell = $(this);
+    const date = $cell.data('date');
+    const $radio = $cell.find('input[type="radio"]');
+
+    // クリックした要素がラジオボタン本体やラベルでないことを確認
+    if (
+      !$(event.target).is('input[type="radio"]') &&
+      !$(event.target).is('label')
+    ) {
+      // ラジオボタンをクリック
+      $radio.prop('checked', true).trigger('change');
+    }
+  });
+
+  // ラジオボタンの変更イベント（checked状態が変化したとき）
+  $('.adjust-table').on('change', 'input[type="radio"]', function () {
+    const $changedRadio = $(this);
+    const date = $changedRadio.data('date');
+
+    // 同じ行の全てのセルから 'selected' クラスを削除
+    $(`.status-cell[data-date="${date}"]`).removeClass('selected');
+
+    // 選択されたラジオボタンの親セルに 'selected' クラスを追加
+    if ($changedRadio.is(':checked')) {
+      $changedRadio.closest('.status-cell').addClass('selected');
+    }
+  });
+
+  // 初回ロード時にもスタイルを適用
+  $('input[type="radio"]:checked').each(function () {
+    $(this).closest('.status-cell').addClass('selected');
+  });
+}
+
+// -------------------------------------
+// イベントハンドラ登録 (省略、変更なし)
 // -------------------------------------
 function setupEventHandlers(mode, eventId, uid, candidateDates) {
   // 回答送信
@@ -168,30 +235,28 @@ function setupEventHandlers(mode, eventId, uid, candidateDates) {
     const answers = {};
     let isAllAnswered = true;
 
+    // 【修正】エラー行のクラスをリセット
+    $('.adjust-row').removeClass('error-row');
+
     candidateDates.forEach((date) => {
       const selectedRadio = $(`input[name="answer-${date}"]:checked`);
       if (selectedRadio.length > 0) {
         answers[date] = selectedRadio.val();
       } else {
         isAllAnswered = false;
-        // 未回答の候補日の日付セルをエラー表示
-        $(`.adjust-row:contains('${date}')`).addClass('error-row');
+        // 未回答の候補日の日付行をエラー表示
+        $(`.adjust-row:has(input[name="answer-${date}"])`).addClass(
+          'error-row'
+        );
       }
     });
 
     // 2. 入力チェック
     if (!isAllAnswered) {
       await utils.showDialog('すべての候補日に回答を選択してください。', true);
-      $('.adjust-row').removeClass('error-row'); // 一度すべて解除してから
-      // 未回答の行を再度エラー表示
-      candidateDates.forEach((date) => {
-        if (!$(`input[name="answer-${date}"]:checked`).length) {
-          $(`.adjust-row:contains('${date}')`).addClass('error-row');
-        }
-      });
       return;
     }
-    $('.adjust-row').removeClass('error-row'); // エラーがない場合は解除
+    // エラーがない場合は解除済み
 
     const confirmed = await utils.showDialog(
       `回答を${mode === 'edit' ? '修正' : '登録'}しますか？`
