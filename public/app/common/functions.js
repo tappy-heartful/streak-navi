@@ -552,6 +552,29 @@ export function extractYouTubeId(input) {
 }
 
 //===========================
+// ランダムインデックス取得
+//===========================
+export function getRandomIndex(exclude, arrayLength) {
+  let idx;
+  do {
+    idx = Math.floor(Math.random() * arrayLength);
+  } while (idx === exclude && arrayLength > 1);
+  return idx;
+}
+
+//===========================
+// youtube視聴順取得
+//===========================
+export function getWatchVideosOrder(currentIndex, blueNotes) {
+  // 今のインデックスから最後まで
+  const after = blueNotes.slice(currentIndex).map((n) => n.youtubeId);
+  // 先頭から今のインデックス直前まで
+  const before = blueNotes.slice(0, currentIndex).map((n) => n.youtubeId);
+  // 連結
+  return [...after, ...before];
+}
+
+//===========================
 // エラー表示ユーティリティ
 //===========================
 export function clearErrors() {
