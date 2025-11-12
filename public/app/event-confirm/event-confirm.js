@@ -1,5 +1,8 @@
 import * as utils from '../common/functions.js';
 
+// グローバル変数
+let allAnswers = []; // 日程調整の全回答データを格納する配列
+
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
@@ -57,7 +60,7 @@ async function renderEvent() {
   const answersSnap = await utils.getDocs(
     utils.collection(utils.db, answerCollectionName)
   );
-  const allAnswers = answersSnap.docs
+  allAnswers = answersSnap.docs
     .filter((doc) => doc.id.startsWith(eventId + '_'))
     .map((doc) => ({ id: doc.id, ...doc.data() }));
   const answerCount = allAnswers.length;
@@ -132,15 +135,108 @@ async function renderEvent() {
       .text('回答を受け付けていません');
   } else if (isSchedule) {
     // 日程調整受付中
-    $attendanceTitle.text('日程調整回答状況');
-    $attendanceContainer.addClass('label-value').text(`${answerCount}人が回答`);
+    $attendanceTitle.text('日程調整');
+    // 【修正】回答人数を新しいクラスと文言で表示
+    $attendanceContainer
+      .addClass('label-value')
+      .empty() // 既存のテキストをクリア
+      .append(`<span class="answer-count-summary">回答${answerCount}人</span>`);
 
-    // TODO: 日程調整の回答結果を表示するロジックをここに追加する（今回は回答数のみ表示）
-    // ※ 従来の出欠確認の結果表示ロジックは日程調整では使用しない
+    // 1. ステータス一覧 (〇, △, ✕) 取得
+    const statusesSnap = await utils.getDocs(
+      utils.collection(utils.db, 'eventAdjustStatus')
+    );
+    // doc.id順にソート（〇, △, ✕の順を想定）
+    const adjustStatuses = statusesSnap.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .sort((a, b) => {
+        if (a.id < b.id) return -1;
+        if (a.id > b.id) return 1;
+        return 0;
+      });
+
+    // 2. 候補日ごとの回答を集計 (変更なし)
+    const dateCounts = {};
+
+    // allAnswers: [{ answers: { "2025.12.01": "statusId", ... }, ... }]
+    allAnswers.forEach((answerDoc) => {
+      const answers = answerDoc.answers || {};
+      for (const date in answers) {
+        const statusId = answers[date];
+        if (!dateCounts[date]) {
+          dateCounts[date] = {};
+        }
+        dateCounts[date][statusId] = (dateCounts[date][statusId] || 0) + 1;
+      }
+    });
+
+    // 3. HTMLを生成して表示
+    const candidateDates = eventData.candidateDates || [];
+    const $table = $('<div class="adjust-table"></div>');
+
+    // ヘッダー行 (日付/曜日のみ) (変更なし)
+    const $headerRow = $('<div class="adjust-row header-row"></div>');
+    $headerRow.append('<div class="date-cell">日程</div>');
+    $headerRow.append('<div class="status-summary-cell">回答</div>');
+    $table.append($headerRow);
+
+    // データ行
+    candidateDates.forEach((date) => {
+      const dayOfWeek = utils.getDayOfWeek(date); // 曜日を取得
+      const dateParts = date.split('.');
+      const monthDay = `${dateParts[1]}/${dateParts[2]}`; // 月/日 形式
+
+      const counts = dateCounts[date] || {};
+      let summaryHtml = '';
+
+      // ○△✕ と回答人数を結合
+      adjustStatuses.forEach((status) => {
+        const count = counts[status.id] || 0;
+
+        let countHtml;
+        if (count > 0) {
+          // 回答者が1人以上の場合はリンクにする
+          countHtml = `<a href="#" 
+                            class="status-count adjust-count-link status-${status.name}"
+                            data-date="${date}"
+                            data-status-id="${status.id}"
+                            data-status-name="${status.name}">
+                            ${status.name}${count}
+                         </a>`;
+        } else {
+          // 回答者が0の場合はリンクなしの黒テキスト
+          countHtml = `<span class="status-count status-count-zero status-${status.name}">
+                            ${status.name}${count}
+                         </span>`;
+        }
+        summaryHtml += countHtml;
+      });
+
+      const $row = $('<div class="adjust-row"></div>');
+      // 日付と曜日
+      $row.append(`
+            <div class="date-cell">
+                <span class="date-part">${monthDay}</span>
+                <span class="day-part">(${dayOfWeek})</span>
+            </div>
+        `);
+      // 回答サマリー
+      $row.append(`
+            <div class="status-summary-cell">
+                ${summaryHtml || '<span class="no-answer-text">未回答</span>'}
+            </div>
+        `);
+      $table.append($row);
+    });
+
+    $attendanceContainer.append($table);
   } else if (attendanceType === 'attendance') {
     // 出欠受付中
-    $attendanceTitle.text('出欠回答状況');
-    $attendanceContainer.addClass('label-value').text(`${answerCount}人が回答`);
+    $attendanceTitle.text('出欠');
+    // 【修正】回答人数を新しいクラスと文言で表示
+    $attendanceContainer
+      .addClass('label-value')
+      .html(`<span class="answer-count-summary">回答${answerCount}人</span>`);
 
     // 従来の出欠確認の回答結果を表示する
     // ステータス一覧取得
@@ -402,4 +498,89 @@ function setupEventHandlers(eventId, uid, isSchedule) {
     .on('click', function () {
       window.location.href = `../event-edit/event-edit.html?mode=copy&eventId=${eventId}`;
     });
+
+  // 【イベント登録】日程調整結果のリンククリックイベント
+  $(document)
+    .off('click', '.adjust-count-link')
+    .on('click', '.adjust-count-link', function (e) {
+      e.preventDefault();
+      const date = $(this).data('date');
+      const statusId = String($(this).data('status-id'));
+      const statusName = $(this).data('status-name');
+      // eventId はこのスコープで利用可能と仮定
+      showAdjustUsersModal(eventId, date, statusId, statusName);
+    });
+}
+
+// 日程調整の回答結果リンククリック時に回答者モーダルを表示する
+async function showAdjustUsersModal(eventId, date, statusId, statusName) {
+  utils.showSpinner();
+  try {
+    // 該当する回答者 UID を収集
+    const adjustAnswerUids = [];
+    // allAnswersはイベントIDのプレフィックスを持つdoc.idを持つ配列と仮定
+    allAnswers.forEach((doc) => {
+      const answers = doc.answers || {};
+      // 特定の日付に対する回答が、指定されたステータスIDと一致するか確認
+      if (answers[date] === statusId) {
+        // doc.idが "eventId_uid" 形式と仮定
+        const uid = doc.id.split('_')[1];
+        if (uid) {
+          adjustAnswerUids.push(uid);
+        }
+      }
+    });
+
+    // users コレクションから情報取得
+    const responders = [];
+    for (const uid of adjustAnswerUids) {
+      const userSnap = await utils.getDoc(utils.doc(utils.db, 'users', uid));
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        responders.push({
+          name: userData.displayName || '名無し',
+          pictureUrl: userData.pictureUrl || '',
+        });
+      } else {
+        // 退会済みユーザ
+        responders.push({
+          name: '退会済みユーザ',
+          pictureUrl: utils.globalBandLogoImage, // 適切なデフォルト画像に変更してください
+        });
+      }
+    }
+
+    // モーダルに描画
+    const modalBody = responders
+      .map(
+        (r) => `
+        <div class="voter">
+          <img src="${r.pictureUrl}" alt="${r.name}" class="voter-icon"
+            onerror="this.onerror=null; this.src='${utils.globalLineDefaultImage}';"/>
+          <span>${r.name}</span>
+        </div>
+      `
+      )
+      .join('');
+
+    // 日付を "MM/DD" 形式に整形
+    const [y, m, d] = date.split('.');
+    const displayDate = `${m}/${d}(${utils.getDayOfWeek(date)})`;
+
+    utils.hideSpinner();
+    await utils.showModal(
+      `【${displayDate}】 ${statusName} と回答した人`,
+      modalBody
+    );
+  } catch (e) {
+    // ログ登録
+    await utils.writeLog({
+      dataId: eventId,
+      action: '日程回答者確認',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+  } finally {
+    utils.hideSpinner();
+  }
 }

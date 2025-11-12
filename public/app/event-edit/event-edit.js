@@ -376,6 +376,9 @@ async function collectEventData(mode) {
     candidateDates = getCandidateDatesFromInputs()
       .filter((date) => date.trim() !== '') // 空文字列を削除
       .map(formatDateForSave); // 保存用に変換
+
+    // ★★★ 【修正】候補日を昇順でソートする ★★★
+    candidateDates.sort();
   }
 
   const eventData = {

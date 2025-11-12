@@ -1,19 +1,5 @@
 import * as utils from '../common/functions.js';
 
-// ** 曜日を取得するヘルパー関数を追加 **
-function getDayOfWeek(dateStr) {
-  // dateStrは "YYYY.MM.DD" 形式を想定
-  try {
-    const parts = dateStr.split('.').map(Number);
-    // 月は0から始まるため -1 する
-    const date = new Date(parts[0], parts[1] - 1, parts[2]);
-    const days = ['日', '月', '火', '水', '木', '金', '土'];
-    return days[date.getDay()];
-  } catch (e) {
-    return ''; // パースエラー時は空文字
-  }
-}
-
 //==================================
 // 初期化処理（ページ読込時）
 //==================================
@@ -150,7 +136,7 @@ function renderEvent(eventData, statuses, answerData) {
 
   // データ行
   candidateDates.forEach((date) => {
-    const dayOfWeek = getDayOfWeek(date); // 曜日を取得
+    const dayOfWeek = utils.getDayOfWeek(date); // 曜日を取得
     const dateParts = date.split('.');
     const monthDay = `${dateParts[1]}/${dateParts[2]}`; // 月/日 形式
 
