@@ -179,7 +179,7 @@ async function renderEvent() {
 
     // データ行
     candidateDates.forEach((date) => {
-      const dayOfWeek = getDayOfWeek(date); // 曜日を取得
+      const dayOfWeek = utils.getDayOfWeek(date); // 曜日を取得
       const dateParts = date.split('.');
       const monthDay = `${dateParts[1]}/${dateParts[2]}`; // 月/日 形式
 
@@ -508,19 +508,6 @@ function setupEventHandlers(eventId, uid, isSchedule) {
       showAdjustUsersModal(eventId, date, statusId, statusName);
     });
 }
-// ** 曜日を取得するヘルパー関数 (event-adjust-answer.js から再利用) **
-function getDayOfWeek(dateStr) {
-  // dateStrは "YYYY.MM.DD" 形式を想定
-  try {
-    const parts = dateStr.split('.').map(Number);
-    // 月は0から始まるため -1 する
-    const date = new Date(parts[0], parts[1] - 1, parts[2]);
-    const days = ['日', '月', '火', '水', '木', '金', '土'];
-    return days[date.getDay()];
-  } catch (e) {
-    return ''; // パースエラー時は空文字
-  }
-}
 
 // 日程調整の回答結果リンククリック時に回答者モーダルを表示する
 async function showAdjustUsersModal(eventId, date, statusId, statusName) {
@@ -595,7 +582,7 @@ async function showAdjustUsersModal(eventId, date, statusId, statusName) {
 
     // 日付を "MM/DD" 形式に整形
     const [y, m, d] = date.split('.');
-    const displayDate = `${m}/${d}(${getDayOfWeek(date)})`;
+    const displayDate = `${m}/${d}(${utils.getDayOfWeek(date)})`;
 
     utils.hideSpinner();
     await utils.showModal(
