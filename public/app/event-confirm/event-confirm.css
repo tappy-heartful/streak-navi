@@ -1,65 +1,3 @@
-/* 出欠状況ブロック */
-.attendance-status-block {
-  margin-bottom: 24px;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #fafafa;
-}
-
-.attendance-status-block h3 {
-  font-size: 16px;
-  margin-bottom: 12px;
-  color: #333;
-  border-left: 4px solid #4caf50;
-  padding-left: 8px;
-}
-
-/* ユーザ一覧 */
-.attendance-users {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
-}
-
-/* 個別ユーザ */
-.attendance-user {
-  width: 80px;
-  text-align: center;
-  font-size: 13px;
-}
-
-.attendance-user img {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-  margin: 0 auto 6px;
-}
-
-.attendance-user span {
-  display: block;
-  word-break: break-word;
-}
-
-/* 該当者なし */
-.no-user {
-  font-size: 13px;
-  color: #888;
-}
-
-/* 回答人数のサマリー表示スタイル */
-.answer-count-summary {
-    display: block; /* ブロック要素にして幅全体を使い、text-alignが有効になるようにする */
-    text-align: left;
-    font-size: 14px;
-    color: #6c757d; /* 薄い灰色 (文字を薄く) */
-    font-weight: normal;
-    margin-bottom: 10px;
-    padding: 0 10px; /* 親の.label-valueのパディングに合わせて調整 */
-}
-
 /* 日程調整回答テーブルのスタイル */
 .adjust-table {
     display: flex;
@@ -125,20 +63,83 @@
 /* 回答数 (〇3, △2, ✕1) の表示 */
 .status-count {
     font-weight: bold;
-    padding: 2px 5px;
+    padding: 2px 0; /* パディングを調整 */
     border-radius: 4px;
-    /* 各ステータスに色を付ける場合はここに追加 */
+    white-space: nowrap; /* 折り返しを防ぐ */
+    opacity: 0.7;
 }
 
-/* 各ステータスの色付け例 */
-.status-count.status-〇 {
-    color: #007bff; /* 青 */
+/* 回答数0の場合のスタイル (リンクではない) */
+.status-count.status-count-zero {
+    border-bottom: none;
+    cursor: default;
 }
-.status-count.status-△ {
-    color: #ffc107; /* 黄色 */
+
+
+/* -------------------------------------- */
+/* 既存のCSS（変更なし） */
+/* -------------------------------------- */
+
+/* 出欠状況ブロック */
+.attendance-status-block {
+  margin-bottom: 24px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #fafafa;
 }
-.status-count.status-✕ {
-    color: #dc3545; /* 赤 */
+
+.attendance-status-block h3 {
+  font-size: 16px;
+  margin-bottom: 12px;
+  color: #333;
+  border-left: 4px solid #4caf50;
+  padding-left: 8px;
+}
+
+/* ユーザ一覧 */
+.attendance-users {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* 個別ユーザ */
+.attendance-user {
+  width: 80px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.attendance-user img {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+  margin: 0 auto 6px;
+}
+
+.attendance-user span {
+  display: block;
+  word-break: break-word;
+}
+
+/* 該当者なし */
+.no-user {
+  font-size: 13px;
+  color: #888;
+}
+
+/* 回答人数のサマリー表示スタイル */
+.answer-count-summary {
+    display: block;
+    text-align: left;
+    font-size: 14px;
+    color: #6c757d;
+    font-weight: normal;
+    margin-bottom: 10px;
+    padding: 0 10px;
 }
 
 .no-answer-text {

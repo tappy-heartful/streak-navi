@@ -132,10 +132,13 @@ async function renderEvent() {
       .text('回答を受け付けていません');
   } else if (isSchedule) {
     // 日程調整受付中
-    $attendanceTitle.text('日程調整回答状況'); // 【修正】回答人数を新しいクラスと文言で表示
+    $attendanceTitle.text('日程調整回答状況');
+    // 【修正】回答人数を新しいクラスと文言で表示
     $attendanceContainer
       .addClass('label-value')
-      .html(`<span class="answer-count-summary">回答${answerCount}人</span>`); // ========================================== // TODO: 日程調整の回答結果を表示するロジック (ここから追加) // ==========================================
+      .empty() // 既存のテキストをクリア
+      .append(`<span class="answer-count-summary">回答${answerCount}人</span>`);
+
     // 1. ステータス一覧 (〇, △, ✕) 取得
     const statusesSnap = await utils.getDocs(
       utils.collection(utils.db, 'eventAdjustStatus')
@@ -149,11 +152,7 @@ async function renderEvent() {
         return 0;
       });
 
-    // ステータスIDからステータス名へのマップを作成
-    const statusNames = {};
-    adjustStatuses.forEach((s) => (statusNames[s.id] = s.name));
-
-    // 2. 候補日ごとの回答を集計 { "2025.12.01": { statusId1: 5, statusId2: 3, ... } }
+    // 2. 候補日ごとの回答を集計 (変更なし)
     const dateCounts = {};
 
     // allAnswers: [{ answers: { "2025.12.01": "statusId", ... }, ... }]
@@ -172,7 +171,7 @@ async function renderEvent() {
     const candidateDates = eventData.candidateDates || [];
     const $table = $('<div class="adjust-table"></div>');
 
-    // ヘッダー行 (日付/曜日のみ)
+    // ヘッダー行 (日付/曜日のみ) (変更なし)
     const $headerRow = $('<div class="adjust-row header-row"></div>');
     $headerRow.append('<div class="date-cell">日程</div>');
     $headerRow.append('<div class="status-summary-cell">回答状況</div>');
@@ -190,12 +189,24 @@ async function renderEvent() {
       // ○△✕ と回答人数を結合
       adjustStatuses.forEach((status) => {
         const count = counts[status.id] || 0;
+
+        let countHtml;
         if (count > 0) {
-          // 回答があったステータスのみ表示 (例: 〇3)
-          summaryHtml += `<span class="status-count status-${status.name}">
-                                    ${status.name}${count}
-                                </span>`;
+          // 回答者が1人以上の場合はリンクにする
+          countHtml = `<a href="#" 
+                            class="status-count adjust-count-link status-${status.name}"
+                            data-date="${date}"
+                            data-status-id="${status.id}"
+                            data-status-name="${status.name}">
+                            ${status.name}${count}
+                         </a>`;
+        } else {
+          // 回答者が0の場合はリンクなしの黒テキスト
+          countHtml = `<span class="status-count status-count-zero status-${status.name}">
+                            ${status.name}${count}
+                         </span>`;
         }
+        summaryHtml += countHtml;
       });
 
       const $row = $('<div class="adjust-row"></div>');
@@ -484,6 +495,18 @@ function setupEventHandlers(eventId, uid, isSchedule) {
     .on('click', function () {
       window.location.href = `../event-edit/event-edit.html?mode=copy&eventId=${eventId}`;
     });
+
+  // 【イベント登録】日程調整結果のリンククリックイベント
+  $(document)
+    .off('click', '.adjust-count-link')
+    .on('click', '.adjust-count-link', function (e) {
+      e.preventDefault();
+      const date = $(this).data('date');
+      const statusId = $(this).data('status-id');
+      const statusName = $(this).data('status-name');
+      // eventId はこのスコープで利用可能と仮定
+      showAdjustUsersModal(eventId, date, statusId, statusName);
+    });
 }
 // ** 曜日を取得するヘルパー関数 (event-adjust-answer.js から再利用) **
 function getDayOfWeek(dateStr) {
@@ -496,5 +519,98 @@ function getDayOfWeek(dateStr) {
     return days[date.getDay()];
   } catch (e) {
     return ''; // パースエラー時は空文字
+  }
+}
+
+// 日程調整の回答結果リンククリック時に回答者モーダルを表示する
+async function showAdjustUsersModal(eventId, date, statusId, statusName) {
+  utils.showSpinner();
+  try {
+    // 該当する回答者 UID を収集
+    const adjustAnswerUids = [];
+    // allAnswersがこのスコープで利用可能であることを前提とする。
+    // 利用できない場合は、ここで 'eventAdjustAnswers' コレクションから全回答を取得する必要があります。
+    // 今回は、setUpPage/loadDataなどで取得済みの allAnswers が利用可能と仮定します。
+    // --- allAnswers を使ってフィルタリング ---
+
+    // allAnswersはイベントIDのプレフィックスを持つdoc.idを持つ配列と仮定
+    if (typeof allAnswers !== 'undefined' && Array.isArray(allAnswers)) {
+      allAnswers.forEach((doc) => {
+        const answers = doc.answers || {};
+        // 特定の日付に対する回答が、指定されたステータスIDと一致するか確認
+        if (answers[date] === statusId) {
+          // doc.idが "eventId_uid" 形式と仮定
+          const uid = doc.id.split('_')[1];
+          if (uid) {
+            adjustAnswerUids.push(uid);
+          }
+        }
+      });
+    } else {
+      // allAnswers が未定義の場合、Firestoreから全件取得 (より安全な処理)
+      const answersSnap = await utils.getDocs(
+        utils.collection(utils.db, 'eventAdjustAnswers')
+      );
+      answersSnap.forEach((doc) => {
+        if (!doc.id.startsWith(eventId + '_')) return;
+        const data = doc.data();
+        if (Number(data.answers?.[date]) === statusId) {
+          const uid = doc.id.split('_')[1];
+          adjustAnswerUids.push(uid);
+        }
+      });
+    }
+
+    // users コレクションから情報取得
+    const responders = [];
+    for (const uid of adjustAnswerUids) {
+      const userSnap = await utils.getDoc(utils.doc(utils.db, 'users', uid));
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        responders.push({
+          name: userData.displayName || '名無し',
+          pictureUrl: userData.pictureUrl || '',
+        });
+      } else {
+        // 退会済みユーザ
+        responders.push({
+          name: '退会済みユーザ',
+          pictureUrl: utils.globalBandLogoImage, // 適切なデフォルト画像に変更してください
+        });
+      }
+    }
+
+    // モーダルに描画
+    const modalBody = responders
+      .map(
+        (r) => `
+        <div class="voter">
+          <img src="${r.pictureUrl}" alt="${r.name}" class="voter-icon"
+            onerror="this.onerror=null; this.src='${utils.globalLineDefaultImage}';"/>
+          <span>${r.name}</span>
+        </div>
+      `
+      )
+      .join('');
+
+    // 日付を "MM/DD" 形式に整形
+    const [y, m, d] = date.split('.');
+    const displayDate = `${m}/${d}(${getDayOfWeek(date)})`;
+
+    utils.hideSpinner();
+    await utils.showModal(
+      `【${displayDate}】 ${statusName} と回答した人`,
+      modalBody
+    );
+  } catch (e) {
+    // ログ登録
+    await utils.writeLog({
+      dataId: eventId,
+      action: '日程回答者確認',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+  } finally {
+    utils.hideSpinner();
   }
 }
