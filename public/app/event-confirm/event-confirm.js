@@ -115,7 +115,7 @@ async function renderEvent() {
   } else {
     // 出欠確認/受付なしの場合: 単一の日付を表示
     $('#event-date').text(eventData.date || '');
-    $('#candidate-dates-display').empty();
+    $('#candidate-dates-display').remove();
   }
 
   // ------------------------------------------------------------------
