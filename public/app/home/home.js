@@ -253,7 +253,7 @@ function renderScoreVideos() {
   $videos.empty();
 
   const score = scores[currentScoreIndex];
-  const watchIds = getWatchVideosOrder(currentScoreIndex, scores);
+  const watchIds = utils.getWatchVideosOrder(currentScoreIndex, scores);
 
   const html = utils.buildYouTubeHtml(watchIds, false, false);
   $videos.append(`
@@ -336,7 +336,7 @@ function renderBlueNoteVideos() {
 
   const prevIndex = (currentIndex - 1 + blueNotes.length) % blueNotes.length;
   const nextIndex = (currentIndex + 1) % blueNotes.length;
-  const randomIndex = getRandomIndex(currentIndex);
+  const randomIndex = utils.getRandomIndex(currentIndex, blueNotes.length);
 
   const indexes = [
     { index: prevIndex, role: 'prev' },
@@ -348,7 +348,7 @@ function renderBlueNoteVideos() {
   indexes.forEach((item) => {
     const note = blueNotes[item.index];
     // この動画を先頭にして全体配列を作る
-    const watchIds = getWatchVideosOrder(item.index, blueNotes);
+    const watchIds = utils.getWatchVideosOrder(item.index, blueNotes);
 
     const html = utils.buildYouTubeHtml(watchIds, false, false);
 
@@ -404,7 +404,7 @@ function showPrev() {
 
 function showRandom() {
   // 新しいランダムインデックス
-  currentIndex = getRandomIndex(currentIndex);
+  currentIndex = utils.getRandomIndex(currentIndex, blueNotes.length);
 
   const $videos = $('#blue-note-videos');
   $videos.empty();
@@ -412,7 +412,7 @@ function showRandom() {
   // 再構築（prev, current, next, random 全部新規）
   const prevIndex = (currentIndex - 1 + blueNotes.length) % blueNotes.length;
   const nextIndex = (currentIndex + 1) % blueNotes.length;
-  const randomIndex = getRandomIndex(currentIndex);
+  const randomIndex = utils.getRandomIndex(currentIndex, blueNotes.length);
 
   const indexes = [
     { index: prevIndex, role: 'prev' },
@@ -422,7 +422,7 @@ function showRandom() {
   ];
 
   indexes.forEach((item) => {
-    const watchIds = getWatchVideosOrder(item.index, blueNotes);
+    const watchIds = utils.getWatchVideosOrder(item.index, blueNotes);
     const html = utils.buildYouTubeHtml(watchIds, false, false);
     $videos.append(`
       <div class="video ${item.role === 'current' ? 'active' : ''}"
@@ -435,23 +435,6 @@ function showRandom() {
   });
 
   updateBlueNoteTitle();
-}
-
-function getRandomIndex(exclude) {
-  let idx;
-  do {
-    idx = Math.floor(Math.random() * blueNotes.length);
-  } while (idx === exclude && blueNotes.length > 1);
-  return idx;
-}
-
-function getWatchVideosOrder(currentIndex, blueNotes) {
-  // 今のインデックスから最後まで
-  const after = blueNotes.slice(currentIndex).map((n) => n.youtubeId);
-  // 先頭から今のインデックス直前まで
-  const before = blueNotes.slice(0, currentIndex).map((n) => n.youtubeId);
-  // 連結
-  return [...after, ...before];
 }
 
 // コンテンツを読み込んで表示する関数

@@ -6,6 +6,7 @@ $(document).ready(async function () {
     await utils.initDisplay();
     utils.renderBreadcrumb([{ title: '今日の一曲' }]);
     await setupPage();
+    await initBlueNotes();
     setupEventHandlers();
   } catch (e) {
     await utils.writeLog({
@@ -174,6 +175,145 @@ async function loadBlueNotes(month) {
   }
 }
 
+// プレイヤー表示用変数
+let blueNotes = [];
+let currentIndex = 0;
+
+// 今日の一曲を読み込んで表示する関数
+async function initBlueNotes() {
+  const snapshot = await utils.getDocs(utils.collection(utils.db, 'blueNotes'));
+  blueNotes = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  if (blueNotes.length === 0) return;
+
+  const today = new Date();
+  // 月始まりの日付 (MMDD形式, 4桁ゼロ埋め)
+  const currentMonthId = String(today.getMonth() + 1).padStart(2, '0') + '01';
+
+  // 月始まりの日付に一致するdoc.idがあるか探す
+  const currentMonthIndex = blueNotes.findIndex(
+    (note) => note.id === currentMonthId
+  );
+
+  if (currentMonthIndex !== -1) {
+    currentIndex = currentMonthIndex; // 月始まりの日付に一致
+  } else {
+    // ランダムで選ぶ
+    currentIndex = Math.floor(Math.random() * blueNotes.length);
+  }
+
+  renderBlueNoteVideos();
+}
+
+function renderBlueNoteVideos() {
+  const $videos = $('#blue-note-videos');
+  $videos.empty();
+
+  const prevIndex = (currentIndex - 1 + blueNotes.length) % blueNotes.length;
+  const nextIndex = (currentIndex + 1) % blueNotes.length;
+  const randomIndex = utils.getRandomIndex(currentIndex, blueNotes.length);
+
+  const indexes = [
+    { index: prevIndex, role: 'prev' },
+    { index: currentIndex, role: 'current' },
+    { index: nextIndex, role: 'next' },
+    { index: randomIndex, role: 'random' },
+  ];
+
+  indexes.forEach((item) => {
+    const note = blueNotes[item.index];
+    // この動画を先頭にして全体配列を作る
+    const watchIds = utils.getWatchVideosOrder(item.index, blueNotes);
+
+    const html = utils.buildYouTubeHtml(watchIds, false, false);
+
+    $videos.append(`
+      <div class="video ${item.role === 'current' ? 'active' : ''}"
+           data-role="${item.role}"
+           data-index="${item.index}">
+        ${html}
+      </div>
+    `);
+
+    if (item.role === 'current') updateBlueNoteLink(watchIds);
+  });
+
+  updateBlueNoteTitle();
+}
+
+function updateBlueNoteTitle() {
+  $('#blue-note-title').text(blueNotes[currentIndex].title);
+}
+
+function updateBlueNoteLink(watchIds) {
+  // 全曲プレイリストリンク更新
+  if (watchIds) {
+    $('#playlist-link-blue-note')
+      .attr(
+        'href',
+        `https://www.youtube.com/watch_videos?video_ids=${watchIds.join(',')}`
+      )
+      .show();
+  } else {
+    $('#playlist-link-blue-note').hide();
+  }
+}
+
+// 修正後の showNext()
+function showNext() {
+  // インデックス更新
+  currentIndex = (currentIndex + 1) % blueNotes.length;
+
+  // DOMをクリアして再構築することで、以前のプレーヤーの状態をリセットします
+  renderBlueNoteVideos();
+}
+
+// 修正後の showPrev()
+function showPrev() {
+  // インデックス更新
+  currentIndex = (currentIndex - 1 + blueNotes.length) % blueNotes.length;
+
+  // DOMをクリアして再構築することで、以前のプレーヤーの状態をリセットします
+  renderBlueNoteVideos();
+}
+
+function showRandom() {
+  // 新しいランダムインデックス
+  currentIndex = utils.getRandomIndex(currentIndex, blueNotes.length);
+
+  const $videos = $('#blue-note-videos');
+  $videos.empty();
+
+  // 再構築（prev, current, next, random 全部新規）
+  const prevIndex = (currentIndex - 1 + blueNotes.length) % blueNotes.length;
+  const nextIndex = (currentIndex + 1) % blueNotes.length;
+  const randomIndex = utils.getRandomIndex(currentIndex, blueNotes.length);
+
+  const indexes = [
+    { index: prevIndex, role: 'prev' },
+    { index: currentIndex, role: 'current' },
+    { index: nextIndex, role: 'next' },
+    { index: randomIndex, role: 'random' },
+  ];
+
+  indexes.forEach((item) => {
+    const watchIds = utils.getWatchVideosOrder(item.index, blueNotes);
+    const html = utils.buildYouTubeHtml(watchIds, false, false);
+    $videos.append(`
+      <div class="video ${item.role === 'current' ? 'active' : ''}"
+           data-role="${item.role}"
+           data-index="${item.index}">
+        ${html}
+      </div>
+    `);
+    if (item.role === 'current') updateBlueNoteLink(watchIds);
+  });
+
+  updateBlueNoteTitle();
+}
 // ===========================
 // 特定の日付だけUIを更新する関数
 // ===========================
@@ -232,6 +372,11 @@ async function refreshBlueNoteItem(dateId) {
 // イベント設定
 //===========================
 function setupEventHandlers() {
+  // プレイヤー操作
+  $('#blue-note-prev').on('click', showPrev);
+  $('#blue-note-next').on('click', showNext);
+  $('#blue-note-random').on('click', showRandom);
+
   // 保存
   $(document).on('click', '.save-button', async function () {
     utils.clearErrors(); // 既存エラーをクリア
