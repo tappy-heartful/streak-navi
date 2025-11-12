@@ -135,7 +135,7 @@ async function renderEvent() {
       .text('回答を受け付けていません');
   } else if (isSchedule) {
     // 日程調整受付中
-    $attendanceTitle.text('日程調整回答状況');
+    $attendanceTitle.text('日程調整');
     // 【修正】回答人数を新しいクラスと文言で表示
     $attendanceContainer
       .addClass('label-value')
@@ -177,7 +177,7 @@ async function renderEvent() {
     // ヘッダー行 (日付/曜日のみ) (変更なし)
     const $headerRow = $('<div class="adjust-row header-row"></div>');
     $headerRow.append('<div class="date-cell">日程</div>');
-    $headerRow.append('<div class="status-summary-cell">回答状況</div>');
+    $headerRow.append('<div class="status-summary-cell">回答</div>');
     $table.append($headerRow);
 
     // データ行
@@ -232,7 +232,7 @@ async function renderEvent() {
     $attendanceContainer.append($table);
   } else if (attendanceType === 'attendance') {
     // 出欠受付中
-    $attendanceTitle.text('出欠回答状況');
+    $attendanceTitle.text('出欠');
     // 【修正】回答人数を新しいクラスと文言で表示
     $attendanceContainer
       .addClass('label-value')
