@@ -121,6 +121,7 @@ async function renderEvent() {
   // ------------------------------------------------------------------
   // 3. 画面下部の「状況」（旧：出欠）表示の修正
   // ------------------------------------------------------------------
+  const $attendanceTitle = $('#event-attendance-title');
   const $attendanceContainer =
     $('#event-attendance').removeClass('label-value');
   $attendanceContainer.empty();
@@ -131,17 +132,15 @@ async function renderEvent() {
       .text('回答を受け付けていません');
   } else if (isSchedule) {
     // 日程調整受付中
-    $attendanceContainer
-      .addClass('label-value')
-      .text(`日程調整受付中 (${answerCount}人が回答済み)`);
+    $attendanceTitle.text('日程調整回答状況');
+    $attendanceContainer.addClass('label-value').text(`${answerCount}人が回答`);
 
     // TODO: 日程調整の回答結果を表示するロジックをここに追加する（今回は回答数のみ表示）
     // ※ 従来の出欠確認の結果表示ロジックは日程調整では使用しない
   } else if (attendanceType === 'attendance') {
     // 出欠受付中
-    $attendanceContainer
-      .addClass('label-value')
-      .text(`出欠受付中 (${answerCount}人が回答済み)`);
+    $attendanceTitle.text('出欠回答状況');
+    $attendanceContainer.addClass('label-value').text(`${answerCount}人が回答`);
 
     // 従来の出欠確認の回答結果を表示する
     // ステータス一覧取得
