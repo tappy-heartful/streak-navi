@@ -103,11 +103,18 @@ async function fetchAdjustStatuses() {
   const snapshot = await utils.getDocs(
     utils.collection(utils.db, 'eventAdjustStatus')
   );
-  // statusNameでソート（〇→△→✕の順を期待）
+
   const statuses = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+
+  // 【修正】doc.id (idプロパティ) の昇順でソート
   return statuses.sort((a, b) => {
-    const order = { 〇: 1, '△': 2, '✕': 3 };
-    return (order[a.name] || 99) - (order[b.name] || 99);
+    if (a.id < b.id) {
+      return -1;
+    }
+    if (a.id > b.id) {
+      return 1;
+    }
+    return 0; // IDが等しい場合
   });
 }
 
