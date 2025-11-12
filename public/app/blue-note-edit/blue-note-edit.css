@@ -62,7 +62,7 @@ h3 {
   font-size: 16px;
   border: none;
   border-radius: 8px;
-  background-color: #4caf50;
+  background-color: #5360c4;;
   color: white;
   cursor: pointer;
   transition: background 0.3s ease;
@@ -74,7 +74,7 @@ h3 {
 }
 
 .player-control:hover {
-  background-color: #45a049;
+  background-color: #3e4aa0;;
 }
 
 /* iframe表示部分はそのまま */
