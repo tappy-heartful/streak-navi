@@ -1,5 +1,8 @@
 import * as utils from '../common/functions.js';
 
+// グローバル変数
+let allAnswers = []; // 日程調整の全回答データを格納する配列
+
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
@@ -57,7 +60,7 @@ async function renderEvent() {
   const answersSnap = await utils.getDocs(
     utils.collection(utils.db, answerCollectionName)
   );
-  const allAnswers = answersSnap.docs
+  allAnswers = answersSnap.docs
     .filter((doc) => doc.id.startsWith(eventId + '_'))
     .map((doc) => ({ id: doc.id, ...doc.data() }));
   const answerCount = allAnswers.length;
@@ -502,7 +505,7 @@ function setupEventHandlers(eventId, uid, isSchedule) {
     .on('click', '.adjust-count-link', function (e) {
       e.preventDefault();
       const date = $(this).data('date');
-      const statusId = $(this).data('status-id');
+      const statusId = String($(this).data('status-id'));
       const statusName = $(this).data('status-name');
       // eventId はこのスコープで利用可能と仮定
       showAdjustUsersModal(eventId, date, statusId, statusName);
@@ -515,38 +518,18 @@ async function showAdjustUsersModal(eventId, date, statusId, statusName) {
   try {
     // 該当する回答者 UID を収集
     const adjustAnswerUids = [];
-    // allAnswersがこのスコープで利用可能であることを前提とする。
-    // 利用できない場合は、ここで 'eventAdjustAnswers' コレクションから全回答を取得する必要があります。
-    // 今回は、setUpPage/loadDataなどで取得済みの allAnswers が利用可能と仮定します。
-    // --- allAnswers を使ってフィルタリング ---
-
     // allAnswersはイベントIDのプレフィックスを持つdoc.idを持つ配列と仮定
-    if (typeof allAnswers !== 'undefined' && Array.isArray(allAnswers)) {
-      allAnswers.forEach((doc) => {
-        const answers = doc.answers || {};
-        // 特定の日付に対する回答が、指定されたステータスIDと一致するか確認
-        if (answers[date] === statusId) {
-          // doc.idが "eventId_uid" 形式と仮定
-          const uid = doc.id.split('_')[1];
-          if (uid) {
-            adjustAnswerUids.push(uid);
-          }
-        }
-      });
-    } else {
-      // allAnswers が未定義の場合、Firestoreから全件取得 (より安全な処理)
-      const answersSnap = await utils.getDocs(
-        utils.collection(utils.db, 'eventAdjustAnswers')
-      );
-      answersSnap.forEach((doc) => {
-        if (!doc.id.startsWith(eventId + '_')) return;
-        const data = doc.data();
-        if (Number(data.answers?.[date]) === statusId) {
-          const uid = doc.id.split('_')[1];
+    allAnswers.forEach((doc) => {
+      const answers = doc.answers || {};
+      // 特定の日付に対する回答が、指定されたステータスIDと一致するか確認
+      if (answers[date] === statusId) {
+        // doc.idが "eventId_uid" 形式と仮定
+        const uid = doc.id.split('_')[1];
+        if (uid) {
           adjustAnswerUids.push(uid);
         }
-      });
-    }
+      }
+    });
 
     // users コレクションから情報取得
     const responders = [];
