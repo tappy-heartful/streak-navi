@@ -134,3 +134,21 @@
     padding: 12px 0;
   }
 }
+
+/* --- ラジオボタンのグループ化（追加） --- */
+.radio-group label {
+  display: block; /* 縦に並べる */
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+.candidate-date-item {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+}
+
+.candidate-date-item button {
+  padding: 6px 10px; /* 削除ボタンのサイズ調整 */
+  font-size: 14px;
+}

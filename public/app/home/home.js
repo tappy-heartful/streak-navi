@@ -57,7 +57,7 @@ async function loadPendingAnnouncements() {
 
     if (!hasPendingVotes) {
       $announcementList.append(`
-          <li class="pending-message">📌投票、受付中です！</li>
+            <li class="pending-message">📌投票、受付中です！</li>
         `);
       hasPendingVotes = true;
       hasPending = true;
@@ -87,7 +87,7 @@ async function loadPendingAnnouncements() {
 
     if (!hasPendingCalls) {
       $announcementList.append(`
-          <li class="pending-message">📌候補曲、募集中です！</li>
+            <li class="pending-message">📌候補曲、募集中です！</li>
         `);
       hasPendingCalls = true;
       hasPending = true;
@@ -101,7 +101,7 @@ async function loadPendingAnnouncements() {
       `);
   }
 
-  // --- 未回答かつ今日以降のイベント ---
+  // --- お知らせ対象のイベント ---
   const eventsRef = utils.collection(utils.db, 'events');
   const qEvents = utils.query(eventsRef, utils.orderBy('date', 'desc'));
   const eventsSnap = await utils.getDocs(qEvents);
@@ -111,28 +111,35 @@ async function loadPendingAnnouncements() {
   const now = new Date();
   const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // 今日の0:00
 
-  // ★★★ 2週間後(30日後)の0:00 を計算 ★★★
-  const twoWeeksLater = new Date(todayOnly);
-  twoWeeksLater.setDate(todayOnly.getDate() + 30); // 30日加算
+  // 30日後の0:00 を計算 (元のロジックを保持)
+  const thirtyDaysLater = new Date(todayOnly);
+  thirtyDaysLater.setDate(todayOnly.getDate() + 30); // 30日加算
 
   for (const eventDoc of eventsSnap.docs) {
     const eventData = eventDoc.data();
-    if (!eventData.attendance) continue; // 出欠受付なしは除外
-
-    // eventDate 'yyyy.MM.dd'
-    const [year, month, day] = (eventData.date || '').split('.').map(Number);
-    if (!year || !month || !day) continue;
-
-    const eventDateObj = new Date(year, month - 1, day);
-
-    // ★★★ フィルタリング 1: 今日より前は対象外 ★★★
-    if (eventDateObj < todayOnly) continue;
-
-    // ★★★ フィルタリング 2: 30日後より先は対象外 (追加) ★★★
-    // 30日後の 0:00 以降のイベントを除外します
-    if (eventDateObj >= twoWeeksLater) continue;
-
     const eventId = eventDoc.id;
+    const attendanceType = eventData.attendanceType; // 'schedule', 'attendance', 'none'
+
+    let shouldAnnounce = false;
+
+    if (attendanceType === 'schedule') {
+      // 1. 日程調整受付中 (回答の有無によらず)
+      shouldAnnounce = true;
+    } else if (attendanceType === 'attendance') {
+      // 2. 出欠受付中で、かつ未来のイベントである
+
+      // eventDate 'yyyy.MM.dd'
+      const [year, month, day] = (eventData.date || '').split('.').map(Number);
+      if (!year || !month || !day) continue;
+
+      const eventDateObj = new Date(year, month - 1, day);
+
+      if (eventDateObj >= todayOnly && eventDateObj < thirtyDaysLater) {
+        shouldAnnounce = true;
+      }
+    }
+
+    if (!shouldAnnounce) continue;
 
     if (!hasPendingEvents) {
       $announcementList.append(`
@@ -141,10 +148,17 @@ async function loadPendingAnnouncements() {
       hasPendingEvents = true;
       hasPending = true;
     }
+
+    // 日程調整中であれば表示を調整
+    let eventDisplay = `📅${eventData.date}`;
+    if (attendanceType === 'schedule') {
+      eventDisplay = '🗓️日程調整中';
+    }
+
     $announcementList.append(`
         <li>
           <a href="../event-confirm/event-confirm.html?eventId=${eventId}" class="notification-link">
-            📅${eventData.date} ${eventData.title}
+            ${eventDisplay} ${eventData.title}
           </a>
         </li>
       `);
