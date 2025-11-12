@@ -56,7 +56,7 @@ $(document).ready(async function () {
         title: 'イベント確認',
         url: `../event-confirm/event-confirm.html?eventId=${eventId}`,
       },
-      { title: mode === 'edit' ? '日程調整修正' : '日程調整回答' },
+      { title: mode === 'edit' ? '日程調整回答修正' : '日程調整回答' },
     ]);
 
     setupPageMode(mode);
@@ -81,7 +81,7 @@ $(document).ready(async function () {
 // ページ表示モードの設定
 // -------------------------------------
 function setupPageMode(mode) {
-  const title = mode === 'edit' ? '日程調整修正' : '日程調整回答';
+  const title = mode === 'edit' ? '日程調整回答修正' : '日程調整回答';
   const buttonText = mode === 'edit' ? '回答を修正する' : '回答を登録する';
   $('#title').text(title);
   $('#page-title').text(title);
