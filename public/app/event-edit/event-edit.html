@@ -26,8 +26,55 @@
     </div>
 
     <main class="container">
-      <!-- 日付（必須） -->
       <div class="form-group">
+        <label>日程調整 / 出欠確認 <span class="required">*</span></label>
+        <div class="radio-group" id="attendance-type-group">
+          <label>
+            <input
+              type="radio"
+              name="attendance-type"
+              id="type-schedule"
+              value="schedule"
+              checked
+            />
+            日程調整をする
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="attendance-type"
+              id="type-attendance"
+              value="attendance"
+            />
+            出欠確認をする
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="attendance-type"
+              id="type-none"
+              value="none"
+            />
+            どちらも受け付けない
+          </label>
+        </div>
+      </div>
+
+      <div id="date-candidates-group" class="form-group" style="display: none">
+        <label>日程候補日 <span class="required">*</span></label>
+        <div id="candidate-dates-container"></div>
+        <button
+          type="button"
+          id="add-candidate-date-button"
+          class="clear-button"
+          style="margin-top: 5px"
+        >
+          候補日を追加
+        </button>
+      </div>
+
+      <!-- 日付（必須） -->
+      <div id="date-single-group" class="form-group">
         <label for="event-date">日付 <span class="required">*</span></label>
         <input type="date" id="event-date" />
       </div>
@@ -116,15 +163,6 @@
         ></textarea>
       </div>
 
-      <!-- 出欠を受け付ける -->
-      <div class="form-group checkbox-group">
-        <label>
-          <input type="checkbox" id="event-attendance" />
-          出欠を受け付ける
-        </label>
-      </div>
-
-      <!-- アクションボタン -->
       <div id="confirm-buttons" class="confirm-buttons">
         <button id="clear-button" class="clear-button">クリア</button>
         <button id="save-button" class="save-button">登録 / 更新</button>
