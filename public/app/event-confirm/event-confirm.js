@@ -132,13 +132,90 @@ async function renderEvent() {
       .text('回答を受け付けていません');
   } else if (isSchedule) {
     // 日程調整受付中
-    $attendanceTitle.text('日程調整回答状況');
-    // 【修正】回答人数を新しいクラスと文言で表示
+    $attendanceTitle.text('日程調整回答状況'); // 【修正】回答人数を新しいクラスと文言で表示
     $attendanceContainer
       .addClass('label-value')
-      .html(`<span class="answer-count-summary">回答${answerCount}人</span>`);
-    // TODO: 日程調整の回答結果を表示するロジックをここに追加する（今回は回答数のみ表示）
-    //  // ※ 従来の出欠確認の結果表示ロジックは日程調整では使用しない
+      .html(`<span class="answer-count-summary">回答${answerCount}人</span>`); // ========================================== // TODO: 日程調整の回答結果を表示するロジック (ここから追加) // ==========================================
+    // 1. ステータス一覧 (〇, △, ✕) 取得
+    const statusesSnap = await utils.getDocs(
+      utils.collection(utils.db, 'eventAdjustStatus')
+    );
+    // doc.id順にソート（〇, △, ✕の順を想定）
+    const adjustStatuses = statusesSnap.docs
+      .map((doc) => ({ id: doc.id, ...doc.data() }))
+      .sort((a, b) => {
+        if (a.id < b.id) return -1;
+        if (a.id > b.id) return 1;
+        return 0;
+      });
+
+    // ステータスIDからステータス名へのマップを作成
+    const statusNames = {};
+    adjustStatuses.forEach((s) => (statusNames[s.id] = s.name));
+
+    // 2. 候補日ごとの回答を集計 { "2025.12.01": { statusId1: 5, statusId2: 3, ... } }
+    const dateCounts = {};
+
+    // allAnswers: [{ answers: { "2025.12.01": "statusId", ... }, ... }]
+    allAnswers.forEach((answerDoc) => {
+      const answers = answerDoc.answers || {};
+      for (const date in answers) {
+        const statusId = answers[date];
+        if (!dateCounts[date]) {
+          dateCounts[date] = {};
+        }
+        dateCounts[date][statusId] = (dateCounts[date][statusId] || 0) + 1;
+      }
+    });
+
+    // 3. HTMLを生成して表示
+    const candidateDates = eventData.candidateDates || [];
+    const $table = $('<div class="adjust-table"></div>');
+
+    // ヘッダー行 (日付/曜日のみ)
+    const $headerRow = $('<div class="adjust-row header-row"></div>');
+    $headerRow.append('<div class="date-cell">日程</div>');
+    $headerRow.append('<div class="status-summary-cell">回答状況</div>');
+    $table.append($headerRow);
+
+    // データ行
+    candidateDates.forEach((date) => {
+      const dayOfWeek = getDayOfWeek(date); // 曜日を取得
+      const dateParts = date.split('.');
+      const monthDay = `${dateParts[1]}/${dateParts[2]}`; // 月/日 形式
+
+      const counts = dateCounts[date] || {};
+      let summaryHtml = '';
+
+      // ○△✕ と回答人数を結合
+      adjustStatuses.forEach((status) => {
+        const count = counts[status.id] || 0;
+        if (count > 0) {
+          // 回答があったステータスのみ表示 (例: 〇3)
+          summaryHtml += `<span class="status-count status-${status.name}">
+                                    ${status.name}${count}
+                                </span>`;
+        }
+      });
+
+      const $row = $('<div class="adjust-row"></div>');
+      // 日付と曜日
+      $row.append(`
+            <div class="date-cell">
+                <span class="date-part">${monthDay}</span>
+                <span class="day-part">(${dayOfWeek})</span>
+            </div>
+        `);
+      // 回答サマリー
+      $row.append(`
+            <div class="status-summary-cell">
+                ${summaryHtml || '<span class="no-answer-text">未回答</span>'}
+            </div>
+        `);
+      $table.append($row);
+    });
+
+    $attendanceContainer.append($table);
   } else if (attendanceType === 'attendance') {
     // 出欠受付中
     $attendanceTitle.text('出欠回答状況');
@@ -407,4 +484,17 @@ function setupEventHandlers(eventId, uid, isSchedule) {
     .on('click', function () {
       window.location.href = `../event-edit/event-edit.html?mode=copy&eventId=${eventId}`;
     });
+}
+// ** 曜日を取得するヘルパー関数 (event-adjust-answer.js から再利用) **
+function getDayOfWeek(dateStr) {
+  // dateStrは "YYYY.MM.DD" 形式を想定
+  try {
+    const parts = dateStr.split('.').map(Number);
+    // 月は0から始まるため -1 する
+    const date = new Date(parts[0], parts[1] - 1, parts[2]);
+    const days = ['日', '月', '火', '水', '木', '金', '土'];
+    return days[date.getDay()];
+  } catch (e) {
+    return ''; // パースエラー時は空文字
+  }
 }

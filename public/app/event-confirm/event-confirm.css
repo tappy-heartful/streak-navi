@@ -59,3 +59,90 @@
     margin-bottom: 10px;
     padding: 0 10px; /* 親の.label-valueのパディングに合わせて調整 */
 }
+
+/* 日程調整回答テーブルのスタイル */
+.adjust-table {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    margin-top: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.adjust-row {
+    display: flex;
+    border-bottom: 1px solid #eee;
+}
+
+.adjust-row:last-child {
+    border-bottom: none;
+}
+
+/* ヘッダー行のスタイル */
+.adjust-row.header-row {
+    background-color: #f5f5f5;
+    font-weight: bold;
+}
+
+/* 日付セル (左端) */
+.date-cell {
+    flex-basis: 35%; /* 日付欄の幅 */
+    padding: 12px 10px;
+    background-color: #fcfcfc;
+    border-right: 1px solid #eee;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: 15px;
+    white-space: nowrap;
+}
+
+/* 日付/曜日パーツ */
+.date-cell .date-part {
+    font-size: 1em;
+    font-weight: bold;
+}
+.date-cell .day-part {
+    font-size: 0.85em;
+    color: #666;
+}
+
+/* 回答サマリーセル (右側) */
+.status-summary-cell {
+    flex-basis: 65%; /* 残りの幅 */
+    padding: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* 左寄せ */
+    gap: 15px; /* アイテム間のスペース */
+    font-size: 16px;
+}
+
+/* 回答数 (〇3, △2, ✕1) の表示 */
+.status-count {
+    font-weight: bold;
+    padding: 2px 5px;
+    border-radius: 4px;
+    /* 各ステータスに色を付ける場合はここに追加 */
+}
+
+/* 各ステータスの色付け例 */
+.status-count.status-〇 {
+    color: #007bff; /* 青 */
+}
+.status-count.status-△ {
+    color: #ffc107; /* 黄色 */
+}
+.status-count.status-✕ {
+    color: #dc3545; /* 赤 */
+}
+
+.no-answer-text {
+    color: #999;
+    font-style: italic;
+    font-size: 14px;
+}
