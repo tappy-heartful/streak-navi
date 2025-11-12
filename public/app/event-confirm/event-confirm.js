@@ -133,14 +133,19 @@ async function renderEvent() {
   } else if (isSchedule) {
     // 日程調整受付中
     $attendanceTitle.text('日程調整回答状況');
-    $attendanceContainer.addClass('label-value').text(`${answerCount}人が回答`);
-
+    // 【修正】回答人数を新しいクラスと文言で表示
+    $attendanceContainer
+      .addClass('label-value')
+      .html(`<span class="answer-count-summary">回答${answerCount}人</span>`);
     // TODO: 日程調整の回答結果を表示するロジックをここに追加する（今回は回答数のみ表示）
-    // ※ 従来の出欠確認の結果表示ロジックは日程調整では使用しない
+    //  // ※ 従来の出欠確認の結果表示ロジックは日程調整では使用しない
   } else if (attendanceType === 'attendance') {
     // 出欠受付中
     $attendanceTitle.text('出欠回答状況');
-    $attendanceContainer.addClass('label-value').text(`${answerCount}人が回答`);
+    // 【修正】回答人数を新しいクラスと文言で表示
+    $attendanceContainer
+      .addClass('label-value')
+      .html(`<span class="answer-count-summary">回答${answerCount}人</span>`);
 
     // 従来の出欠確認の回答結果を表示する
     // ステータス一覧取得

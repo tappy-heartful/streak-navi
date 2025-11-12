@@ -48,3 +48,14 @@
   font-size: 13px;
   color: #888;
 }
+
+/* 回答人数のサマリー表示スタイル */
+.answer-count-summary {
+    display: block; /* ブロック要素にして幅全体を使い、text-alignが有効になるようにする */
+    text-align: left;
+    font-size: 14px;
+    color: #6c757d; /* 薄い灰色 (文字を薄く) */
+    font-weight: normal;
+    margin-bottom: 10px;
+    padding: 0 10px; /* 親の.label-valueのパディングに合わせて調整 */
+}
