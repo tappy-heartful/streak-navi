@@ -77,58 +77,92 @@
 
 
 /* -------------------------------------- */
-/* 既存のCSS（変更なし） */
+/* 出欠状況ブロック (修正・追加あり) */
 /* -------------------------------------- */
 
 /* 出欠状況ブロック */
 .attendance-status-block {
-  margin-bottom: 24px;
-  padding: 12px;
-  border: 1px solid #ddd;
-  border-radius: 8px;
-  background: #fafafa;
+    margin-bottom: 24px;
+    padding: 12px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #fafafa;
 }
 
 .attendance-status-block h3 {
-  font-size: 16px;
-  margin-bottom: 12px;
-  color: #333;
-  border-left: 4px solid #4caf50;
-  padding-left: 8px;
+    font-size: 16px;
+    margin-bottom: 12px;
+    color: #333;
+    border-left: 4px solid #4caf50;
+    padding-left: 8px;
+}
+
+/* 【新規】パートごとの表示用コンテナ */
+.status-content {
+    /* パートグループ全体を格納 */
+}
+
+/* 【新規】パートごとのグループ */
+.attendance-section-group {
+    margin-bottom: 15px; /* パート間のスペース */
+    padding: 0 5px;
+}
+
+/* 【新規】パート名/人数表示のスタイル */
+.attendance-section-group h4 {
+    font-size: 13px; /* パート名/人数表示のサイズ */
+    margin-bottom: 5px;
+    color: #444;
+    border-bottom: 1px solid #eee; /* 区切り線 */
+    padding-bottom: 3px;
+    font-weight: bold;
 }
 
 /* ユーザ一覧 */
 .attendance-users {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 16px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px; /* ギャップを少し小さく */
+    margin-top: 5px;
 }
 
-/* 個別ユーザ */
+/* 個別ユーザ（オリジナルサイズ） */
 .attendance-user {
-  width: 80px;
-  text-align: center;
-  font-size: 13px;
+    width: 80px;
+    text-align: center;
+    font-size: 13px;
 }
 
 .attendance-user img {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  object-fit: cover;
-  display: block;
-  margin: 0 auto 6px;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    object-fit: cover;
+    display: block;
+    margin: 0 auto 6px;
+}
+
+/* 【修正】要件に合わせて小型化するためのスタイル (small-userクラスが適用される) */
+.attendance-user.small-user {
+    width: 60px; /* 全体の幅を縮小 */
+    font-size: 11px; /* フォントサイズを縮小 */
+}
+
+.attendance-user.small-user img {
+    width: 40px; /* 画像を縮小 */
+    height: 40px;
+    margin: 0 auto 4px; /* マージンを調整 */
 }
 
 .attendance-user span {
-  display: block;
-  word-break: break-word;
+    display: block;
+    word-break: break-word;
 }
 
 /* 該当者なし */
 .no-user {
-  font-size: 13px;
-  color: #888;
+    font-size: 13px;
+    color: #888;
 }
 
 /* 回答人数のサマリー表示スタイル */

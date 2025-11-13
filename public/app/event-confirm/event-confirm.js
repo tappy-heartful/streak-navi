@@ -255,38 +255,78 @@ async function renderEvent() {
       users[doc.id] = doc.data();
     });
 
+    // 【新規】sectionsコレクションからパート名を取得
+    const sectionsSnap = await utils.getDocs(
+      utils.collection(utils.db, 'sections')
+    );
+    const sections = {};
+    sectionsSnap.docs.forEach((doc) => {
+      sections[doc.id] = doc.data().name || 'パート名なし';
+    });
+
     // ステータスごとに表示
     for (const status of statuses) {
       const $statusBlock = $(`
       <div class="attendance-status-block">
         <h3>${status.name}</h3>
-        <div class="attendance-users" id="status-${status.id}"></div>
+        <div class="status-content"></div>
       </div>
     `);
 
-      // このステータスに該当するユーザを追加
+      const $statusContent = $statusBlock.find('.status-content');
+
+      // このステータスに該当するユーザを抽出
       const filteredAnswers = allAnswers.filter(
         (ans) => ans.status === status.id
       );
 
       if (filteredAnswers.length === 0) {
-        $statusBlock
-          .find('.attendance-users')
-          .append('<p class="no-user">該当者なし</p>');
+        $statusContent.append('<p class="no-user">該当者なし</p>');
       } else {
-        for (const ans of filteredAnswers) {
+        // 回答者をパートIDでグルーピング
+        const usersBySection = {};
+        filteredAnswers.forEach((ans) => {
           const uid = ans.id.replace(eventId + '_', '');
           const user = users[uid];
-          if (!user) continue;
+          if (!user) return;
 
-          const $userItem = $(`
-          <div class="attendance-user">
-            <img src="${user.pictureUrl}" alt="${user.displayName}" />
-            <span>${user.displayName}</span>
-          </div>
-        `);
+          const sectionId = user.sectionId || 'unknown'; // sectionIdがない場合は'unknown'
+          if (!usersBySection[sectionId]) {
+            usersBySection[sectionId] = [];
+          }
+          usersBySection[sectionId].push(user);
+        });
 
-          $statusBlock.find('.attendance-users').append($userItem);
+        // パートIDでソート（表示順を安定させるため）
+        const sortedSectionIds = Object.keys(usersBySection).sort();
+
+        // グループ化されたパートごとに表示を生成
+        for (const sectionId of sortedSectionIds) {
+          const sectionName = sections[sectionId] || '未所属';
+          const sectionUsers = usersBySection[sectionId];
+
+          // パート名の見出し
+          const $sectionBlock = $(`
+            <div class="attendance-section-group">
+              <h4>${sectionName}</h4>
+              <div class="attendance-users"></div>
+            </div>
+          `);
+          const $attendanceUsers = $sectionBlock.find('.attendance-users');
+
+          // ユーザアイテムの生成
+          for (const user of sectionUsers) {
+            const $userItem = $(`
+              <div class="attendance-user small-user">
+                <img src="${user.pictureUrl}" alt="${user.displayName}" />
+                <span>${user.displayName}</span>
+              </div>
+            `);
+
+            $attendanceUsers.append($userItem);
+          }
+
+          $statusContent.append($sectionBlock);
         }
       }
 
