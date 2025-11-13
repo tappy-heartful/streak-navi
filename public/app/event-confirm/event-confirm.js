@@ -556,6 +556,15 @@ function setupEventHandlers(eventId, uid, isSchedule) {
 async function showAdjustUsersModal(eventId, date, statusId, statusName) {
   utils.showSpinner();
   try {
+    // 【新規】sectionsコレクションからパート名を取得
+    const sectionsSnap = await utils.getDocs(
+      utils.collection(utils.db, 'sections')
+    );
+    const sections = {};
+    sectionsSnap.docs.forEach((doc) => {
+      sections[doc.id] = doc.data().name || 'パート名なし';
+    });
+
     // 該当する回答者 UID を収集
     const adjustAnswerUids = [];
     // allAnswersはイベントIDのプレフィックスを持つdoc.idを持つ配列と仮定
@@ -571,47 +580,66 @@ async function showAdjustUsersModal(eventId, date, statusId, statusName) {
       }
     });
 
-    // users コレクションから情報取得
-    const responders = [];
+    // users コレクションから情報取得し、パートIDでグルーピング
+    const usersBySection = {};
     for (const uid of adjustAnswerUids) {
       const userSnap = await utils.getDoc(utils.doc(utils.db, 'users', uid));
+      let userData;
       if (userSnap.exists()) {
-        const userData = userSnap.data();
-        responders.push({
-          name: userData.displayName || '名無し',
-          pictureUrl: userData.pictureUrl || '',
-        });
+        userData = userSnap.data();
       } else {
-        // 退会済みユーザ
-        responders.push({
-          name: '退会済みユーザ',
-          pictureUrl: utils.globalBandLogoImage, // 適切なデフォルト画像に変更してください
-        });
+        // 退会済みユーザのデータ
+        userData = {
+          displayName: '退会済みユーザ',
+          pictureUrl: utils.globalBandLogoImage,
+          sectionId: 'retired', // 仮のセクションID
+        };
       }
+
+      const sectionId = userData.sectionId || 'unknown';
+      if (!usersBySection[sectionId]) {
+        usersBySection[sectionId] = [];
+      }
+      usersBySection[sectionId].push(userData);
     }
 
     // モーダルに描画
-    const modalBody = responders
-      .map(
-        (r) => `
-        <div class="voter">
-          <img src="${r.pictureUrl}" alt="${r.name}" class="voter-icon"
-            onerror="this.onerror=null; this.src='${utils.globalLineDefaultImage}';"/>
-          <span>${r.name}</span>
+    let modalBody = '';
+    const sortedSectionIds = Object.keys(usersBySection).sort();
+
+    for (const sectionId of sortedSectionIds) {
+      const sectionName = sections[sectionId] || '未所属';
+      const sectionUsers = usersBySection[sectionId];
+
+      // パートごとのブロックを構築 (出欠確認の表示と同じ構造を使用)
+      let userItemsHtml = '';
+      for (const user of sectionUsers) {
+        // 小型化のために small-user クラスを付与
+        userItemsHtml += `
+          <div class="attendance-user small-user">
+            <img src="${user.pictureUrl}" alt="${user.displayName}" class="voter-icon"
+              onerror="this.onerror=null; this.src='${utils.globalLineDefaultImage}';"/>
+            <span>${user.displayName}</span>
+          </div>
+        `;
+      }
+
+      // パートグループのHTML
+      modalBody += `
+        <div class="attendance-section-group">
+          <h4>${sectionName}</h4>
+          <div class="attendance-users">${userItemsHtml}</div>
         </div>
-      `
-      )
-      .join('');
+      `;
+    }
 
     // 日付を "MM/DD" 形式に整形
     const [y, m, d] = date.split('.');
     const displayDate = `${m}/${d}(${utils.getDayOfWeek(date)})`;
 
     utils.hideSpinner();
-    await utils.showModal(
-      `【${displayDate}】 ${statusName} と回答した人`,
-      modalBody
-    );
+    // モーダルコンテンツは、パート表示を包含するdivでラップされていないため、そのまま `modalBody` を渡します。
+    await utils.showModal(`${displayDate} ${statusName}の人`, modalBody);
   } catch (e) {
     // ログ登録
     await utils.writeLog({
