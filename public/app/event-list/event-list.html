@@ -17,17 +17,39 @@
         <h1>イベント一覧</h1>
       </div>
 
-      <div class="container">
+      <div class="container" id="schedule-container">
+        <h3>🗓️ 日程調整中</h3>
         <section class="event-list">
-          <ul class="event-list" id="event-list"></ul>
+          <ul class="event-list" id="schedule-list"></ul>
         </section>
         <button
-          id="add-button"
+          id="schedule-add-button"
           class="add-button"
-          onclick="window.location.href = '../event-edit/event-edit.html?mode=new'"
+          onclick="window.location.href = '../event-edit/event-edit.html?mode=new&type=schedule'"
         >
           ＋ 新規作成
         </button>
+      </div>
+
+      <div class="container" id="attendance-container">
+        <h3>👥 出欠受付中</h3>
+        <section class="event-list">
+          <ul class="event-list" id="attendance-list"></ul>
+        </section>
+        <button
+          id="attendance-add-button"
+          class="add-button"
+          onclick="window.location.href = '../event-edit/event-edit.html?mode=new&type=attendance'"
+        >
+          ＋ 新規作成
+        </button>
+      </div>
+
+      <div class="container" id="closed-container">
+        <h3>✅ 終了</h3>
+        <section class="event-list">
+          <ul class="event-list" id="closed-list"></ul>
+        </section>
       </div>
 
       <div class="page-footer">

@@ -22,25 +22,36 @@ $(document).ready(async function () {
 
 async function setUpPage() {
   // 管理者の場合のみ新規登録ボタン表示
-  utils.getSession('isEventAdmin') === utils.globalStrTrue
-    ? $('#add-button').show()
-    : $('#add-button').hide();
+  const isAdmin = utils.getSession('isEventAdmin') === utils.globalStrTrue;
 
-  const $list = $('#event-list').empty();
+  if (isAdmin) {
+    // 新規作成ボタンは日程調整用と出欠受付中のコンテナにのみ表示
+    $('#schedule-add-button').show();
+    $('#attendance-add-button').show();
+  } else {
+    $('#schedule-add-button').hide();
+    $('#attendance-add-button').hide();
+  }
+
+  // 各リスト要素をクリア
+  const $scheduleList = $('#schedule-list').empty();
+  const $attendanceList = $('#attendance-list').empty();
+  const $closedList = $('#closed-list').empty();
 
   const eventsRef = utils.collection(utils.db, 'events');
   const qEvent = utils.query(eventsRef, utils.orderBy('date', 'desc'));
   const eventSnap = await utils.getDocs(qEvent);
 
   if (eventSnap.empty) {
-    showEmptyMessage($list);
+    // 全イベントがない場合、全リストにメッセージを表示（または非表示）
+    showEmptyMessage($scheduleList);
     return;
   }
 
   // ステータスごとに配列を分ける
-  const pendingItems = [];
-  const answeredItems = [];
-  const closedItems = [];
+  const scheduleItems = []; // 日程調整中のイベント
+  const attendanceItems = []; // 出欠受付中のイベント
+  const closedItems = []; // 終了したイベント
 
   const uid = utils.getSession('uid');
 
@@ -91,10 +102,11 @@ async function setUpPage() {
         )
       );
     } else if (attendanceType === 'none') {
-      // 回答を受け付けていない未来イベント
+      // 回答を受け付けていない未来イベント (日程調整中コンテナに追加)
       status = '';
       statusClass = '';
-      pendingItems.push(
+      // attendanceType='none'のものは、便宜上、日程調整中のリストに追加
+      scheduleItems.push(
         makeEventItem(
           eventId,
           displayDate,
@@ -106,17 +118,16 @@ async function setUpPage() {
       );
     } else {
       // 回答を受け付けている未来イベント (attendance or schedule)
-
       const answerId = `${eventId}_${uid}`;
       let answerDocRef;
 
       if (attendanceType === 'schedule') {
-        // 日程調整中
+        // 日程調整中 (scheduleItemsに分類)
         answerDocRef = utils.doc(utils.db, 'eventAdjustAnswers', answerId);
         displayDate = '日程調整中';
         dateIcon = '🗓️';
       } else {
-        // 出欠受付中
+        // 出欠受付中 (attendanceItemsに分類)
         answerDocRef = utils.doc(utils.db, 'eventAnswers', answerId);
         // displayDate, dateIcon は初期値のまま
       }
@@ -126,40 +137,53 @@ async function setUpPage() {
       if (answerSnap.exists()) {
         status = '回答済';
         statusClass = 'answered';
-        answeredItems.push(
-          makeEventItem(
-            eventId,
-            displayDate,
-            dateIcon,
-            eventTitle,
-            status,
-            statusClass
-          )
-        );
       } else {
         status = '未回答';
         statusClass = 'pending';
-        pendingItems.push(
-          makeEventItem(
-            eventId,
-            displayDate,
-            dateIcon,
-            eventTitle,
-            status,
-            statusClass
-          )
-        );
+      }
+
+      // 回答タイプに応じて分類
+      const item = makeEventItem(
+        eventId,
+        displayDate,
+        dateIcon,
+        eventTitle,
+        status,
+        statusClass
+      );
+
+      if (attendanceType === 'schedule') {
+        scheduleItems.push(item);
+      } else {
+        attendanceItems.push(item);
       }
     }
   }
 
-  // 表示順: 未回答 → 回答済 → 終了
-  pendingItems.forEach((item) => $list.append(item));
-  answeredItems.forEach((item) => $list.append(item));
-  closedItems.forEach((item) => $list.append(item));
+  // 1. 各コンテナにイベントを追加
+  // 日程調整中のイベント
+  if (scheduleItems.length > 0) {
+    scheduleItems.forEach((item) => $scheduleList.append(item));
+  } else if ($attendanceList.is(':empty')) {
+    // 他のリストも空の場合のみ空メッセージを表示
+    showEmptyMessage($scheduleList);
+  }
+
+  // 出欠受付中のイベント
+  if (attendanceItems.length > 0) {
+    attendanceItems.forEach((item) => $attendanceList.append(item));
+  }
+
+  // 2. 終了イベントの処理: イベントが存在しない場合コンテナごと非表示
+  if (closedItems.length > 0) {
+    closedItems.forEach((item) => $closedList.append(item));
+    $('#closed-container').show(); // 存在する場合は表示（CSSで初期非表示にしておくことを推奨）
+  } else {
+    $('#closed-container').hide(); // 存在しない場合はコンテナごと非表示
+  }
 }
 
-// 【修正】dateIconを追加
+// 【修正なし】
 function makeEventItem(eventId, date, dateIcon, title, status, statusClass) {
   const statusHtml = status
     ? `<span class="answer-status ${statusClass}">${status}</span>`
