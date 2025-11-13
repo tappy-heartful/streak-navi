@@ -103,15 +103,18 @@ async function loadPendingAnnouncements() {
 
   // --- お知らせ対象のイベント ---
   const eventsRef = utils.collection(utils.db, 'events');
-  const qEvents = utils.query(eventsRef, utils.orderBy('date', 'desc'));
+  const qEvents = utils.query(eventsRef, utils.orderBy('date', 'asc')); // 日付の昇順に修正
   const eventsSnap = await utils.getDocs(qEvents);
 
-  let hasPendingEvents = false;
+  // 収集用の配列
+  const schedulePending = []; // 日程調整中（未回答）
+  const attendancePending = []; // 出欠受付中（未回答）
+  const imminentEvents = []; // 30日以内のイベント（回答済みは除くロジックも検討したが、今回は「もうすぐイベントです！」の告知用途として回答の有無に関わらず抽出）
 
   const now = new Date();
   const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // 今日の0:00
 
-  // 30日後の0:00 を計算 (元のロジックを保持)
+  // 30日後の0:00 を計算
   const thirtyDaysLater = new Date(todayOnly);
   thirtyDaysLater.setDate(todayOnly.getDate() + 30); // 30日加算
 
@@ -119,50 +122,135 @@ async function loadPendingAnnouncements() {
     const eventData = eventDoc.data();
     const eventId = eventDoc.id;
     const attendanceType = eventData.attendanceType; // 'schedule', 'attendance', 'none'
+    const eventDateStr = eventData.date || '';
 
-    let shouldAnnounce = false;
-
-    if (attendanceType === 'schedule') {
-      // 1. 日程調整受付中 (回答の有無によらず)
-      shouldAnnounce = true;
-    } else if (attendanceType === 'attendance') {
-      // 2. 出欠受付中で、かつ未来のイベントである
-
-      // eventDate 'yyyy.MM.dd'
-      const [year, month, day] = (eventData.date || '').split('.').map(Number);
-      if (!year || !month || !day) continue;
-
-      const eventDateObj = new Date(year, month - 1, day);
-
-      if (eventDateObj >= todayOnly && eventDateObj < thirtyDaysLater) {
-        shouldAnnounce = true;
+    // イベント日付オブジェクトの作成
+    let eventDateObj = null;
+    if (eventDateStr) {
+      const [year, month, day] = eventDateStr.split('.').map(Number);
+      if (year && month && day) {
+        eventDateObj = new Date(year, month - 1, day);
       }
     }
 
-    if (!shouldAnnounce) continue;
+    // 過去のイベントはスキップ
+    if (eventDateObj && eventDateObj < todayOnly) continue;
 
-    if (!hasPendingEvents) {
-      $announcementList.append(`
-            <li class="pending-message">📌もうすぐイベントです！</li>
-        `);
-      hasPendingEvents = true;
-      hasPending = true;
+    // ------------------------------------------------------------------
+    // 1. 未回答のイベントの判定
+    // ------------------------------------------------------------------
+    let isPending = false;
+    let listToPush = null;
+    let answerDocRef = null;
+
+    if (attendanceType === 'schedule') {
+      answerDocRef = utils.doc(
+        utils.db,
+        'eventAdjustAnswers',
+        `${eventId}_${uid}`
+      );
+      listToPush = schedulePending;
+    } else if (attendanceType === 'attendance') {
+      answerDocRef = utils.doc(utils.db, 'eventAnswers', `${eventId}_${uid}`);
+      listToPush = attendancePending;
     }
 
-    // 日程調整中であれば表示を調整
-    let eventDisplay = `📅${eventData.date}`;
-    if (attendanceType === 'schedule') {
-      eventDisplay = '🗓️日程調整中';
+    if (answerDocRef) {
+      const answerSnap = await utils.getDoc(answerDocRef);
+      if (!answerSnap.exists()) {
+        // 未回答の場合、該当のリストに追加
+        listToPush.push({
+          id: eventId,
+          title: eventData.title,
+          date: eventDateStr,
+          type: attendanceType,
+          display:
+            attendanceType === 'schedule'
+              ? '🗓️日程調整中'
+              : `📅${eventDateStr}`,
+          message:
+            attendanceType === 'schedule'
+              ? '日程調整、受付中です！'
+              : '出欠確認、受付中です！',
+        });
+        isPending = true;
+      }
+    }
+
+    // ------------------------------------------------------------------
+    // 2. 30日以内のイベントの判定
+    // ------------------------------------------------------------------
+    if (
+      eventDateObj &&
+      eventDateObj >= todayOnly &&
+      eventDateObj < thirtyDaysLater
+    ) {
+      // 30日以内のイベントとして追加（重複を避けるために未回答イベントはスキップ）
+      // 30日以内のイベントは、告知メッセージを優先するため、未回答リストに追加されたものはここではスキップしない。
+      // ただし、同じイベントが二重にリストに表示されないように、リストを結合する際に工夫が必要です。
+
+      // 🚨 今回は「もうすぐイベントです！」を最優先で表示するため、isPendingかどうかに関わらず、
+      // 30日以内であれば imminentEvents に追加します。
+      imminentEvents.push({
+        id: eventId,
+        title: eventData.title,
+        date: eventDateStr,
+        type: attendanceType,
+        display: `📅${eventDateStr}`,
+        message: 'もうすぐイベントです！',
+      });
+    }
+  }
+
+  // ------------------------------------------------------------------
+  // 3. 画面への表示 (優先順位: 日程調整未回答 > 出欠未回答 > もうすぐイベント)
+  // ------------------------------------------------------------------
+  let finalAnnouncements = {}; // {eventId: eventObject} で重複を排除
+
+  // 優先度1: 日程調整中（未回答）
+  schedulePending.forEach((event) => {
+    finalAnnouncements[event.id] = event;
+  });
+
+  // 優先度2: 出欠受付中（未回答）
+  attendancePending.forEach((event) => {
+    // 既に日程調整として追加されていなければ追加
+    if (!finalAnnouncements[event.id]) {
+      finalAnnouncements[event.id] = event;
+    }
+  });
+
+  // 優先度3: 30日以内のイベント
+  imminentEvents.forEach((event) => {
+    // 既に未回答イベントとして追加されていなければ追加
+    if (!finalAnnouncements[event.id]) {
+      finalAnnouncements[event.id] = event;
+    }
+  });
+
+  const announcedEvents = Object.values(finalAnnouncements);
+
+  // 最終的なリストを生成し、表示
+  let currentMessage = '';
+
+  announcedEvents.forEach((event) => {
+    hasPending = true;
+    // メッセージが切り替わった場合、新しいメッセージヘッダーを表示
+    if (event.message !== currentMessage) {
+      $announcementList.append(`
+            <li class="pending-message">📌${event.message}</li>
+        `);
+      currentMessage = event.message;
     }
 
     $announcementList.append(`
         <li>
-          <a href="../event-confirm/event-confirm.html?eventId=${eventId}" class="notification-link">
-            ${eventDisplay} ${eventData.title}
+          <a href="../event-confirm/event-confirm.html?eventId=${event.id}" class="notification-link">
+            ${event.display} ${event.title}
           </a>
         </li>
-      `);
-  }
+    `);
+  });
 
   // どれも未回答がなければ空メッセージ
   if (!hasPending) {

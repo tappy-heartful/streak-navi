@@ -89,8 +89,9 @@ async function setupPage(mode) {
     $('#event-other').val('');
 
     // 【新規追加】日程調整/出欠確認の初期値
-    $('input[name="attendance-type"]').val(['schedule']); // デフォルトを「日程調整からする」に
-    renderCandidateDates(['']); // 候補日を1つ初期表示
+    const type = utils.globalGetParamType; // URLパラメータからタイプ取得(一覧から遷移した場合日程調整課題か出欠確認かを指定)
+    $('input[name="attendance-type"]').val([type]);
+    if (type === 'schedule') renderCandidateDates(['']); // 候補日を1つ初期表示
   } else {
     pageTitle.text(
       mode === 'edit' ? 'イベント編集' : 'イベント新規作成(コピー)'
