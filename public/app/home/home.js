@@ -203,26 +203,26 @@ async function loadPendingAnnouncements() {
   }
 
   // ------------------------------------------------------------------
-  // 3. 画面への表示 (優先順位: 30日以内 > 日程調整 > 出欠確認)
+  // 3. 画面への表示 (優先順位: 日程調整未回答 > 出欠未回答 > もうすぐイベント)
   // ------------------------------------------------------------------
   let finalAnnouncements = {}; // {eventId: eventObject} で重複を排除
 
-  // 優先度1: 30日以内のイベント
-  imminentEvents.forEach((event) => {
+  // 優先度1: 日程調整中（未回答）
+  schedulePending.forEach((event) => {
     finalAnnouncements[event.id] = event;
   });
 
-  // 優先度2: 日程調整中（未回答）
-  schedulePending.forEach((event) => {
-    // 既に30日以内として追加されていなければ追加
+  // 優先度2: 出欠受付中（未回答）
+  attendancePending.forEach((event) => {
+    // 既に日程調整として追加されていなければ追加
     if (!finalAnnouncements[event.id]) {
       finalAnnouncements[event.id] = event;
     }
   });
 
-  // 優先度3: 出欠受付中（未回答）
-  attendancePending.forEach((event) => {
-    // 既に他のリストとして追加されていなければ追加
+  // 優先度3: 30日以内のイベント
+  imminentEvents.forEach((event) => {
+    // 既に未回答イベントとして追加されていなければ追加
     if (!finalAnnouncements[event.id]) {
       finalAnnouncements[event.id] = event;
     }
@@ -230,26 +230,17 @@ async function loadPendingAnnouncements() {
 
   const announcedEvents = Object.values(finalAnnouncements);
 
-  if (announcedEvents.length === 0) {
-    // お知らせがない場合の処理
-    $announcementList.html(
-      '<li class="no-announcement">現在、重要なお知らせはありません。</li>'
-    );
-    return;
-  }
-
   // 最終的なリストを生成し、表示
   let currentMessage = '';
-  $announcementList.empty();
 
   announcedEvents.forEach((event) => {
+    hasPending = true;
     // メッセージが切り替わった場合、新しいメッセージヘッダーを表示
     if (event.message !== currentMessage) {
       $announcementList.append(`
             <li class="pending-message">📌${event.message}</li>
         `);
       currentMessage = event.message;
-      hasPending = true;
     }
 
     $announcementList.append(`
