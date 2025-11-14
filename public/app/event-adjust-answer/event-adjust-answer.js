@@ -136,7 +136,7 @@ function renderEvent(eventData, statuses, answerData) {
 
   // データ行
   candidateDates.forEach((date) => {
-    const dayOfWeek = utils.getDayOfWeek(date); // 曜日を取得
+    const dayOfWeek = utils.getDayOfWeek(date, true); // 曜日を取得
     const dateParts = date.split('.');
     const monthDay = `${dateParts[1]}/${dateParts[2]}`; // 月/日 形式
 

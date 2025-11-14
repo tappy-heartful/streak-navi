@@ -48,7 +48,7 @@ async function renderEvent() {
   const isSchedule = attendanceType === 'schedule';
   const answerCollectionName = isSchedule
     ? 'eventAdjustAnswers'
-    : 'eventAnswers';
+    : 'eventAttendanceAnswers';
 
   // 自分の回答の存在チェック
   const myAnswerData = await utils.getDoc(
@@ -420,10 +420,10 @@ async function renderEvent() {
 function setupEventHandlers(eventId, uid, isSchedule) {
   const answerPage = isSchedule
     ? '../event-adjust-answer/event-adjust-answer.html'
-    : '../event-answer/event-answer.html';
+    : '../event-attendance-answer/event-attendance-answer.html';
   const answerCollectionName = isSchedule
     ? 'eventAdjustAnswers'
-    : 'eventAnswers';
+    : 'eventAttendanceAnswers';
 
   // 回答する
   $('#answer-save-button')
@@ -484,13 +484,15 @@ function setupEventHandlers(eventId, uid, isSchedule) {
         utils.showSpinner();
         await utils.deleteDoc(utils.doc(utils.db, 'events', eventId));
 
-        // eventAnswers (出欠確認) の回答を削除
+        // eventAttendanceAnswers (出欠確認) の回答を削除
         const answersSnap = await utils.getDocs(
-          utils.collection(utils.db, 'eventAnswers')
+          utils.collection(utils.db, 'eventAttendanceAnswers')
         );
         for (const doc of answersSnap.docs) {
           if (doc.id.startsWith(eventId + '_')) {
-            await utils.deleteDoc(utils.doc(utils.db, 'eventAnswers', doc.id));
+            await utils.deleteDoc(
+              utils.doc(utils.db, 'eventAttendanceAnswers', doc.id)
+            );
           }
         }
 

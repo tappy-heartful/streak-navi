@@ -132,7 +132,11 @@ async function setUpPage() {
       if (attendanceType === 'attendance') {
         // 出欠受付中の場合のみ回答状況を判定し、ステータスを表示
         const answerId = `${eventId}_${uid}`;
-        const answerDocRef = utils.doc(utils.db, 'eventAnswers', answerId);
+        const answerDocRef = utils.doc(
+          utils.db,
+          'eventAttendanceAnswers',
+          answerId
+        );
         const answerSnap = await utils.getDoc(answerDocRef);
 
         if (answerSnap.exists()) {
