@@ -49,7 +49,7 @@ function makeMediaItem(mediaId, date, title) {
   return $(`
     <li>
       <a href="../media-confirm/media-confirm.html?mediaId=${mediaId}" class="media-link">
-        <span class="media-date">📅 ${date}</span>
+        <span class="media-date">📅 ${utils.getDayOfWeek(date)}</span>
         <span class="media-title">${title}</span>
       </a>
     </li>

@@ -78,7 +78,7 @@
 }
 
 /* --- 項目追加ボタン --- */
-#add-item-button {
+#add-candidate-date-button {
   display: inline-block;
   padding: 10px 14px;
   font-size: 15px;
@@ -90,7 +90,7 @@
   transition: background-color 0.2s;
 }
 
-#add-item-button:hover {
+#add-candidate-date-button:hover {
   background-color: #1976d2;
 }
 

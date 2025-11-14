@@ -576,14 +576,15 @@ export function getWatchVideosOrder(currentIndex, blueNotes) {
 }
 
 // ** 曜日を取得するヘルパー関数 (event-adjust-answer.js から再利用) **
-export function getDayOfWeek(dateStr) {
+export function getDayOfWeek(dateStr, isOnlyDayOfWeek = false) {
   // dateStrは "YYYY.MM.DD" 形式を想定
   try {
     const parts = dateStr.split('.').map(Number);
     // 月は0から始まるため -1 する
     const date = new Date(parts[0], parts[1] - 1, parts[2]);
     const days = ['日', '月', '火', '水', '木', '金', '土'];
-    return days[date.getDay()];
+    const dayOfWeek = days[date.getDay()];
+    return isOnlyDayOfWeek ? dayOfWeek : `${dateStr}(${dayOfWeek})`;
   } catch (e) {
     return ''; // パースエラー時は空文字
   }

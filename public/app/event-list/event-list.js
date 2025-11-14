@@ -25,7 +25,7 @@ async function setUpPage() {
   const isAdmin = utils.getSession('isEventAdmin') === utils.globalStrTrue;
 
   if (isAdmin) {
-    // 新規作成ボタンは日程調整用と出欠受付中のコンテナにのみ表示
+    // 新規作成ボタンは日程調整用と今後の予定（出欠受付用）コンテナに表示
     $('#schedule-add-button').show();
     $('#attendance-add-button').show();
   } else {
@@ -34,23 +34,17 @@ async function setUpPage() {
   }
 
   // 各リスト要素をクリア
-  const $scheduleList = $('#schedule-list').empty();
-  const $attendanceList = $('#attendance-list').empty();
-  const $closedList = $('#closed-list').empty();
+  const $scheduleList = $('#schedule-list').empty(); // 日程調整中
+  const $futureList = $('#future-list').empty(); // 今後の予定（出欠受付中 and 受付なし）
+  const $closedList = $('#closed-list').empty(); // 終了
 
   const eventsRef = utils.collection(utils.db, 'events');
-  const qEvent = utils.query(eventsRef, utils.orderBy('date', 'desc'));
+  const qEvent = utils.query(eventsRef, utils.orderBy('date', 'asc'));
   const eventSnap = await utils.getDocs(qEvent);
-
-  if (eventSnap.empty) {
-    // 全イベントがない場合、全リストにメッセージを表示（または非表示）
-    showEmptyMessage($scheduleList);
-    return;
-  }
 
   // ステータスごとに配列を分ける
   const scheduleItems = []; // 日程調整中のイベント
-  const attendanceItems = []; // 出欠受付中のイベント
+  const futureItems = []; // 今後の予定 (出欠受付中 and 受付なし)
   const closedItems = []; // 終了したイベント
 
   const uid = utils.getSession('uid');
@@ -78,6 +72,7 @@ async function setUpPage() {
       ); // 今日の0:00
 
       // eventDate は 'yyyy.MM.dd' 形式
+      // 修正点: eventDate.split('.') に修正
       const [year, month, day] = eventDate.split('.').map(Number);
       const eventDateObj = new Date(year, month - 1, day); // JSの月は0始まり
 
@@ -101,36 +96,13 @@ async function setUpPage() {
           statusClass
         )
       );
-    } else if (attendanceType === 'none') {
-      // 回答を受け付けていない未来イベント (日程調整中コンテナに追加)
-      status = '';
-      statusClass = '';
-      // attendanceType='none'のものは、便宜上、日程調整中のリストに追加
-      scheduleItems.push(
-        makeEventItem(
-          eventId,
-          displayDate,
-          dateIcon,
-          eventTitle,
-          status,
-          statusClass
-        )
-      );
-    } else {
-      // 回答を受け付けている未来イベント (attendance or schedule)
+    } else if (attendanceType === 'schedule') {
+      // 日程調整中 (scheduleItemsに分類)
       const answerId = `${eventId}_${uid}`;
-      let answerDocRef;
+      const answerDocRef = utils.doc(utils.db, 'eventAdjustAnswers', answerId);
 
-      if (attendanceType === 'schedule') {
-        // 日程調整中 (scheduleItemsに分類)
-        answerDocRef = utils.doc(utils.db, 'eventAdjustAnswers', answerId);
-        displayDate = '日程調整中';
-        dateIcon = '🗓️';
-      } else {
-        // 出欠受付中 (attendanceItemsに分類)
-        answerDocRef = utils.doc(utils.db, 'eventAnswers', answerId);
-        // displayDate, dateIcon は初期値のまま
-      }
+      displayDate = '日程調整中';
+      dateIcon = '🗓️';
 
       const answerSnap = await utils.getDoc(answerDocRef);
 
@@ -142,44 +114,78 @@ async function setUpPage() {
         statusClass = 'pending';
       }
 
-      // 回答タイプに応じて分類
-      const item = makeEventItem(
-        eventId,
-        displayDate,
-        dateIcon,
-        eventTitle,
-        status,
-        statusClass
+      scheduleItems.push(
+        makeEventItem(
+          eventId,
+          displayDate,
+          dateIcon,
+          eventTitle,
+          status,
+          statusClass
+        )
       );
+    } else {
+      // 今後の予定 (attendance or none) に分類
+      status = ''; // デフォルトは空
+      statusClass = '';
 
-      if (attendanceType === 'schedule') {
-        scheduleItems.push(item);
-      } else {
-        attendanceItems.push(item);
+      if (attendanceType === 'attendance') {
+        // 出欠受付中の場合のみ回答状況を判定し、ステータスを表示
+        const answerId = `${eventId}_${uid}`;
+        const answerDocRef = utils.doc(utils.db, 'eventAnswers', answerId);
+        const answerSnap = await utils.getDoc(answerDocRef);
+
+        if (answerSnap.exists()) {
+          status = '回答済';
+          statusClass = 'answered';
+        } else {
+          status = '未回答';
+          statusClass = 'pending';
+        }
       }
+      // attendanceType === 'none' の場合は、status/statusClass は空のまま（ラベル非表示）
+
+      futureItems.push(
+        makeEventItem(
+          eventId,
+          displayDate,
+          dateIcon,
+          eventTitle,
+          status,
+          statusClass
+        )
+      );
     }
   }
 
-  // 1. 各コンテナにイベントを追加
+  // 1. 各コンテナにイベントを追加し、0件判定を行う
+
   // 日程調整中のイベント
   if (scheduleItems.length > 0) {
     scheduleItems.forEach((item) => $scheduleList.append(item));
-  } else if ($attendanceList.is(':empty')) {
-    // 他のリストも空の場合のみ空メッセージを表示
+    $('#schedule-add-button').show(); // アイテムがあればボタンを表示
+  } else {
+    // 0件の場合、コンテナに空メッセージを表示
     showEmptyMessage($scheduleList);
+    // 管理者でなければボタンを非表示に保つ (isAdminの判定を尊重)
   }
 
-  // 出欠受付中のイベント
-  if (attendanceItems.length > 0) {
-    attendanceItems.forEach((item) => $attendanceList.append(item));
+  // 今後の予定イベント
+  if (futureItems.length > 0) {
+    futureItems.forEach((item) => $futureList.append(item));
+    $('#attendance-add-button').show(); // アイテムがあればボタンを表示
+  } else {
+    // 0件の場合、コンテナに空メッセージを表示
+    showEmptyMessage($futureList);
+    // 管理者でなければボタンを非表示に保つ (isAdminの判定を尊重)
   }
 
   // 2. 終了イベントの処理: イベントが存在しない場合コンテナごと非表示
   if (closedItems.length > 0) {
     closedItems.forEach((item) => $closedList.append(item));
-    $('#closed-container').show(); // 存在する場合は表示（CSSで初期非表示にしておくことを推奨）
+    $('#closed-container').show();
   } else {
-    $('#closed-container').hide(); // 存在しない場合はコンテナごと非表示
+    $('#closed-container').hide();
   }
 }
 
@@ -193,7 +199,8 @@ function makeEventItem(eventId, date, dateIcon, title, status, statusClass) {
     <li>
       <a href="../event-confirm/event-confirm.html?eventId=${eventId}" class="event-link">
         <div class="event-info">
-          <span class="event-date">${dateIcon} ${date}</span>
+          <span class="event-date">${dateIcon}
+          ${utils.getDayOfWeek(date)}</span>
           <span class="event-title">${title}</span>
         </div>
         ${statusHtml}

@@ -55,7 +55,13 @@ async function setupPage() {
       utils.showSpinner();
       $('#month-tabs li').removeClass('active');
       $li.addClass('active');
+
+      // 1. 月ごとのリストUIを更新
       await loadBlueNotes(month);
+
+      // 2. プレーヤーのフォーカスを更新（選択月の最初の曲に）
+      updatePlayerFocus(month);
+
       utils.hideSpinner();
     });
 
@@ -64,6 +70,61 @@ async function setupPage() {
 
   // 初期表示
   await loadBlueNotes(Number(currentMonth));
+}
+
+// プレイヤー表示用変数
+let blueNotes = [];
+let currentIndex = 0;
+
+// 今日の一曲を読み込んで表示する関数 (初期表示用)
+async function initBlueNotes() {
+  const snapshot = await utils.getDocs(utils.collection(utils.db, 'blueNotes'));
+  blueNotes = snapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  if (blueNotes.length === 0) return;
+
+  const today = new Date();
+  const currentMonth = String(today.getMonth() + 1);
+  const monthPrefix = currentMonth.padStart(2, '0');
+
+  // 現在の月の最初の登録曲を探す
+  const firstEntryInMonthIndex = blueNotes.findIndex((note) =>
+    note.id.startsWith(monthPrefix)
+  );
+
+  if (firstEntryInMonthIndex !== -1) {
+    currentIndex = firstEntryInMonthIndex;
+  } else {
+    // 該当の月に曲がない場合はランダムで選ぶ (元のロジックを維持)
+    currentIndex = Math.floor(Math.random() * blueNotes.length);
+  }
+
+  renderBlueNoteVideos();
+}
+
+/**
+ * 選択された月の最初の登録曲を基準にプレーヤーのcurrentIndexを更新し、プレーヤーを再描画する。
+ * @param {string|number} month - 選択された月 (1-12)
+ */
+function updatePlayerFocus(month) {
+  if (blueNotes.length === 0) return;
+
+  const monthPrefix = String(month).padStart(2, '0');
+
+  // 選択した月 (MM) で始まる最も早い日付 (MMDD) を探す
+  const firstEntryInMonthIndex = blueNotes.findIndex((note) =>
+    note.id.startsWith(monthPrefix)
+  );
+
+  if (firstEntryInMonthIndex !== -1) {
+    currentIndex = firstEntryInMonthIndex;
+    // プレーヤーUIを再描画
+    renderBlueNoteVideos();
+  }
+  // 該当の月に曲がない場合は、現在のcurrentIndexを維持するため何もしない
 }
 
 //===========================
@@ -173,39 +234,6 @@ async function loadBlueNotes(month) {
       `);
     }
   }
-}
-
-// プレイヤー表示用変数
-let blueNotes = [];
-let currentIndex = 0;
-
-// 今日の一曲を読み込んで表示する関数
-async function initBlueNotes() {
-  const snapshot = await utils.getDocs(utils.collection(utils.db, 'blueNotes'));
-  blueNotes = snapshot.docs.map((doc) => ({
-    id: doc.id,
-    ...doc.data(),
-  }));
-
-  if (blueNotes.length === 0) return;
-
-  const today = new Date();
-  // 月始まりの日付 (MMDD形式, 4桁ゼロ埋め)
-  const currentMonthId = String(today.getMonth() + 1).padStart(2, '0') + '01';
-
-  // 月始まりの日付に一致するdoc.idがあるか探す
-  const currentMonthIndex = blueNotes.findIndex(
-    (note) => note.id === currentMonthId
-  );
-
-  if (currentMonthIndex !== -1) {
-    currentIndex = currentMonthIndex; // 月始まりの日付に一致
-  } else {
-    // ランダムで選ぶ
-    currentIndex = Math.floor(Math.random() * blueNotes.length);
-  }
-
-  renderBlueNoteVideos();
 }
 
 function renderBlueNoteVideos() {

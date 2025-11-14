@@ -164,10 +164,7 @@ async function loadPendingAnnouncements() {
           title: eventData.title,
           date: eventDateStr,
           type: attendanceType,
-          display:
-            attendanceType === 'schedule'
-              ? '🗓️日程調整中'
-              : `📅${eventDateStr}`,
+          display: attendanceType === 'schedule' ? '🗓️' : `📅${eventDateStr}`,
           message:
             attendanceType === 'schedule'
               ? '日程調整、受付中です！'
