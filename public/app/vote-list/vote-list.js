@@ -21,25 +21,24 @@ $(document).ready(async function () {
 });
 
 async function setUpPage() {
+  // 管理者ボタンは「受付中」コンテナの直下にあるため、表示/非表示のロジックは変更なし
   utils.getSession('isVoteAdmin') === utils.globalStrTrue
     ? $('#add-button').show()
     : $('#add-button').hide();
 
-  const $list = $('#vote-list').empty();
+  // 修正点: リストの参照を新しいIDに変更
+  const $activeList = $('#active-list').empty(); // 受付中
+  const $closedList = $('#closed-list').empty(); // 期間外
 
   const votesRef = utils.collection(utils.db, 'votes');
   const qVotes = utils.query(votesRef, utils.orderBy('createdAt', 'desc'));
   const votesSnap = await utils.getDocs(qVotes);
 
-  if (votesSnap.empty) {
-    showEmptyMessage($list);
-    return;
-  }
+  // ステータスごとの配列に振り分け
+  const activeItems = []; // 受付中 (未回答/回答済を含む)
+  const closedItems = []; // 期間外
 
-  // 各ステータスごとの配列に振り分け
-  const pendingItems = [];
-  const votedItems = [];
-  const closedItems = [];
+  const uid = utils.getSession('uid');
 
   for (const voteDoc of votesSnap.docs) {
     const voteData = voteDoc.data();
@@ -54,36 +53,54 @@ async function setUpPage() {
     );
 
     if (isActive === false) {
+      // 期間外
       status = '期間外';
       statusClass = 'closed';
       closedItems.push(
         makeVoteItem(voteId, voteData.name, status, statusClass)
       );
     } else {
-      const answerId = `${voteId}_${utils.getSession('uid')}`;
+      // 受付中
+      const answerId = `${voteId}_${uid}`;
       const answerDocRef = utils.doc(utils.db, 'voteAnswers', answerId);
       const answerSnap = await utils.getDoc(answerDocRef);
 
       if (answerSnap.exists()) {
         status = '回答済';
         statusClass = 'answered';
-        votedItems.push(
-          makeVoteItem(voteId, voteData.name, status, statusClass)
-        );
       } else {
         status = '未回答';
         statusClass = 'pending';
-        pendingItems.push(
-          makeVoteItem(voteId, voteData.name, status, statusClass)
-        );
       }
+
+      // 受付中のリストに追加
+      activeItems.push(
+        makeVoteItem(voteId, voteData.name, status, statusClass)
+      );
     }
   }
 
-  // 表示順: 未回答 → 回答済 → 終了
-  pendingItems.forEach((item) => $list.append(item));
-  votedItems.forEach((item) => $list.append(item));
-  closedItems.forEach((item) => $list.append(item));
+  // 1. 受付中の投票を表示
+  if (activeItems.length > 0) {
+    // 回答状況で並び替え: 未回答 → 回答済
+    // このロジックは振り分け時に行われているため、そのまま追加
+    activeItems.forEach((item) => $activeList.append(item));
+  } else {
+    // 0件メッセージを表示
+    showEmptyMessage($activeList);
+  }
+
+  // 2. 期間外の投票を表示
+  if (closedItems.length > 0) {
+    closedItems.forEach((item) => $closedList.append(item));
+    // 期間外コンテナを表示
+    $('#closed-container').show();
+  } else {
+    // 0件メッセージを表示
+    showEmptyMessage($closedList);
+    // アイテムがなければコンテナを非表示にしたい場合:
+    // $('#closed-container').hide();
+  }
 }
 
 function makeVoteItem(voteId, name, status, statusClass) {
@@ -98,6 +115,7 @@ function makeVoteItem(voteId, name, status, statusClass) {
 }
 
 function showEmptyMessage($list) {
+  // 期間外コンテナのメッセージと共通化
   $list.append(`
     <li class="empty-message">
       <div class="vote-link empty">

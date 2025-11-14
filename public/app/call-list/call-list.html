@@ -17,9 +17,10 @@
         <h1>曲募集一覧</h1>
       </div>
 
-      <div class="container">
+      <div class="container" id="active-container">
+        <h3>📢 受付中</h3>
         <section class="call-list">
-          <ul class="call-list" id="call-list"></ul>
+          <ul class="call-list" id="active-list"></ul>
         </section>
         <button
           id="add-button"
@@ -28,6 +29,13 @@
         >
           ＋ 新規作成
         </button>
+      </div>
+
+      <div class="container" id="closed-container">
+        <h3>🏁 期間外</h3>
+        <section class="call-list">
+          <ul class="call-list" id="closed-list"></ul>
+        </section>
       </div>
 
       <div class="page-footer">
