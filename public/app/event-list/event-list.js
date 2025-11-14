@@ -101,8 +101,8 @@ async function setUpPage() {
       const answerId = `${eventId}_${uid}`;
       const answerDocRef = utils.doc(utils.db, 'eventAdjustAnswers', answerId);
 
-      displayDate = '日程調整中';
-      dateIcon = '🗓️';
+      displayDate = '';
+      dateIcon = '';
 
       const answerSnap = await utils.getDoc(answerDocRef);
 
@@ -199,8 +199,13 @@ function makeEventItem(eventId, date, dateIcon, title, status, statusClass) {
     <li>
       <a href="../event-confirm/event-confirm.html?eventId=${eventId}" class="event-link">
         <div class="event-info">
-          <span class="event-date">${dateIcon}
-          ${utils.getDayOfWeek(date)}</span>
+        ${
+          date
+            ? `<span class='event-date'>
+              ${dateIcon}${utils.getDayOfWeek(date)}
+            </span>`
+            : ''
+        }
           <span class="event-title">${title}</span>
         </div>
         ${statusHtml}
