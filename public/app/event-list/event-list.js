@@ -34,7 +34,6 @@ async function setUpPage() {
   }
 
   // 各リスト要素をクリア
-  // 変更点: $attendanceList の代わりに $futureList を使用
   const $scheduleList = $('#schedule-list').empty(); // 日程調整中
   const $futureList = $('#future-list').empty(); // 今後の予定（出欠受付中 and 受付なし）
   const $closedList = $('#closed-list').empty(); // 終了
@@ -42,12 +41,6 @@ async function setUpPage() {
   const eventsRef = utils.collection(utils.db, 'events');
   const qEvent = utils.query(eventsRef, utils.orderBy('date', 'asc'));
   const eventSnap = await utils.getDocs(qEvent);
-
-  if (eventSnap.empty) {
-    // 日程調整中も今後の予定もイベントがない場合、空メッセージを表示
-    showEmptyMessage($scheduleList);
-    return;
-  }
 
   // ステータスごとに配列を分ける
   const scheduleItems = []; // 日程調整中のイベント
@@ -79,6 +72,7 @@ async function setUpPage() {
       ); // 今日の0:00
 
       // eventDate は 'yyyy.MM.dd' 形式
+      // 修正点: eventDate.split('.') に修正
       const [year, month, day] = eventDate.split('.').map(Number);
       const eventDateObj = new Date(year, month - 1, day); // JSの月は0始まり
 
@@ -132,7 +126,6 @@ async function setUpPage() {
       );
     } else {
       // 今後の予定 (attendance or none) に分類
-      // 変更点: attendanceType === 'none' の場合もここに統合
       status = ''; // デフォルトは空
       statusClass = '';
 
@@ -165,21 +158,26 @@ async function setUpPage() {
     }
   }
 
-  // 1. 各コンテナにイベントを追加
+  // 1. 各コンテナにイベントを追加し、0件判定を行う
+
   // 日程調整中のイベント
   if (scheduleItems.length > 0) {
     scheduleItems.forEach((item) => $scheduleList.append(item));
+    $('#schedule-add-button').show(); // アイテムがあればボタンを表示
+  } else {
+    // 0件の場合、コンテナに空メッセージを表示
+    showEmptyMessage($scheduleList);
+    // 管理者でなければボタンを非表示に保つ (isAdminの判定を尊重)
   }
 
   // 今後の予定イベント
-  // 変更点: $attendanceList の代わりに $futureList を使用
   if (futureItems.length > 0) {
     futureItems.forEach((item) => $futureList.append(item));
-  }
-
-  // どちらのリストも空の場合のみ、空メッセージを表示
-  if (scheduleItems.length === 0 && futureItems.length === 0) {
-    showEmptyMessage($scheduleList); // どちらか一方のリストに表示すればOK ($scheduleList or $futureList)
+    $('#attendance-add-button').show(); // アイテムがあればボタンを表示
+  } else {
+    // 0件の場合、コンテナに空メッセージを表示
+    showEmptyMessage($futureList);
+    // 管理者でなければボタンを非表示に保つ (isAdminの判定を尊重)
   }
 
   // 2. 終了イベントの処理: イベントが存在しない場合コンテナごと非表示
