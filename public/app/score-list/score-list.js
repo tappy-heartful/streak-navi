@@ -116,7 +116,7 @@ function renderScores(scoreArray) {
 
   // --- プレイリストリンク生成 ---
   const watchIds = scoreArray
-    .map((s) => utils.extractYouTubeId(s.referenceTrack))
+    .map((s) => utils.extractYouTubeId(s.referenceTrack_decoded))
     .filter((id) => !!id)
     .join(',');
 

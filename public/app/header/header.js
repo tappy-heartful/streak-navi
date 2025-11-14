@@ -14,8 +14,8 @@ $(document).ready(async function () {
     window.location.href = '../home/home.html';
   });
 
-  const icon = utils.getSession('pictureUrl');
-  const name = utils.getSession('displayName');
+  const icon = utils.getSession('pictureUrl_decoded');
+  const name = utils.getSession('displayName_decoded');
 
   // LINEアイコン
   $('#header-line-icon').attr('src', icon || utils.globalLineDefaultImage);

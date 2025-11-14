@@ -65,7 +65,10 @@ async function setUpPage() {
 
   // 表示設定
   $('#user-name').text(userData.displayName_decoded || '');
-  $('.user-icon').attr('src', userData.pictureUrl || utils.globalBandLogoImage);
+  $('.user-icon').attr(
+    'src',
+    userData.pictureUrl_decoded || utils.globalBandLogoImage
+  );
   $('.user-icon').attr(
     'onerror',
     "this.onerror=null; this.src='" + utils.globalLineDefaultImage + "';"

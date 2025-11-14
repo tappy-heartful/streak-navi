@@ -564,7 +564,9 @@ async function getOrderedYouTubeIds(currentDateId) {
     .map((doc) => ({ dateId: doc.id, data: doc.data() }))
     .sort((a, b) => a.dateId.localeCompare(b.dateId));
 
-  const ids = sortedNotes.map((note) => note.data.youtubeId).filter(Boolean);
+  const ids = sortedNotes
+    .map((note) => note.data.youtubeId_decoded)
+    .filter(Boolean);
 
   if (ids.length === 0) return [];
 

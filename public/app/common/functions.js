@@ -292,8 +292,8 @@ function renderWelcomeOverlay() {
 
   // 初回遷移時ウェルカム演出
   if (fromLogin || isInit) {
-    const lineIconPath = getSession('pictureUrl');
-    const lineAccountName = getSession('displayName');
+    const lineIconPath = getSession('pictureUrl_decoded');
+    const lineAccountName = getSession('displayName_decoded');
 
     $('#welcome-line-icon').attr('src', lineIconPath);
     $('#welcome-line-name').text(lineAccountName);
@@ -568,9 +568,11 @@ export function getRandomIndex(exclude, arrayLength) {
 //===========================
 export function getWatchVideosOrder(currentIndex, blueNotes) {
   // 今のインデックスから最後まで
-  const after = blueNotes.slice(currentIndex).map((n) => n.youtubeId);
+  const after = blueNotes.slice(currentIndex).map((n) => n.youtubeId_decoded);
   // 先頭から今のインデックス直前まで
-  const before = blueNotes.slice(0, currentIndex).map((n) => n.youtubeId);
+  const before = blueNotes
+    .slice(0, currentIndex)
+    .map((n) => n.youtubeId_decoded);
   // 連結
   return [...after, ...before];
 }
