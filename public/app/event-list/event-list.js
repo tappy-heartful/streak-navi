@@ -199,7 +199,8 @@ function makeEventItem(eventId, date, dateIcon, title, status, statusClass) {
     <li>
       <a href="../event-confirm/event-confirm.html?eventId=${eventId}" class="event-link">
         <div class="event-info">
-          <span class="event-date">${dateIcon} ${date}</span>
+          <span class="event-date">${dateIcon}
+          ${utils.getDayOfWeek(date)}</span>
           <span class="event-title">${title}</span>
         </div>
         ${statusHtml}

@@ -79,8 +79,12 @@ async function renderVote() {
   $('#vote-title').text(voteData.name);
   $('#vote-description').text(voteData.description);
   $('#vote-acceept-term').text(
-    `${voteData.acceptStartDate ? voteData.acceptStartDate : ''} ～
-    ${voteData.acceptEndDate ? voteData.acceptEndDate : ''}`
+    `${
+      voteData.acceptStartDate
+        ? utils.getDayOfWeek(voteData.acceptStartDate)
+        : ''
+    } ～
+    ${voteData.acceptEndDate ? utils.getDayOfWeek(voteData.acceptEndDate) : ''}`
   );
   $('#answer-status').text(
     `${isActive ? '受付中' : '期間外'}（${participantCount}人が回答済）`

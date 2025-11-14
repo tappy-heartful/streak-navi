@@ -36,7 +36,7 @@ async function renderMedia() {
   }
   const mediaData = mediaSnap.data();
 
-  $('#media-date').text(mediaData.date || '');
+  $('#media-date').text(utils.getDayOfWeek(mediaData.date) || '');
   $('#media-title').text(mediaData.title || '');
 
   // Instagramリンク

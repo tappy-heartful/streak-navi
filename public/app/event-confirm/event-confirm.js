@@ -112,12 +112,12 @@ async function renderEvent() {
     // 日程調整の場合: 候補日を表示
     $('#event-date').text('候補日一覧');
     const dates = (eventData.candidateDates || [])
-      .map((dateStr) => `・${dateStr}`)
+      .map((dateStr) => `・${utils.getDayOfWeek(dateStr)}`)
       .join('\n');
     $('#candidate-dates-display').text(dates || '候補日が設定されていません');
   } else {
     // 出欠確認/受付なしの場合: 単一の日付を表示
-    $('#event-date').text(eventData.date || '');
+    $('#event-date').text(utils.getDayOfWeek(eventData.date) || '');
     $('#candidate-dates-display').remove();
   }
 
@@ -182,7 +182,7 @@ async function renderEvent() {
 
     // データ行
     candidateDates.forEach((date) => {
-      const dayOfWeek = utils.getDayOfWeek(date); // 曜日を取得
+      const dayOfWeek = utils.getDayOfWeek(date, true); // 曜日を取得
       const dateParts = date.split('.');
       const monthDay = `${dateParts[1]}/${dateParts[2]}`; // 月/日 形式
 
@@ -635,7 +635,7 @@ async function showAdjustUsersModal(eventId, date, statusId, statusName) {
 
     // 日付を "MM/DD" 形式に整形
     const [y, m, d] = date.split('.');
-    const displayDate = `${m}/${d}(${utils.getDayOfWeek(date)})`;
+    const displayDate = `${m}/${d}(${utils.getDayOfWeek(date, true)})`;
 
     utils.hideSpinner();
     // モーダルコンテンツは、パート表示を包含するdivでラップされていないため、そのまま `modalBody` を渡します。

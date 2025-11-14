@@ -78,8 +78,10 @@ async function renderCall() {
   $('#call-title').text(callData.title);
   $('#call-description').text(callData.description);
   $('#call-acceept-term').text(
-    `${callData.acceptStartDate ? callData.acceptStartDate : ''} ～
-    ${callData.acceptEndDate ? callData.acceptEndDate : ''}`
+    `${
+      callData.acceptStartDate ? getDayOfWeek(callData.acceptStartDate) : ''
+    } ～
+    ${callData.acceptEndDate ? getDayOfWeek(callData.acceptEndDate) : ''}`
   );
   $('#answer-status').text(
     `${isActive ? '受付中' : '期間外'}（${participantCount}人が回答中）`
