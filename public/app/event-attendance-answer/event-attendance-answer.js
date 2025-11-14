@@ -77,7 +77,7 @@ async function fetchAttendanceStatuses() {
 
 async function fetchAnswerData(eventId, uid) {
   const ansDoc = await utils.getDoc(
-    utils.doc(utils.db, 'eventAnswers', `${eventId}_${uid}`)
+    utils.doc(utils.db, 'eventAttendanceAnswers', `${eventId}_${uid}`)
   );
   if (ansDoc.exists()) {
     return ansDoc.data();
@@ -155,7 +155,7 @@ function setupEventHandlers(mode, eventId, uid) {
       utils.showSpinner();
 
       await utils.setDoc(
-        utils.doc(utils.db, 'eventAnswers', `${eventId}_${uid}`),
+        utils.doc(utils.db, 'eventAttendanceAnswers', `${eventId}_${uid}`),
         {
           eventId,
           uid,

@@ -151,7 +151,11 @@ async function loadPendingAnnouncements() {
       );
       listToPush = schedulePending;
     } else if (attendanceType === 'attendance') {
-      answerDocRef = utils.doc(utils.db, 'eventAnswers', `${eventId}_${uid}`);
+      answerDocRef = utils.doc(
+        utils.db,
+        'eventAttendanceAnswers',
+        `${eventId}_${uid}`
+      );
       listToPush = attendancePending;
     }
 
