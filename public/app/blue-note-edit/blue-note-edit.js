@@ -78,7 +78,9 @@ let currentIndex = 0;
 
 // 今日の一曲を読み込んで表示する関数 (初期表示用)
 async function initBlueNotes() {
-  const snapshot = await utils.getDocs(utils.collection(utils.db, 'blueNotes'));
+  const snapshot = await utils.getWrapDocs(
+    utils.collection(utils.db, 'blueNotes')
+  );
   blueNotes = snapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
@@ -154,7 +156,7 @@ async function loadBlueNotes(month) {
   const $container = $('#blue-note-container').empty();
 
   // 🔽 blueNotes を一括取得
-  const notesSnap = await utils.getDocs(
+  const notesSnap = await utils.getWrapDocs(
     utils.collection(utils.db, 'blueNotes')
   );
   const notesMap = {};
@@ -190,7 +192,7 @@ async function loadBlueNotes(month) {
       if (data.createdBy) {
         if (userCache[data.createdBy] === undefined) {
           try {
-            const userDoc = await utils.getDoc(
+            const userDoc = await utils.getWrapDoc(
               utils.doc(utils.db, 'users', data.createdBy)
             );
             userCache[data.createdBy] = userDoc.exists()
@@ -273,7 +275,7 @@ function renderBlueNoteVideos() {
 }
 
 function updateBlueNoteTitle() {
-  $('#blue-note-title').text(blueNotes[currentIndex].title);
+  $('#blue-note-title').text(blueNotes[currentIndex].title_decoded);
 }
 
 function updateBlueNoteLink(watchIds) {
@@ -351,7 +353,7 @@ async function refreshBlueNoteItem(dateId) {
   const displayDay = Number(dayStr);
 
   const docRef = utils.doc(utils.db, 'blueNotes', dateId);
-  const docSnap = await utils.getDoc(docRef);
+  const docSnap = await utils.getWrapDoc(docRef);
 
   const $container = $(`.blue-note-item[data-date="${dateId}"]`).parent();
   const $oldItem = $(`.blue-note-item[data-date="${dateId}"]`);
@@ -448,7 +450,7 @@ function setupEventHandlers() {
     }
 
     // 🔽 重複チェック（動画ID単位で判定）
-    const allDocsSnap = await utils.getDocs(
+    const allDocsSnap = await utils.getWrapDocs(
       utils.collection(utils.db, 'blueNotes')
     );
     let duplicateFound = false;
@@ -553,7 +555,7 @@ function setupEventHandlers() {
 
 // 今表示中の動画IDを先頭にして、日付順に後続を並べ、最後に最初に戻る形で配列を作る
 async function getOrderedYouTubeIds(currentDateId) {
-  const blueNotesSnap = await utils.getDocs(
+  const blueNotesSnap = await utils.getWrapDocs(
     utils.collection(utils.db, 'blueNotes')
   );
 
@@ -562,7 +564,9 @@ async function getOrderedYouTubeIds(currentDateId) {
     .map((doc) => ({ dateId: doc.id, data: doc.data() }))
     .sort((a, b) => a.dateId.localeCompare(b.dateId));
 
-  const ids = sortedNotes.map((note) => note.data.youtubeId).filter(Boolean);
+  const ids = sortedNotes
+    .map((note) => note.data.youtubeId_decoded)
+    .filter(Boolean);
 
   if (ids.length === 0) return [];
 

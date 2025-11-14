@@ -74,7 +74,9 @@ async function setupPage(mode) {
   }
 
   // ジャンル一覧をロード
-  const genreSnap = await utils.getDocs(utils.collection(utils.db, 'genres'));
+  const genreSnap = await utils.getWrapDocs(
+    utils.collection(utils.db, 'genres')
+  );
   genresList = genreSnap.docs.map((doc) => ({
     id: doc.id,
     name: doc.data().name,
@@ -121,7 +123,7 @@ function addGenreSelect(selectedId = '') {
 // データ読み込み
 //===========================
 async function loadScoreData(docId, mode) {
-  const docSnap = await utils.getDoc(utils.doc(utils.db, 'scores', docId));
+  const docSnap = await utils.getWrapDoc(utils.doc(utils.db, 'scores', docId));
   if (!docSnap.exists()) throw new Error('譜面が見つかりません');
   const data = docSnap.data();
 

@@ -33,7 +33,7 @@ async function setUpPage() {
 
   // usersコレクションから対象ユーザ取得
   const userRef = utils.doc(utils.db, 'users', uid);
-  const userSnap = await utils.getDoc(userRef);
+  const userSnap = await utils.getWrapDoc(userRef);
   if (!userSnap.exists()) {
     throw new Error('ユーザが見つかりません：' + uid);
   }
@@ -43,7 +43,7 @@ async function setUpPage() {
   let roleName = '';
   if (userData.roleId != null) {
     const roleRef = utils.doc(utils.db, 'roles', String(userData.roleId));
-    const roleSnap = await utils.getDoc(roleRef);
+    const roleSnap = await utils.getWrapDoc(roleRef);
     if (roleSnap.exists()) {
       roleName = roleSnap.data().name || '';
     }
@@ -57,22 +57,25 @@ async function setUpPage() {
       'sections',
       String(userData.sectionId)
     );
-    const sectionSnap = await utils.getDoc(sectionRef);
+    const sectionSnap = await utils.getWrapDoc(sectionRef);
     if (sectionSnap.exists()) {
       sectionName = sectionSnap.data().name || '';
     }
   }
 
   // 表示設定
-  $('#user-name').text(userData.displayName || '');
-  $('.user-icon').attr('src', userData.pictureUrl || utils.globalBandLogoImage);
+  $('#user-name').text(userData.displayName_decoded || '');
+  $('.user-icon').attr(
+    'src',
+    userData.pictureUrl_decoded || utils.globalBandLogoImage
+  );
   $('.user-icon').attr(
     'onerror',
     "this.onerror=null; this.src='" + utils.globalLineDefaultImage + "';"
   );
 
   // 管理者権限表示
-  const secretWordsSnap = await utils.getDocs(
+  const secretWordsSnap = await utils.getWrapDocs(
     utils.collection(utils.db, 'secretWords')
   );
   let adminList = [];

@@ -33,20 +33,20 @@ async function renderVote() {
   const myProfileUrl = utils.getSession('pictureUrl') || '';
 
   // votes から投票情報を取得
-  const voteSnap = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
+  const voteSnap = await utils.getWrapDoc(utils.doc(utils.db, 'votes', voteId));
   if (!voteSnap.exists()) {
     throw new Error('投票が見つかりません：' + voteId);
   }
   const voteData = voteSnap.data();
 
   // voteAnswers から自分の回答取得
-  const myAnswerData = await utils.getDoc(
+  const myAnswerData = await utils.getWrapDoc(
     utils.doc(utils.db, 'voteAnswers', `${voteId}_${uid}`)
   );
   const myAnswer = myAnswerData?.data()?.answers || {};
 
   // 🔽 回答者数をカウント
-  const answersSnap = await utils.getDocs(
+  const answersSnap = await utils.getWrapDocs(
     utils.collection(utils.db, 'voteAnswers')
   );
   const participantCount = answersSnap.docs.filter((doc) =>
@@ -76,20 +76,24 @@ async function renderVote() {
     .removeClass('pending answered closed')
     .addClass(statusClass)
     .text(statusText);
-  $('#vote-title').text(voteData.name);
-  $('#vote-description').text(voteData.description);
+  $('#vote-title').text(voteData.name_decoded);
+  $('#vote-description').text(voteData.description_decoded);
   $('#vote-acceept-term').text(
     `${
       voteData.acceptStartDate
-        ? utils.getDayOfWeek(voteData.acceptStartDate)
+        ? utils.getDayOfWeek(voteData.acceptStartDate_decoded)
         : ''
     } ～
-    ${voteData.acceptEndDate ? utils.getDayOfWeek(voteData.acceptEndDate) : ''}`
+    ${
+      voteData.acceptEndDate
+        ? utils.getDayOfWeek(voteData.acceptEndDate_decoded)
+        : ''
+    }`
   );
   $('#answer-status').text(
     `${isActive ? '受付中' : '期間外'}（${participantCount}人が回答済）`
   );
-  $('#created-by').text(voteData.createdBy);
+  $('#created-by').text(voteData.createdBy_decoded);
   if (myAnswer && Object.keys(myAnswer).length > 0) {
     // 回答がある場合、回答するボタンを「回答を修正する」に変更
     $('#answer-save-button').text('回答を修正する');
@@ -120,7 +124,7 @@ async function getVoteResults(voteId, items) {
     });
   });
 
-  const answersSnap = await utils.getDocs(
+  const answersSnap = await utils.getWrapDocs(
     utils.collection(utils.db, 'voteAnswers')
   );
 
@@ -268,7 +272,7 @@ function setupEventHandlers(voteId, isAdmin, isActive, uid) {
     try {
       // 該当投票の回答者 UID を収集
       const voterUids = [];
-      const answersSnap = await utils.getDocs(
+      const answersSnap = await utils.getWrapDocs(
         utils.collection(utils.db, 'voteAnswers')
       );
       answersSnap.forEach((doc) => {
@@ -283,7 +287,9 @@ function setupEventHandlers(voteId, isAdmin, isActive, uid) {
       // users コレクションから情報取得
       const voters = [];
       for (const uid of voterUids) {
-        const userSnap = await utils.getDoc(utils.doc(utils.db, 'users', uid));
+        const userSnap = await utils.getWrapDoc(
+          utils.doc(utils.db, 'users', uid)
+        );
         if (userSnap.exists()) {
           const userData = userSnap.data();
           voters.push({
@@ -386,7 +392,7 @@ function setupEventHandlers(voteId, isAdmin, isActive, uid) {
         utils.showSpinner();
         await utils.deleteDoc(utils.doc(utils.db, 'votes', voteId));
 
-        const answersSnap = await utils.getDocs(
+        const answersSnap = await utils.getWrapDocs(
           utils.collection(utils.db, 'voteAnswers')
         );
         for (const doc of answersSnap.docs) {

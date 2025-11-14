@@ -30,14 +30,16 @@ async function renderMedia() {
   const mediaId = utils.globalGetParamMediaId;
 
   // media コレクションから取得
-  const mediaSnap = await utils.getDoc(utils.doc(utils.db, 'medias', mediaId));
+  const mediaSnap = await utils.getWrapDoc(
+    utils.doc(utils.db, 'medias', mediaId)
+  );
   if (!mediaSnap.exists()) {
     throw new Error('メディアが見つかりません：' + mediaId);
   }
   const mediaData = mediaSnap.data();
 
-  $('#media-date').text(utils.getDayOfWeek(mediaData.date) || '');
-  $('#media-title').text(mediaData.title || '');
+  $('#media-date').text(utils.getDayOfWeek(mediaData.date_decoded) || '');
+  $('#media-title').text(mediaData.title_decoded || '');
 
   // Instagramリンク
   if (mediaData.instagramUrl) {

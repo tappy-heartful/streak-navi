@@ -30,7 +30,7 @@ async function setUpPage() {
 
   const mediasRef = utils.collection(utils.db, 'medias');
   const qMedia = utils.query(mediasRef, utils.orderBy('date', 'desc'));
-  const mediaSnap = await utils.getDocs(qMedia);
+  const mediaSnap = await utils.getWrapDocs(qMedia);
 
   if (mediaSnap.empty) {
     showEmptyMessage($list);

@@ -16,7 +16,7 @@ $(document).ready(async function () {
 
   try {
     // 1. sections コレクションを取得
-    const sectionSnapshot = await utils.getDocs(
+    const sectionSnapshot = await utils.getWrapDocs(
       utils.collection(utils.db, 'sections')
     );
 
@@ -27,7 +27,7 @@ $(document).ready(async function () {
     });
 
     // 2. roles コレクションを取得
-    const rolesSnapshot = await utils.getDocs(
+    const rolesSnapshot = await utils.getWrapDocs(
       utils.collection(utils.db, 'roles')
     );
 
@@ -39,7 +39,7 @@ $(document).ready(async function () {
     });
 
     // 3. users コレクションを取得
-    const userSnapshot = await utils.getDocs(
+    const userSnapshot = await utils.getWrapDocs(
       utils.collection(utils.db, 'users')
     );
 

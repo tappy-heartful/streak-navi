@@ -32,7 +32,7 @@ async function setUpPage() {
   const uid = utils.globalGetParamUid;
   const isInit = utils.globalGetParamIsInit;
   const userRef = utils.doc(utils.db, 'users', uid);
-  const userSnap = await utils.getDoc(userRef);
+  const userSnap = await utils.getWrapDoc(userRef);
 
   if (!userSnap.exists()) {
     throw new Error('ユーザが見つかりません：' + uid);
@@ -50,8 +50,11 @@ async function setUpPage() {
   }
 
   // ユーザー名
-  $('#user-name').text(userData.displayName || '名無し');
-  $('.user-icon').attr('src', userData.pictureUrl || utils.globalBandLogoImage);
+  $('#user-name').text(userData.displayName_decoded || '名無し');
+  $('.user-icon').attr(
+    'src',
+    userData.pictureUrl_decoded || utils.globalBandLogoImage
+  );
   $('.user-icon').attr(
     'onerror',
     "this.onerror=null; this.src='" + utils.globalLineDefaultImage + "';"
@@ -63,7 +66,7 @@ async function setUpPage() {
 }
 
 async function populateSections(selectedId) {
-  const sectionSnapshot = await utils.getDocs(
+  const sectionSnapshot = await utils.getWrapDocs(
     utils.collection(utils.db, 'sections')
   );
   const $select = $('#section-select');
@@ -73,7 +76,7 @@ async function populateSections(selectedId) {
     const data = doc.data();
     const option = $('<option>')
       .val(doc.id)
-      .text(data.name || '(名称なし)');
+      .text(data.name_decoded || '(名称なし)');
     if (doc.id === selectedId) {
       option.prop('selected', true);
     }
@@ -82,7 +85,9 @@ async function populateSections(selectedId) {
 }
 
 async function populateRoles(selectedId) {
-  const roleSnapshot = await utils.getDocs(utils.collection(utils.db, 'roles'));
+  const roleSnapshot = await utils.getWrapDocs(
+    utils.collection(utils.db, 'roles')
+  );
   const $select = $('#role-select');
   $select.empty();
 
@@ -90,7 +95,7 @@ async function populateRoles(selectedId) {
     const data = doc.data();
     const option = $('<option>')
       .val(doc.id)
-      .text(data.name || '(名称なし)');
+      .text(data.name_decoded || '(名称なし)');
     if (doc.id === selectedId) {
       option.prop('selected', true);
     }
@@ -233,7 +238,7 @@ function setupEventHandlers() {
 }
 
 async function getSecretWordMap() {
-  const snapshot = await utils.getDocs(
+  const snapshot = await utils.getWrapDocs(
     utils.collection(utils.db, 'secretWords')
   );
   const map = {};

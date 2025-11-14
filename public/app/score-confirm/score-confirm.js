@@ -29,13 +29,15 @@ $(document).ready(async function () {
 async function renderScore() {
   const scoreId = utils.globalGetParamScoreId;
 
-  const scoreSnap = await utils.getDoc(utils.doc(utils.db, 'scores', scoreId));
+  const scoreSnap = await utils.getWrapDoc(
+    utils.doc(utils.db, 'scores', scoreId)
+  );
   if (!scoreSnap.exists()) throw new Error('譜面が見つかりません：' + scoreId);
 
   const scoreData = scoreSnap.data();
 
   // タイトル
-  $('#score-title').text(scoreData.title || '');
+  $('#score-title').text(scoreData.title_decoded || '');
 
   // 譜面（Google Driveリンク）
   if (scoreData.scoreUrl) {
@@ -59,9 +61,9 @@ async function renderScore() {
   if (Array.isArray(scoreData.genres) && scoreData.genres.length > 0) {
     const genreNames = [];
     for (const gid of scoreData.genres) {
-      const gSnap = await utils.getDoc(utils.doc(utils.db, 'genres', gid));
+      const gSnap = await utils.getWrapDoc(utils.doc(utils.db, 'genres', gid));
       if (gSnap.exists()) {
-        genreNames.push(gSnap.data().name);
+        genreNames.push(gSnap.data().name_decoded);
       }
     }
     $('#score-genre').text(genreNames.join('、'));
@@ -70,7 +72,7 @@ async function renderScore() {
   }
 
   // 備考
-  $('#score-note').text(scoreData.note || '未設定');
+  $('#score-note').text(scoreData.note_decoded || '未設定');
 
   // ホーム表示
   $('#is-disp-top').text(

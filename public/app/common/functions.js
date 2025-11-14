@@ -215,7 +215,7 @@ export async function initDisplay(isShowSpinner = true) {
 
   // --- 3. アカウント存在チェック (Firestore) --- // 認証された user.uid を使用
   const userRef = doc(db, 'users', user.uid);
-  const userSnap = await getDoc(userRef);
+  const userSnap = await getWrapDoc(userRef);
   if (!userSnap.exists()) {
     // Firebase Authにはユーザーがいるが、Firestoreからデータが削除されている場合
     // セッションもクリアし、ログインページへ遷移させる
@@ -292,8 +292,8 @@ function renderWelcomeOverlay() {
 
   // 初回遷移時ウェルカム演出
   if (fromLogin || isInit) {
-    const lineIconPath = getSession('pictureUrl');
-    const lineAccountName = getSession('displayName');
+    const lineIconPath = getSession('pictureUrl_decoded');
+    const lineAccountName = getSession('displayName_decoded');
 
     $('#welcome-line-icon').attr('src', lineIconPath);
     $('#welcome-line-name').text(lineAccountName);
@@ -568,9 +568,11 @@ export function getRandomIndex(exclude, arrayLength) {
 //===========================
 export function getWatchVideosOrder(currentIndex, blueNotes) {
   // 今のインデックスから最後まで
-  const after = blueNotes.slice(currentIndex).map((n) => n.youtubeId);
+  const after = blueNotes.slice(currentIndex).map((n) => n.youtubeId_decoded);
   // 先頭から今のインデックス直前まで
-  const before = blueNotes.slice(0, currentIndex).map((n) => n.youtubeId);
+  const before = blueNotes
+    .slice(0, currentIndex)
+    .map((n) => n.youtubeId_decoded);
   // 連結
   return [...after, ...before];
 }
@@ -601,4 +603,127 @@ export function markError($field, message) {
   $field
     .after(`<div class="error-message">${message}</div>`)
     .addClass('error-field');
+}
+
+//===========================
+// XSS対策ユーティリティ
+//===========================
+
+/**
+ * 文字列内のHTML特殊文字をエスケープする（データの安全な保存/取得用）
+ * @param {string} str - サニタイズ対象の文字列
+ * @returns {string} エスケープされた文字列
+ */
+function sanitizeString(str) {
+  if (typeof str !== 'string') {
+    return str;
+  }
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/**
+ * オブジェクトを再帰的に走査し、すべての文字列値をサニタイズし、
+ * さらに '_decoded' プロパティにデコード済みの値を追加する
+ * @param {Object} obj - ドキュメントデータオブジェクト
+ * @returns {Object} サニタイズされたデータオブジェクト
+ */
+function sanitizeObject(obj) {
+  if (obj === null || typeof obj !== 'object') {
+    // プリミティブな値はエスケープして返す
+    return sanitizeString(obj);
+  }
+
+  if (Array.isArray(obj)) {
+    return obj.map(sanitizeObject);
+  }
+
+  const sanitized = {};
+  for (const key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      // 1. 再帰的にサニタイズ（エスケープ）された値を取得
+      const escapedValue = sanitizeObject(obj[key]);
+
+      // 2. オリジナルのキーにエスケープされた値を設定
+      sanitized[key] = escapedValue;
+
+      // 3. 文字列の場合、デコード処理を実行し、'_decoded' キーで追加
+      if (typeof escapedValue === 'string') {
+        const decodedValue = escapedValue
+          .replace(/&lt;/g, '<')
+          .replace(/&gt;/g, '>')
+          .replace(/&quot;/g, '"')
+          .replace(/&#39;/g, "'")
+          .replace(/&amp;/g, '&');
+
+        sanitized[key + '_decoded'] = decodedValue;
+      }
+    }
+  }
+  return sanitized;
+}
+
+//===========================
+// Firestoreラッパー関数の修正
+//===========================
+
+/**
+ * XSS対策付きの getDocs (Collection) ラッパー関数
+ * @param {Query} q - Firestoreクエリ
+ * @returns {Promise<QuerySnapshot>}
+ */
+export async function getWrapDocs(q) {
+  const snapshot = await getDocs(q);
+
+  // スナップショットの docs を変更可能な新しい配列として作成
+  const sanitizedDocs = snapshot.docs.map((docSnap) => {
+    // docSnap.data() のコピーを作成し、サニタイズを適用
+    const sanitizedData = sanitizeObject(docSnap.data());
+
+    // スナップショットの構造を維持するために、新しいオブジェクトとして返す
+    return {
+      id: docSnap.id,
+      data: () => sanitizedData,
+      exists: docSnap.exists,
+      // 必要なプロパティがあればここに追加
+      ref: docSnap.ref,
+    };
+  });
+
+  // 元の snapshot に似た構造を返す（docsをサニタイズ済みのものに置き換え）
+  return {
+    empty: snapshot.empty,
+    docs: sanitizedDocs,
+    size: snapshot.size,
+    forEach: (callback) => sanitizedDocs.forEach(callback),
+  };
+}
+
+/**
+ * XSS対策付きの getDoc (Document) ラッパー関数
+ * @param {DocumentReference} ref - ドキュメント参照
+ * @returns {Promise<DocumentSnapshot>}
+ */
+export async function getWrapDoc(ref) {
+  const docSnap = await getDoc(ref);
+
+  // exists() が false の場合はそのまま返す
+  if (!docSnap.exists()) {
+    return docSnap;
+  }
+
+  // data() の結果をサニタイズ
+  const sanitizedData = sanitizeObject(docSnap.data());
+
+  // 新しいドキュメントスナップショット構造を返す
+  return {
+    id: docSnap.id,
+    data: () => sanitizedData, // サニタイズされたデータを返す
+    exists: docSnap.exists,
+    ref: docSnap.ref,
+  };
 }

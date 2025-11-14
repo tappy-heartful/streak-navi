@@ -30,20 +30,20 @@ async function renderCall() {
   const uid = utils.getSession('uid');
 
   // calls から募集情報を取得
-  const callSnap = await utils.getDoc(utils.doc(utils.db, 'calls', callId));
+  const callSnap = await utils.getWrapDoc(utils.doc(utils.db, 'calls', callId));
   if (!callSnap.exists()) {
     throw new Error('募集が見つかりません：' + callId);
   }
   const callData = callSnap.data();
 
   // callAnswers から自分の回答取得
-  const myAnswerData = await utils.getDoc(
+  const myAnswerData = await utils.getWrapDoc(
     utils.doc(utils.db, 'callAnswers', `${callId}_${uid}`)
   );
   const myAnswer = myAnswerData?.data()?.answers || {};
 
   // 🔽 参加者数をカウント
-  const answersSnap = await utils.getDocs(
+  const answersSnap = await utils.getWrapDocs(
     utils.collection(utils.db, 'callAnswers')
   );
   const participantCount = answersSnap.docs.filter((doc) =>
@@ -75,25 +75,31 @@ async function renderCall() {
     .addClass(statusClass)
     .text(statusText);
 
-  $('#call-title').text(callData.title);
-  $('#call-description').text(callData.description);
+  $('#call-title').text(callData.title_decoded);
+  $('#call-description').text(callData.description_decoded);
   $('#call-acceept-term').text(
     `${
-      callData.acceptStartDate ? getDayOfWeek(callData.acceptStartDate) : ''
+      callData.acceptStartDate
+        ? utils.getDayOfWeek(callData.acceptStartDate_decoded)
+        : ''
     } ～
-    ${callData.acceptEndDate ? getDayOfWeek(callData.acceptEndDate) : ''}`
+    ${
+      callData.acceptEndDate
+        ? utils.getDayOfWeek(callData.acceptEndDate_decoded)
+        : ''
+    }`
   );
   $('#answer-status').text(
     `${isActive ? '受付中' : '期間外'}（${participantCount}人が回答中）`
   );
-  $('#call-created-by').text(callData.createdBy);
+  $('#call-created-by').text(callData.createdBy_decoded);
 
   // 募集ジャンル＋回答を表示
   const container = $('#call-items').empty();
   const items = callData.items || [];
 
   // 全員の回答をまとめて取得
-  const answersSnap2 = await utils.getDocs(
+  const answersSnap2 = await utils.getWrapDocs(
     utils.collection(utils.db, 'callAnswers')
   );
   const allAnswers = answersSnap2.docs
@@ -113,7 +119,7 @@ async function renderCall() {
 
   // Firestoreからまとめて取得
   const userDocs = await Promise.all(
-    userIds.map((uid) => utils.getDoc(utils.doc(utils.db, 'users', uid)))
+    userIds.map((uid) => utils.getWrapDoc(utils.doc(utils.db, 'users', uid)))
   );
   const usersMap = {};
   userDocs.forEach((doc) => {
@@ -122,7 +128,7 @@ async function renderCall() {
 
   const scoreStatusDocs = await Promise.all(
     Array.from(scoreStatusIds).map((id) =>
-      utils.getDoc(utils.doc(utils.db, 'scoreStatus', id))
+      utils.getWrapDoc(utils.doc(utils.db, 'scoreStatus', id))
     )
   );
   const scoreStatusMap = {};
@@ -273,7 +279,7 @@ function setupEventHandlers(callId, isAdmin, isActive, uid) {
         await utils.deleteDoc(utils.doc(utils.db, 'calls', callId));
 
         // 回答も削除
-        const answersSnap = await utils.getDocs(
+        const answersSnap = await utils.getWrapDocs(
           utils.collection(utils.db, 'callAnswers')
         );
         for (const doc of answersSnap.docs) {

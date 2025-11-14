@@ -20,25 +20,24 @@ $(document).ready(async function () {
 });
 
 async function setUpPage() {
+  // 管理者ボタンは「受付中」コンテナの直下にあるため、ロジックは変更なし
   utils.getSession('isCallAdmin') === utils.globalStrTrue
     ? $('#add-button').show()
     : $('#add-button').hide();
 
-  const $list = $('#call-list').empty();
+  // 修正点: リストの参照を新しいIDに変更
+  const $activeList = $('#active-list').empty(); // 受付中
+  const $closedList = $('#closed-list').empty(); // 期間外
 
   const callsRef = utils.collection(utils.db, 'calls');
   const qCalls = utils.query(callsRef, utils.orderBy('createdAt', 'desc'));
-  const callsSnap = await utils.getDocs(qCalls);
-
-  if (callsSnap.empty) {
-    showEmptyMessage($list);
-    return;
-  }
+  const callsSnap = await utils.getWrapDocs(qCalls);
 
   // 各ステータスごとの配列に振り分け
-  const pendingItems = [];
-  const calledItems = [];
-  const closedItems = [];
+  const activeItems = []; // 受付中 (未回答/回答済を含む)
+  const closedItems = []; // 期間外
+
+  const uid = utils.getSession('uid');
 
   for (const callDoc of callsSnap.docs) {
     const callData = callDoc.data();
@@ -54,36 +53,57 @@ async function setUpPage() {
     );
 
     if (isActive === false) {
+      // 期間外
       status = '期間外';
       statusClass = 'closed';
       closedItems.push(
         makeCallItem(callId, callData.title, status, statusClass)
       );
     } else {
-      const answerId = `${callId}_${utils.getSession('uid')}`;
+      // 受付中
+      const answerId = `${callId}_${uid}`;
       const answerDocRef = utils.doc(utils.db, 'callAnswers', answerId);
-      const answerSnap = await utils.getDoc(answerDocRef);
+      const answerSnap = await utils.getWrapDoc(answerDocRef);
 
       if (answerSnap.exists()) {
         status = '回答済';
         statusClass = 'answered';
-        calledItems.push(
-          makeCallItem(callId, callData.title, status, statusClass)
-        );
       } else {
         status = '未回答';
         statusClass = 'pending';
-        pendingItems.push(
+      }
+
+      // 受付中のリストに追加 (回答済、未回答の順序を考慮するため、pendingを先に、answeredを後にpushする必要がある)
+      if (statusClass === 'pending') {
+        activeItems.unshift(
+          makeCallItem(callId, callData.title, status, statusClass)
+        );
+      } else {
+        activeItems.push(
           makeCallItem(callId, callData.title, status, statusClass)
         );
       }
     }
   }
 
-  // 表示順: 未回答 → 回答済 → 終了
-  pendingItems.forEach((item) => $list.append(item));
-  calledItems.forEach((item) => $list.append(item));
-  closedItems.forEach((item) => $list.append(item));
+  // 1. 受付中の募集を表示 (未回答 → 回答済 の順で表示)
+  if (activeItems.length > 0) {
+    // activeItemsは既に未回答が先頭に来るように処理済み
+    activeItems.forEach((item) => $activeList.append(item));
+    $('#active-container').show();
+  } else {
+    showEmptyMessage($activeList);
+    // アイテムがなければ新規作成ボタンを隠す（管理者のisAdmin判定はそのまま）
+  }
+
+  // 2. 期間外の募集を表示
+  if (closedItems.length > 0) {
+    closedItems.forEach((item) => $closedList.append(item));
+    $('#closed-container').show();
+  } else {
+    showEmptyMessage($closedList);
+    // $('#closed-container').hide(); // コンテナごと非表示にする場合
+  }
 }
 
 function makeCallItem(callId, name, status, statusClass) {

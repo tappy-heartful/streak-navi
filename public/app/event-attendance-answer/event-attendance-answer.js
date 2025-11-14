@@ -62,21 +62,23 @@ function setupPageMode(mode) {
 // データ取得
 // -------------------------------------
 async function fetchEventData(eventId) {
-  const docSnap = await utils.getDoc(utils.doc(utils.db, 'events', eventId));
+  const docSnap = await utils.getWrapDoc(
+    utils.doc(utils.db, 'events', eventId)
+  );
   if (!docSnap.exists())
     throw new Error('イベントが見つかりません：' + eventId);
   return docSnap.data();
 }
 
 async function fetchAttendanceStatuses() {
-  const snapshot = await utils.getDocs(
+  const snapshot = await utils.getWrapDocs(
     utils.collection(utils.db, 'attendanceStatuses')
   );
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 }
 
 async function fetchAnswerData(eventId, uid) {
-  const ansDoc = await utils.getDoc(
+  const ansDoc = await utils.getWrapDoc(
     utils.doc(utils.db, 'eventAttendanceAnswers', `${eventId}_${uid}`)
   );
   if (ansDoc.exists()) {
@@ -89,8 +91,8 @@ async function fetchAnswerData(eventId, uid) {
 // 画面描画
 // -------------------------------------
 function renderEvent(eventData, statuses, answerData) {
-  $('#event-title').text(eventData.title || '');
-  $('#event-date').text(eventData.date || '');
+  $('#event-title').text(eventData.title_decoded || '');
+  $('#event-date').text(eventData.date_decoded || '');
 
   const container = $('#event-items-container').empty();
 
