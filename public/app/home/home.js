@@ -280,8 +280,13 @@ async function loadQuickScores() {
 
   // 全曲プレイリストリンク生成（isDispTop=true のみ）
   const allWatchIds = filteredDocs
-    .map((doc) => utils.extractYouTubeId(doc.data().referenceTrack))
-    .filter((id) => !!id)
+    .map((doc) => {
+      const data = doc.data();
+      // ✅ 修正: デコード済みURL (referenceTrack_decoded) を優先してID抽出に使用
+      const urlToExtract = data.referenceTrack_decoded;
+      return utils.extractYouTubeId(urlToExtract);
+    })
+    .filter((id) => !!id) // 空のIDを確実に除外
     .join(',');
 
   if (allWatchIds) {
@@ -337,12 +342,21 @@ async function initScorePlayer() {
 
   // --- isDispTop === true のみ抽出 ---
   scores = snapshot.docs
-    .map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-      youtubeId: utils.extractYouTubeId(doc.data().referenceTrack),
-    }))
-    .filter((s) => s.isDispTop === true && !!s.youtubeId);
+    .map((doc) => {
+      const data = doc.data();
+      // ✅ 修正 A: ID抽出には、デコード済みのURLを優先的に使用
+      const urlToExtract = data.referenceTrack_decoded;
+      const extractedId = utils.extractYouTubeId(urlToExtract);
+
+      return {
+        id: doc.id,
+        ...data,
+        // ✅ 修正 B: BlueNoteの getWatchVideosOrder に合わせ、フィールド名を youtubeId_decoded に変更
+        youtubeId_decoded: extractedId,
+      };
+    })
+    // ✅ 修正 C: フィルター条件も新しいフィールド名に合わせる
+    .filter((s) => s.isDispTop === true && !!s.youtubeId_decoded);
 
   if (scores.length === 0) return;
 
