@@ -82,7 +82,7 @@ async function setupPage(mode) {
 // データ読み込み
 //===========================
 async function loadCallData(docId, mode) {
-  const docSnap = await utils.getDoc(utils.doc(utils.db, 'calls', docId));
+  const docSnap = await utils.getWrapDoc(utils.doc(utils.db, 'calls', docId));
   if (!docSnap.exists()) throw new Error('募集が見つかりません');
 
   const data = docSnap.data();

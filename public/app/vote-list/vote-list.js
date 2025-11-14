@@ -32,7 +32,7 @@ async function setUpPage() {
 
   const votesRef = utils.collection(utils.db, 'votes');
   const qVotes = utils.query(votesRef, utils.orderBy('createdAt', 'desc'));
-  const votesSnap = await utils.getDocs(qVotes);
+  const votesSnap = await utils.getWrapDocs(qVotes);
 
   // ステータスごとの配列に振り分け
   const activeItems = []; // 受付中 (未回答/回答済を含む)
@@ -63,7 +63,7 @@ async function setUpPage() {
       // 受付中
       const answerId = `${voteId}_${uid}`;
       const answerDocRef = utils.doc(utils.db, 'voteAnswers', answerId);
-      const answerSnap = await utils.getDoc(answerDocRef);
+      const answerSnap = await utils.getWrapDoc(answerDocRef);
 
       if (answerSnap.exists()) {
         status = '回答済';

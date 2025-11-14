@@ -117,7 +117,7 @@ async function setupPage(mode) {
 // 投票データ取得＆画面反映
 //==================================
 async function loadVoteData(voteId, mode) {
-  const docSnap = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
+  const docSnap = await utils.getWrapDoc(utils.doc(utils.db, 'votes', voteId));
   if (!docSnap.exists()) {
     throw new Error('投票が見つかりません：' + voteId);
   }
@@ -162,7 +162,7 @@ async function loadVoteData(voteId, mode) {
 //==================================
 async function loadCallData() {
   // callId は URL パラメータで取得済み
-  const callDoc = await utils.getDoc(
+  const callDoc = await utils.getWrapDoc(
     utils.doc(utils.db, 'calls', utils.globalGetParamCallId)
   );
   if (!callDoc.exists()) throw new Error('曲募集が見つかりません');
@@ -176,7 +176,7 @@ async function loadCallData() {
   $('#vote-items-container').empty();
 
   // --- 募集回答データを取得 ---
-  const answerDocsSnap = await utils.getDocs(
+  const answerDocsSnap = await utils.getWrapDocs(
     utils.collection(utils.db, 'callAnswers')
   );
   const allAnswers = [];
@@ -298,7 +298,7 @@ function setupEventHandlers(mode) {
         const voteRef = utils.doc(utils.db, 'votes', voteId);
 
         // 既存データ取得
-        const docSnap = await utils.getDoc(voteRef);
+        const docSnap = await utils.getWrapDoc(voteRef);
         if (!docSnap.exists) throw new Error('投票が見つかりません：' + voteId);
         const existingData = docSnap.data();
 
@@ -489,7 +489,7 @@ async function collectVoteData(mode) {
   if (mode === 'copy') {
     const srcVoteId = utils.globalGetParamVoteId;
     if (srcVoteId) {
-      const srcDocSnap = await utils.getDoc(
+      const srcDocSnap = await utils.getWrapDoc(
         utils.doc(utils.db, 'votes', srcVoteId)
       );
       if (srcDocSnap.exists()) {
@@ -526,7 +526,7 @@ async function collectVoteData(mode) {
   if (mode === 'createFromCall') {
     const callId = utils.globalGetParamCallId;
     if (callId) {
-      const answersSnap = await utils.getDocs(
+      const answersSnap = await utils.getWrapDocs(
         utils.collection(utils.db, 'callAnswers')
       );
       const allAnswers = answersSnap.docs

@@ -79,7 +79,7 @@ async function setupPage(mode) {
 // データ読み込み
 //===========================
 async function loadMediaData(docId, mode) {
-  const docSnap = await utils.getDoc(utils.doc(utils.db, 'medias', docId));
+  const docSnap = await utils.getWrapDoc(utils.doc(utils.db, 'medias', docId));
   if (!docSnap.exists()) throw new Error('メディアが見つかりません');
 
   const data = docSnap.data();

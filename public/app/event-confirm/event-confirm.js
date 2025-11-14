@@ -35,7 +35,9 @@ async function renderEvent() {
   const uid = utils.getSession('uid');
 
   // events からデータを取得
-  const eventSnap = await utils.getDoc(utils.doc(utils.db, 'events', eventId));
+  const eventSnap = await utils.getWrapDoc(
+    utils.doc(utils.db, 'events', eventId)
+  );
   if (!eventSnap.exists()) {
     throw new Error('イベントが見つかりません：' + eventId);
   }
@@ -51,13 +53,13 @@ async function renderEvent() {
     : 'eventAttendanceAnswers';
 
   // 自分の回答の存在チェック
-  const myAnswerData = await utils.getDoc(
+  const myAnswerData = await utils.getWrapDoc(
     utils.doc(utils.db, answerCollectionName, `${eventId}_${uid}`)
   );
   const myAnswerExists = myAnswerData.exists();
 
   // 全回答の取得（回答数のカウント用）
-  const answersSnap = await utils.getDocs(
+  const answersSnap = await utils.getWrapDocs(
     utils.collection(utils.db, answerCollectionName)
   );
   allAnswers = answersSnap.docs
@@ -117,7 +119,7 @@ async function renderEvent() {
     $('#candidate-dates-display').text(dates || '候補日が設定されていません');
   } else {
     // 出欠確認/受付なしの場合: 単一の日付を表示
-    $('#event-date').text(utils.getDayOfWeek(eventData.date) || '');
+    $('#event-date').text(utils.getDayOfWeek(eventData.date_decoded) || '');
     $('#candidate-dates-display').remove();
   }
 
@@ -143,7 +145,7 @@ async function renderEvent() {
       .append(`<span class="answer-count-summary">回答${answerCount}人</span>`);
 
     // 1. ステータス一覧 (〇, △, ✕) 取得
-    const statusesSnap = await utils.getDocs(
+    const statusesSnap = await utils.getWrapDocs(
       utils.collection(utils.db, 'eventAdjustStatus')
     );
     // doc.id順にソート（〇, △, ✕の順を想定）
@@ -240,7 +242,7 @@ async function renderEvent() {
 
     // 従来の出欠確認の回答結果を表示する
     // ステータス一覧取得
-    const statusesSnap = await utils.getDocs(
+    const statusesSnap = await utils.getWrapDocs(
       utils.collection(utils.db, 'attendanceStatuses')
     );
     const statuses = statusesSnap.docs.map((doc) => ({
@@ -249,14 +251,16 @@ async function renderEvent() {
     }));
 
     // 全ユーザ情報取得
-    const usersSnap = await utils.getDocs(utils.collection(utils.db, 'users'));
+    const usersSnap = await utils.getWrapDocs(
+      utils.collection(utils.db, 'users')
+    );
     const users = {};
     usersSnap.docs.forEach((doc) => {
       users[doc.id] = doc.data();
     });
 
     // 【新規】sectionsコレクションからパート名を取得
-    const sectionsSnap = await utils.getDocs(
+    const sectionsSnap = await utils.getWrapDocs(
       utils.collection(utils.db, 'sections')
     );
     const sections = {};
@@ -338,7 +342,7 @@ async function renderEvent() {
   // 4. その他の項目の表示（変更なし）
   // ------------------------------------------------------------------
 
-  $('#event-title').text(eventData.title || '');
+  $('#event-title').text(eventData.title_decoded || '');
 
   // 場所（リンク有りならリンク化）
   if (eventData.placeUrl) {
@@ -350,7 +354,7 @@ async function renderEvent() {
       </a>`
     );
   } else {
-    $('#event-place').text(eventData.placeName || '');
+    $('#event-place').text(eventData.placeName_decoded || '');
   }
 
   // 交通アクセス（URLかテキストか判定）
@@ -485,7 +489,7 @@ function setupEventHandlers(eventId, uid, isSchedule) {
         await utils.deleteDoc(utils.doc(utils.db, 'events', eventId));
 
         // eventAttendanceAnswers (出欠確認) の回答を削除
-        const answersSnap = await utils.getDocs(
+        const answersSnap = await utils.getWrapDocs(
           utils.collection(utils.db, 'eventAttendanceAnswers')
         );
         for (const doc of answersSnap.docs) {
@@ -497,7 +501,7 @@ function setupEventHandlers(eventId, uid, isSchedule) {
         }
 
         // eventAdjustAnswers (日程調整) の回答も削除
-        const adjustAnswersSnap = await utils.getDocs(
+        const adjustAnswersSnap = await utils.getWrapDocs(
           utils.collection(utils.db, 'eventAdjustAnswers')
         );
         for (const doc of adjustAnswersSnap.docs) {
@@ -559,7 +563,7 @@ async function showAdjustUsersModal(eventId, date, statusId, statusName) {
   utils.showSpinner();
   try {
     // 【新規】sectionsコレクションからパート名を取得
-    const sectionsSnap = await utils.getDocs(
+    const sectionsSnap = await utils.getWrapDocs(
       utils.collection(utils.db, 'sections')
     );
     const sections = {};
@@ -585,7 +589,9 @@ async function showAdjustUsersModal(eventId, date, statusId, statusName) {
     // users コレクションから情報取得し、パートIDでグルーピング
     const usersBySection = {};
     for (const uid of adjustAnswerUids) {
-      const userSnap = await utils.getDoc(utils.doc(utils.db, 'users', uid));
+      const userSnap = await utils.getWrapDoc(
+        utils.doc(utils.db, 'users', uid)
+      );
       let userData;
       if (userSnap.exists()) {
         userData = userSnap.data();

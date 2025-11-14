@@ -97,7 +97,7 @@ async function handleLineLoginCallback(code, state, error) {
 
     // Firestore保存／更新処理もそのまま
     const userRef = utils.doc(utils.db, 'users', user.uid);
-    const docSnap = await utils.getDoc(userRef);
+    const docSnap = await utils.getWrapDoc(userRef);
     const userExists = docSnap.exists();
     const displayName = profile.displayName || '名無し';
     const pictureUrl = profile.pictureUrl || utils.globalLineDefaultImage;
@@ -119,7 +119,7 @@ async function handleLineLoginCallback(code, state, error) {
       });
     }
 
-    const latestUserSnap = await utils.getDoc(userRef);
+    const latestUserSnap = await utils.getWrapDoc(userRef);
     const latestUserData = latestUserSnap.data();
     for (const [key, value] of Object.entries(latestUserData)) {
       utils.setSession(key, value);

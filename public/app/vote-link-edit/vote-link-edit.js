@@ -48,14 +48,14 @@ $(document).ready(async function () {
 // 投票データ取得＆画面反映
 //==================================
 async function loadVoteData(voteId) {
-  const docSnap = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
+  const docSnap = await utils.getWrapDoc(utils.doc(utils.db, 'votes', voteId));
   if (!docSnap.exists()) {
     throw new Error('投票が見つかりません：' + voteId);
   }
   const data = docSnap.data();
 
   // 投票名表示
-  $('#vote-title').text(data.name);
+  $('#vote-title').text(data.name_decoded);
 
   // 投票説明リンク用テキストボックス
   $('#vote-description-link').val(data.descriptionLink || '');
@@ -120,7 +120,7 @@ function setupEventHandlers() {
       const voteRef = utils.doc(utils.db, 'votes', voteId);
 
       // --- 既存データ取得 ---
-      const docSnap = await utils.getDoc(voteRef);
+      const docSnap = await utils.getWrapDoc(voteRef);
       if (!docSnap.exists()) throw new Error('投票が見つかりません：' + voteId);
       const existingData = docSnap.data();
 

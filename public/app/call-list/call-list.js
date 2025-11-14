@@ -31,7 +31,7 @@ async function setUpPage() {
 
   const callsRef = utils.collection(utils.db, 'calls');
   const qCalls = utils.query(callsRef, utils.orderBy('createdAt', 'desc'));
-  const callsSnap = await utils.getDocs(qCalls);
+  const callsSnap = await utils.getWrapDocs(qCalls);
 
   // 各ステータスごとの配列に振り分け
   const activeItems = []; // 受付中 (未回答/回答済を含む)
@@ -63,7 +63,7 @@ async function setUpPage() {
       // 受付中
       const answerId = `${callId}_${uid}`;
       const answerDocRef = utils.doc(utils.db, 'callAnswers', answerId);
-      const answerSnap = await utils.getDoc(answerDocRef);
+      const answerSnap = await utils.getWrapDoc(answerDocRef);
 
       if (answerSnap.exists()) {
         status = '回答済';

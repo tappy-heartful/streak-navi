@@ -40,7 +40,7 @@ async function setUpPage() {
 
   const eventsRef = utils.collection(utils.db, 'events');
   const qEvent = utils.query(eventsRef, utils.orderBy('date', 'asc'));
-  const eventSnap = await utils.getDocs(qEvent);
+  const eventSnap = await utils.getWrapDocs(qEvent);
 
   // ステータスごとに配列を分ける
   const scheduleItems = []; // 日程調整中のイベント
@@ -104,7 +104,7 @@ async function setUpPage() {
       displayDate = '';
       dateIcon = '';
 
-      const answerSnap = await utils.getDoc(answerDocRef);
+      const answerSnap = await utils.getWrapDoc(answerDocRef);
 
       if (answerSnap.exists()) {
         status = '回答済';
@@ -137,7 +137,7 @@ async function setUpPage() {
           'eventAttendanceAnswers',
           answerId
         );
-        const answerSnap = await utils.getDoc(answerDocRef);
+        const answerSnap = await utils.getWrapDoc(answerDocRef);
 
         if (answerSnap.exists()) {
           status = '回答済';

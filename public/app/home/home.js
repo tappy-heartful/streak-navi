@@ -43,7 +43,7 @@ async function loadPendingAnnouncements() {
   // --- 受付中の投票 ---
   const votesRef = utils.collection(utils.db, 'votes');
   const qVotes = utils.query(votesRef, utils.orderBy('createdAt', 'desc'));
-  const votesSnap = await utils.getDocs(qVotes);
+  const votesSnap = await utils.getWrapDocs(qVotes);
 
   let hasPendingVotes = false;
 
@@ -74,7 +74,7 @@ async function loadPendingAnnouncements() {
   // --- 募集中の曲募集 ---
   const callsRef = utils.collection(utils.db, 'calls');
   const qCalls = utils.query(callsRef, utils.orderBy('createdAt', 'desc'));
-  const callsSnap = await utils.getDocs(qCalls);
+  const callsSnap = await utils.getWrapDocs(qCalls);
 
   let hasPendingCalls = false;
 
@@ -104,7 +104,7 @@ async function loadPendingAnnouncements() {
   // --- お知らせ対象のイベント ---
   const eventsRef = utils.collection(utils.db, 'events');
   const qEvents = utils.query(eventsRef, utils.orderBy('date', 'asc')); // 日付の昇順に修正
-  const eventsSnap = await utils.getDocs(qEvents);
+  const eventsSnap = await utils.getWrapDocs(qEvents);
 
   // 収集用の配列
   const schedulePending = []; // 日程調整中（未回答）
@@ -160,7 +160,7 @@ async function loadPendingAnnouncements() {
     }
 
     if (answerDocRef) {
-      const answerSnap = await utils.getDoc(answerDocRef);
+      const answerSnap = await utils.getWrapDoc(answerDocRef);
       if (!answerSnap.exists()) {
         // 未回答の場合、該当のリストに追加
         listToPush.push({
@@ -271,7 +271,7 @@ async function loadQuickScores() {
   // 全件（降順）
   const allScoresRef = utils.collection(utils.db, 'scores');
   const qAll = utils.query(allScoresRef, utils.orderBy('createdAt', 'desc'));
-  const allSnap = await utils.getDocs(qAll);
+  const allSnap = await utils.getWrapDocs(qAll);
 
   // --- isDispTop === true のみ抽出 ---
   const filteredDocs = allSnap.docs.filter(
@@ -328,7 +328,7 @@ let scores = [];
 let currentScoreIndex = 0;
 
 async function initScorePlayer() {
-  const snapshot = await utils.getDocs(
+  const snapshot = await utils.getWrapDocs(
     utils.query(
       utils.collection(utils.db, 'scores'),
       utils.orderBy('createdAt', 'desc')
@@ -365,7 +365,7 @@ function renderScoreVideos() {
     </div>
   `);
 
-  $('#score-player-title').text(score.title || '参考演奏');
+  $('#score-player-title').text(score.title_decoded || '参考演奏');
   updateScorePlaylistLink(watchIds);
 }
 
@@ -406,7 +406,9 @@ let blueNotes = [];
 let currentIndex = 0;
 
 async function initBlueNotes() {
-  const snapshot = await utils.getDocs(utils.collection(utils.db, 'blueNotes'));
+  const snapshot = await utils.getWrapDocs(
+    utils.collection(utils.db, 'blueNotes')
+  );
   blueNotes = snapshot.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
@@ -470,7 +472,7 @@ function renderBlueNoteVideos() {
 }
 
 function updateBlueNoteTitle() {
-  $('#blue-note-title').text(blueNotes[currentIndex].title);
+  $('#blue-note-title').text(blueNotes[currentIndex].title_decoded);
 }
 
 function updateBlueNoteLink(watchIds) {
@@ -548,7 +550,7 @@ async function loadMedias() {
     utils.orderBy('date', 'desc'),
     utils.limit(3)
   );
-  const snap = await utils.getDocs(q);
+  const snap = await utils.getWrapDocs(q);
   let isExist = false;
 
   const $contentList = $('.content-list');

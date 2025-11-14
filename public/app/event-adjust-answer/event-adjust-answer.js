@@ -78,7 +78,9 @@ function setupPageMode(mode) {
 // データ取得
 // -------------------------------------
 async function fetchEventData(eventId) {
-  const docSnap = await utils.getDoc(utils.doc(utils.db, 'events', eventId));
+  const docSnap = await utils.getWrapDoc(
+    utils.doc(utils.db, 'events', eventId)
+  );
   if (!docSnap.exists())
     throw new Error('イベントが見つかりません：' + eventId);
   return docSnap.data();
@@ -86,7 +88,7 @@ async function fetchEventData(eventId) {
 
 async function fetchAdjustStatuses() {
   // eventAdjustStatusコレクションからデータを取得
-  const snapshot = await utils.getDocs(
+  const snapshot = await utils.getWrapDocs(
     utils.collection(utils.db, 'eventAdjustStatus')
   );
 
@@ -105,7 +107,7 @@ async function fetchAdjustStatuses() {
 }
 
 async function fetchAnswerData(eventId, uid) {
-  const ansDoc = await utils.getDoc(
+  const ansDoc = await utils.getWrapDoc(
     utils.doc(utils.db, 'eventAdjustAnswers', `${eventId}_${uid}`)
   );
   // 回答データは { eventId, uid, answers: { "2025.12.01": "statusId", ... } } 形式を想定
@@ -119,7 +121,7 @@ async function fetchAnswerData(eventId, uid) {
 // 画面描画
 // -------------------------------------
 function renderEvent(eventData, statuses, answerData) {
-  $('#event-title').text(eventData.title || '');
+  $('#event-title').text(eventData.title_decoded || '');
 
   const container = $('#date-answer-container').empty();
   const $table = $('<div class="adjust-table"></div>');

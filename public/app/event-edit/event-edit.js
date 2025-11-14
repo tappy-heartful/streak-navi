@@ -108,7 +108,9 @@ async function setupPage(mode) {
 // イベントデータ取得＆画面反映
 //==================================
 async function loadEventData(eventId, mode) {
-  const docSnap = await utils.getDoc(utils.doc(utils.db, 'events', eventId));
+  const docSnap = await utils.getWrapDoc(
+    utils.doc(utils.db, 'events', eventId)
+  );
   if (!docSnap.exists()) {
     throw new Error('イベントが見つかりません：' + eventId);
   }
@@ -252,7 +254,7 @@ function setupEventHandlers(mode) {
         const eventRef = utils.doc(utils.db, 'events', eventId);
 
         // 既存データ取得
-        const docSnap = await utils.getDoc(eventRef);
+        const docSnap = await utils.getWrapDoc(eventRef);
         if (!docSnap.exists)
           throw new Error('イベントが見つかりません：' + eventId);
 

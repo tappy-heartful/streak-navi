@@ -57,13 +57,13 @@ function setupPageMode(mode) {
 
 async function fetchCallData(callId) {
   const docRef = utils.doc(utils.db, 'calls', callId);
-  const callDoc = await utils.getDoc(docRef);
+  const callDoc = await utils.getWrapDoc(docRef);
   if (!callDoc.exists()) throw new Error('募集が見つかりません：' + callId);
   return callDoc.data();
 }
 
 async function fetchAnswerData(callId, uid) {
-  const ansDoc = await utils.getDoc(
+  const ansDoc = await utils.getWrapDoc(
     utils.doc(utils.db, 'callAnswers', `${callId}_${uid}`)
   );
   if (ansDoc.exists()) {
@@ -73,8 +73,8 @@ async function fetchAnswerData(callId, uid) {
 }
 
 async function renderCall(callData, answerData = {}) {
-  $('#call-title').text(callData.title);
-  $('#call-description').text(callData.description);
+  $('#call-title').text(callData.title_decoded);
+  $('#call-description').text(callData.description_decoded);
 
   const container = $('#call-items-container').empty();
 
@@ -259,7 +259,9 @@ function setupEventHandlers(mode, callId, uid, callData) {
 // プルダウン初期化ユーティリティ
 //===========================
 async function fetchScoreStatus() {
-  const snap = await utils.getDocs(utils.collection(utils.db, 'scoreStatus'));
+  const snap = await utils.getWrapDocs(
+    utils.collection(utils.db, 'scoreStatus')
+  );
   if (snap.empty) {
     throw new Error('譜面ステータスが設定されていません');
   }
@@ -286,7 +288,7 @@ async function populateScoreStatusSelect($select, selectedValue = '') {
   statusList.forEach((status) => {
     const option = $('<option>')
       .val(status.id) // DB保存用の値
-      .text(status.name); // UIに表示するラベル
+      .text(status.name_decoded); // UIに表示するラベル
     // 編集時：既存データに一致するものを選択
     if (selectedValue && selectedValue === status.id) {
       option.prop('selected', true);

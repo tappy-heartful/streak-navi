@@ -59,7 +59,7 @@ function setupPageMode(mode) {
 }
 
 async function fetchVoteData(voteId) {
-  const voteDoc = await utils.getDoc(utils.doc(utils.db, 'votes', voteId));
+  const voteDoc = await utils.getWrapDoc(utils.doc(utils.db, 'votes', voteId));
   if (!voteDoc.exists()) {
     throw new Error('投票が見つかりません：' + voteId);
   }
@@ -67,7 +67,7 @@ async function fetchVoteData(voteId) {
 }
 
 async function fetchAnswerData(voteId, uid) {
-  const ansDoc = await utils.getDoc(
+  const ansDoc = await utils.getWrapDoc(
     utils.doc(utils.db, 'voteAnswers', `${voteId}_${uid}`)
   );
   if (ansDoc.exists()) {
@@ -77,8 +77,8 @@ async function fetchAnswerData(voteId, uid) {
 }
 
 function renderVote(voteData, answerData = {}) {
-  $('#vote-title').text(voteData.name);
-  $('#vote-description').text(voteData.description);
+  $('#vote-title').text(voteData.name_decoded);
+  $('#vote-description').text(voteData.description_decoded);
 
   const container = $('#vote-items-container').empty();
 

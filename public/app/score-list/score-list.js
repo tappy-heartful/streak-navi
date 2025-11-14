@@ -31,7 +31,7 @@ async function setUpPage() {
 
   const scoresRef = utils.collection(utils.db, 'scores');
   const qScore = utils.query(scoresRef, utils.orderBy('createdAt', 'desc'));
-  const scoreSnap = await utils.getDocs(qScore);
+  const scoreSnap = await utils.getWrapDocs(qScore);
 
   scores = scoreSnap.docs.map((doc) => ({
     id: doc.id,
@@ -40,7 +40,7 @@ async function setUpPage() {
 
   // ▼ ジャンルデータ取得
   const genresRef = utils.collection(utils.db, 'genres');
-  const genreSnap = await utils.getDocs(genresRef);
+  const genreSnap = await utils.getWrapDocs(genresRef);
   genres = genreSnap.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
