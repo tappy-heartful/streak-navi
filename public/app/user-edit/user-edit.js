@@ -158,7 +158,10 @@ function setupEventHandlers() {
         updatedData[secretWordMap[word]] = true;
       } else {
         // 間違い → エラー表示
-        utils.markError($input, '正しい合言葉を入力してください');
+        utils.markError(
+          $('#secret-word-list'),
+          '正しい合言葉を入力してください：' + word
+        );
         hasError = true;
       }
     });
