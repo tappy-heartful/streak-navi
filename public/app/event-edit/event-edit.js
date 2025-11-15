@@ -80,7 +80,7 @@ async function setupPage(mode) {
     $('#event-date').val('');
     $('#event-title').val('');
     $('#event-place-name').val('');
-    $('#event-place-url').val('');
+    $('#event-website').val('');
     $('#event-access').val('');
     $('#event-schedule').val('');
     $('#event-songs').val('');
@@ -118,15 +118,12 @@ async function loadEventData(eventId, mode) {
   $('#event-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
   $('#event-date').val(formatDateForInput(data.date) || ''); // ← 変換してセット
   $('#event-place-name').val(data.placeName || '');
-  $('#event-place-url').val(data.placeUrl || '');
+  $('#event-website').val(data.website || '');
   $('#event-access').val(data.access || '');
   $('#event-schedule').val(data.schedule || '');
   $('#event-songs').val(data.songs || '');
   $('#event-dress').val(data.dress || '');
   $('#event-other').val(data.other || '');
-
-  // 【修正】既存の attendance は削除
-  // $('#event-attendance').prop('checked', !!data.attendance);
 
   // 【新規追加】日程調整/出欠確認の種別
   const attendanceType = data.attendanceType || 'attendance'; // 過去データ互換のためデフォルトを'attendance'に
@@ -145,7 +142,7 @@ function captureInitialState() {
     title: $('#event-title').val(),
     date: $('#event-date').val(), // ← inputのyyyy-MM-ddをそのまま保存
     placeName: $('#event-place-name').val(),
-    placeUrl: $('#event-place-url').val(),
+    website: $('#event-website').val(),
     access: $('#event-access').val(),
     schedule: $('#event-schedule').val(),
     songs: $('#event-songs').val(),
@@ -162,7 +159,7 @@ function restoreInitialState() {
   $('#event-title').val(initialStateHtml.title);
   $('#event-date').val(initialStateHtml.date || ''); // ← yyyy-MM-dd形式
   $('#event-place-name').val(initialStateHtml.placeName || '');
-  $('#event-place-url').val(initialStateHtml.placeUrl || '');
+  $('#event-website').val(initialStateHtml.website || '');
   $('#event-access').val(initialStateHtml.access || '');
   $('#event-schedule').val(initialStateHtml.schedule || '');
   $('#event-songs').val(initialStateHtml.songs || '');
@@ -383,7 +380,7 @@ async function collectEventData(mode) {
   const eventData = {
     title: $('#event-title').val().trim(),
     placeName: $('#event-place-name').val().trim(),
-    placeUrl: $('#event-place-url').val().trim(),
+    website: $('#event-website').val().trim(),
     access: $('#event-access').val().trim(),
     schedule: $('#event-schedule').val().trim(),
     songs: $('#event-songs').val().trim(),
@@ -444,8 +441,25 @@ function validateEventData() {
     }
   }
 
+  // URL チェック用関数
+  const isValidURL = (url) => {
+    try {
+      new URL(url);
+      return true;
+    } catch {
+      return false;
+    }
+  };
+
+  // website URL チェック
+  const website = $('#event-website').val().trim();
+  if (website && !isValidURL(website)) {
+    utils.markError($('#event-website'), '正しいURLを入力してください');
+    isValid = false;
+  }
   return isValid;
 }
+
 // yyyy-MM-dd → yyyy.MM.dd
 function formatDateForSave(dateStr) {
   return dateStr ? dateStr.replace(/-/g, '.') : '';

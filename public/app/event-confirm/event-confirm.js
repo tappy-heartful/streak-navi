@@ -345,12 +345,10 @@ async function renderEvent() {
   $('#event-title').text(eventData.title_decoded || '');
 
   // 場所（リンク有りならリンク化）
-  if (eventData.placeUrl) {
+  if (eventData.website) {
     $('#event-place').html(
-      `<a href="${
-        eventData.placeUrl
-      }" target="_blank" rel="noopener noreferrer">
-        ${eventData.placeName || eventData.placeUrl}
+      `<a href="${eventData.website}" target="_blank" rel="noopener noreferrer">
+        ${eventData.placeName || eventData.website}
       </a>`
     );
   } else {
