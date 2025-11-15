@@ -82,6 +82,7 @@ async function setupPage(mode) {
     $('#event-place-name').val('');
     $('#event-website').val('');
     $('#event-access').val('');
+    $('#event-google-map').val('');
     $('#event-schedule').val('');
     $('#event-songs').val('');
     $('#event-dress').val('');
@@ -120,6 +121,7 @@ async function loadEventData(eventId, mode) {
   $('#event-place-name').val(data.placeName || '');
   $('#event-website').val(data.website || '');
   $('#event-access').val(data.access || '');
+  $('#event-google-map').val(data.googleMap || '');
   $('#event-schedule').val(data.schedule || '');
   $('#event-songs').val(data.songs || '');
   $('#event-dress').val(data.dress || '');
@@ -143,6 +145,7 @@ function captureInitialState() {
     date: $('#event-date').val(), // ← inputのyyyy-MM-ddをそのまま保存
     placeName: $('#event-place-name').val(),
     website: $('#event-website').val(),
+    googleMap: $('#event-google-map').val(),
     access: $('#event-access').val(),
     schedule: $('#event-schedule').val(),
     songs: $('#event-songs').val(),
@@ -161,6 +164,7 @@ function restoreInitialState() {
   $('#event-place-name').val(initialStateHtml.placeName || '');
   $('#event-website').val(initialStateHtml.website || '');
   $('#event-access').val(initialStateHtml.access || '');
+  $('#event-google-map').val(initialStateHtml.googleMap || '');
   $('#event-schedule').val(initialStateHtml.schedule || '');
   $('#event-songs').val(initialStateHtml.songs || '');
   $('#event-dress').val(initialStateHtml.dress || '');
@@ -382,6 +386,7 @@ async function collectEventData(mode) {
     placeName: $('#event-place-name').val().trim(),
     website: $('#event-website').val().trim(),
     access: $('#event-access').val().trim(),
+    googleMap: $('#event-google-map').val().trim(),
     schedule: $('#event-schedule').val().trim(),
     songs: $('#event-songs').val().trim(),
     dress: $('#event-dress').val().trim(),
@@ -447,6 +452,15 @@ function validateEventData() {
     utils.markError($('#event-website'), '正しいURLを入力してください');
     isValid = false;
   }
+
+  // googleMap URL チェック
+  const googleMap = $('#event-google-map').val().trim();
+  if (googleMap && !utils.isValidURL(googleMap)) {
+    utils.markError($('#event-google-map'), '正しいURLを入力してください');
+    isValid = false;
+  }
+  // TODO:googlemapのURLがGoogle Mapの形式かどうかもチェック
+
   return isValid;
 }
 

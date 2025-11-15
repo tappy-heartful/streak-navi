@@ -368,6 +368,18 @@ async function renderEvent() {
     $('#event-access').text('');
   }
 
+  // Google Map
+  if (eventData.googleMap) {
+    $('#event-google-map').html(
+      `<a href="${eventData.googleMap}" target="_blank" rel="noopener noreferrer">
+        Google Mapで見る
+        <i class="fas fa-arrow-up-right-from-square"></i>
+      </a>`
+    );
+  } else {
+    $('#event-google-map').text('');
+  }
+
   // やる曲
   $('#event-songs').html(eventData.songs?.replace(/\n/g, '<br>') || '');
 
