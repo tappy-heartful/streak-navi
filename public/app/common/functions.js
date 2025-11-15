@@ -591,6 +591,15 @@ export function getDayOfWeek(dateStr, isOnlyDayOfWeek = false) {
     return ''; // パースエラー時は空文字
   }
 }
+// URL チェック用関数
+export const isValidURL = (url) => {
+  try {
+    new URL(url);
+    return true;
+  } catch {
+    return false;
+  }
+};
 
 //===========================
 // エラー表示ユーティリティ

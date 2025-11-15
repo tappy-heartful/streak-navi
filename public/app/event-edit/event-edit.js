@@ -441,19 +441,9 @@ function validateEventData() {
     }
   }
 
-  // URL チェック用関数
-  const isValidURL = (url) => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
   // website URL チェック
   const website = $('#event-website').val().trim();
-  if (website && !isValidURL(website)) {
+  if (website && !utils.isValidURL(website)) {
     utils.markError($('#event-website'), '正しいURLを入力してください');
     isValid = false;
   }
