@@ -289,19 +289,9 @@ function validateData() {
     isValid = false;
   }
 
-  // URLチェック関数
-  const isValidURL = (url) => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
   // YouTube URLチェック
   if (referenceTrack) {
-    if (!isValidURL(referenceTrack)) {
+    if (!utils.isValidURL(referenceTrack)) {
       utils.markError($('#reference-track'), '正しいURLを入力してください');
       isValid = false;
     } else if (
@@ -317,7 +307,7 @@ function validateData() {
 
   // Google Drive URLチェック（ファイルまたはフォルダ対応）
   if (scoreUrl) {
-    if (!isValidURL(scoreUrl)) {
+    if (!utils.isValidURL(scoreUrl)) {
       utils.markError($('#score-url'), '正しいURLを入力してください');
       isValid = false;
     } else if (

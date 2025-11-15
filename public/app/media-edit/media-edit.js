@@ -211,19 +211,9 @@ function validateData() {
     isValid = false;
   }
 
-  // URL チェック用関数
-  const isValidURL = (url) => {
-    try {
-      new URL(url);
-      return true;
-    } catch {
-      return false;
-    }
-  };
-
   // Instagram URL チェック
   if (instagramUrl) {
-    if (!isValidURL(instagramUrl)) {
+    if (!utils.isValidURL(instagramUrl)) {
       utils.markError($('#instagram-url'), '正しいURLを入力してください');
       isValid = false;
     } else if (
@@ -236,7 +226,7 @@ function validateData() {
 
   // YouTube URL チェック
   if (youtubeUrl) {
-    if (!isValidURL(youtubeUrl)) {
+    if (!utils.isValidURL(youtubeUrl)) {
       utils.markError($('#youtube-url'), '正しいURLを入力してください');
       isValid = false;
     } else if (
@@ -250,7 +240,7 @@ function validateData() {
 
   // Google Drive URL チェック
   if (driveUrl) {
-    if (!isValidURL(driveUrl)) {
+    if (!utils.isValidURL(driveUrl)) {
       utils.markError($('#drive-url'), '正しいURLを入力してください');
       isValid = false;
     } else if (

@@ -345,12 +345,10 @@ async function renderEvent() {
   $('#event-title').text(eventData.title_decoded || '');
 
   // 場所（リンク有りならリンク化）
-  if (eventData.placeUrl) {
+  if (eventData.website) {
     $('#event-place').html(
-      `<a href="${
-        eventData.placeUrl
-      }" target="_blank" rel="noopener noreferrer">
-        ${eventData.placeName || eventData.placeUrl}
+      `<a href="${eventData.website}" target="_blank" rel="noopener noreferrer">
+        ${eventData.placeName || eventData.website}
       </a>`
     );
   } else {
@@ -370,17 +368,16 @@ async function renderEvent() {
     $('#event-access').text('');
   }
 
-  // 駐車場情報（URLかテキストか判定）
-  if (eventData.parking) {
-    if (/^https?:\/\//.test(eventData.parking)) {
-      $('#event-parking').html(
-        `<a href="${eventData.parking}" target="_blank" rel="noopener noreferrer">${eventData.parking}</a>`
-      );
-    } else {
-      $('#event-parking').html(eventData.parking.replace(/\n/g, '<br>'));
-    }
+  // Google Map
+  if (eventData.googleMap) {
+    $('#event-google-map').html(
+      `<a href="${eventData.googleMap}" target="_blank" rel="noopener noreferrer">
+        Google Mapで見る
+        <i class="fas fa-arrow-up-right-from-square"></i>
+      </a>`
+    );
   } else {
-    $('#event-parking').text('');
+    $('#event-google-map').text('');
   }
 
   // やる曲

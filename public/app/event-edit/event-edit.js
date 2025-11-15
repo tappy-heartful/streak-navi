@@ -80,9 +80,9 @@ async function setupPage(mode) {
     $('#event-date').val('');
     $('#event-title').val('');
     $('#event-place-name').val('');
-    $('#event-place-url').val('');
+    $('#event-website').val('');
     $('#event-access').val('');
-    $('#event-parking').val('');
+    $('#event-google-map').val('');
     $('#event-schedule').val('');
     $('#event-songs').val('');
     $('#event-dress').val('');
@@ -119,16 +119,13 @@ async function loadEventData(eventId, mode) {
   $('#event-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
   $('#event-date').val(formatDateForInput(data.date) || ''); // ← 変換してセット
   $('#event-place-name').val(data.placeName || '');
-  $('#event-place-url').val(data.placeUrl || '');
+  $('#event-website').val(data.website || '');
   $('#event-access').val(data.access || '');
-  $('#event-parking').val(data.parking || '');
+  $('#event-google-map').val(data.googleMap || '');
   $('#event-schedule').val(data.schedule || '');
   $('#event-songs').val(data.songs || '');
   $('#event-dress').val(data.dress || '');
   $('#event-other').val(data.other || '');
-
-  // 【修正】既存の attendance は削除
-  // $('#event-attendance').prop('checked', !!data.attendance);
 
   // 【新規追加】日程調整/出欠確認の種別
   const attendanceType = data.attendanceType || 'attendance'; // 過去データ互換のためデフォルトを'attendance'に
@@ -147,9 +144,9 @@ function captureInitialState() {
     title: $('#event-title').val(),
     date: $('#event-date').val(), // ← inputのyyyy-MM-ddをそのまま保存
     placeName: $('#event-place-name').val(),
-    placeUrl: $('#event-place-url').val(),
+    website: $('#event-website').val(),
+    googleMap: $('#event-google-map').val(),
     access: $('#event-access').val(),
-    parking: $('#event-parking').val(),
     schedule: $('#event-schedule').val(),
     songs: $('#event-songs').val(),
     dress: $('#event-dress').val(),
@@ -165,9 +162,9 @@ function restoreInitialState() {
   $('#event-title').val(initialStateHtml.title);
   $('#event-date').val(initialStateHtml.date || ''); // ← yyyy-MM-dd形式
   $('#event-place-name').val(initialStateHtml.placeName || '');
-  $('#event-place-url').val(initialStateHtml.placeUrl || '');
+  $('#event-website').val(initialStateHtml.website || '');
   $('#event-access').val(initialStateHtml.access || '');
-  $('#event-parking').val(initialStateHtml.parking || '');
+  $('#event-google-map').val(initialStateHtml.googleMap || '');
   $('#event-schedule').val(initialStateHtml.schedule || '');
   $('#event-songs').val(initialStateHtml.songs || '');
   $('#event-dress').val(initialStateHtml.dress || '');
@@ -387,9 +384,9 @@ async function collectEventData(mode) {
   const eventData = {
     title: $('#event-title').val().trim(),
     placeName: $('#event-place-name').val().trim(),
-    placeUrl: $('#event-place-url').val().trim(),
+    website: $('#event-website').val().trim(),
     access: $('#event-access').val().trim(),
-    parking: $('#event-parking').val().trim(),
+    googleMap: $('#event-google-map').val().trim(),
     schedule: $('#event-schedule').val().trim(),
     songs: $('#event-songs').val().trim(),
     dress: $('#event-dress').val().trim(),
@@ -449,8 +446,24 @@ function validateEventData() {
     }
   }
 
+  // website URL チェック
+  const website = $('#event-website').val().trim();
+  if (website && !utils.isValidURL(website)) {
+    utils.markError($('#event-website'), '正しいURLを入力してください');
+    isValid = false;
+  }
+
+  // googleMap URL チェック
+  const googleMap = $('#event-google-map').val().trim();
+  if (googleMap && !utils.isValidURL(googleMap)) {
+    utils.markError($('#event-google-map'), '正しいURLを入力してください');
+    isValid = false;
+  }
+  // TODO:googlemapのURLがGoogle Mapの形式かどうかもチェック
+
   return isValid;
 }
+
 // yyyy-MM-dd → yyyy.MM.dd
 function formatDateForSave(dateStr) {
   return dateStr ? dateStr.replace(/-/g, '.') : '';

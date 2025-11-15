@@ -97,11 +97,6 @@
     padding-left: 8px;
 }
 
-/* 【新規】パートごとの表示用コンテナ */
-.status-content {
-    /* パートグループ全体を格納 */
-}
-
 /* 【新規】パートごとのグループ */
 .attendance-section-group {
     margin-bottom: 15px; /* パート間のスペース */

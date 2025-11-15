@@ -96,33 +96,33 @@
         />
       </div>
 
-      <!-- 場所URL（Google Maps） -->
+      <!-- 公式サイト -->
       <div class="form-group">
-        <label for="event-place-url">場所URL (Google Maps)</label>
+        <label for="event-website">公式サイトなど</label>
         <input
           type="text"
-          id="event-place-url"
-          placeholder="Google Maps URLを入力..."
+          id="event-website"
+          placeholder="公式サイトなどのURLを入力..."
         />
       </div>
 
-      <!-- 交通アクセス（Google Maps URLなど） -->
+      <!-- 交通アクセス・駐車場情報 -->
       <div class="form-group">
-        <label for="event-access">交通アクセス</label>
-        <input
-          type="text"
+        <label for="event-access">交通アクセス・駐車場情報</label>
+        <textarea
           id="event-access"
-          placeholder="Google Maps URLなどを入力..."
-        />
+          rows="3"
+          placeholder="交通アクセス・駐車場情報を入力(テキスト or URL)..."
+        ></textarea>
       </div>
 
-      <!-- 駐車場情報 -->
+      <!-- Google Map -->
       <div class="form-group">
-        <label for="event-parking">駐車場情報</label>
+        <label for="event-google-map">Google Map</label>
         <input
           type="text"
-          id="event-parking"
-          placeholder="URLまたは文字列で入力..."
+          id="event-google-map"
+          placeholder="Google Mapの共有リンクを入力..."
         />
       </div>
 
