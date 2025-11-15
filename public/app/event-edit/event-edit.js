@@ -82,7 +82,6 @@ async function setupPage(mode) {
     $('#event-place-name').val('');
     $('#event-place-url').val('');
     $('#event-access').val('');
-    $('#event-parking').val('');
     $('#event-schedule').val('');
     $('#event-songs').val('');
     $('#event-dress').val('');
@@ -121,7 +120,6 @@ async function loadEventData(eventId, mode) {
   $('#event-place-name').val(data.placeName || '');
   $('#event-place-url').val(data.placeUrl || '');
   $('#event-access').val(data.access || '');
-  $('#event-parking').val(data.parking || '');
   $('#event-schedule').val(data.schedule || '');
   $('#event-songs').val(data.songs || '');
   $('#event-dress').val(data.dress || '');
@@ -149,7 +147,6 @@ function captureInitialState() {
     placeName: $('#event-place-name').val(),
     placeUrl: $('#event-place-url').val(),
     access: $('#event-access').val(),
-    parking: $('#event-parking').val(),
     schedule: $('#event-schedule').val(),
     songs: $('#event-songs').val(),
     dress: $('#event-dress').val(),
@@ -167,7 +164,6 @@ function restoreInitialState() {
   $('#event-place-name').val(initialStateHtml.placeName || '');
   $('#event-place-url').val(initialStateHtml.placeUrl || '');
   $('#event-access').val(initialStateHtml.access || '');
-  $('#event-parking').val(initialStateHtml.parking || '');
   $('#event-schedule').val(initialStateHtml.schedule || '');
   $('#event-songs').val(initialStateHtml.songs || '');
   $('#event-dress').val(initialStateHtml.dress || '');
@@ -389,7 +385,6 @@ async function collectEventData(mode) {
     placeName: $('#event-place-name').val().trim(),
     placeUrl: $('#event-place-url').val().trim(),
     access: $('#event-access').val().trim(),
-    parking: $('#event-parking').val().trim(),
     schedule: $('#event-schedule').val().trim(),
     songs: $('#event-songs').val().trim(),
     dress: $('#event-dress').val().trim(),

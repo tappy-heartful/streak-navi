@@ -370,19 +370,6 @@ async function renderEvent() {
     $('#event-access').text('');
   }
 
-  // 駐車場情報（URLかテキストか判定）
-  if (eventData.parking) {
-    if (/^https?:\/\//.test(eventData.parking)) {
-      $('#event-parking').html(
-        `<a href="${eventData.parking}" target="_blank" rel="noopener noreferrer">${eventData.parking}</a>`
-      );
-    } else {
-      $('#event-parking').html(eventData.parking.replace(/\n/g, '<br>'));
-    }
-  } else {
-    $('#event-parking').text('');
-  }
-
   // やる曲
   $('#event-songs').html(eventData.songs?.replace(/\n/g, '<br>') || '');
 
