@@ -380,20 +380,6 @@ function renderScoreVideos() {
   `);
 
   $('#score-player-title').text(score.title_decoded || '参考演奏');
-  updateScorePlaylistLink(watchIds);
-}
-
-function updateScorePlaylistLink(watchIds) {
-  if (watchIds && watchIds.length > 0) {
-    $('#playlist-link-score')
-      .attr(
-        'href',
-        `https://www.youtube.com/watch_videos?video_ids=${watchIds.join(',')}`
-      )
-      .show();
-  } else {
-    $('#playlist-link-score').hide();
-  }
 }
 
 function showScoreNext() {
