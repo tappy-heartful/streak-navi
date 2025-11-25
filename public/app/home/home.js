@@ -121,7 +121,8 @@ async function loadPendingAnnouncements() {
   for (const eventDoc of eventsSnap.docs) {
     const eventData = eventDoc.data();
     const eventId = eventDoc.id;
-    const attendanceType = eventData.attendanceType; // 'schedule', 'attendance', 'none'
+    const attendanceType = eventData.attendanceType; // 'schedule', 'attendance'
+    const isAcceptingResponses = eventData.isAcceptingResponses;
     const eventDateStr = eventData.date || '';
 
     // イベント日付オブジェクトの作成
@@ -143,14 +144,14 @@ async function loadPendingAnnouncements() {
     let listToPush = null;
     let answerDocRef = null;
 
-    if (attendanceType === 'schedule') {
+    if (attendanceType === 'schedule' && isAcceptingResponses) {
       answerDocRef = utils.doc(
         utils.db,
         'eventAdjustAnswers',
         `${eventId}_${uid}`
       );
       listToPush = schedulePending;
-    } else if (attendanceType === 'attendance') {
+    } else if (attendanceType === 'attendance' && isAcceptingResponses) {
       answerDocRef = utils.doc(
         utils.db,
         'eventAttendanceAnswers',

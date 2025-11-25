@@ -134,11 +134,6 @@ async function loadEventData(eventId, mode) {
   $('#event-other').val(data.other || '');
 
   // 【修正・新規追加】日程調整/出欠確認の種別と回答受付状態
-  // 過去データ互換:
-  // 1. data.attendanceType が 'none' の場合: 回答受け付けない (status=off) にする
-  // 2. data.attendanceType が 'attendance' or 'schedule' の場合: 回答受け付ける (status=on) にする
-  // 3. data.isAcceptingResponses が設定されている場合は、それを使用する
-
   let attendanceType;
   let attendanceStatus;
 

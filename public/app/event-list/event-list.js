@@ -58,10 +58,7 @@ async function setUpPage() {
     // attendanceTypeはnoneを想定しない
     const attendanceType = eventData.attendanceType || 'attendance';
     // isAcceptingResponses: 回答受付の有無（イベント確認画面の修正に合わせて使用）
-    const isAcceptingResponses =
-      eventData.isAcceptingResponses !== undefined
-        ? eventData.isAcceptingResponses
-        : attendanceType !== 'none'; // 旧データ互換
+    const isAcceptingResponses = eventData.isAcceptingResponses;
 
     let status = '';
     let statusClass = '';
