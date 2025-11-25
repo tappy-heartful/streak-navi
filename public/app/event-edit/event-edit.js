@@ -88,10 +88,16 @@ async function setupPage(mode) {
     $('#event-dress').val('');
     $('#event-other').val('');
 
-    // 【新規追加】日程調整/出欠確認の初期値
-    const type = utils.globalGetParamType; // URLパラメータからタイプ取得(一覧から遷移した場合日程調整課題か出欠確認かを指定)
-    $('input[name="attendance-type"]').val([type]);
-    if (type === 'schedule') renderCandidateDates(['']); // 候補日を1つ初期表示
+    // 【修正】日程調整/出欠確認の初期値
+    const type = utils.globalGetParamType; // URLパラメータからタイプ取得
+    // URLパラメータで type=none が来た場合は、attendance に倒す (none は廃止)
+    const initialType =
+      type === 'schedule' || type === 'attendance' ? type : 'attendance';
+    $('input[name="attendance-type"]').val([initialType]);
+    // 【新規追加】回答の受付の初期値は 'on'
+    $('input[name="attendance-status"]').val(['on']);
+
+    if (initialType === 'schedule') renderCandidateDates(['']); // 候補日を1つ初期表示
   } else {
     pageTitle.text(
       mode === 'edit' ? 'イベント編集' : 'イベント新規作成(コピー)'
@@ -127,9 +133,17 @@ async function loadEventData(eventId, mode) {
   $('#event-dress').val(data.dress || '');
   $('#event-other').val(data.other || '');
 
-  // 【新規追加】日程調整/出欠確認の種別
-  const attendanceType = data.attendanceType || 'attendance'; // 過去データ互換のためデフォルトを'attendance'に
+  // 【修正・新規追加】日程調整/出欠確認の種別と回答受付状態
+  let attendanceType;
+  let attendanceStatus;
+
+  // 旧 schedule, attendance はそのまま
+  attendanceType = data.attendanceType;
+  // 新フィールドがあればそれを使う。なければデフォルトで on
+  attendanceStatus = data.isAcceptingResponses === false ? 'off' : 'on';
+
   $('input[name="attendance-type"]').val([attendanceType]);
+  $('input[name="attendance-status"]').val([attendanceStatus]);
 
   // 【新規追加】候補日
   const candidateDates = (data.candidateDates || []).map(formatDateForInput);
@@ -151,9 +165,10 @@ function captureInitialState() {
     songs: $('#event-songs').val(),
     dress: $('#event-dress').val(),
     other: $('#event-other').val(),
-    // attendance: $('#event-attendance').prop('checked'), // 【修正】削除
-    // 【新規追加】日程調整/出欠確認の種別
+    // 【修正】日程調整/出欠確認の種別
     attendanceType: $('input[name="attendance-type"]:checked').val(),
+    // 【新規追加】回答の受付
+    attendanceStatus: $('input[name="attendance-status"]:checked').val(),
     // 【新規追加】候補日
     candidateDates: getCandidateDatesFromInputs(),
   };
@@ -169,10 +184,10 @@ function restoreInitialState() {
   $('#event-songs').val(initialStateHtml.songs || '');
   $('#event-dress').val(initialStateHtml.dress || '');
   $('#event-other').val(initialStateHtml.other || '');
-  // $('#event-attendance').prop('checked', initialStateHtml.attendance); // 【修正】削除
 
-  // 【新規追加】日程調整/出欠確認の種別と候補日の復元
+  // 【修正】日程調整/出欠確認の種別と回答受付状態の復元
   $('input[name="attendance-type"]').val([initialStateHtml.attendanceType]);
+  $('input[name="attendance-status"]').val([initialStateHtml.attendanceStatus]);
   renderCandidateDates(initialStateHtml.candidateDates);
   toggleDateFields(); // フィールドの表示切り替え
 
@@ -193,7 +208,7 @@ function setupEventHandlers(mode) {
       restoreInitialState();
   });
 
-  // 【新規追加】日程調整/出欠確認のラジオボタン変更時
+  // 【修正】日程調整/出欠確認のラジオボタン変更時
   $('input[name="attendance-type"]').on('change', toggleDateFields);
 
   // 【新規追加】候補日追加ボタン
@@ -293,7 +308,7 @@ function setupEventHandlers(mode) {
 }
 
 //==================================
-// 【新規追加】日付フィールドの表示制御
+// 【修正】日付フィールドの表示制御
 //==================================
 function toggleDateFields() {
   const selectedType = $('input[name="attendance-type"]:checked').val();
@@ -303,7 +318,7 @@ function toggleDateFields() {
     $('#date-candidates-group').show();
     $('#date-single-group').hide();
   } else {
-    // 出欠確認からする / どちらも受け付けない: 通常の日付入力表示、候補日入力非表示
+    // 出欠確認からする: 通常の日付入力表示、候補日入力非表示
     $('#date-candidates-group').hide();
     $('#date-single-group').show();
   }
@@ -369,6 +384,7 @@ function getCandidateDatesFromInputs() {
 async function collectEventData(mode) {
   const rawDate = $('#event-date').val();
   const attendanceType = $('input[name="attendance-type"]:checked').val();
+  const attendanceStatus = $('input[name="attendance-status"]:checked').val(); // 【新規追加】回答受付状態
 
   // 日程調整からする 選択時のみ候補日を取得
   let candidateDates = [];
@@ -394,9 +410,12 @@ async function collectEventData(mode) {
 
     // 【修正・新規追加】日程/出欠関連のデータ
     attendanceType: attendanceType,
-    date: attendanceType !== 'schedule' ? formatDateForSave(rawDate) : '', // 'schedule'でなければ通常の日付を保存
-    candidateDates: candidateDates, // 'schedule'であれば候補日配列を保存
-    // 過去データ互換のため 'attendance' キーは残す場合もあるが、今回は削除されたものとして扱わない
+    // 【新規追加】回答を受け付けるかどうかのフラグ
+    isAcceptingResponses: attendanceStatus === 'on',
+    // 'schedule'でなければ通常の日付を保存
+    date: attendanceType !== 'schedule' ? formatDateForSave(rawDate) : '',
+    // 'schedule'であれば候補日配列を保存
+    candidateDates: candidateDates,
 
     createdAt: utils.serverTimestamp(),
   };
@@ -424,7 +443,7 @@ function validateEventData() {
 
   // --- 日付関連の必須チェック ---
   if (attendanceType === 'schedule') {
-    // 【新規追加】日程調整からする: 候補日が1つ以上必須
+    // 【修正】日程調整からする: 候補日が1つ以上必須
     const candidateDates = getCandidateDatesFromInputs().filter(
       (date) => date.trim() !== ''
     );
@@ -438,7 +457,7 @@ function validateEventData() {
       // 候補日が入力されている場合は、個々の入力値のチェックは省略 (type="date"であるため形式チェックはブラウザに任せる)
     }
   } else {
-    // 【修正】出欠確認からする / どちらも受け付けない: 単一の日付必須
+    // 【修正】出欠確認からする: 単一の日付必須
     const date = $('#event-date').val().trim();
     if (!date) {
       utils.markError($('#event-date'), '必須項目です');

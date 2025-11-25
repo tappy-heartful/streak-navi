@@ -48,14 +48,30 @@
             />
             出欠確認をする
           </label>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>回答の受付</label>
+        <div class="radio-group" id="attendance-status-group">
           <label>
             <input
               type="radio"
-              name="attendance-type"
-              id="type-none"
-              value="none"
+              name="attendance-status"
+              id="status-on"
+              value="on"
+              checked
             />
-            どちらも受け付けない
+            回答を受け付ける
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="attendance-status"
+              id="status-off"
+              value="off"
+            />
+            受け付けない
           </label>
         </div>
       </div>

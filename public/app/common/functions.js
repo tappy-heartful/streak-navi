@@ -232,7 +232,34 @@ export async function initDisplay(isShowSpinner = true) {
   // 継続ログインの場合uidだけはセットされていないので、ここでセット
   setSession('uid', user.uid);
 
-  // // --- 5. コンポーネント読み込み ---
+  // --- 5. 編集画面の権限チェックとリダイレクト
+  const path = window.location.pathname;
+
+  // 権限チェックが必要なモジュール名のリスト
+  const modules = ['call', 'event', 'media', 'score', 'vote'];
+
+  for (const moduleName of modules) {
+    const editPagePath = `${moduleName}-edit/${moduleName}-edit.html`;
+
+    if (path.includes(editPagePath)) {
+      const adminKey = `is${
+        moduleName.charAt(0).toUpperCase() + moduleName.slice(1)
+      }Admin`;
+
+      // 編集画面にいて、かつ対応するAdmin権限を持っていない場合
+      if (getSession(adminKey) !== globalStrTrue) {
+        // 一覧画面へリダイレクト
+        alert('この画面を表示する権限がありません。一覧画面に遷移します。');
+        const listPath = `../${moduleName}-list/${moduleName}-list.html`;
+        window.location.replace(listPath);
+        return;
+      }
+      // 権限がある場合は、他の画面チェックをせずにループを終了
+      break;
+    }
+  }
+
+  // // --- 6. コンポーネント読み込み ---
   await loadComponent('header');
   await loadComponent('footer');
   await loadComponent('dialog');

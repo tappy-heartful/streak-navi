@@ -39,6 +39,13 @@ $(document).ready(async function () {
   }
 
   // 各遷移（※既存）
+  $('#menu-user-name').on(
+    'click',
+    () =>
+      (location.href =
+        '../user-confirm/user-confirm.html?uid=' + utils.getSession('uid'))
+  );
+  $('#menu-home').on('click', () => (location.href = '../home/home.html'));
   $('#menu-score-list').on(
     'click',
     () => (location.href = '../score-list/score-list.html')
