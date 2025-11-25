@@ -35,7 +35,7 @@ async function setUpPage() {
 
   // 各リスト要素をクリア
   const $scheduleList = $('#schedule-list').empty(); // 日程調整中
-  const $futureList = $('#future-list').empty(); // 今後の予定（出欠受付中 and 受付なし）
+  const $futureList = $('#future-list').empty(); // 今後の予定（出欠受付）
   const $closedList = $('#closed-list').empty(); // 終了
 
   const eventsRef = utils.collection(utils.db, 'events');
@@ -44,7 +44,7 @@ async function setUpPage() {
 
   // ステータスごとに配列を分ける
   const scheduleItems = []; // 日程調整中のイベント
-  const futureItems = []; // 今後の予定 (出欠受付中 and 受付なし)
+  const futureItems = []; // 今後の予定 (出欠受付)
   const closedItems = []; // 終了したイベント
 
   const uid = utils.getSession('uid');
@@ -54,7 +54,14 @@ async function setUpPage() {
     const eventId = eventDoc.id;
     const eventDate = eventData.date;
     const eventTitle = eventData.title;
-    const attendanceType = eventData.attendanceType || 'none'; // none, attendance, schedule
+
+    // attendanceTypeはnoneを想定しない
+    const attendanceType = eventData.attendanceType || 'attendance';
+    // isAcceptingResponses: 回答受付の有無（イベント確認画面の修正に合わせて使用）
+    const isAcceptingResponses =
+      eventData.isAcceptingResponses !== undefined
+        ? eventData.isAcceptingResponses
+        : attendanceType !== 'none'; // 旧データ互換
 
     let status = '';
     let statusClass = '';
@@ -96,6 +103,7 @@ async function setUpPage() {
           statusClass
         )
       );
+      // 【ここから修正】終了していないイベントの分類
     } else if (attendanceType === 'schedule') {
       // 日程調整中 (scheduleItemsに分類)
       const answerId = `${eventId}_${uid}`;
@@ -106,7 +114,11 @@ async function setUpPage() {
 
       const answerSnap = await utils.getWrapDoc(answerDocRef);
 
-      if (answerSnap.exists()) {
+      // 【修正】回答受付中であるかどうかにかかわらず、日程調整イベントは日程調整コンテナに表示
+      if (!isAcceptingResponses) {
+        status = '';
+        statusClass = '';
+      } else if (answerSnap.exists()) {
         status = '回答済';
         statusClass = 'answered';
       } else {
@@ -124,12 +136,16 @@ async function setUpPage() {
           statusClass
         )
       );
-    } else {
-      // 今後の予定 (attendance or none) に分類
+    } else if (attendanceType === 'attendance') {
+      // 今後の予定 (attendance) に分類
       status = ''; // デフォルトは空
       statusClass = '';
 
-      if (attendanceType === 'attendance') {
+      // 【修正】回答受付中であるかどうかにかかわらず、出欠確認イベントは今後の予定コンテナに表示
+      if (!isAcceptingResponses) {
+        status = '';
+        statusClass = '';
+      } else {
         // 出欠受付中の場合のみ回答状況を判定し、ステータスを表示
         const answerId = `${eventId}_${uid}`;
         const answerDocRef = utils.doc(
@@ -147,7 +163,6 @@ async function setUpPage() {
           statusClass = 'pending';
         }
       }
-      // attendanceType === 'none' の場合は、status/statusClass は空のまま（ラベル非表示）
 
       futureItems.push(
         makeEventItem(
@@ -161,6 +176,7 @@ async function setUpPage() {
       );
     }
   }
+  // 【ここまで修正】
 
   // 1. 各コンテナにイベントを追加し、0件判定を行う
 

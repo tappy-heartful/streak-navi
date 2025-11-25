@@ -43,9 +43,16 @@ async function renderEvent() {
   }
   const eventData = eventSnap.data();
 
+  // 【新規データ構造の判定】回答を受け付けているかどうか
+  const isAcceptingResponses =
+    eventData.isAcceptingResponses !== undefined
+      ? eventData.isAcceptingResponses
+      : eventData.attendanceType !== 'none';
+
   // ------------------------------------------------------------------
   // 回答データ取得（日程調整 or 出欠確認に応じてコレクションを切り替え）
   // ------------------------------------------------------------------
+  // attendanceType は、isAcceptingResponsesがfalseでも、schedule/attendance のどちらかを持つ
   const attendanceType = eventData.attendanceType || 'attendance'; // デフォルトは'attendance'
   const isSchedule = attendanceType === 'schedule';
   const answerCollectionName = isSchedule
@@ -88,7 +95,8 @@ async function renderEvent() {
     // 終了
     statusClass = 'closed';
     statusText = '終了';
-  } else if (attendanceType === 'none') {
+    // 【修正箇所 1】attendanceType === 'none' の判定を isAcceptingResponses で行う
+  } else if (!isAcceptingResponses) {
     // 回答受付なし
     statusClass = 'closed';
     statusText = '回答を受け付けてません';
@@ -131,7 +139,8 @@ async function renderEvent() {
     $('#event-attendance').removeClass('label-value');
   $attendanceContainer.empty();
 
-  if (attendanceType === 'none') {
+  // 【修正箇所 2】attendanceType === 'none' の判定を isAcceptingResponses で行う
+  if (!isAcceptingResponses) {
     $attendanceContainer
       .addClass('label-value')
       .text('回答を受け付けていません');
@@ -395,7 +404,8 @@ async function renderEvent() {
   // ------------------------------------------------------------------
   // 5. 回答メニュー制御
   // ------------------------------------------------------------------
-  if (attendanceType === 'none' || isPast) {
+  // 【修正箇所 3】attendanceType === 'none' の判定を isAcceptingResponses で行う
+  if (!isAcceptingResponses || isPast) {
     $('#answer-menu').hide();
   } else {
     // 回答済みかどうかの判定を myAnswerExists に変更
