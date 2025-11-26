@@ -80,7 +80,7 @@ async function renderScore() {
   );
 
   // ボタン制御
-  utils.getSession('isScoreAdmin') === utils.globalStrTrue
+  utils.isAdmin('Score')
     ? $('.confirm-buttons').show()
     : $('.confirm-buttons').hide();
   setupEventHandlers(scoreId);

@@ -31,7 +31,7 @@ $(document).ready(async function () {
 ////////////////////////////
 async function renderEvent() {
   const eventId = utils.globalGetParamEventId;
-  const isAdmin = utils.getSession('isEventAdmin') === utils.globalStrTrue;
+  const isAdmin = utils.isAdmin('Event');
   const uid = utils.getSession('uid');
 
   // events からデータを取得

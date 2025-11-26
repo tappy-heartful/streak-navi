@@ -21,9 +21,7 @@ $(document).ready(async function () {
 
 async function setUpPage() {
   // 管理者ボタンは「受付中」コンテナの直下にあるため、ロジックは変更なし
-  utils.getSession('isCallAdmin') === utils.globalStrTrue
-    ? $('#add-button').show()
-    : $('#add-button').hide();
+  utils.isAdmin('Call') ? $('#add-button').show() : $('#add-button').hide();
 
   // 修正点: リストの参照を新しいIDに変更
   const $activeList = $('#active-list').empty(); // 受付中

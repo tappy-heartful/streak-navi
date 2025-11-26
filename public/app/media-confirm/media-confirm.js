@@ -70,7 +70,7 @@ async function renderMedia() {
   );
 
   // 管理者の場合のみ編集・削除ボタン表示
-  utils.getSession('isMediaAdmin') === utils.globalStrTrue
+  utils.isAdmin('Media')
     ? $('.confirm-buttons').show()
     : $('.confirm-buttons').hide();
 
