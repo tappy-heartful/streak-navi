@@ -6,6 +6,8 @@ let allUsers = {}; // 全ユーザデータを格納するオブジェクト
 let allUserUids = []; // 全ユーザUIDの配列
 let sections = {}; // 全パートデータを格納するオブジェクト
 let unansweredUids = []; // 未回答者のUIDを格納する配列
+// 【新規】録音・録画リンクのグローバル変数
+let allRecordings = [];
 
 $(document).ready(async function () {
   try {
@@ -393,6 +395,21 @@ async function renderEvent() {
       $attendanceContainer.append($unansweredButton);
     }
   }
+  // ------------------------------------------------------------------
+  // 【新規】6. 録音・録画リンクの取得と表示
+  // ------------------------------------------------------------------
+  const recordingsSnap = await utils.getWrapDocs(
+    utils.query(
+      utils.collection(utils.db, 'eventRecordings'),
+      utils.where('eventId', '==', eventId),
+      utils.orderBy('createdAt', 'asc') // 登録日時順にソート（任意）
+    )
+  );
+  allRecordings = recordingsSnap.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+  renderRecordings(eventId, uid, isAdmin);
 
   // ------------------------------------------------------------------
   // 4. その他の項目の表示（変更なし）
@@ -469,6 +486,44 @@ async function renderEvent() {
   }
 
   setupEventHandlers(eventId, uid, isSchedule); // isScheduleを渡す
+}
+
+// ------------------------------------------------------------------
+// 【新規関数】録音・録画リンク一覧の表示
+// ------------------------------------------------------------------
+function renderRecordings(eventId, currentUid, isAdmin) {
+  const $container = $('#recording-list').empty();
+
+  if (allRecordings.length === 0) {
+    $container.html('<p class="no-user">登録されたリンクはありません。</p>');
+  } else {
+    const $ul = $('<ul class="recording-list-ul"></ul>');
+    allRecordings.forEach((recording) => {
+      const registeredUser = allUsers[recording.uid]
+        ? allUsers[recording.uid].displayName
+        : '退会済み';
+      // 削除できる条件：管理者 OR 登録した本人
+      const canDelete = isAdmin || recording.uid === currentUid;
+
+      const deleteButton = canDelete
+        ? `<button class="delete-recording-btn small-button" data-recording-id="${recording.id}">
+                      <i class="fas fa-trash-alt"></i>
+                   </button>`
+        : '';
+
+      const $li = $(`
+                <li>
+                    <a href="${recording.url}" target="_blank" rel="noopener noreferrer" class="recording-link" title="${recording.url}">
+                        <i class="fas fa-play-circle"></i> ${recording.title}
+                    </a>
+                    <span class="registered-by">by ${registeredUser}</span>
+                    ${deleteButton}
+                </li>
+            `);
+      $ul.append($li);
+    });
+    $container.append($ul);
+  }
 }
 
 ////////////////////////////
@@ -615,6 +670,39 @@ function setupEventHandlers(eventId, uid, isSchedule) {
     .off('click')
     .on('click', function () {
       showUnansweredUsersModal(eventId, '出欠');
+    });
+
+  // 【新規】録音・録画リンク登録ボタン
+  $('#add-recording-button')
+    .off('click')
+    .on('click', function () {
+      showRecordingModal(eventId, uid);
+    });
+
+  // 【新規】録音・録画リンク削除ボタン
+  $(document)
+    .off('click', '.delete-recording-btn')
+    .on('click', '.delete-recording-btn', async function (e) {
+      e.preventDefault(); // リンク要素ではないが、念のためデフォルト動作を防止
+
+      // 💡 修正点: クリックされた要素から、最も近い親/自身の .delete-recording-btn を取得
+      const $targetButton = $(this).closest('.delete-recording-btn');
+      const recordingId = $targetButton.data('recording-id');
+
+      // recordingId が undefined でないかチェック (ロジックをより堅牢にするため)
+      if (!recordingId) {
+        console.error(
+          'Recording ID is missing on the delete button.',
+          $targetButton[0]
+        );
+        await utils.showDialog(
+          '削除対象のデータが特定できませんでした。',
+          true
+        );
+        return;
+      }
+
+      await deleteRecordingLink(eventId, recordingId, uid);
     });
 }
 
@@ -765,4 +853,125 @@ async function buildUsersModalBody(uids) {
   }
 
   return modalBody;
+}
+// ------------------------------------------------------------------
+// 【新規関数】リンク登録モーダル表示
+// ------------------------------------------------------------------
+// event-confirm.js 内の showRecordingModal 関数 (修正後)
+
+async function showRecordingModal(eventId, uid) {
+  const modalTitle = '録音・録画リンクの登録';
+  const modalBody = `
+        <div class="form-group">
+            <label for="recording-title" class="modal-label">タイトル <span class="required">*</span></label>
+            <input type="text" id="recording-title" class="form-control" placeholder="例: 練習/ライブ 通し録音" required>
+        </div>
+        <div class="form-group">
+            <label for="recording-url" class="modal-label">URL (リンク先) <span class="required">*</span></label>
+            <input type="text" id="recording-url" class="form-control" placeholder="https://youtube.com/..." required>
+        </div>
+        <p class="modal-note">※ YouTube, Google Drive, Dropboxなどの公開リンクを登録してください。</p>
+    `;
+
+  // showModalの返り値がオブジェクトになることを想定して受け取る
+  const result = await utils.showModal(
+    modalTitle,
+    modalBody,
+    '登録',
+    'キャンセル'
+  );
+
+  // result は { success: true, data: { 'recording-title': '...', 'recording-url': '...' } } または false
+  if (result && result.success) {
+    const title = result.data['recording-title'];
+    const url = result.data['recording-url'];
+
+    if (!title || !url) {
+      await utils.showDialog('タイトルとURLは必須です。', true);
+      return;
+    }
+
+    await saveRecordingLink(eventId, uid, title, url);
+  }
+}
+
+// ------------------------------------------------------------------
+// 【新規関数】リンク登録処理
+// ------------------------------------------------------------------
+async function saveRecordingLink(eventId, uid, title, url) {
+  utils.showSpinner();
+  try {
+    const newDocRef = utils.doc(utils.collection(utils.db, 'eventRecordings'));
+
+    await utils.setDoc(newDocRef, {
+      eventId: eventId,
+      uid: uid,
+      title: title,
+      url: url,
+      createdAt: utils.serverTimestamp(),
+    });
+
+    await utils.writeLog({
+      dataId: eventId,
+      action: '録音・録画リンク登録',
+      uid: uid,
+    });
+
+    utils.hideSpinner();
+    await utils.showDialog('リンクを追加しました', true);
+    window.location.reload();
+  } catch (e) {
+    await utils.writeLog({
+      dataId: eventId,
+      action: '録音・録画リンク登録',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+    utils.hideSpinner();
+    await utils.showDialog('追加に失敗しました', true);
+  }
+}
+
+// ------------------------------------------------------------------
+// 【新規関数】リンク削除処理
+// ------------------------------------------------------------------
+async function deleteRecordingLink(eventId, recordingId, currentUid) {
+  const isAdmin = utils.isAdmin('Event');
+
+  // 削除権限のチェック (念のためサーバー側でもチェックが必要ですが、UI側で制御)
+  const targetRecording = allRecordings.find((r) => r.id === recordingId);
+  if (!targetRecording) return;
+  if (!isAdmin && targetRecording.uid !== currentUid) {
+    await utils.showDialog('このリンクを削除する権限がありません。', true);
+    return;
+  }
+
+  const confirmed = await utils.showDialog(
+    `リンク「${targetRecording.title}」を削除しますか？`
+  );
+  if (!confirmed) return;
+
+  utils.showSpinner();
+  try {
+    await utils.deleteDoc(utils.doc(utils.db, 'eventRecordings', recordingId));
+
+    await utils.writeLog({
+      dataId: eventId,
+      action: '録音・録画リンク削除',
+      uid: currentUid,
+    });
+
+    utils.hideSpinner();
+    await utils.showDialog('リンクを削除しました', true);
+    window.location.reload();
+  } catch (e) {
+    await utils.writeLog({
+      dataId: eventId,
+      action: '録音・録画リンク削除',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+    utils.hideSpinner();
+    await utils.showDialog('削除に失敗しました', true);
+  }
 }

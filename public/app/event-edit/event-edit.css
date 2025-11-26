@@ -111,19 +111,6 @@
   background-color: #45a049;
 }
 
-/* --- 確認用ボタン類（項目編集・コピー・削除） --- */
-.item-action-buttons {
-  display: flex;
-  gap: 6px;
-  margin-top: 6px;
-}
-
-.item-action-buttons button {
-  flex: 1;
-  padding: 6px 0;
-  font-size: 14px;
-}
-
 /* --- レスポンシブ対応 --- */
 @media (max-width: 480px) {
   .event-choices {
