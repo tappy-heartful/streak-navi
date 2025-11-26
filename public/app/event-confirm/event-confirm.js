@@ -2,6 +2,10 @@ import * as utils from '../common/functions.js';
 
 // グローバル変数
 let allAnswers = []; // 日程調整の全回答データを格納する配列
+let allUsers = {}; // 全ユーザデータを格納するオブジェクト
+let allUserUids = []; // 全ユーザUIDの配列
+let sections = {}; // 全パートデータを格納するオブジェクト
+let unansweredUids = []; // 未回答者のUIDを格納する配列
 
 $(document).ready(async function () {
   try {
@@ -43,6 +47,28 @@ async function renderEvent() {
   }
   const eventData = eventSnap.data();
 
+  // ------------------------------------------------------------------
+  // 共通データ取得 (全ユーザ、全パート)
+  // ------------------------------------------------------------------
+  const usersSnap = await utils.getWrapDocs(
+    utils.collection(utils.db, 'users')
+  );
+  allUsers = {};
+  usersSnap.docs.forEach((doc) => {
+    allUsers[doc.id] = doc.data();
+  });
+  allUserUids = Object.keys(allUsers); // 全ユーザのUIDリスト
+
+  const sectionsSnap = await utils.getWrapDocs(
+    utils.collection(utils.db, 'sections')
+  );
+  sections = {};
+  sectionsSnap.docs.forEach((doc) => {
+    sections[doc.id] = doc.data().name || 'パート名なし';
+  });
+
+  // ------------------------------------------------------------------
+
   // 【新規データ構造の判定】回答を受け付けているかどうか
   const isAcceptingResponses =
     eventData.isAcceptingResponses !== undefined
@@ -75,6 +101,14 @@ async function renderEvent() {
   const answerCount = allAnswers.length;
 
   // ------------------------------------------------------------------
+  // 未回答者のUIDリスト作成
+  // ------------------------------------------------------------------
+  const answeredUids = allAnswers.map((doc) => doc.id.split('_')[1]);
+  unansweredUids = allUserUids.filter((u) => !answeredUids.includes(u));
+  const unansweredCount = unansweredUids.length;
+  // ------------------------------------------------------------------
+
+  // ------------------------------------------------------------------
   // 1. 回答ステータス表示 (answer-status-label) の切り替え
   // ------------------------------------------------------------------
   let statusClass = '';
@@ -95,7 +129,6 @@ async function renderEvent() {
     // 終了
     statusClass = 'closed';
     statusText = '終了';
-    // 【修正箇所 1】attendanceType === 'none' の判定を isAcceptingResponses で行う
   } else if (!isAcceptingResponses) {
     // 回答受付なし
     statusClass = 'closed';
@@ -139,7 +172,6 @@ async function renderEvent() {
     $('#event-attendance').removeClass('label-value');
   $attendanceContainer.empty();
 
-  // 【修正箇所 2】attendanceType === 'none' の判定を isAcceptingResponses で行う
   if (!isAcceptingResponses) {
     $attendanceContainer
       .addClass('label-value')
@@ -147,11 +179,13 @@ async function renderEvent() {
   } else if (isSchedule) {
     // 日程調整受付中
     $attendanceTitle.text('日程調整');
-    // 【修正】回答人数を新しいクラスと文言で表示
+    // 回答人数と未回答人数を新しいクラスと文言で表示
     $attendanceContainer
       .addClass('label-value')
       .empty() // 既存のテキストをクリア
-      .append(`<span class="answer-count-summary">回答${answerCount}人</span>`);
+      .append(
+        `<span class="answer-count-summary">回答${answerCount}人 (未回答${unansweredCount}人)</span>`
+      );
 
     // 1. ステータス一覧 (〇, △, ✕) 取得
     const statusesSnap = await utils.getWrapDocs(
@@ -165,6 +199,10 @@ async function renderEvent() {
         if (a.id > b.id) return 1;
         return 0;
       });
+
+    // 【新規】未回答ステータスを追加
+    const UNA_STATUS_ID = 'unanswered';
+    const UNA_STATUS_NAME = '未';
 
     // 2. 候補日ごとの回答を集計 (変更なし)
     const dateCounts = {};
@@ -223,6 +261,23 @@ async function renderEvent() {
         summaryHtml += countHtml;
       });
 
+      // 【新規】未回答者のリンクを追加
+      let unansweredHtml;
+      if (unansweredCount > 0) {
+        unansweredHtml = `<a href="#" 
+                            class="status-count adjust-count-link status-unanswered"
+                            data-date="${date}"
+                            data-status-id="${UNA_STATUS_ID}"
+                            data-status-name="${UNA_STATUS_NAME}">
+                            ${UNA_STATUS_NAME}${unansweredCount}
+                         </a>`;
+      } else {
+        unansweredHtml = `<span class="status-count status-count-zero status-unanswered">
+                            ${UNA_STATUS_NAME}${unansweredCount}
+                         </span>`;
+      }
+      summaryHtml += unansweredHtml;
+
       const $row = $('<div class="adjust-row"></div>');
       // 日付と曜日
       $row.append(`
@@ -244,10 +299,12 @@ async function renderEvent() {
   } else if (attendanceType === 'attendance') {
     // 出欠受付中
     $attendanceTitle.text('出欠');
-    // 【修正】回答人数を新しいクラスと文言で表示
+    // 回答人数と未回答人数を新しいクラスと文言で表示
     $attendanceContainer
       .addClass('label-value')
-      .html(`<span class="answer-count-summary">回答${answerCount}人</span>`);
+      .html(
+        `<span class="answer-count-summary">回答${answerCount}人 (未回答${unansweredCount}人)</span>`
+      );
 
     // 従来の出欠確認の回答結果を表示する
     // ステータス一覧取得
@@ -258,24 +315,6 @@ async function renderEvent() {
       id: doc.id,
       ...doc.data(),
     }));
-
-    // 全ユーザ情報取得
-    const usersSnap = await utils.getWrapDocs(
-      utils.collection(utils.db, 'users')
-    );
-    const users = {};
-    usersSnap.docs.forEach((doc) => {
-      users[doc.id] = doc.data();
-    });
-
-    // 【新規】sectionsコレクションからパート名を取得
-    const sectionsSnap = await utils.getWrapDocs(
-      utils.collection(utils.db, 'sections')
-    );
-    const sections = {};
-    sectionsSnap.docs.forEach((doc) => {
-      sections[doc.id] = doc.data().name || 'パート名なし';
-    });
 
     // ステータスごとに表示
     for (const status of statuses) {
@@ -300,7 +339,7 @@ async function renderEvent() {
         const usersBySection = {};
         filteredAnswers.forEach((ans) => {
           const uid = ans.id.replace(eventId + '_', '');
-          const user = users[uid];
+          const user = allUsers[uid]; // 全ユーザ情報から取得
           if (!user) return;
 
           const sectionId = user.sectionId || 'unknown'; // sectionIdがない場合は'unknown'
@@ -344,6 +383,14 @@ async function renderEvent() {
       }
 
       $attendanceContainer.append($statusBlock);
+    }
+
+    // 【新規】未回答者を見るボタンを追加
+    if (unansweredCount > 0) {
+      const $unansweredButton = $(
+        '<button id="unanswered-button" class="action-button small-button">未回答者を見る</button>'
+      );
+      $attendanceContainer.append($unansweredButton);
     }
   }
 
@@ -404,7 +451,6 @@ async function renderEvent() {
   // ------------------------------------------------------------------
   // 5. 回答メニュー制御
   // ------------------------------------------------------------------
-  // 【修正箇所 3】attendanceType === 'none' の判定を isAcceptingResponses で行う
   if (!isAcceptingResponses || isPast) {
     $('#answer-menu').hide();
   } else {
@@ -563,98 +609,57 @@ function setupEventHandlers(eventId, uid, isSchedule) {
       // eventId はこのスコープで利用可能と仮定
       showAdjustUsersModal(eventId, date, statusId, statusName);
     });
+
+  // 【イベント登録】出欠確認の未回答者ボタンクリックイベント
+  $('#unanswered-button')
+    .off('click')
+    .on('click', function () {
+      showUnansweredUsersModal(eventId, '出欠');
+    });
 }
 
 // 日程調整の回答結果リンククリック時に回答者モーダルを表示する
 async function showAdjustUsersModal(eventId, date, statusId, statusName) {
   utils.showSpinner();
   try {
-    // 【新規】sectionsコレクションからパート名を取得
-    const sectionsSnap = await utils.getWrapDocs(
-      utils.collection(utils.db, 'sections')
-    );
-    const sections = {};
-    sectionsSnap.docs.forEach((doc) => {
-      sections[doc.id] = doc.data().name || 'パート名なし';
-    });
+    let targetUids = [];
+    let modalTitle = '';
 
-    // 該当する回答者 UID を収集
-    const adjustAnswerUids = [];
-    // allAnswersはイベントIDのプレフィックスを持つdoc.idを持つ配列と仮定
-    allAnswers.forEach((doc) => {
-      const answers = doc.answers || {};
-      // 特定の日付に対する回答が、指定されたステータスIDと一致するか確認
-      if (answers[date] === statusId) {
-        // doc.idが "eventId_uid" 形式と仮定
-        const uid = doc.id.split('_')[1];
-        if (uid) {
-          adjustAnswerUids.push(uid);
+    const UNA_STATUS_ID = 'unanswered';
+
+    if (statusId === UNA_STATUS_ID) {
+      // 未回答者の場合
+      targetUids = unansweredUids; // グローバル変数から取得
+      modalTitle = `未回答の人`;
+    } else {
+      // 〇, △, ✕ の回答者の場合
+      modalTitle = `${statusName}の人`;
+
+      // 該当する回答者 UID を収集
+      // allAnswers: イベントIDのプレフィックスを持つdoc.idを持つ配列と仮定
+      allAnswers.forEach((doc) => {
+        const answers = doc.answers || {};
+        // 特定の日付に対する回答が、指定されたステータスIDと一致するか確認
+        if (answers[date] === statusId) {
+          // doc.idが "eventId_uid" 形式と仮定
+          const uid = doc.id.split('_')[1];
+          if (uid) {
+            targetUids.push(uid);
+          }
         }
-      }
-    });
-
-    // users コレクションから情報取得し、パートIDでグルーピング
-    const usersBySection = {};
-    for (const uid of adjustAnswerUids) {
-      const userSnap = await utils.getWrapDoc(
-        utils.doc(utils.db, 'users', uid)
-      );
-      let userData;
-      if (userSnap.exists()) {
-        userData = userSnap.data();
-      } else {
-        // 退会済みユーザのデータ
-        userData = {
-          displayName: '退会済みユーザ',
-          pictureUrl: utils.globalBandLogoImage,
-          sectionId: 'retired', // 仮のセクションID
-        };
-      }
-
-      const sectionId = userData.sectionId || 'unknown';
-      if (!usersBySection[sectionId]) {
-        usersBySection[sectionId] = [];
-      }
-      usersBySection[sectionId].push(userData);
-    }
-
-    // モーダルに描画
-    let modalBody = '';
-    const sortedSectionIds = Object.keys(usersBySection).sort();
-
-    for (const sectionId of sortedSectionIds) {
-      const sectionName = sections[sectionId] || '未所属';
-      const sectionUsers = usersBySection[sectionId];
-
-      // パートごとのブロックを構築 (出欠確認の表示と同じ構造を使用)
-      let userItemsHtml = '';
-      for (const user of sectionUsers) {
-        // 小型化のために small-user クラスを付与
-        userItemsHtml += `
-          <div class="attendance-user small-user">
-            <img src="${user.pictureUrl}" alt="${user.displayName}" class="voter-icon"
-              onerror="this.onerror=null; this.src='${utils.globalLineDefaultImage}';"/>
-            <span>${user.displayName}</span>
-          </div>
-        `;
-      }
-
-      // パートグループのHTML
-      modalBody += `
-        <div class="attendance-section-group">
-          <h4>${sectionName}</h4>
-          <div class="attendance-users">${userItemsHtml}</div>
-        </div>
-      `;
+      });
     }
 
     // 日付を "MM/DD" 形式に整形
     const [y, m, d] = date.split('.');
     const displayDate = `${m}/${d}(${utils.getDayOfWeek(date, true)})`;
+    modalTitle = `${displayDate} ${modalTitle}`;
+
+    // モーダルに描画
+    const modalBody = await buildUsersModalBody(targetUids);
 
     utils.hideSpinner();
-    // モーダルコンテンツは、パート表示を包含するdivでラップされていないため、そのまま `modalBody` を渡します。
-    await utils.showModal(`${displayDate} ${statusName}の人`, modalBody);
+    await utils.showModal(modalTitle, modalBody);
   } catch (e) {
     // ログ登録
     await utils.writeLog({
@@ -666,4 +671,98 @@ async function showAdjustUsersModal(eventId, date, statusId, statusName) {
   } finally {
     utils.hideSpinner();
   }
+}
+
+// 出欠確認の未回答者ボタンクリック時に回答者モーダルを表示する
+async function showUnansweredUsersModal(eventId, eventType) {
+  utils.showSpinner();
+  try {
+    // モーダルに描画
+    const modalTitle = `${eventType} 未回答者`;
+    const modalBody = await buildUsersModalBody(unansweredUids);
+
+    utils.hideSpinner();
+    await utils.showModal(modalTitle, modalBody);
+  } catch (e) {
+    // ログ登録
+    await utils.writeLog({
+      dataId: eventId,
+      action: '出欠未回答者確認',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+  } finally {
+    utils.hideSpinner();
+  }
+}
+
+// UIDリストをパート別にグルーピングし、モーダルボディのHTMLを生成する共通関数
+async function buildUsersModalBody(uids) {
+  const usersBySection = {};
+
+  // allUsers (グローバル変数) から情報を取得し、パートIDでグルーピング
+  for (const uid of uids) {
+    let userData = allUsers[uid];
+
+    if (!userData) {
+      // 退会済みユーザのデータ
+      userData = {
+        displayName: '退会済みユーザ',
+        pictureUrl: utils.globalBandLogoImage,
+        sectionId: 'retired', // 仮のセクションID
+      };
+    }
+
+    const sectionId = userData.sectionId || 'unknown';
+    if (!usersBySection[sectionId]) {
+      usersBySection[sectionId] = [];
+    }
+    usersBySection[sectionId].push(userData);
+  }
+
+  let modalBody = '';
+  // sections (グローバル変数) のキーを元にソートし、表示順を安定させる
+  const sortedSectionIds = Object.keys(sections).sort();
+
+  // 未所属/退会済みを最後に表示するために、一時的に分離
+  const miscSectionIds = ['unknown', 'retired'].filter(
+    (id) => usersBySection[id]
+  );
+  const displaySectionIds = sortedSectionIds
+    .filter((id) => !miscSectionIds.includes(id))
+    .concat(miscSectionIds);
+
+  if (displaySectionIds.length === 0) {
+    return `<div class="empty-message-modal">該当者はいません。</div>`;
+  }
+
+  for (const sectionId of displaySectionIds) {
+    const sectionName = sections[sectionId] || '未所属';
+    const sectionUsers = usersBySection[sectionId];
+
+    if (!sectionUsers) continue; // 該当ユーザがいなければスキップ
+
+    // パートごとのブロックを構築 (出欠確認の表示と同じ構造を使用)
+    let userItemsHtml = '';
+    for (const user of sectionUsers) {
+      // 小型化のために small-user クラスを付与
+      userItemsHtml += `
+        <div class="attendance-user small-user">
+          <img src="${user.pictureUrl}" alt="${user.displayName}" class="voter-icon"
+            onerror="this.onerror=null; this.src='${utils.globalLineDefaultImage}';"/>
+          <span>${user.displayName}</span>
+        </div>
+      `;
+    }
+
+    // パートグループのHTML
+    modalBody += `
+      <div class="attendance-section-group">
+        <h4>${sectionName}</h4>
+        <div class="attendance-users">${userItemsHtml}</div>
+      </div>
+    `;
+  }
+
+  return modalBody;
 }

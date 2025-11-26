@@ -176,3 +176,31 @@
     font-style: italic;
     font-size: 14px;
 }
+
+/* -------------------------------------- */
+/* 【新規】未回答者を見るボタンのスタイル */
+/* -------------------------------------- */
+
+#unanswered-button {
+    /* action-buttonのスタイルを継承しつつ */
+    display: inline-block;
+    padding: 8px 15px;
+    margin: 0 10px 10px 10px; /* 左側に10pxのマージンを追加 */
+    background-color: #f0f0f0; /* 目立ちすぎない背景色 */
+    color: #6c757d; /* テキスト色 */
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+}
+
+#unanswered-button:hover {
+    background-color: #e2e6ea;
+    border-color: #adadad;
+    color: #495057;
+}
+
+#unanswered-button:active {
+    background-color: #dae0e5;
+}
