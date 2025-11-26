@@ -22,7 +22,7 @@ $(document).ready(async function () {
 
 async function setUpPage() {
   // 管理者の場合のみ新規登録ボタン表示
-  const isAdmin = utils.getSession('isEventAdmin') === utils.globalStrTrue;
+  const isAdmin = utils.isAdmin('Event');
 
   if (isAdmin) {
     // 新規作成ボタンは日程調整用と今後の予定（出欠受付用）コンテナに表示

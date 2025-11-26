@@ -28,7 +28,7 @@ $(document).ready(async function () {
 ////////////////////////////
 async function renderVote() {
   const voteId = utils.globalGetParamVoteId;
-  const isAdmin = utils.getSession('isVoteAdmin') === utils.globalStrTrue;
+  const isAdmin = utils.isAdmin('Vote');
   const uid = utils.getSession('uid');
   const myProfileUrl = utils.getSession('pictureUrl') || '';
 

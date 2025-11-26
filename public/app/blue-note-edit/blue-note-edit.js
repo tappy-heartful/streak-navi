@@ -180,8 +180,7 @@ async function loadBlueNotes(month) {
     if (data) {
       // 削除ボタン表示判定
       const showDelete =
-        data.createdBy === utils.getSession('uid') ||
-        utils.getSession('isBlueNoteAdmin') === utils.globalStrTrue;
+        data.createdBy === utils.getSession('uid') || utils.isAdmin('BlueNote');
 
       const videoUrl = data.youtubeId
         ? `https://youtu.be/${data.youtubeId}`
@@ -361,8 +360,7 @@ async function refreshBlueNoteItem(dateId) {
   if (docSnap.exists()) {
     const data = docSnap.data();
     const showDelete =
-      data.createdBy === utils.getSession('uid') ||
-      utils.getSession('isBlueNoteAdmin') === utils.globalStrTrue;
+      data.createdBy === utils.getSession('uid') || utils.isAdmin('BlueNote');
 
     const videoUrl = data.youtubeId ? `https://youtu.be/${data.youtubeId}` : '';
 

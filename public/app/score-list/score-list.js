@@ -25,9 +25,7 @@ let genres = []; // ジャンルデータ
 
 async function setUpPage() {
   // 管理者の場合のみ新規登録ボタン表示
-  utils.getSession('isScoreAdmin') === utils.globalStrTrue
-    ? $('#add-button').show()
-    : $('#add-button').hide();
+  utils.isAdmin('Score') ? $('#add-button').show() : $('#add-button').hide();
 
   const scoresRef = utils.collection(utils.db, 'scores');
   const qScore = utils.query(scoresRef, utils.orderBy('createdAt', 'desc'));

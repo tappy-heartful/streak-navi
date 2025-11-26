@@ -26,7 +26,7 @@ $(document).ready(async function () {
 ////////////////////////////
 async function renderCall() {
   const callId = utils.globalGetParamCallId;
-  const isAdmin = utils.getSession('isCallAdmin') === utils.globalStrTrue;
+  const isAdmin = utils.isAdmin('Call');
   const uid = utils.getSession('uid');
 
   // calls から募集情報を取得
