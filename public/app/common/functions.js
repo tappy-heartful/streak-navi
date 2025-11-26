@@ -250,12 +250,9 @@ export async function initDisplay(isShowSpinner = true) {
     const editPagePath = `${moduleName}-edit/${moduleName}-edit.html`;
 
     if (path.includes(editPagePath)) {
-      const adminKey = `is${
-        moduleName.charAt(0).toUpperCase() + moduleName.slice(1)
-      }Admin`;
-
+      const adminKey = moduleName.charAt(0).toUpperCase() + moduleName.slice(1);
       // 編集画面にいて、かつ対応するAdmin権限を持っていない場合
-      if (getSession(adminKey) !== globalStrTrue) {
+      if (!isAdmin(adminKey)) {
         // 一覧画面へリダイレクト
         alert('この画面を表示する権限がありません。一覧画面に遷移します。');
         const listPath = `../${moduleName}-list/${moduleName}-list.html`;
