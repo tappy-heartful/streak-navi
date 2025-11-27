@@ -26,7 +26,6 @@
         <div class="user-name" id="user-name"></div>
       </div>
 
-      <!-- 初回登録用メッセージ -->
       <div id="init-message" class="form-group"></div>
 
       <div class="form-group">
@@ -36,6 +35,15 @@
         <select id="section-select"></select>
       </div>
 
+      <div class="form-group" id="instrument-group">
+        <label class="label-title"
+          >演奏する楽器 (複数選択可) <span class="required">*</span></label
+        >
+        <div id="instrument-checkbox-list" class="checkbox-list">
+          <p class="select-note">--- パートを選択してください ---</p>
+        </div>
+      </div>
+
       <div class="form-group">
         <label class="label-title" for="role-select"
           >役職 <span class="required">*</span></label
@@ -43,7 +51,6 @@
         <select id="role-select"></select>
       </div>
 
-      <!-- 略称（必須） -->
       <div class="form-group">
         <label for="abbreviation"
           >略称(譜割に使います) <span class="required">*</span></label
@@ -51,7 +58,6 @@
         <input type="text" id="abbreviation" placeholder="2文字以下で入力..." />
       </div>
 
-      <!-- 秘密の合言葉 -->
       <div class="form-group">
         <label class="label-title"
           >秘密の合言葉<br />(管理者権限が付与されます)</label

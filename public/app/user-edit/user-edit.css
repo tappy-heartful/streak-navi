@@ -37,3 +37,57 @@
   border-radius: 6px;
   cursor: pointer;
 }
+/* user-edit.css または common.css に追記 */
+
+/* ---------------------------------------------------- */
+/* 💡 楽器選択（チェックボックスリスト）のスタイル */
+/* ---------------------------------------------------- */
+
+/* チェックボックスリストのコンテナ */
+.checkbox-list {
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
+  background-color: #fff;
+  max-height: 200px; /* リストが長くなりすぎないように高さを制限 */
+  overflow-y: auto;  /* 制限高さを超えたらスクロール可能に */
+}
+
+/* リスト内の個々のアイテム */
+.checkbox-list > div {
+  display: flex;
+  align-items: center;
+  padding: 4px 0;
+}
+
+/* チェックボックス本体 (input[type="checkbox"]) */
+.instrument-checkbox {
+  /* 標準のinput[type="checkbox"]に適用されるため、見た目を調整 */
+  margin-right: 8px;
+  transform: scale(1.1); /* 少し大きく表示 */
+  cursor: pointer;
+}
+
+/* チェックボックスのラベル */
+.checkbox-list label {
+  /* .form-group label のスタイルを上書きし、boldを解除 */
+  display: inline-block;
+  font-weight: normal; 
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+/* 楽器選択がない場合や指示の注釈 */
+.select-note {
+  font-size: 14px;
+  color: #666;
+  margin: 0;
+  padding: 4px 0;
+  text-align: center;
+}
+
+/* エラー時のチェックボックスリストの枠線を強調 */
+.error-field #instrument-checkbox-list {
+  border-color: red;
+  box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+}
