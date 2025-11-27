@@ -1,5 +1,8 @@
 import * as utils from '../common/functions.js';
 
+// 💡 変更点1: Instrumentsの全データを保持するグローバル変数
+let allInstruments = [];
+
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
@@ -8,6 +11,9 @@ $(document).ready(async function () {
       { title: 'ユーザ一覧', url: '../user-list/user-list.html' },
       { title: 'ユーザ確認' },
     ]);
+
+    // 💡 変更点2: Instrumentsデータを事前に取得
+    await loadAllInstruments();
     await setUpPage();
     setupEventHandlers();
   } catch (e) {
@@ -23,6 +29,18 @@ $(document).ready(async function () {
     utils.hideSpinner();
   }
 });
+
+// 💡 新規関数: Instrumentsの全データを取得しグローバル変数に保持
+async function loadAllInstruments() {
+  const instrumentSnapshot = await utils.getWrapDocs(
+    utils.collection(utils.db, 'instruments')
+  );
+  allInstruments = instrumentSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    name: doc.data().name_decoded || '(名称なし)',
+    sectionId: doc.data().sectionId, // sectionIdも取得しておくと便利
+  }));
+}
 
 async function setUpPage() {
   // GETパラメータからuid取得
@@ -63,6 +81,21 @@ async function setUpPage() {
     }
   }
 
+  // 💡 変更点3: 楽器名の取得と整形
+  let instrumentNames = '';
+  const instrumentIds = userData.instrumentIds || []; // instrumentIdsは配列
+
+  if (instrumentIds.length > 0) {
+    // ユーザーの楽器ID配列を、instrumentsコレクションのデータと照合
+    const selectedInstruments = allInstruments
+      .filter((inst) => instrumentIds.includes(inst.id))
+      .map((inst) => inst.name);
+
+    if (selectedInstruments.length > 0) {
+      instrumentNames = selectedInstruments.join('、');
+    }
+  }
+
   // 表示設定
   $('#user-name').text(userData.displayName_decoded || '');
   $('.user-icon').attr(
@@ -90,6 +123,9 @@ async function setUpPage() {
   // パート・役職
   $('#section').text(sectionName);
   $('#role').text(roleName);
+
+  // 💡 変更点4: 楽器の表示
+  $('#instruments').text(instrumentNames);
 
   // 略称
   $('#abbreviation').text(userData.abbreviation);
