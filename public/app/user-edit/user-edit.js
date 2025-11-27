@@ -60,12 +60,12 @@ async function setUpPage() {
     "this.onerror=null; this.src='" + utils.globalLineDefaultImage + "';"
   );
 
-  // 略称
-  $('#abbreviation').val(userData.abbreviation);
-
   // パートと役職をプルダウンに反映
   await populateSections(userData.sectionId);
   await populateRoles(userData.roleId);
+
+  // 略称
+  $('#abbreviation').val(userData.abbreviation);
 }
 
 async function populateSections(selectedId) {
@@ -149,9 +149,9 @@ function setupEventHandlers() {
 
     // 基本更新データ
     const updatedData = {
-      abbreviation: $('#abbreviation').val(),
       sectionId: $('#section-select').val(),
       roleId: $('#role-select').val(),
+      abbreviation: $('#abbreviation').val(),
     };
 
     // --- 合言葉チェック ---
@@ -258,17 +258,9 @@ function validateUserData() {
   let isValid = true;
   utils.clearErrors();
 
-  const abbreviation = $('#abbreviation').val();
   const sectionId = $('#section-select').val();
   const roleId = $('#role-select').val();
-
-  if (!abbreviation) {
-    utils.markError($('#abbreviation'), '略称を入力してください');
-    isValid = false;
-  } else if (abbreviation.length > 2) {
-    utils.markError($('#abbreviation'), '略称は2文字で以下で入力してください');
-    isValid = false;
-  }
+  const abbreviation = $('#abbreviation').val();
 
   if (!sectionId) {
     utils.markError($('#section-select'), 'パートを選択してください');
@@ -276,6 +268,14 @@ function validateUserData() {
   }
   if (!roleId) {
     utils.markError($('#role-select'), '役職を選択してください');
+    isValid = false;
+  }
+
+  if (!abbreviation) {
+    utils.markError($('#abbreviation'), '略称を入力してください');
+    isValid = false;
+  } else if (abbreviation.length > 2) {
+    utils.markError($('#abbreviation'), '略称は2文字で以下で入力してください');
     isValid = false;
   }
 

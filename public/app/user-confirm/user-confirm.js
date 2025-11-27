@@ -74,9 +74,6 @@ async function setUpPage() {
     "this.onerror=null; this.src='" + utils.globalLineDefaultImage + "';"
   );
 
-  // 略称
-  $('#abbreviation').text(userData.abbreviation);
-
   // 管理者権限表示
   const secretWordsSnap = await utils.getWrapDocs(
     utils.collection(utils.db, 'secretWords')
@@ -93,6 +90,9 @@ async function setUpPage() {
   // パート・役職
   $('#section').text(sectionName);
   $('#role').text(roleName);
+
+  // 略称
+  $('#abbreviation').text(userData.abbreviation);
 
   // 編集/退会ボタン表示
   utils.getSession('uid') === uid
