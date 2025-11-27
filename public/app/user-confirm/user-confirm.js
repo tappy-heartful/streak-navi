@@ -74,6 +74,9 @@ async function setUpPage() {
     "this.onerror=null; this.src='" + utils.globalLineDefaultImage + "';"
   );
 
+  // 略称
+  $('#abbreviation').text(userData.abbreviation);
+
   // 管理者権限表示
   const secretWordsSnap = await utils.getWrapDocs(
     utils.collection(utils.db, 'secretWords')
@@ -85,25 +88,11 @@ async function setUpPage() {
       adminList.push(role.label);
     }
   });
-
-  if (adminList.length > 0) {
-    $('label:contains("管理者権限")').html(
-      `管理者権限：${adminList.join('、')}
-       <span class="tooltip-icon" data-tooltip="管理者はデータ操作ができます。">？</span>`
-    );
-  } else {
-    $('label:contains("管理者権限")').remove();
-  }
+  $('#admin').text(adminList.length > 0 ? adminList.join('、') : 'なし');
 
   // パート・役職
-  $('label:contains("パート")').html(
-    `パート：${sectionName || '未設定'}
-    <span class="tooltip-icon" data-tooltip="所属しているパート">？</span>`
-  );
-  $('label:contains("役職")').html(
-    `役職：${roleName || '未設定'}
-    <span class="tooltip-icon" data-tooltip="このユーザの役職">？</span>`
-  );
+  $('#section').text(sectionName);
+  $('#role').text(roleName);
 
   // 編集/退会ボタン表示
   utils.getSession('uid') === uid
@@ -112,18 +101,6 @@ async function setUpPage() {
 }
 
 function setupEventHandlers() {
-  // ツールチップ
-  $('.tooltip-icon').on('click touchstart', function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    $('.tooltip-icon').not(this).removeClass('show');
-    $(this).toggleClass('show');
-  });
-
-  $(document).on('click touchstart', function () {
-    $('.tooltip-icon').removeClass('show');
-  });
-
   // 編集するボタン
   $('#confirm-buttons .edit-button').on('click', () => {
     // 現在のURLのクエリパラメータからuidを取得
