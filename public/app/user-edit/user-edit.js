@@ -1,5 +1,8 @@
 import * as utils from '../common/functions.js';
 
+let allInstruments = [];
+let userInstrumentIds = [];
+
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
@@ -12,6 +15,9 @@ $(document).ready(async function () {
       },
       { title: 'ユーザ編集' },
     ]);
+
+    // Instrumentsデータを事前に取得
+    await loadAllInstruments();
     await setUpPage();
     setupEventHandlers();
   } catch (e) {
@@ -28,6 +34,16 @@ $(document).ready(async function () {
   }
 });
 
+async function loadAllInstruments() {
+  const instrumentSnapshot = await utils.getWrapDocs(
+    utils.collection(utils.db, 'instruments')
+  );
+  allInstruments = instrumentSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+}
+
 async function setUpPage() {
   const uid = utils.globalGetParamUid;
   const isInit = utils.globalGetParamIsInit;
@@ -39,6 +55,9 @@ async function setUpPage() {
   }
 
   const userData = userSnap.data();
+
+  // ユーザーの楽器IDを読み込む (配列として保存されている想定)
+  userInstrumentIds = userData.instrumentIds || [];
 
   // 初回ログインの場合
   if (isInit === utils.globalStrTrue) {
@@ -63,6 +82,9 @@ async function setUpPage() {
   // パートと役職をプルダウンに反映
   await populateSections(userData.sectionId);
   await populateRoles(userData.roleId);
+
+  // 略称
+  $('#abbreviation').val(userData.abbreviation);
 }
 
 async function populateSections(selectedId) {
@@ -71,6 +93,9 @@ async function populateSections(selectedId) {
   );
   const $select = $('#section-select');
   $select.empty();
+
+  // 選択肢がない場合に備え、空のオプションを追加
+  $select.append($('<option>').val('').text('--- 選択してください ---'));
 
   sectionSnapshot.forEach((doc) => {
     const data = doc.data();
@@ -82,6 +107,52 @@ async function populateSections(selectedId) {
     }
     $select.append(option);
   });
+
+  // パート選択後、楽器リストを更新
+  populateInstruments(selectedId);
+}
+
+// 💡 変更点: 楽器のプルダウンからチェックボックスリストを生成に変更
+function populateInstruments(sectionId) {
+  const $list = $('#instrument-checkbox-list');
+  $list.empty();
+
+  const $note = $('<p class="select-note">');
+
+  if (!sectionId) {
+    $list.append($note.text('--- パートを選択してください ---'));
+    return;
+  }
+
+  // パートIDに一致する楽器のみをフィルタリング
+  const filteredInstruments = allInstruments.filter(
+    (inst) => inst.sectionId === sectionId
+  );
+
+  if (filteredInstruments.length > 0) {
+    filteredInstruments.forEach((inst, index) => {
+      const id = `instrument-${inst.id}`;
+
+      const $item = $(`
+                <div>
+                    <input type="checkbox" id="${id}" class="instrument-checkbox" value="${
+        inst.id
+      }">
+                    <label for="${id}">${
+        inst.name_decoded || '(名称なし)'
+      }</label>
+                </div>
+            `);
+
+      // ユーザーデータにIDが含まれていればチェックを入れる
+      if (userInstrumentIds.includes(inst.id)) {
+        $item.find(`#${id}`).prop('checked', true);
+      }
+      $list.append($item);
+    });
+  } else {
+    $list.append($note.text('--- 該当する楽器がありません ---'));
+  }
 }
 
 async function populateRoles(selectedId) {
@@ -104,17 +175,29 @@ async function populateRoles(selectedId) {
 }
 
 function setupEventHandlers() {
+  // 💡 変更点: パート選択時のイベントハンドラ
+  $('#section-select').on('change', function () {
+    const selectedSectionId = $(this).val();
+
+    // 選択されたパートに基づいて楽器チェックボックスを更新
+    populateInstruments(selectedSectionId);
+
+    // パートが変更された場合、以前の選択状態をリセットする (見た目上はpopulateInstrumentsで更新されるが、内部データもクリア)
+    userInstrumentIds = [];
+    utils.clearErrors($('#instrument-checkbox-list'));
+  });
+
   // 合言葉追加/削除
   const $list = $('#secret-word-list');
 
   // 合言葉追加
   $('#add-secret-word').on('click', function () {
     const $item = $(`
-      <div class="secret-word-item">
-        <input type="text" class="secret-word-input" placeholder="合言葉を入力..." />
-        <button type="button" class="remove-secret-word">×</button>
-      </div>
-    `);
+            <div class="secret-word-item">
+                <input type="text" class="secret-word-input" placeholder="合言葉を入力..." />
+                <button type="button" class="remove-secret-word">×</button>
+            </div>
+        `);
     $list.append($item);
   });
 
@@ -136,6 +219,7 @@ function setupEventHandlers() {
 
     // 入力チェック
     if (!validateUserData()) {
+      utils.hideSpinner();
       await utils.showDialog('入力内容を確認してください', true);
       return;
     }
@@ -147,6 +231,9 @@ function setupEventHandlers() {
     const updatedData = {
       sectionId: $('#section-select').val(),
       roleId: $('#role-select').val(),
+      abbreviation: $('#abbreviation').val(),
+      // 💡 変更点: 選択された楽器IDの配列を取得
+      instrumentIds: getSelectedInstrumentIds(),
     };
 
     // --- 合言葉チェック ---
@@ -237,6 +324,18 @@ function setupEventHandlers() {
   });
 }
 
+// 💡 変更点: チェックボックスから選択された楽器IDを取得
+function getSelectedInstrumentIds() {
+  // .instrument-checkbox クラスを持つチェックボックスのうち、チェックされているものの value を配列として取得
+  const selectedIds = [];
+  $('#instrument-checkbox-list')
+    .find('.instrument-checkbox:checked')
+    .each(function () {
+      selectedIds.push($(this).val());
+    });
+  return selectedIds;
+}
+
 async function getSecretWordMap() {
   const snapshot = await utils.getWrapDocs(
     utils.collection(utils.db, 'secretWords')
@@ -255,14 +354,33 @@ function validateUserData() {
 
   const sectionId = $('#section-select').val();
   const roleId = $('#role-select').val();
-  const secretWord = $('#secret-word').val()?.trim();
+  const abbreviation = $('#abbreviation').val();
+
+  // 楽器の選択状態を取得
+  const selectedInstruments = getSelectedInstrumentIds();
 
   if (!sectionId) {
     utils.markError($('#section-select'), 'パートを選択してください');
     isValid = false;
   }
+  // 💡 変更点: チェックボックスのコンテナに対してエラー表示
+  if (selectedInstruments.length === 0) {
+    utils.markError(
+      $('#instrument-checkbox-list'),
+      '演奏する楽器を一つ以上選択してください'
+    );
+    isValid = false;
+  }
   if (!roleId) {
     utils.markError($('#role-select'), '役職を選択してください');
+    isValid = false;
+  }
+
+  if (!abbreviation) {
+    utils.markError($('#abbreviation'), '略称を入力してください');
+    isValid = false;
+  } else if (abbreviation.length > 2) {
+    utils.markError($('#abbreviation'), '略称は2文字で以下で入力してください');
     isValid = false;
   }
 

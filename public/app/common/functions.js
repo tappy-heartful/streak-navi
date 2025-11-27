@@ -69,6 +69,7 @@ export const globalClientId = '2007808275';
 export const globalBaseUrl = window.location.origin;
 export const globalStrTrue = 'true';
 export const globalStrUnset = '99';
+export const globalStrUnset2 = '999';
 export const globalLineDefaultImage = '../../images/line-profile-unset.png';
 export const globalBandLogoImage = '../../images/favicon.png';
 export const globalAuthServerRailway =

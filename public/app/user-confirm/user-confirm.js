@@ -1,5 +1,8 @@
 import * as utils from '../common/functions.js';
 
+// 💡 変更点1: Instrumentsの全データを保持するグローバル変数
+let allInstruments = [];
+
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
@@ -8,6 +11,9 @@ $(document).ready(async function () {
       { title: 'ユーザ一覧', url: '../user-list/user-list.html' },
       { title: 'ユーザ確認' },
     ]);
+
+    // 💡 変更点2: Instrumentsデータを事前に取得
+    await loadAllInstruments();
     await setUpPage();
     setupEventHandlers();
   } catch (e) {
@@ -23,6 +29,18 @@ $(document).ready(async function () {
     utils.hideSpinner();
   }
 });
+
+// 💡 新規関数: Instrumentsの全データを取得しグローバル変数に保持
+async function loadAllInstruments() {
+  const instrumentSnapshot = await utils.getWrapDocs(
+    utils.collection(utils.db, 'instruments')
+  );
+  allInstruments = instrumentSnapshot.docs.map((doc) => ({
+    id: doc.id,
+    name: doc.data().name_decoded || '(名称なし)',
+    sectionId: doc.data().sectionId, // sectionIdも取得しておくと便利
+  }));
+}
 
 async function setUpPage() {
   // GETパラメータからuid取得
@@ -63,6 +81,21 @@ async function setUpPage() {
     }
   }
 
+  // 💡 変更点3: 楽器名の取得と整形
+  let instrumentNames = '';
+  const instrumentIds = userData.instrumentIds || []; // instrumentIdsは配列
+
+  if (instrumentIds.length > 0) {
+    // ユーザーの楽器ID配列を、instrumentsコレクションのデータと照合
+    const selectedInstruments = allInstruments
+      .filter((inst) => instrumentIds.includes(inst.id))
+      .map((inst) => inst.name);
+
+    if (selectedInstruments.length > 0) {
+      instrumentNames = selectedInstruments.join('、');
+    }
+  }
+
   // 表示設定
   $('#user-name').text(userData.displayName_decoded || '');
   $('.user-icon').attr(
@@ -85,25 +118,17 @@ async function setUpPage() {
       adminList.push(role.label);
     }
   });
-
-  if (adminList.length > 0) {
-    $('label:contains("管理者権限")').html(
-      `管理者権限：${adminList.join('、')}
-       <span class="tooltip-icon" data-tooltip="管理者はデータ操作ができます。">？</span>`
-    );
-  } else {
-    $('label:contains("管理者権限")').remove();
-  }
+  $('#admin').text(adminList.length > 0 ? adminList.join('、') : 'なし');
 
   // パート・役職
-  $('label:contains("パート")').html(
-    `パート：${sectionName || '未設定'}
-    <span class="tooltip-icon" data-tooltip="所属しているパート">？</span>`
-  );
-  $('label:contains("役職")').html(
-    `役職：${roleName || '未設定'}
-    <span class="tooltip-icon" data-tooltip="このユーザの役職">？</span>`
-  );
+  $('#section').text(sectionName);
+  $('#role').text(roleName);
+
+  // 💡 変更点4: 楽器の表示
+  $('#instruments').text(instrumentNames);
+
+  // 略称
+  $('#abbreviation').text(userData.abbreviation);
 
   // 編集/退会ボタン表示
   utils.getSession('uid') === uid
@@ -112,18 +137,6 @@ async function setUpPage() {
 }
 
 function setupEventHandlers() {
-  // ツールチップ
-  $('.tooltip-icon').on('click touchstart', function (e) {
-    e.preventDefault();
-    e.stopPropagation();
-    $('.tooltip-icon').not(this).removeClass('show');
-    $(this).toggleClass('show');
-  });
-
-  $(document).on('click touchstart', function () {
-    $('.tooltip-icon').removeClass('show');
-  });
-
   // 編集するボタン
   $('#confirm-buttons .edit-button').on('click', () => {
     // 現在のURLのクエリパラメータからuidを取得
