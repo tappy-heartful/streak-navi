@@ -174,11 +174,7 @@ async function renderEvent() {
     $('#event-attendance').removeClass('label-value');
   $attendanceContainer.empty();
 
-  if (!isAcceptingResponses) {
-    $attendanceContainer
-      .addClass('label-value')
-      .text('回答を受け付けていません');
-  } else if (isSchedule) {
+  if (isSchedule) {
     // 日程調整受付中
     $attendanceTitle.text('日程調整');
     // 回答人数と未回答人数を新しいクラスと文言で表示
@@ -456,11 +452,24 @@ async function renderEvent() {
   // やる曲
   $('#event-songs').html(eventData.songs?.replace(/\n/g, '<br>') || '');
 
+  // 譜割
+  if (eventData.allowAssign) {
+    // TODO 譜割の表示
+  } else {
+    $('#event-asssign-group').hide();
+  }
+
   // タイムスケジュール
   $('#event-schedule').html(eventData.schedule?.replace(/\n/g, '<br>') || '');
 
   // 服装
   $('#event-dress').html(eventData.dress?.replace(/\n/g, '<br>') || '');
+
+  // 個人で持ってくるもの
+  $('#event-bring').html(eventData.bring?.replace(/\n/g, '<br>') || '');
+
+  // 施設に借りるもの
+  $('#event-rent').html(eventData.rent?.replace(/\n/g, '<br>') || '');
 
   // その他
   $('#event-other').html(eventData.other?.replace(/\n/g, '<br>') || '');

@@ -127,10 +127,13 @@ async function loadScoreData(docId, mode) {
   if (!docSnap.exists()) throw new Error('譜面が見つかりません');
   const data = docSnap.data();
 
-  $('#score-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
-  $('#score-url').val(data.scoreUrl || '');
-  $('#reference-track').val(data.referenceTrack || '');
-  $('#score-note').val(data.note || '');
+  $('#score-title').val(
+    data.title_decoded + (mode === 'copy' ? '（コピー）' : '')
+  );
+  $('#score-url').val(data.scoreUrl_decoded || '');
+  $('#reference-track').val(data.referenceTrack_decoded || '');
+  $('#abbreviation').val(data.abbreviation_decoded || '');
+  $('#score-note').val(data.note_decoded || '');
   $('#is-disp-top').prop('checked', data.isDispTop || false);
 
   // ジャンル（配列）をロード
@@ -243,6 +246,7 @@ function collectData(mode) {
     scoreUrl: $('#score-url').val().trim(),
     referenceTrack: $('#reference-track').val().trim(),
     genres: genres, // ←配列で保存
+    abbreviation: $('#abbreviation').val().trim(),
     note: $('#score-note').val().trim(),
     isDispTop: $('#is-disp-top').prop('checked'),
   };
@@ -263,7 +267,7 @@ function validateData() {
   const title = $('#score-title').val().trim();
   const scoreUrl = $('#score-url').val().trim();
   const referenceTrack = $('#reference-track').val().trim();
-  const genre = $('#score-genre').val();
+  const abbreviation = $('#abbreviation').val();
 
   // 必須チェック
   if (!title) {
@@ -276,6 +280,13 @@ function validateData() {
   }
   if (!referenceTrack) {
     utils.markError($('#reference-track'), '必須項目です');
+    isValid = false;
+  }
+  if (!abbreviation) {
+    utils.markError($('#abbreviation'), '必須項目です');
+    isValid = false;
+  } else if (abbreviation.length > 8) {
+    utils.markError($('#abbreviation'), '略称は8文字で以下で入力してください');
     isValid = false;
   }
   const genres = $('.score-genre')
@@ -332,6 +343,7 @@ function captureInitialState() {
     scoreUrl: $('#score-url').val(),
     referenceTrack: $('#reference-track').val(),
     genre: $('#score-genre').val(),
+    abbreviation: $('#abbreviation').val(),
     note: $('#score-note').val(),
     isDispTop: $('#is-disp-top').prop('checked'),
   };
@@ -342,6 +354,7 @@ function restoreInitialState() {
   $('#score-url').val(initialState.scoreUrl);
   $('#reference-track').val(initialState.referenceTrack);
   $('#score-genre').val(initialState.genre);
+  $('#abbreviation').val(initialState.abbreviation);
   $('#score-note').val(initialState.note);
   $('#is-disp-top').prop('checked', initialState.isDispTop);
   utils.clearErrors();

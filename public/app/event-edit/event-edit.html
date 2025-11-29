@@ -162,10 +162,55 @@
         ></textarea>
       </div>
 
+      <div class="form-group">
+        <label>譜割の登録</label>
+        <div class="radio-group">
+          <label>
+            <input
+              type="radio"
+              name="allow-assign"
+              id="assign-on"
+              value="on"
+              checked
+            />
+            受け付ける (本番など)
+          </label>
+          <label>
+            <input
+              type="radio"
+              name="allow-assign"
+              id="assign-off"
+              value="off"
+            />
+            受け付けない (練習など)
+          </label>
+        </div>
+      </div>
+
       <!-- 服装 -->
       <div class="form-group">
         <label for="event-dress">服装</label>
         <input type="text" id="event-dress" placeholder="服装を入力..." />
+      </div>
+
+      <!-- 個人で持ってくるもの -->
+      <div class="form-group">
+        <label for="event-bring">個人で持ってくるもの</label>
+        <textarea
+          id="event-bring"
+          rows="3"
+          placeholder="個人で持ってくるものを入力..."
+        ></textarea>
+      </div>
+
+      <!-- 施設に借りるもの -->
+      <div class="form-group">
+        <label for="event-rent">施設に借りるもの</label>
+        <textarea
+          id="event-rent"
+          rows="3"
+          placeholder="施設に借りるものを入力..."
+        ></textarea>
       </div>
 
       <!-- その他 -->

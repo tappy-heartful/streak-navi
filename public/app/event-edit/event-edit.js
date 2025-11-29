@@ -86,6 +86,8 @@ async function setupPage(mode) {
     $('#event-schedule').val('');
     $('#event-songs').val('');
     $('#event-dress').val('');
+    $('#event-bring').val('');
+    $('#event-rent').val('');
     $('#event-other').val('');
 
     // 【修正】日程調整/出欠確認の初期値
@@ -96,6 +98,9 @@ async function setupPage(mode) {
     $('input[name="attendance-type"]').val([initialType]);
     // 【新規追加】回答の受付の初期値は 'on'
     $('input[name="attendance-status"]').val(['on']);
+
+    // 譜割の登録の初期値は 'off'
+    $('input[name="allow-assign"]').val(['off']);
 
     if (initialType === 'schedule') renderCandidateDates(['']); // 候補日を1つ初期表示
   } else {
@@ -131,19 +136,17 @@ async function loadEventData(eventId, mode) {
   $('#event-schedule').val(data.schedule || '');
   $('#event-songs').val(data.songs || '');
   $('#event-dress').val(data.dress || '');
+  $('#event-bring').val(data.bring || '');
+  $('#event-rent').val(data.rent || '');
   $('#event-other').val(data.other || '');
 
-  // 【修正・新規追加】日程調整/出欠確認の種別と回答受付状態
-  let attendanceType;
-  let attendanceStatus;
-
-  // 旧 schedule, attendance はそのまま
-  attendanceType = data.attendanceType;
-  // 新フィールドがあればそれを使う。なければデフォルトで on
-  attendanceStatus = data.isAcceptingResponses === false ? 'off' : 'on';
-
-  $('input[name="attendance-type"]').val([attendanceType]);
-  $('input[name="attendance-status"]').val([attendanceStatus]);
+  $('input[name="attendance-type"]').val([data.attendanceType]);
+  $('input[name="attendance-status"]').val([
+    data.isAcceptingResponses === true ? 'on' : 'off',
+  ]);
+  $('input[name="allow-assign"]').val([
+    data.allowAssign === true ? 'on' : 'off',
+  ]);
 
   // 【新規追加】候補日
   const candidateDates = (data.candidateDates || []).map(formatDateForInput);
@@ -164,11 +167,14 @@ function captureInitialState() {
     schedule: $('#event-schedule').val(),
     songs: $('#event-songs').val(),
     dress: $('#event-dress').val(),
+    bring: $('#event-bring').val(),
+    rent: $('#event-rent').val(),
     other: $('#event-other').val(),
     // 【修正】日程調整/出欠確認の種別
     attendanceType: $('input[name="attendance-type"]:checked').val(),
     // 【新規追加】回答の受付
     attendanceStatus: $('input[name="attendance-status"]:checked').val(),
+    allowAssign: $('input[name="allow-assign"]:checked').val(),
     // 【新規追加】候補日
     candidateDates: getCandidateDatesFromInputs(),
   };
@@ -183,11 +189,14 @@ function restoreInitialState() {
   $('#event-schedule').val(initialStateHtml.schedule || '');
   $('#event-songs').val(initialStateHtml.songs || '');
   $('#event-dress').val(initialStateHtml.dress || '');
+  $('#event-bring').val(initialStateHtml.bring || '');
+  $('#event-rent').val(initialStateHtml.rent || '');
   $('#event-other').val(initialStateHtml.other || '');
 
   // 【修正】日程調整/出欠確認の種別と回答受付状態の復元
   $('input[name="attendance-type"]').val([initialStateHtml.attendanceType]);
   $('input[name="attendance-status"]').val([initialStateHtml.attendanceStatus]);
+  $('input[name="allow-assign"]').val([initialStateHtml.allowAssign]);
   renderCandidateDates(initialStateHtml.candidateDates);
   toggleDateFields(); // フィールドの表示切り替え
 
@@ -405,7 +414,10 @@ async function collectEventData(mode) {
     googleMap: $('#event-google-map').val().trim(),
     schedule: $('#event-schedule').val().trim(),
     songs: $('#event-songs').val().trim(),
+    allowAssign: $('input[name="allow-assign"]:checked').val() === 'on',
     dress: $('#event-dress').val().trim(),
+    bring: $('#event-bring').val().trim(),
+    rent: $('#event-rent').val().trim(),
     other: $('#event-other').val().trim(),
 
     // 【修正・新規追加】日程/出欠関連のデータ
