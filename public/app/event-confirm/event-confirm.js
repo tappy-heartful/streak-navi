@@ -174,11 +174,7 @@ async function renderEvent() {
     $('#event-attendance').removeClass('label-value');
   $attendanceContainer.empty();
 
-  if (!isAcceptingResponses) {
-    $attendanceContainer
-      .addClass('label-value')
-      .text('回答を受け付けていません');
-  } else if (isSchedule) {
+  if (isSchedule) {
     // 日程調整受付中
     $attendanceTitle.text('日程調整');
     // 回答人数と未回答人数を新しいクラスと文言で表示
