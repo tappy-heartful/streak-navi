@@ -8,6 +8,7 @@ let sections = {}; // 全パートデータを格納するオブジェクト
 let unansweredUids = []; // 未回答者のUIDを格納する配列
 // 【新規】録音・録画リンクのグローバル変数
 let allRecordings = [];
+let allScores = {}; // 【変更】全スコア（曲）データを格納するオブジェクト
 
 $(document).ready(async function () {
   try {
@@ -50,7 +51,7 @@ async function renderEvent() {
   const eventData = eventSnap.data();
 
   // ------------------------------------------------------------------
-  // 共通データ取得 (全ユーザ、全パート)
+  // 共通データ取得 (全ユーザ、全パート、全曲)
   // ------------------------------------------------------------------
   const usersSnap = await utils.getWrapDocs(
     utils.collection(utils.db, 'users')
@@ -67,6 +68,15 @@ async function renderEvent() {
   sections = {};
   sectionsSnap.docs.forEach((doc) => {
     sections[doc.id] = doc.data().name || 'パート名なし';
+  });
+
+  // 【修正】全スコア（曲）データの取得
+  const scoresSnap = await utils.getWrapDocs(
+    utils.collection(utils.db, 'scores') // 💡 scoresコレクションに変更
+  );
+  allScores = {}; // 💡 allSongs から allScores に変数名を変更 (または既存の allSongs を上書き)
+  scoresSnap.docs.forEach((doc) => {
+    allScores[doc.id] = doc.data();
   });
 
   // ------------------------------------------------------------------
@@ -450,7 +460,62 @@ async function renderEvent() {
   }
 
   // やる曲
-  $('#event-songs').html(eventData.songs?.replace(/\n/g, '<br>') || '');
+  // ------------------------------------------------------------------
+  // 🔽 【修正】やる曲をグループごとに表示するロジック (scoresコレクション対応)
+  // ------------------------------------------------------------------
+  // 🚨 注意: このロジックは、全スコアデータ allScores がグローバルに利用可能であることを前提としています。
+
+  try {
+    // songsDataは、編集画面から保存されたJSON文字列を想定
+    const setlistGroups = eventData.setlist;
+    let songsHtml = '';
+
+    if (Array.isArray(setlistGroups) && setlistGroups.length > 0) {
+      setlistGroups.forEach((group) => {
+        // 編集画面のデータ構造に合わせる: groupName -> title, songs -> songIds
+        const groupTitle = group.title || 'グループ名なし';
+
+        let songListHtml = '';
+
+        if (Array.isArray(group.songIds)) {
+          songListHtml = group.songIds
+            .map((songId) => {
+              // 💡 allScores からデータを取得し、titleフィールドを参照
+              const scoreData = allScores[songId];
+              return scoreData
+                ? scoreData.title // 💡 scoreData.title を参照
+                : '曲名が見つかりません';
+            })
+            .join('<br>'); // 曲名を改行で連結
+        }
+
+        if (groupTitle || songListHtml) {
+          // グループ名か曲リストのいずれかがあれば表示
+          // グループ名と曲名をHTMLに追記
+          songsHtml += `
+          <div class="setlist-group-confirm">
+            <h4>${groupTitle}</h4>
+            <div class="setlist-songs">${
+              songListHtml || '曲が設定されていません'
+            }</div>
+          </div>
+        `;
+        }
+      });
+
+      $('#event-songs').html(songsHtml || '設定されていません');
+    } else {
+      // JSONとしてパースできなかった場合、または空の場合
+      $('#event-songs').text('設定されていません');
+    }
+  } catch (e) {
+    // JSONパースエラーが発生した場合（旧データ形式の可能性など）
+    // 従来通り、テキストとして表示するフォールバック処理
+    console.error('Error parsing setlist JSON or rendering songs:', e);
+    $('#event-songs').html(
+      eventData.songs?.replace(/\n/g, '<br>') || '設定されていません'
+    );
+  }
 
   // 譜割
   if (eventData.allowAssign) {

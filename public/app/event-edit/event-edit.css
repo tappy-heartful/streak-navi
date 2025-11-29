@@ -139,3 +139,60 @@
   padding: 6px 10px; /* 削除ボタンのサイズ調整 */
   font-size: 14px;
 }
+
+/* セットリストグループ */
+.setlist-group {
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    background-color: #f9f9f9;
+}
+
+/* グループヘッダー（タイトルと削除ボタン） */
+.setlist-group .group-header {
+    margin-bottom: 10px;
+}
+
+/* グループ削除ボタン */
+.remove-group-button {
+    color: #e53935;
+    background-color: transparent;
+    border: none;
+    font-size: 14px;
+    padding: 5px 10px;
+}
+
+/* 曲選択ドロップダウン */
+.song-select-item {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+}
+
+.song-select {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    flex-grow: 1;
+}
+
+/* 曲削除ボタン */
+.remove-song-button {
+    background-color: #f44336;
+    color: white;
+    border-radius: 4px;
+    padding: 8px 12px;
+    min-width: 40px; /* アイコンが中央になるように */
+}
+
+/* グループ追加ボタン（見た目の調整） */
+#add-group-button {
+    background-color: #03a9f4;
+    color: white;
+    padding: 10px 15px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 10px;
+}

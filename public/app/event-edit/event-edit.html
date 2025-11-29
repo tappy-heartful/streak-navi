@@ -153,13 +153,13 @@
       </div>
 
       <!-- やる曲 -->
-      <div class="form-group">
-        <label for="event-songs">やる曲</label>
-        <textarea
-          id="event-songs"
-          rows="4"
-          placeholder="やる曲を入力..."
-        ></textarea>
+      <div class="form-group" id="event-songs-group">
+        <label>やる曲</label>
+        <div id="setlist-groups-container"></div>
+
+        <button type="button" id="add-group-button" class="clear-button">
+          <i class="fas fa-plus"></i> グループを追加
+        </button>
       </div>
 
       <div class="form-group">

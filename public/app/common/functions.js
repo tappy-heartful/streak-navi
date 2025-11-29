@@ -576,6 +576,22 @@ export function generateId(prefix = 'id') {
   return `${prefix}-${Math.random().toString(36).substr(2, 9)}`;
 }
 
+//==================================
+// 一意なIDを生成するヘルパー関数
+//==================================
+/**
+ * 現在のタイムスタンプとランダムな文字列を組み合わせて一意なIDを生成します。
+ * @returns {string} 一意なID文字列
+ */
+export function generateUniqueId() {
+  const timestamp = new Date().getTime(); // 現在のタイムスタンプ
+  // 16進数のランダムな8桁の文字列
+  const random = Math.random().toString(16).substring(2, 10);
+
+  // タイムスタンプとランダムな文字列を結合
+  return 'id_' + timestamp + '_' + random;
+}
+
 export function extractYouTubeId(input) {
   try {
     const url = new URL(input);
