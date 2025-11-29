@@ -462,6 +462,12 @@ async function renderEvent() {
   // 服装
   $('#event-dress').html(eventData.dress?.replace(/\n/g, '<br>') || '');
 
+  // 個人で持ってくるもの
+  $('#event-bring').html(eventData.bring?.replace(/\n/g, '<br>') || '');
+
+  // 施設に借りるもの
+  $('#event-rent').html(eventData.rent?.replace(/\n/g, '<br>') || '');
+
   // その他
   $('#event-other').html(eventData.other?.replace(/\n/g, '<br>') || '');
 

@@ -86,6 +86,8 @@ async function setupPage(mode) {
     $('#event-schedule').val('');
     $('#event-songs').val('');
     $('#event-dress').val('');
+    $('#event-bring').val('');
+    $('#event-rent').val('');
     $('#event-other').val('');
 
     // 【修正】日程調整/出欠確認の初期値
@@ -131,6 +133,8 @@ async function loadEventData(eventId, mode) {
   $('#event-schedule').val(data.schedule || '');
   $('#event-songs').val(data.songs || '');
   $('#event-dress').val(data.dress || '');
+  $('#event-bring').val(data.bring || '');
+  $('#event-rent').val(data.rent || '');
   $('#event-other').val(data.other || '');
 
   // 【修正・新規追加】日程調整/出欠確認の種別と回答受付状態
@@ -164,6 +168,8 @@ function captureInitialState() {
     schedule: $('#event-schedule').val(),
     songs: $('#event-songs').val(),
     dress: $('#event-dress').val(),
+    bring: $('#event-bring').val(),
+    rent: $('#event-rent').val(),
     other: $('#event-other').val(),
     // 【修正】日程調整/出欠確認の種別
     attendanceType: $('input[name="attendance-type"]:checked').val(),
@@ -183,6 +189,8 @@ function restoreInitialState() {
   $('#event-schedule').val(initialStateHtml.schedule || '');
   $('#event-songs').val(initialStateHtml.songs || '');
   $('#event-dress').val(initialStateHtml.dress || '');
+  $('#event-bring').val(initialStateHtml.bring || '');
+  $('#event-rent').val(initialStateHtml.rent || '');
   $('#event-other').val(initialStateHtml.other || '');
 
   // 【修正】日程調整/出欠確認の種別と回答受付状態の復元
@@ -406,6 +414,8 @@ async function collectEventData(mode) {
     schedule: $('#event-schedule').val().trim(),
     songs: $('#event-songs').val().trim(),
     dress: $('#event-dress').val().trim(),
+    bring: $('#event-bring').val().trim(),
+    rent: $('#event-rent').val().trim(),
     other: $('#event-other').val().trim(),
 
     // 【修正・新規追加】日程/出欠関連のデータ
