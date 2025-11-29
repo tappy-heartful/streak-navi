@@ -71,6 +71,9 @@ async function renderScore() {
     $('#score-genre').text('未設定');
   }
 
+  // 略称
+  $('#abbreviation').text(scoreData.abbreviation_decoded || '未設定');
+
   // 備考
   $('#score-note').text(scoreData.note_decoded || '未設定');
 
