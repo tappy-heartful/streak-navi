@@ -382,7 +382,7 @@ function addCandidateDateInput(
   const itemHtml = `
     <div class="candidate-date-item" style="display: flex; gap: 5px; margin-bottom: 5px;">
       <input type="date" class="candidate-date-input" value="${dateValue}" style="flex-grow: 1;" />
-      <button type="button" class="remove-candidate-date-button clear-button" ${
+      <button type="button" class="remove-candidate-date-button" ${
         isInitial ? 'style="display: none;"' : ''
       }>
         <i class="fas fa-trash"></i>
@@ -510,7 +510,7 @@ function addSongSelectInput($container, scoreId = '') {
   const $item = $(`
     <div class="song-select-item" style="display: flex; gap: 5px; margin-bottom: 5px; align-items: center;">
       <select class="song-select" style="flex-grow: 1;">${optionsHtml}</select>
-      <button type="button" class="remove-song-button clear-button" title="この曲を削除">
+      <button type="button" class="remove-song-button" title="この曲を削除">
         <i class="fas fa-trash-alt"></i>
       </button>
     </div>
@@ -531,13 +531,13 @@ function addSetlistGroup($container, songIds = [''], groupTitle = '') {
     <div class="setlist-group" data-group-id="${groupId}">
       <div class="group-header" style="display: flex; align-items: center; margin-bottom: 5px; gap: 10px;">
         <input type="text" class="group-title-input" placeholder="グループ名 (例: 1st Stage)" value="${groupTitle}" style="flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
-        <button type="button" class="remove-group-button clear-button" title="このグループを削除">
+        <button type="button" class="remove-group-button" title="このグループを削除">
           <i class="fas fa-times"></i> グループを削除
         </button>
       </div>
       <div class="song-list-container">
         </div>
-      <button type="button" class="add-song-button clear-button" style="margin-top: 5px;">
+      <button type="button" class="add-song-button" style="margin-top: 5px;">
         <i class="fas fa-plus"></i> 曲を追加
       </button>
       <hr style="margin: 15px 0;">

@@ -196,3 +196,38 @@
     cursor: pointer;
     margin-top: 10px;
 }
+/* --- セットリスト内 曲を追加ボタン --- */
+.setlist-group .add-song-button {
+    /* グループ追加ボタン #add-group-button とデザインを統一 */
+    display: inline-flex; /* 左右の余白を制御するため */
+    align-items: center;
+    justify-content: center;
+
+    /* #add-group-button と同じ色、padding、ボーダー設定 */
+    background-color: #03a9f4; /* #add-group-button と同じ青 */
+    color: white;
+    padding: 10px 15px; /* #add-group-button に近いサイズ */
+    border: none;
+    border-radius: 4px;
+    
+    /* フォント・カーソル */
+    font-size: 14px; /* #remove-group-button に合わせて少し小さめ */
+    cursor: pointer;
+    
+    /* グループ内での配置 */
+    margin-top: 5px; /* 上部の余白 */
+    margin-bottom: 5px; /* 下部の余白 */
+    
+    /* 横幅いっぱいに広げず、内容物に合わせて幅を決定 */
+    width: auto; 
+    transition: background-color 0.2s;
+}
+
+.setlist-group .add-song-button:hover {
+    background-color: #0288d1; /* ホバーで少し濃い青 (統一感のある色) */
+}
+
+/* アイコンとテキストの間隔調整 */
+.setlist-group .add-song-button i {
+    margin-right: 5px;
+}
