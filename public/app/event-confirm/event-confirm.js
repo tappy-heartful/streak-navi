@@ -456,6 +456,13 @@ async function renderEvent() {
   // やる曲
   $('#event-songs').html(eventData.songs?.replace(/\n/g, '<br>') || '');
 
+  // 譜割
+  if (eventData.allowAssign) {
+    // TODO 譜割の表示
+  } else {
+    $('#event-asssign-group').hide();
+  }
+
   // タイムスケジュール
   $('#event-schedule').html(eventData.schedule?.replace(/\n/g, '<br>') || '');
 
