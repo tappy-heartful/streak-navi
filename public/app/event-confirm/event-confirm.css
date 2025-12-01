@@ -280,3 +280,27 @@
   border-radius: 6px;
   cursor: pointer;
 }
+/* やる曲のグループ表示用スタイル */
+.setlist-group-confirm {
+  margin-bottom: 15px; /* グループ間の余白 */
+  padding-bottom: 5px; /* 下線と内容の間の余白 */
+  border-bottom: 1px dashed #ccc; /* グループを区切る破線 */
+}
+
+.setlist-group-confirm:last-child {
+  margin-bottom: 0;
+  border-bottom: none; /* 最後のグループには下線なし */
+}
+
+.setlist-group-confirm h4 {
+  font-size: 1em; /* グループ名を通常のフォントサイズに */
+  font-weight: bold; /* グループ名を太字に */
+  color: #333; /* グループ名の文字色 */
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.setlist-songs {
+  white-space: pre-wrap; /* 曲名リストを改行表示 */
+  padding-left: 10px; /* 曲名リストを少しインデント */
+}

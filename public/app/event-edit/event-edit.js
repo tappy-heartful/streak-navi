@@ -65,6 +65,7 @@ $(document).ready(async function () {
 // ページ初期設定
 //==================================
 async function setupPage(mode) {
+  await fetchScores(); // scoresコレクションから曲データを取得
   const pageTitle = $('#page-title');
   const title = $('#title');
   const submitButton = $('#save-button');
@@ -84,7 +85,6 @@ async function setupPage(mode) {
     $('#event-access').val('');
     $('#event-google-map').val('');
     $('#event-schedule').val('');
-    $('#event-songs').val('');
     $('#event-dress').val('');
     $('#event-bring').val('');
     $('#event-rent').val('');
@@ -103,6 +103,7 @@ async function setupPage(mode) {
     $('input[name="allow-assign"]').val(['off']);
 
     if (initialType === 'schedule') renderCandidateDates(['']); // 候補日を1つ初期表示
+    renderSetlistGroups(null); // 空のグループを1つ表示
   } else {
     pageTitle.text(
       mode === 'edit' ? 'イベント編集' : 'イベント新規作成(コピー)'
@@ -134,7 +135,6 @@ async function loadEventData(eventId, mode) {
   $('#event-access').val(data.access || '');
   $('#event-google-map').val(data.googleMap || '');
   $('#event-schedule').val(data.schedule || '');
-  $('#event-songs').val(data.songs || '');
   $('#event-dress').val(data.dress || '');
   $('#event-bring').val(data.bring || '');
   $('#event-rent').val(data.rent || '');
@@ -151,6 +151,8 @@ async function loadEventData(eventId, mode) {
   // 【新規追加】候補日
   const candidateDates = (data.candidateDates || []).map(formatDateForInput);
   renderCandidateDates(candidateDates.length > 0 ? candidateDates : ['']); // 候補日を画面に表示
+
+  renderSetlistGroups(data.setlist); // setlistデータを描画
 }
 
 //==================================
@@ -165,7 +167,7 @@ function captureInitialState() {
     googleMap: $('#event-google-map').val(),
     access: $('#event-access').val(),
     schedule: $('#event-schedule').val(),
-    songs: $('#event-songs').val(),
+    setlist: getSetlistDataFromInputs(), // 【修正】セットリストを保存
     dress: $('#event-dress').val(),
     bring: $('#event-bring').val(),
     rent: $('#event-rent').val(),
@@ -187,7 +189,7 @@ function restoreInitialState() {
   $('#event-access').val(initialStateHtml.access || '');
   $('#event-google-map').val(initialStateHtml.googleMap || '');
   $('#event-schedule').val(initialStateHtml.schedule || '');
-  $('#event-songs').val(initialStateHtml.songs || '');
+  renderSetlistGroups(initialStateHtml.setlist); // 【修正】セットリストを復元
   $('#event-dress').val(initialStateHtml.dress || '');
   $('#event-bring').val(initialStateHtml.bring || '');
   $('#event-rent').val(initialStateHtml.rent || '');
@@ -207,6 +209,30 @@ function restoreInitialState() {
 // イベントハンドラ登録
 //==================================
 function setupEventHandlers(mode) {
+  // 【新規追加】グループ追加ボタン
+  $('#add-group-button').on('click', () => {
+    addSetlistGroup($('#setlist-groups-container'));
+  });
+
+  // 【新規追加】グループ削除ボタン（動的要素）
+  $(document).on('click', '.remove-group-button', function () {
+    $(this).closest('.setlist-group').remove();
+    // グループが0になったら1つ追加する
+    if ($('#setlist-groups-container .setlist-group').length === 0) {
+      addSetlistGroup($('#setlist-groups-container'));
+    }
+  });
+
+  // 【新規追加】曲追加ボタン（動的要素）
+  $(document).on('click', '.add-song-button', function () {
+    const $container = $(this).siblings('.song-list-container');
+    addSongSelectInput($container);
+  });
+
+  // 【新規追加】曲削除ボタン（動的要素）
+  $(document).on('click', '.remove-song-button', function () {
+    $(this).closest('.song-select-item').remove();
+  });
   // 【クリアボタン】初期状態に戻す
   $('#clear-button').on('click', async () => {
     if (
@@ -216,6 +242,10 @@ function setupEventHandlers(mode) {
     )
       restoreInitialState();
   });
+
+  // 🔽 【新規追加】曲の並び替え機能の有効化
+  // グループの追加/復元後に常に呼び出す
+  enableSortable();
 
   // 【修正】日程調整/出欠確認のラジオボタン変更時
   $('input[name="attendance-type"]').on('change', toggleDateFields);
@@ -356,7 +386,7 @@ function addCandidateDateInput(
   const itemHtml = `
     <div class="candidate-date-item" style="display: flex; gap: 5px; margin-bottom: 5px;">
       <input type="date" class="candidate-date-input" value="${dateValue}" style="flex-grow: 1;" />
-      <button type="button" class="remove-candidate-date-button clear-button" ${
+      <button type="button" class="remove-candidate-date-button" ${
         isInitial ? 'style="display: none;"' : ''
       }>
         <i class="fas fa-trash"></i>
@@ -413,7 +443,7 @@ async function collectEventData(mode) {
     access: $('#event-access').val().trim(),
     googleMap: $('#event-google-map').val().trim(),
     schedule: $('#event-schedule').val().trim(),
-    songs: $('#event-songs').val().trim(),
+    setlist: getSetlistDataFromInputs(), // 【修正】セットリストを保存
     allowAssign: $('input[name="allow-assign"]:checked').val() === 'on',
     dress: $('#event-dress').val().trim(),
     bring: $('#event-bring').val().trim(),
@@ -435,6 +465,182 @@ async function collectEventData(mode) {
   // 更新時に updatedAt を追加するロジックは setupEventHandlers内のsave-button処理にあるためここでは省略
 
   return eventData;
+}
+
+//==================================
+// スコアデータ取得
+//==================================
+let allScores = []; // グローバル変数としてスコアデータを保持
+
+async function fetchScores() {
+  // scoresコレクションから全ドキュメントを取得
+  const querySnapshot = await utils.getWrapDocs(
+    utils.collection(utils.db, 'scores')
+  );
+
+  allScores = querySnapshot.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  // titleでソート（任意）
+  allScores.sort((a, b) => (a.title > b.title ? 1 : -1));
+}
+//==================================
+// セットリストグループ・曲の描画関連
+//==================================
+
+/**
+ * 選択可能な曲の<option>タグHTMLを生成
+ * @param {string} selectedScoreId - 選択されている曲のID
+ * @returns {string} - optionタグのHTML文字列
+ */
+function getScoreOptionsHtml(selectedScoreId = '') {
+  let options = '<option value="">--- 曲を選択 ---</option>';
+  allScores.forEach((score) => {
+    const selected = score.id === selectedScoreId ? 'selected' : '';
+    options += `<option value="${score.id}" ${selected}>${score.title}</option>`;
+  });
+  return options;
+}
+
+/**
+ * 曲選択ドロップダウンフィールドを生成しコンテナに追加
+ * @param {jQuery} $container - 曲リストを格納するコンテナ
+ * @param {string} scoreId - 選択する曲のID
+ */
+function addSongSelectInput($container, scoreId = '') {
+  const optionsHtml = getScoreOptionsHtml(scoreId); // 🔽 【修正】ドラッグ用ハンドル (.drag-handle) を追加
+  const $item = $(`
+    <div class="song-select-item" style="display: flex; gap: 5px; margin-bottom: 5px; align-items: center;">
+    <i class="fa-solid fa-bars drag-handle" title="ドラッグして順番を入れ替える"></i>
+    <select class="song-select" style="flex-grow: 1;">${optionsHtml}</select>
+    <button type="button" class="remove-song-button" title="この曲を削除">
+      <i class="fas fa-trash-alt"></i>
+    </button>
+    </div>
+  `);
+  $container.append($item);
+}
+
+/**
+ * セットリストグループを生成しコンテナに追加
+ * @param {Array<string>} songIds - グループに含める曲のIDの配列
+ * @param {string} groupTitle - グループのタイトル (例: 1st Stage)
+ * @param {jQuery} $container - グループを格納するコンテナ
+ */
+function addSetlistGroup($container, songIds = [''], groupTitle = '') {
+  const groupId = utils.generateUniqueId(); // グループ識別用の一意なIDを生成
+
+  const $group = $(`
+    <div class="setlist-group" data-group-id="${groupId}">
+      <div class="group-header" style="display: flex; align-items: center; margin-bottom: 5px; gap: 10px;">
+        <input type="text" class="group-title-input" placeholder="グループ名 (例: 1st Stage)" value="${groupTitle}" style="flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        <button type="button" class="remove-group-button" title="このグループを削除">
+          <i class="fas fa-times"></i> グループを削除
+        </button>
+      </div>
+      <div class="song-list-container">
+        </div>
+      <button type="button" class="add-song-button" style="margin-top: 5px;">
+        <i class="fas fa-plus"></i> 曲を追加
+      </button>
+      <hr style="margin: 15px 0;">
+    </div>
+  `);
+
+  const $songContainer = $group.find('.song-list-container');
+
+  // 曲リストを初期描画
+  if (songIds.length === 0 || (songIds.length === 1 && songIds[0] === '')) {
+    addSongSelectInput($songContainer, ''); // 空の選択フィールドを1つ追加
+  } else {
+    songIds.forEach((id) => addSongSelectInput($songContainer, id));
+  }
+
+  $container.append($group);
+
+  // 🔽 【新規追加】新しいグループの描画後、並び替えを有効化
+  enableSortable();
+}
+
+/**
+ * 画面上の入力からセットリストデータを取得
+ * @returns {Array<Object>} セットリストグループの配列
+ */
+function getSetlistDataFromInputs() {
+  const setlist = [];
+  $('#setlist-groups-container .setlist-group').each(function () {
+    const $group = $(this);
+    const title = $group.find('.group-title-input').val().trim();
+
+    // 選択された曲IDを収集（未選択や重複はそのまま保持）
+    const songIds = $group
+      .find('.song-select')
+      .map(function () {
+        return $(this).val();
+      })
+      .get()
+      .filter((id) => id !== ''); // 未選択（value=""）は除外
+
+    if (songIds.length > 0 || title !== '') {
+      setlist.push({
+        title: title,
+        songIds: songIds,
+      });
+    }
+  });
+  return setlist;
+}
+
+/**
+ * Firestoreから読み込んだデータに基づいてセットリストを画面に描画
+ * @param {Array<Object>} setlistData - Firestoreから読み込んだセットリストの配列
+ */
+function renderSetlistGroups(setlistData) {
+  const $container = $('#setlist-groups-container').empty();
+
+  if (!setlistData || setlistData.length === 0) {
+    addSetlistGroup($container);
+    return;
+  }
+
+  setlistData.forEach((group) => {
+    addSetlistGroup($container, group.songIds || [''], group.title || '');
+  });
+
+  // 🔽 【新規追加】すべてのグループの描画後、並び替えを有効化
+  enableSortable();
+}
+
+//==================================
+// 【新規追加】ドラッグ＆ドロップ機能
+//==================================
+
+/**
+ * .song-list-container に Sortable 機能を有効化する
+ * 曲の順番入れ替えを可能にする
+ */
+function enableSortable() {
+  $('.song-list-container')
+    .sortable({
+      // ドラッグ対象のアイテム（曲選択の行）
+      items: '.song-select-item',
+      // ドラッグを開始できるハンドル
+      handle: '.drag-handle',
+      // プレースホルダ（移動先の点線）のクラス
+      placeholder: 'ui-sortable-placeholder',
+      // ドラッグ中、元の場所にコピーを残さない
+      helper: 'clone',
+      // ドラッグ中に他のアイテムをスクロールで移動
+      scroll: true,
+      // 移動が確定した際のイベント
+      update: function (event, ui) {
+        console.log('曲の順番が変更されました');
+        // ここでデータの再保存処理などは不要 (getSetlistDataFromInputs() がDOMから最新の順序で取得するため)
+      },
+    })
+    .disableSelection(); // テキスト選択を無効化
 }
 
 //==================================
