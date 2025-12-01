@@ -42,6 +42,19 @@ async function loadAllInstruments() {
     id: doc.id,
     ...doc.data(),
   }));
+
+  // 🔽 修正: sectionId, 次に id の昇順でソート
+  allInstruments.sort((a, b) => {
+    // 1. sectionId (セクションID) で比較
+    if (a.sectionId < b.sectionId) return -1;
+    if (a.sectionId > b.sectionId) return 1;
+
+    // 2. sectionId が同じ場合は id (楽器ID) で比較 (IDは文字列として比較)
+    if (a.id < b.id) return -1;
+    if (a.id > b.id) return 1;
+
+    return 0;
+  });
 }
 
 async function setUpPage() {
@@ -112,47 +125,97 @@ async function populateSections(selectedId) {
   populateInstruments(selectedId);
 }
 
-// 💡 変更点: 楽器のプルダウンからチェックボックスリストを生成に変更
+// 💡 修正: 楽器のチェックボックスリストを生成（ソート処理を削除）
 function populateInstruments(sectionId) {
   const $list = $('#instrument-checkbox-list');
   $list.empty();
 
-  const $note = $('<p class="select-note">');
-
   if (!sectionId) {
-    $list.append($note.text('--- パートを選択してください ---'));
+    $list.append(
+      $('<p class="select-note">').text('--- パートを選択してください ---')
+    );
     return;
   }
 
-  // パートIDに一致する楽器のみをフィルタリング
-  const filteredInstruments = allInstruments.filter(
+  // 1. 楽器をフィルタリング（allInstrumentsは既に sectionId, id 順にソート済み）
+  const recommendedInstruments = allInstruments.filter(
     (inst) => inst.sectionId === sectionId
   );
 
-  if (filteredInstruments.length > 0) {
-    filteredInstruments.forEach((inst, index) => {
-      const id = `instrument-${inst.id}`;
+  const otherInstruments = allInstruments.filter(
+    (inst) => inst.sectionId !== sectionId
+  );
+  // 💡 注意: allInstruments がソート済みのため、recommendedInstruments と otherInstruments もソート順が保たれます。
 
-      const $item = $(`
-                <div>
-                    <input type="checkbox" id="${id}" class="instrument-checkbox" value="${
-        inst.id
-      }">
-                    <label for="${id}">${
-        inst.name_decoded || '(名称なし)'
-      }</label>
-                </div>
-            `);
+  const allSelectedInstruments = userInstrumentIds; // ユーザーが既に選択している楽器IDのリスト
 
-      // ユーザーデータにIDが含まれていればチェックを入れる
-      if (userInstrumentIds.includes(inst.id)) {
-        $item.find(`#${id}`).prop('checked', true);
-      }
-      $list.append($item);
-    });
-  } else {
-    $list.append($note.text('--- 該当する楽器がありません ---'));
+  let listHtml = '';
+
+  // --- 2. 推奨楽器 (Recommended Instruments) ---
+  if (recommendedInstruments.length > 0) {
+    listHtml += generateInstrumentCheckboxes(
+      recommendedInstruments,
+      allSelectedInstruments
+    );
   }
+
+  // --- 3. その他の楽器 (Other Instruments) ---
+  if (otherInstruments.length > 0) {
+    // 既に選択されている「その他の楽器」があるかチェック
+    const hasPreselectedOthers = otherInstruments.some((inst) =>
+      allSelectedInstruments.includes(inst.id)
+    );
+
+    const otherHtml = generateInstrumentCheckboxes(
+      otherInstruments,
+      allSelectedInstruments
+    );
+
+    listHtml += `
+      <div id="other-instruments-container" style="display: ${
+        hasPreselectedOthers ? 'block' : 'none'
+      };">
+        ${otherHtml}
+      </div>
+      <button type="button" id="toggle-other-instruments" class="toggle-button" style="display: ${
+        hasPreselectedOthers ? 'none' : 'block'
+      };">
+        ＋ ほかの楽器も選ぶ
+      </button>
+    `;
+  }
+
+  if (recommendedInstruments.length === 0 && otherInstruments.length === 0) {
+    $list.append(
+      $('<p class="select-note">').text('--- 該当する楽器がありません ---')
+    );
+  } else {
+    $list.html(listHtml);
+  }
+}
+
+/**
+ * 楽器データの配列からチェックボックスHTMLを生成するヘルパー関数
+ * @param {Array<Object>} instruments - 楽器データの配列
+ * @param {Array<string>} selectedIds - 選択されている楽器IDの配列
+ * @returns {string} 生成されたHTML文字列
+ */
+function generateInstrumentCheckboxes(instruments, selectedIds) {
+  let html = '';
+  instruments.forEach((inst) => {
+    const id = `instrument-${inst.id}`;
+    const isChecked = selectedIds.includes(inst.id) ? 'checked' : '';
+
+    html += `
+      <div>
+        <input type="checkbox" id="${id}" class="instrument-checkbox" value="${
+      inst.id
+    }" ${isChecked}>
+        <label for="${id}">${inst.name_decoded || '(名称なし)'}</label>
+      </div>
+    `;
+  });
+  return html;
 }
 
 async function populateRoles(selectedId) {
@@ -175,16 +238,23 @@ async function populateRoles(selectedId) {
 }
 
 function setupEventHandlers() {
-  // 💡 変更点: パート選択時のイベントハンドラ
+  // 💡 修正: パート選択時のイベントハンドラ
   $('#section-select').on('change', function () {
     const selectedSectionId = $(this).val();
+
+    // パート変更前に、現在選択されている楽器のIDを保持
+    userInstrumentIds = getSelectedInstrumentIds();
 
     // 選択されたパートに基づいて楽器チェックボックスを更新
     populateInstruments(selectedSectionId);
 
-    // パートが変更された場合、以前の選択状態をリセットする (見た目上はpopulateInstrumentsで更新されるが、内部データもクリア)
-    userInstrumentIds = [];
     utils.clearErrors($('#instrument-checkbox-list'));
+  });
+
+  // 💡 新規追加: 「＋ ほかの楽器も選ぶ」ボタンのクリックイベント
+  $(document).on('click', '#toggle-other-instruments', function () {
+    $('#other-instruments-container').slideDown(200);
+    $(this).hide();
   });
 
   // 合言葉追加/削除
@@ -232,7 +302,7 @@ function setupEventHandlers() {
       sectionId: $('#section-select').val(),
       roleId: $('#role-select').val(),
       abbreviation: $('#abbreviation').val(),
-      // 💡 変更点: 選択された楽器IDの配列を取得
+      // 選択された楽器IDの配列を取得
       instrumentIds: getSelectedInstrumentIds(),
     };
 
@@ -324,7 +394,7 @@ function setupEventHandlers() {
   });
 }
 
-// 💡 変更点: チェックボックスから選択された楽器IDを取得
+// 💡 修正: チェックボックスから選択された楽器IDを取得
 function getSelectedInstrumentIds() {
   // .instrument-checkbox クラスを持つチェックボックスのうち、チェックされているものの value を配列として取得
   const selectedIds = [];

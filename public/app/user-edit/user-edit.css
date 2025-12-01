@@ -54,8 +54,8 @@
 }
 
 /* リスト内の個々のアイテム */
-.checkbox-list > div {
-  display: flex;
+.checkbox-list > div, /* 既存の推奨楽器のアイテム */
+#other-instruments-container > div { /* 💡 新規追加: その他の楽器のアイテム */
   align-items: center;
   padding: 4px 0;
 }
@@ -90,4 +90,17 @@
 .error-field #instrument-checkbox-list {
   border-color: red;
   box-shadow: 0 0 5px rgba(255, 0, 0, 0.5);
+}
+
+/* ほかの楽器を選ぶボタン */
+.toggle-button {
+    margin-top: 10px;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    padding: 6px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block;
+    width: 100%;
+    text-align: center;
 }
