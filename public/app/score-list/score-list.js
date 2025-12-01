@@ -22,7 +22,8 @@ $(document).ready(async function () {
 
 let scores = []; // 譜面データ
 let genres = []; // ジャンルデータ
-let events = []; // フィルタリングされたイベントデータと譜面の並び順を格納 (新規)
+// eventsには、フィルタリングとソートに必要なイベント情報を格納
+let events = [];
 
 async function setUpPage() {
   // 管理者の場合のみ新規登録ボタン表示
@@ -51,38 +52,44 @@ async function setUpPage() {
     $genreSelect.append(`<option value="${g.id}">${g.name}</option>`);
   });
 
-  // ▼ Eventデータ取得とソートオプション生成
-  await loadAndProcessEvents(); // 💡 新規追加
+  // ▼ Eventデータ取得と**フィルタリングオプション**生成
+  await loadAndProcessEvents();
 
-  renderScores(scores);
+  // 💡 修正: 初期表示はfilterScoresに任せることで、イベントの初期選択と非表示制御を適用
+  filterScores();
 
-  // ▼ 検索イベント（タイトル & ジャンル & 並び順）
-  $('#search-box, #genre-select, #sort-select').on('input change', function () {
-    filterScores();
-  });
+  // ▼ 検索イベント（タイトル & ジャンル & **イベントフィルター** & 並び順）
+  $('#search-box, #genre-select, #event-filter-select, #sort-select').on(
+    'input change',
+    function () {
+      filterScores();
+    }
+  );
 
   // クリアボタン
   $('#clear-button').on('click', () => {
     $('#search-box').val('');
     $('#genre-select').val('');
+    // 💡 修正: event-filter-select はクリアするが、直近のイベント選択は行わない
+    $('#event-filter-select').val('');
     $('#sort-select').val('createdAt-desc');
     filterScores();
   });
 }
 
-// 💡 新規追加: イベントデータ取得・処理・ソートオプションへの反映
+// 💡 修正: イベントデータ取得・処理・**フィルターオプション**への反映と**直近のイベントを選択**
 async function loadAndProcessEvents() {
   const eventsRef = utils.collection(utils.db, 'events');
   const eventSnap = await utils.getWrapDocs(eventsRef);
   const today = utils.format(new Date(), 'yyyy.MM.dd');
-  const $sortSelect = $('#sort-select');
+  const $eventFilterSelect = $('#event-filter-select');
 
   const rawEvents = eventSnap.docs.map((doc) => ({
     id: doc.id,
     ...doc.data(),
   }));
 
-  // 1. フィルタリングとスコアID抽出
+  // 1. フィルタリングとスコアID抽出 (未来の日付 & setlistあり)
   events = rawEvents
     .filter(
       (e) =>
@@ -92,12 +99,14 @@ async function loadAndProcessEvents() {
         Array.isArray(e.setlist) &&
         e.setlist.length > 0 // setlistが存在し、空でない
     )
+    // 💡 イベントの日付順（昇順）でソート
+    .sort((a, b) => (a.date > b.date ? 1 : -1))
     .map((e) => {
       // setlist全体からsongIdsを結合してscoreIdsの配列を生成
-      const orderedScoreIds = [];
+      const scoreIdsInSetlist = [];
       e.setlist.forEach((item) => {
         if (item.songIds && Array.isArray(item.songIds)) {
-          orderedScoreIds.push(...item.songIds);
+          scoreIdsInSetlist.push(...item.songIds);
         }
       });
 
@@ -105,14 +114,23 @@ async function loadAndProcessEvents() {
         id: e.id,
         title: e.title_decoded || e.title || `イベント(${e.id})`,
         date: e.date,
-        orderedScoreIds: orderedScoreIds, // 譜面の並び順
+        scoreIdsInSetlist: scoreIdsInSetlist, // 譜面のIDリスト
       };
     });
 
-  // 2. ソートオプションに反映
+  // 💡 直近のイベントIDを特定
+  const closestEventId = events.length > 0 ? events[0].id : '';
+
+  // 2. フィルターオプションに反映
+  $eventFilterSelect.empty();
+  $eventFilterSelect.append($('<option>').val('').text('イベントを選択'));
   events.forEach((e) => {
-    // オプションの値は 'event-eventID' の形式にする
-    $sortSelect.append(`<option value="event-${e.id}">${e.title} 順</option>`);
+    // オプションの値は eventID のみ
+    // 💡 修正: 直近のイベントを選択状態にする
+    const isSelected = e.id === closestEventId ? 'selected' : '';
+    $eventFilterSelect.append(
+      `<option value="${e.id}" ${isSelected}>${e.date} ${e.title}</option>`
+    );
   });
 }
 
@@ -120,37 +138,47 @@ async function loadAndProcessEvents() {
 function filterScores() {
   const keyword = $('#search-box').val().toLowerCase();
   const selectedGenre = $('#genre-select').val();
+  const selectedEventId = $('#event-filter-select').val();
   const sortValue = $('#sort-select').val();
 
+  // 💡 新規追加: ソートプルダウンの表示制御
+  const $sortGroup = $('#sort-select').closest('.form-group');
+  if (selectedEventId) {
+    $sortGroup.hide(); // イベントが選択されたら非表示
+  } else {
+    $sortGroup.show(); // イベントが未選択なら表示
+  }
+
   let filtered = scores.filter((s) => {
+    // 1. タイトル、ジャンルによるフィルタリング
     const matchTitle = s.title.toLowerCase().includes(keyword);
     const matchGenre = !selectedGenre || s.genres?.includes(selectedGenre);
-    return matchTitle && matchGenre;
+
+    // 2. イベントによるフィルタリング
+    let matchEvent = true;
+    if (selectedEventId) {
+      const eventData = events.find((e) => e.id === selectedEventId);
+      // 選択されたイベントのセットリストにこの譜面が含まれているか
+      matchEvent = eventData?.scoreIdsInSetlist.includes(s.id);
+    }
+
+    return matchTitle && matchGenre && matchEvent;
   });
 
   // 並び替え処理
   filtered.sort((a, b) => {
-    // 1. イベント順ソートの判定
-    if (sortValue.startsWith('event-')) {
-      const eventId = sortValue.split('-')[1];
-      const eventData = events.find((e) => e.id === eventId);
-
+    // 1. イベントフィルターが適用されている場合は、セットリスト順でソート（ソートプルダウンは非表示だがソートは適用）
+    if (selectedEventId) {
+      const eventData = events.find((e) => e.id === selectedEventId);
       if (eventData) {
-        const orderedIds = eventData.orderedScoreIds;
-
-        // setlist内でのインデックスを取得
+        const orderedIds = eventData.scoreIdsInSetlist;
         const indexA = orderedIds.indexOf(a.id);
         const indexB = orderedIds.indexOf(b.id);
-
-        // setlistに存在しない譜面はリストの最後に配置するため、orderedIds.length を使用
-        const posA = indexA === -1 ? orderedIds.length : indexA;
-        const posB = indexB === -1 ? orderedIds.length : indexB;
-
-        return posA - posB;
+        return indexA - indexB;
       }
     }
 
-    // 2. 標準ソート
+    // 2. 標準ソート (イベントが選択されていない場合のみ実行)
     switch (sortValue) {
       case 'createdAt-asc':
         return a.createdAt?.toMillis?.() - b.createdAt?.toMillis?.();
@@ -178,12 +206,29 @@ function renderScores(scoreArray) {
   }
 
   // 譜面一覧描画
-  for (const s of scoreArray) {
+  // 💡 イベントフィルターが選択されている場合、譜面IDの順序をイベント順に反映 (filterScoresでソート済みのためここでは不要だが、念のためロジックを保持)
+  const selectedEventId = $('#event-filter-select').val();
+  let displayScores = scoreArray;
+
+  /*
+  // filterScoresで既にソート済みのため、以下の再構築ロジックは冗長ですが、念のため残しておきます。
+  if (selectedEventId) {
+    const eventData = events.find((e) => e.id === selectedEventId);
+    if (eventData) {
+      const orderedIds = eventData.scoreIdsInSetlist;
+      displayScores = orderedIds
+        .map((id) => scoreArray.find((s) => s.id === id))
+        .filter((s) => s);
+    }
+  }
+  */
+
+  for (const s of displayScores) {
     $list.append(makeScoreItem(s.id, s.title));
   }
 
   // --- プレイリストリンク生成 ---
-  const watchIds = scoreArray
+  const watchIds = displayScores
     .map((s) => utils.extractYouTubeId(s.referenceTrack_decoded))
     .filter((id) => !!id)
     .join(',');
