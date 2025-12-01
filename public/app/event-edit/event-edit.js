@@ -243,6 +243,10 @@ function setupEventHandlers(mode) {
       restoreInitialState();
   });
 
+  // 🔽 【新規追加】曲の並び替え機能の有効化
+  // グループの追加/復元後に常に呼び出す
+  enableSortable();
+
   // 【修正】日程調整/出欠確認のラジオボタン変更時
   $('input[name="attendance-type"]').on('change', toggleDateFields);
 
@@ -506,13 +510,14 @@ function getScoreOptionsHtml(selectedScoreId = '') {
  * @param {string} scoreId - 選択する曲のID
  */
 function addSongSelectInput($container, scoreId = '') {
-  const optionsHtml = getScoreOptionsHtml(scoreId);
+  const optionsHtml = getScoreOptionsHtml(scoreId); // 🔽 【修正】ドラッグ用ハンドル (.drag-handle) を追加
   const $item = $(`
     <div class="song-select-item" style="display: flex; gap: 5px; margin-bottom: 5px; align-items: center;">
-      <select class="song-select" style="flex-grow: 1;">${optionsHtml}</select>
-      <button type="button" class="remove-song-button" title="この曲を削除">
-        <i class="fas fa-trash-alt"></i>
-      </button>
+    <i class="fa-solid fa-bars drag-handle" title="ドラッグして順番を入れ替える"></i>
+    <select class="song-select" style="flex-grow: 1;">${optionsHtml}</select>
+    <button type="button" class="remove-song-button" title="この曲を削除">
+      <i class="fas fa-trash-alt"></i>
+    </button>
     </div>
   `);
   $container.append($item);
@@ -554,6 +559,9 @@ function addSetlistGroup($container, songIds = [''], groupTitle = '') {
   }
 
   $container.append($group);
+
+  // 🔽 【新規追加】新しいグループの描画後、並び替えを有効化
+  enableSortable();
 }
 
 /**
@@ -593,13 +601,46 @@ function renderSetlistGroups(setlistData) {
   const $container = $('#setlist-groups-container').empty();
 
   if (!setlistData || setlistData.length === 0) {
-    addSetlistGroup($container); // データがなければ空のグループを1つ追加
+    addSetlistGroup($container);
     return;
   }
 
   setlistData.forEach((group) => {
     addSetlistGroup($container, group.songIds || [''], group.title || '');
   });
+
+  // 🔽 【新規追加】すべてのグループの描画後、並び替えを有効化
+  enableSortable();
+}
+
+//==================================
+// 【新規追加】ドラッグ＆ドロップ機能
+//==================================
+
+/**
+ * .song-list-container に Sortable 機能を有効化する
+ * 曲の順番入れ替えを可能にする
+ */
+function enableSortable() {
+  $('.song-list-container')
+    .sortable({
+      // ドラッグ対象のアイテム（曲選択の行）
+      items: '.song-select-item',
+      // ドラッグを開始できるハンドル
+      handle: '.drag-handle',
+      // プレースホルダ（移動先の点線）のクラス
+      placeholder: 'ui-sortable-placeholder',
+      // ドラッグ中、元の場所にコピーを残さない
+      helper: 'clone',
+      // ドラッグ中に他のアイテムをスクロールで移動
+      scroll: true,
+      // 移動が確定した際のイベント
+      update: function (event, ui) {
+        console.log('曲の順番が変更されました');
+        // ここでデータの再保存処理などは不要 (getSetlistDataFromInputs() がDOMから最新の順序で取得するため)
+      },
+    })
+    .disableSelection(); // テキスト選択を無効化
 }
 
 //==================================

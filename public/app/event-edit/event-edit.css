@@ -231,3 +231,40 @@
 .setlist-group .add-song-button i {
     margin-right: 5px;
 }
+/* 曲選択ドロップダウン */
+.song-select-item {
+    display: flex;
+    gap: 5px;
+    align-items: center;
+    /* 🚨 以下の行が重要：ドラッグ＆ドロップ対象の要素として明示 */
+    cursor: grab; 
+}
+
+/* 🔽 【修正】ドラッグ用ハンドル */
+.drag-handle {
+    color: #9e9e9e; 
+    cursor: grab; 
+    /* 修正: タップしやすいように上下左右にパディングを増やし、 min-width を設定 */
+    padding: 10px 15px; 
+    min-width: 20px;
+    /* 修正: flex アイテムのパディングを維持するために box-sizing を設定 */
+    box-sizing: content-box;
+
+    transition: color 0.2s;
+}
+
+.drag-handle:hover {
+    color: #757575;
+}
+
+/* 🔽 【新規追加】アクティブ時（ドラッグ開始時）のカーソル */
+.song-select-item.ui-sortable-handle, 
+.song-select-item.ui-sortable-handle .drag-handle {
+    cursor: grabbing; /* ドラッグ中の手のアイコン */
+}
+
+/* 🔽 【新規追加】タッチデバイスで選択が邪魔されないように */
+.song-select-item {
+    /* ... 既存のスタイル ... */
+    touch-action: none; /* iOSなどで要素のタップによる動作を無効化 */
+}
