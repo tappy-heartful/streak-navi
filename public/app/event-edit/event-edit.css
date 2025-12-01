@@ -268,3 +268,18 @@
     /* ... 既存のスタイル ... */
     touch-action: none; /* iOSなどで要素のタップによる動作を無効化 */
 }
+
+/* 🔽 【新規追加】ドラッグ中（jQuery UI Sortableが使用するクラス） */
+.song-list-container .ui-sortable-helper {
+    /* ドラッグ中に半透明にするなど */
+    opacity: 0.8;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.song-list-container .ui-sortable-placeholder {
+    /* ドラッグ中にできる移動先を示す領域 */
+    border: 1px dashed #2196F3; /* 青い点線 */
+    background-color: #e3f2fd;
+    visibility: visible !important;
+    height: 40px; /* 曲の行の高さに合わせる */
+}

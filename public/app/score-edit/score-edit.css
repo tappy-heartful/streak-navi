@@ -44,3 +44,69 @@
 #add-genre:hover {
   background-color: #ddd;
 }
+
+
+/* --- 楽器構成グループ --- */
+.instrument-section {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background-color: #f9f9f9;
+}
+
+.instrument-section h3 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 1.1em;
+    color: #333;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 5px;
+}
+
+.part-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 8px;
+    align-items: center;
+}
+
+.part-item input[type="text"] {
+    width: 80px; /* パート名（4文字まで）用 */
+    flex-shrink: 0;
+}
+
+.part-item select {
+    flex-grow: 1;
+    min-width: 80px;
+}
+
+.part-item .remove-part-button {
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 6px 10px;
+    cursor: pointer;
+    line-height: 1;
+    transition: background-color 0.2s;
+}
+
+.part-item .remove-part-button:hover {
+    background-color: #d32f2f;
+}
+
+.add-part-button {
+    background-color: #03a9f4;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-top: 5px;
+    transition: background-color 0.2s;
+}
+
+.add-part-button:hover {
+    background-color: #0288d1;
+}
