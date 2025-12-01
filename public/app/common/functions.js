@@ -374,11 +374,41 @@ export async function hideSpinner() {
   $('#spinner-overlay')?.hide();
 }
 
-// 日付フォーマット関数
-export function formatDateTime(ts) {
-  if (!ts) return '';
-  const date = ts.toDate ? ts.toDate() : ts;
-  return date.toLocaleString('ja-JP', { timeZone: 'Asia/Tokyo' });
+/**
+ * DateオブジェクトまたはFirestoreのTimestampオブジェクトを
+ * 指定されたフォーマットの文字列に変換します。
+ * (※ここでは 'yyyy.MM.dd' のみに対応するシンプルな実装例です)
+ * * @param {Date | firebase.firestore.Timestamp} dateOrTimestamp - 変換する日付/タイムスタンプオブジェクト
+ * @param {string} formatString - 日付のフォーマット文字列 (例: 'yyyy.MM.dd')
+ * @returns {string} フォーマットされた日付文字列
+ */
+export function format(dateOrTimestamp, formatString = 'yyyy.MM.dd') {
+  let date;
+
+  // 1. 引数がTimestamp型かどうかをチェックし、Dateオブジェクトに変換
+  if (dateOrTimestamp && typeof dateOrTimestamp.toDate === 'function') {
+    date = dateOrTimestamp.toDate();
+  } else if (dateOrTimestamp instanceof Date) {
+    date = dateOrTimestamp;
+  } else {
+    // 不正な値が渡された場合は空文字列を返すか、エラー処理を行う
+    return '';
+  }
+
+  // 2. フォーマット文字列に基づいた処理 (ここでは 'yyyy.MM.dd' のみを想定)
+  if (formatString === 'yyyy.MM.dd') {
+    const year = date.getFullYear();
+    // getMonth() は 0 から始まるため、+1 する
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+
+    return `${year}.${month}.${day}`;
+  }
+
+  // その他のフォーマット（例: yyyy/MM/dd HH:mm）に対応する場合は、ここにロジックを追加
+  // if (formatString === '...') { ... }
+
+  return ''; // 対応しないフォーマットの場合は空文字列を返す
 }
 
 // ログ

@@ -22,6 +22,7 @@ $(document).ready(async function () {
 
 let scores = []; // 譜面データ
 let genres = []; // ジャンルデータ
+let events = []; // フィルタリングされたイベントデータと譜面の並び順を格納 (新規)
 
 async function setUpPage() {
   // 管理者の場合のみ新規登録ボタン表示
@@ -50,6 +51,9 @@ async function setUpPage() {
     $genreSelect.append(`<option value="${g.id}">${g.name}</option>`);
   });
 
+  // ▼ Eventデータ取得とソートオプション生成
+  await loadAndProcessEvents(); // 💡 新規追加
+
   renderScores(scores);
 
   // ▼ 検索イベント（タイトル & ジャンル & 並び順）
@@ -66,8 +70,53 @@ async function setUpPage() {
   });
 }
 
-// フィルタリング処理
-// フィルタリング処理
+// 💡 新規追加: イベントデータ取得・処理・ソートオプションへの反映
+async function loadAndProcessEvents() {
+  const eventsRef = utils.collection(utils.db, 'events');
+  const eventSnap = await utils.getWrapDocs(eventsRef);
+  const today = utils.format(new Date(), 'yyyy.MM.dd');
+  const $sortSelect = $('#sort-select');
+
+  const rawEvents = eventSnap.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+
+  // 1. フィルタリングとスコアID抽出
+  events = rawEvents
+    .filter(
+      (e) =>
+        e.date &&
+        e.date > today && // 未来の日付
+        e.setlist &&
+        Array.isArray(e.setlist) &&
+        e.setlist.length > 0 // setlistが存在し、空でない
+    )
+    .map((e) => {
+      // setlist全体からsongIdsを結合してscoreIdsの配列を生成
+      const orderedScoreIds = [];
+      e.setlist.forEach((item) => {
+        if (item.songIds && Array.isArray(item.songIds)) {
+          orderedScoreIds.push(...item.songIds);
+        }
+      });
+
+      return {
+        id: e.id,
+        title: e.title_decoded || e.title || `イベント(${e.id})`,
+        date: e.date,
+        orderedScoreIds: orderedScoreIds, // 譜面の並び順
+      };
+    });
+
+  // 2. ソートオプションに反映
+  events.forEach((e) => {
+    // オプションの値は 'event-eventID' の形式にする
+    $sortSelect.append(`<option value="event-${e.id}">${e.title} 順</option>`);
+  });
+}
+
+// フィルタリング処理 (修正)
 function filterScores() {
   const keyword = $('#search-box').val().toLowerCase();
   const selectedGenre = $('#genre-select').val();
@@ -81,6 +130,27 @@ function filterScores() {
 
   // 並び替え処理
   filtered.sort((a, b) => {
+    // 1. イベント順ソートの判定
+    if (sortValue.startsWith('event-')) {
+      const eventId = sortValue.split('-')[1];
+      const eventData = events.find((e) => e.id === eventId);
+
+      if (eventData) {
+        const orderedIds = eventData.orderedScoreIds;
+
+        // setlist内でのインデックスを取得
+        const indexA = orderedIds.indexOf(a.id);
+        const indexB = orderedIds.indexOf(b.id);
+
+        // setlistに存在しない譜面はリストの最後に配置するため、orderedIds.length を使用
+        const posA = indexA === -1 ? orderedIds.length : indexA;
+        const posB = indexB === -1 ? orderedIds.length : indexB;
+
+        return posA - posB;
+      }
+    }
+
+    // 2. 標準ソート
     switch (sortValue) {
       case 'createdAt-asc':
         return a.createdAt?.toMillis?.() - b.createdAt?.toMillis?.();
