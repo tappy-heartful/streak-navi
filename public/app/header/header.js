@@ -54,6 +54,10 @@ $(document).ready(async function () {
     'click',
     () => (location.href = '../event-list/event-list.html')
   );
+  $('#menu-assign-list').on(
+    'click',
+    () => (location.href = '../assign-list/assign-list.html')
+  );
   $('#menu-call-list').on(
     'click',
     () => (location.href = '../call-list/call-list.html')
