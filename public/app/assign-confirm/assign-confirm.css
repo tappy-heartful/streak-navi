@@ -17,17 +17,61 @@
     color: #3f51b5;
 }
 
+/* ---------------------------------- */
+/* タブ UI のスタイル */
+/* ---------------------------------- */
+.tab-buttons {
+    display: flex;
+    overflow-x: auto; /* スマホで横にスライドできるように */
+    white-space: nowrap;
+    border-bottom: 2px solid #ccc;
+    margin-bottom: 15px;
+    padding-bottom: 5px;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 10px 15px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    flex-shrink: 0; /* タブが縮まないように */
+}
+
+.tab-button.active {
+    color: #3f51b5;
+    border-bottom: 3px solid #3f51b5;
+}
+
+.tab-contents .tab-content {
+    display: none;
+    padding-top: 10px;
+}
+
+.tab-contents .tab-content.active {
+    display: block;
+}
+
+
+/* ---------------------------------- */
+/* 譜割り表本体のスタイル */
+/* ---------------------------------- */
+
 /* 横スクロール可能なコンテナ */
 .table-responsive {
     overflow-x: auto;
-    margin-top: 15px;
+    /* ヘッダーの固定に必要なスタイル */
+    position: relative;
 }
 
-/* 譜割り表本体のスタイル */
 .assign-table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 800px; /* 横軸のパートが多い場合に備えて最小幅を設定 */
+    /* min-width を削除し、スマホサイズに対応 */
 }
 
 /* ヘッダーのスタイル */
@@ -48,20 +92,15 @@
     border-right: 2px solid #cddc39;
     text-align: left;
     padding: 10px 15px;
-    min-width: 150px;
-}
-
-/* 横軸パートグループ名（sections.name） */
-#table-header-sections th {
-    background-color: #d1c4e9; /* 薄い紫 */
-    color: #311b92;
-    font-size: 13px;
-    /* 譜割り表の中央に線を引く */
-    border-bottom: 0; 
+    
+    /* 縦軸固定のためのスタイル */
+    position: sticky;
+    left: 0;
+    z-index: 2;
 }
 
 /* 横軸パート名（partName） */
-#table-header-parts th {
+.assign-table .part-header-cell {
     background-color: #e8eaf6; 
     font-weight: normal;
     font-size: 12px;
@@ -83,11 +122,27 @@
     text-align: left;
     padding: 10px 15px;
     border-top: 2px solid #999;
+    
+    /* グループタイトルのセルも左固定 */
+    position: sticky;
+    left: 0;
+    z-index: 1; /* 曲名より下に */
+}
+
+/* 曲名のセル（ボディ内の左端）にもsong-headerを適用 */
+.assign-table tbody .song-header {
+    /* theadとtbodyでスタイルを統一 */
+    background-color: #f0f4c3; 
+    border-right: 2px solid #cddc39;
+    
+    /* 縦軸固定のためのスタイル */
+    position: sticky;
+    left: 0;
+    z-index: 1; 
 }
 
 /* 譜割りの中身 (担当者名/記号など) */
 .assign-table .assign-cell {
-    /* 必要に応じて中身の表示を調整 */
     color: #333;
 }
 

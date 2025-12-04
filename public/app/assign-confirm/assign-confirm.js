@@ -3,13 +3,16 @@ import * as utils from '../common/functions.js';
 // 譜面（scores）とセクション（sections）のキャッシュ
 let scoresCache = {};
 let sectionsCache = {};
-let allPartNames = []; // 全パート名 (重複なし、表示順に格納)
-let sectionGroupMap = {}; // { sectionId: { name: 'セクション名', partNames: ['part1', 'part2', ...] } }
+// allPartNames はタブ表示のため廃止し、sectionGroupsに集約
+let sectionGroups = {}; // { sectionName: { sectionIds: [id1, id2, ...], partNames: ['part1', 'part2', ...] } }
+
+// グローバル変数として譜割りデータを保持
+let globalAssignsData = {};
+let globalEventData = {};
 
 $(document).ready(async function () {
   try {
-    await utils.initDisplay();
-    // 画面ごとのパンくずをセット
+    await utils.initDisplay(); // 画面ごとのパンくずをセット
     utils.renderBreadcrumb([
       { title: '譜割り一覧', url: '../assign-list/assign-list.html' },
       { title: '譜割り確認' },
@@ -22,8 +25,7 @@ $(document).ready(async function () {
       action: '譜割り確認 初期表示',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
-    });
-    // エラーメッセージを表示してスピナーを非表示
+    }); // エラーメッセージを表示してスピナーを非表示
     $('#assign-table-wrapper').html(
       '<p class="error-message">データの読み込み中にエラーが発生しました。</p>'
     );
@@ -38,48 +40,37 @@ $(document).ready(async function () {
 //////////////////////////////////
 
 /**
- * イベントの全曲に必要なscoresとsectionsのデータを事前にキャッシュする
+ * イベントの全曲に必要なscoresとsectionsのデータを事前にキャッシュし、sectionGroupsを構築する
  * @param {Object} eventData - イベントデータ
  * @returns {Promise<void>}
  */
 async function prefetchData(eventData) {
   const scoreIdsToFetch = new Set();
-  const sectionIdsToFetch = new Set();
+  const sectionIdsToFetch = new Set(); // 譜面IDを抽出
 
-  // 譜面IDを抽出
   eventData.setlist.forEach((group) => {
     group.songIds.forEach((id) => scoreIdsToFetch.add(id));
   });
 
-  if (scoreIdsToFetch.size === 0) return;
+  if (scoreIdsToFetch.size === 0) return; // scoresデータを取得し、instrumentConfigからsectionIdを抽出
 
-  // scoresデータを取得し、instrumentConfigからsectionIdとpartNameを抽出
   const scorePromises = Array.from(scoreIdsToFetch).map(async (scoreId) => {
     const docRef = utils.doc(utils.db, 'scores', scoreId);
     const snap = await utils.getWrapDoc(docRef);
     if (snap.exists()) {
       const data = snap.data();
-      scoresCache[scoreId] = data;
+      scoresCache[scoreId] = data; // 横軸ラベルに必要なsectionIdを抽出
 
-      // 横軸ラベルに必要なsectionIdを抽出
       if (data.instrumentConfig) {
         Object.keys(data.instrumentConfig).forEach((sectionId) => {
           sectionIdsToFetch.add(sectionId);
-
-          // partNameの重複リストを作成
-          data.instrumentConfig[sectionId].forEach((config) => {
-            if (!allPartNames.includes(config.partName_decoded)) {
-              allPartNames.push(config.partName_decoded);
-            }
-          });
         });
       }
     }
   });
 
-  await Promise.all(scorePromises);
+  await Promise.all(scorePromises); // sectionsデータを取得
 
-  // sectionsデータを取得
   const sectionPromises = Array.from(sectionIdsToFetch).map(
     async (sectionId) => {
       const docRef = utils.doc(utils.db, 'sections', sectionId);
@@ -90,28 +81,33 @@ async function prefetchData(eventData) {
     }
   );
 
-  await Promise.all(sectionPromises);
+  await Promise.all(sectionPromises); // sectionGroupsを作成: { sectionName: { partNames: ['part1', ...], sectionIds: [...] } }
 
-  // sectionGroupMapを作成: { sectionId: { name: 'セクション名', partNames: ['part1', ...] } }
-  // ここでパート名をセクションごとにグルーピングし、横軸ヘッダーの描画準備を行う
   Object.keys(sectionsCache).forEach((sectionId) => {
     const sectionName = sectionsCache[sectionId].name_decoded;
-    const scoreId = Object.keys(scoresCache).find(
-      (sId) =>
-        scoresCache[sId].instrumentConfig &&
-        scoresCache[sId].instrumentConfig[sectionId]
-    );
-
-    if (scoreId && scoresCache[scoreId].instrumentConfig[sectionId]) {
-      const partNames = scoresCache[scoreId].instrumentConfig[sectionId].map(
-        (config) => config.partName_decoded
-      );
-
-      sectionGroupMap[sectionId] = {
-        name: sectionName,
-        partNames: partNames,
+    if (!sectionGroups[sectionName]) {
+      sectionGroups[sectionName] = {
+        partNames: [],
+        sectionIds: [],
       };
     }
+    sectionGroups[sectionName].sectionIds.push(sectionId); // 該当セクションに属する全てのパート名を集約
+
+    Object.values(scoresCache).forEach((score) => {
+      if (score.instrumentConfig && score.instrumentConfig[sectionId]) {
+        score.instrumentConfig[sectionId].forEach((config) => {
+          const partName = config.partName_decoded;
+          if (!sectionGroups[sectionName].partNames.includes(partName)) {
+            sectionGroups[sectionName].partNames.push(partName);
+          }
+        });
+      }
+    });
+  });
+
+  // パート名はアルファベット順などでソートしておくと見やすい
+  Object.keys(sectionGroups).forEach((name) => {
+    sectionGroups[name].partNames.sort();
   });
 }
 
@@ -123,46 +119,41 @@ async function renderAssignConfirm() {
   const eventId = utils.globalGetParamEventId;
   if (!eventId) {
     throw new Error('eventIdが指定されていません。');
-  }
+  } // 1. イベントデータの取得
 
-  // 1. イベントデータの取得
   const eventSnap = await utils.getWrapDoc(
     utils.doc(utils.db, 'events', eventId)
   );
   if (!eventSnap.exists()) {
     throw new Error('イベントが見つかりません：' + eventId);
   }
-  const eventData = eventSnap.data();
+  globalEventData = eventSnap.data(); // 2. 基本情報の表示
 
-  // 2. 基本情報の表示
   $('#event-date').text(
-    utils.getDayOfWeek(eventData.date_decoded) || '日付未定'
+    utils.getDayOfWeek(globalEventData.date_decoded) || '日付未定'
   );
-  $('#event-title').text(eventData.title_decoded || '');
+  $('#event-title').text(globalEventData.title_decoded || ''); // 3. 譜割り編集ボタンのリンク設定
 
-  // 3. 譜割り編集ボタンのリンク設定
   $('#assign-edit-button').on('click', () => {
     window.location.href = `../assign-edit/assign-edit.html?eventId=${eventId}`;
   });
 
-  if (!eventData.setlist || eventData.setlist.length === 0) {
+  if (!globalEventData.setlist || globalEventData.setlist.length === 0) {
     $('#no-assign-message')
       .removeClass('hidden')
       .text('セットリストが設定されていません。');
     return;
-  }
+  } // 4. 譜面・セクション・パート情報の事前取得とキャッシュ
 
-  // 4. 譜面・セクション・パート情報の事前取得とキャッシュ
-  await prefetchData(eventData);
+  await prefetchData(globalEventData);
 
-  if (allPartNames.length === 0) {
+  if (Object.keys(sectionGroups).length === 0) {
     $('#no-assign-message')
       .removeClass('hidden')
       .text('セットリスト内の曲に楽器パートが設定されていません。');
     return;
-  }
+  } // 5. 譜割りデータの一括取得
 
-  // 5. 譜割りデータの一括取得
   const assignsSnap = await utils.getWrapDocs(
     utils.query(
       utils.collection(utils.db, 'assigns'),
@@ -182,98 +173,106 @@ async function renderAssignConfirm() {
     }
     assignsData[songId][partName] = assignValue;
   });
+  globalAssignsData = assignsData; // 6. タブとコンテンツの生成
 
-  // 6. テーブルヘッダーの生成 (横軸)
-  renderTableHeaders();
-
-  // 7. テーブルボディの生成 (縦軸と中身)
-  renderTableBody(eventData, assignsData);
+  renderTabsAndContent();
 }
 
 //////////////////////////////////
-// 3. テーブル描画ヘルパー
+// 3. テーブル描画ヘルパー (タブ対応)
 //////////////////////////////////
 
 /**
- * テーブルの横軸ヘッダー (セクション名とパート名) を描画する
+ * タブとタブコンテンツのコンテナを生成し、最初のタブを選択する
  */
-function renderTableHeaders() {
-  const $sectionsRow = $('#table-header-sections');
-  const $partsRow = $('#table-header-parts');
+function renderTabsAndContent() {
+  const $wrapper = $('#assign-table-wrapper').empty();
+  const $tabButtons = $('<div id="assign-tabs" class="tab-buttons"></div>');
+  const $tabContents = $('<div id="tab-contents" class="tab-contents"></div>');
 
-  // 最初の<th> (曲名 / パート) は既にHTMLにあるためスキップ
+  let isFirst = true;
 
-  let partCount = 0; // すべてのパートの合計数
-  let htmlSections = '';
+  Object.keys(sectionGroups).forEach((sectionName, index) => {
+    const tabId = `tab-${index}`;
+    const isActive = isFirst ? 'active' : '';
 
-  // セクションIDをキーにして、各セクションのパート数を数える
-  const sectionPartCounts = {};
-  Object.values(sectionGroupMap).forEach((group) => {
-    group.partNames.forEach((partName) => {
-      if (allPartNames.includes(partName)) {
-        sectionPartCounts[group.name] =
-          (sectionPartCounts[group.name] || 0) + 1;
-      }
-    });
+    // タブボタン
+    $tabButtons.append(`
+            <button class="tab-button ${isActive}" data-target="${tabId}">
+                ${sectionName}
+            </button>
+        `);
+
+    // タブコンテンツ（テーブルコンテナ）
+    $tabContents.append(`
+            <div id="${tabId}" class="tab-content ${isActive}">
+                <div class="table-responsive">
+                    <table id="assign-table-${index}" class="assign-table">
+                        <thead>
+                            <tr class="table-header-parts">
+                                <th class="song-header">曲名</th>
+                                </tr>
+                        </thead>
+                        <tbody>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        `);
+
+    isFirst = false;
   });
 
-  // 1行目: セクション名 (colspanを使用)
-  // allPartNamesの順序でセクション名を表示するために、少し複雑なロジックが必要
-  const uniqueSectionNames = new Set();
-  const sectionSpans = []; // { name: 'セクション名', startPart: 'partName', endPart: 'partName' }
+  $wrapper.append($tabButtons).append($tabContents);
 
-  allPartNames.forEach((partName) => {
-    const sectionId = Object.keys(sectionGroupMap).find((id) =>
-      sectionGroupMap[id].partNames.includes(partName)
-    );
-    const sectionName = sectionId ? sectionGroupMap[sectionId].name : 'その他';
-
-    if (!uniqueSectionNames.has(sectionName)) {
-      // 新しいセクションの開始
-      uniqueSectionNames.add(sectionName);
-
-      // そのセクションに属するパート名を数える (allPartNamesのサブセットとして)
-      let currentSectionPartCount = 0;
-      allPartNames.forEach((pn) => {
-        const pnSectionId = Object.keys(sectionGroupMap).find((id) =>
-          sectionGroupMap[id].partNames.includes(pn)
-        );
-        if (pnSectionId && sectionGroupMap[pnSectionId].name === sectionName) {
-          currentSectionPartCount++;
-        }
-      });
-
-      htmlSections += `<th colspan="${currentSectionPartCount}">${sectionName}</th>`;
-      partCount += currentSectionPartCount;
-    }
+  // 各タブのテーブルを個別に描画
+  Object.keys(sectionGroups).forEach((sectionName, index) => {
+    const partNamesForTab = sectionGroups[sectionName].partNames;
+    renderTableHeadersAndBody(index, sectionName, partNamesForTab);
   });
 
-  $sectionsRow.append(htmlSections);
+  // タブ切り替えのイベント設定
+  $('#assign-tabs').on('click', '.tab-button', function () {
+    const targetId = $(this).data('target');
 
-  // 2行目: パート名 (allPartNamesの順に表示)
+    // ボタンのアクティブ状態を切り替え
+    $('.tab-button').removeClass('active');
+    $(this).addClass('active');
+
+    // コンテンツの表示を切り替え
+    $('.tab-content').removeClass('active');
+    $(`#${targetId}`).addClass('active');
+  });
+}
+
+/**
+ * 個別のタブ（テーブル）のヘッダーとボディを描画する
+ * @param {number} index - タブのインデックス
+ * @param {string} sectionName - セクション名
+ * @param {string[]} partNamesForTab - このタブで表示するパート名リスト
+ */
+function renderTableHeadersAndBody(index, sectionName, partNamesForTab) {
+  const $table = $(`#assign-table-${index}`);
+  const $headerRow = $table.find('.table-header-parts');
+  const $tbody = $table.find('tbody');
+
+  // ヘッダー描画 (パート名のみ)
   let htmlParts = '';
-  allPartNames.forEach((partName) => {
-    htmlParts += `<th>${partName}</th>`;
+  partNamesForTab.forEach((partName) => {
+    htmlParts += `<th class="part-header-cell">${partName}</th>`;
   });
-  $partsRow.append(htmlParts);
-}
+  // 最初の曲名ヘッダーの後にパートヘッダーを挿入
+  $headerRow.append(htmlParts);
 
-/**
- * テーブルの縦軸 (セットリスト) と中身 (譜割りデータ) を描画する
- * @param {Object} eventData - イベントデータ
- * @param {Object} assignsData - 譜割りデータ { songId: { partName: assignValue } }
- */
-function renderTableBody(eventData, assignsData) {
-  const $tbody = $('#table-body-setlist');
-
-  eventData.setlist.forEach((group) => {
+  // ボディ描画 (縦軸と中身)
+  globalEventData.setlist.forEach((group) => {
     // グループタイトル行 (縦軸ラベルのグループ名)
     const groupTitle = group.title_decoded || 'No Group Title';
-    const colspan = allPartNames.length + 1; // 1は曲名列
+    const colspan = partNamesForTab.length + 1; // 1は曲名列
 
     $tbody.append(`
             <tr class="group-title-row">
-                <td colspan="${colspan}">${groupTitle}</td>
+                <td colspan="${colspan}">${sectionName}: ${groupTitle}</td>
             </tr>
         `);
 
@@ -288,9 +287,9 @@ function renderTableBody(eventData, assignsData) {
       let rowHtml = `<tr><td class="song-header">${songAbbreviation}</td>`; // 曲名 (scores.abbreviation)
 
       // 中身のセル
-      allPartNames.forEach((partName) => {
-        const assignValue = assignsData[songId]
-          ? assignsData[songId][partName] || 'ー'
+      partNamesForTab.forEach((partName) => {
+        const assignValue = globalAssignsData[songId]
+          ? globalAssignsData[songId][partName] || 'ー'
           : 'ー';
 
         rowHtml += `<td class="assign-cell">${assignValue}</td>`;
