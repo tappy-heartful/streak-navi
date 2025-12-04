@@ -517,13 +517,6 @@ async function renderEvent() {
     );
   }
 
-  // 譜割
-  if (eventData.allowAssign) {
-    // TODO 譜割の表示
-  } else {
-    $('#event-asssign-group').hide();
-  }
-
   // タイムスケジュール
   $('#event-schedule').html(eventData.schedule?.replace(/\n/g, '<br>') || '');
 
@@ -538,6 +531,17 @@ async function renderEvent() {
 
   // 🔽 【新規追加】楽器構成の表示
   await renderInstrumentConfig(eventData.instrumentConfig);
+
+  // 譜割
+  if (eventData.allowAssign) {
+    $('#event-asssign').html(
+      `<a href="../assign-confirm/assign-confirm.html?eventId=${eventId}" target="_blank" rel="noopener noreferrer">
+        譜割りを見る<i class="fas fa-arrow-up-right-from-square"></i>
+      </a>`
+    );
+  } else {
+    $('#event-asssign-group').hide();
+  }
 
   // その他
   $('#event-other').html(eventData.other?.replace(/\n/g, '<br>') || '');
