@@ -2,13 +2,14 @@ import * as utils from '../common/functions.js';
 
 // 譜面（scores）とセクション（sections）のキャッシュ
 let scoresCache = {};
-let sectionsCache = {};
 // allPartNames はタブ表示のため廃止し、sectionGroupsに集約
-let sectionGroups = {}; // { sectionName: { sectionIds: [id1, id2, ...], partNames: ['part1', 'part2', ...] } }
+let sectionGroups = {}; // { sectionName: { partNames: ['part1', 'part2', ...] } }
+// sectionIdsは不要になるため削除
 
 // グローバル変数として譜割りデータを保持
 let globalAssignsData = {};
 let globalEventData = {};
+let sectionsCache = {}; // セクション名取得用として残す
 
 $(document).ready(async function () {
   try {
@@ -43,6 +44,7 @@ $(document).ready(async function () {
 
 /**
  * イベントの全曲に必要なscoresとsectionsのデータを事前にキャッシュし、sectionGroupsを構築する
+ * scoresのinstrumentConfigではなく、イベントのinstrumentConfigからパート名を構築する
  * @param {Object} eventData - イベントデータ
  * @returns {Promise<void>}
  */
@@ -50,67 +52,69 @@ async function prefetchData(eventData) {
   const scoreIdsToFetch = new Set();
   const sectionIdsToFetch = new Set();
 
+  // 1. setlist内のscoreIdをすべて収集
   eventData.setlist.forEach((group) => {
     group.songIds.forEach((id) => scoreIdsToFetch.add(id));
   });
 
-  if (scoreIdsToFetch.size === 0) return;
-
-  const scorePromises = Array.from(scoreIdsToFetch).map(async (scoreId) => {
-    const docRef = utils.doc(utils.db, 'scores', scoreId);
-    const snap = await utils.getWrapDoc(docRef);
-    if (snap.exists()) {
-      const data = snap.data();
-      scoresCache[scoreId] = data;
-
-      if (data.instrumentConfig) {
-        Object.keys(data.instrumentConfig).forEach((sectionId) => {
-          sectionIdsToFetch.add(sectionId);
-        });
-      }
-    }
-  });
-
-  await Promise.all(scorePromises);
-
-  const sectionPromises = Array.from(sectionIdsToFetch).map(
-    async (sectionId) => {
-      const docRef = utils.doc(utils.db, 'sections', sectionId);
+  // 2. scoresデータをキャッシュ (曲名取得のため)
+  if (scoreIdsToFetch.size > 0) {
+    const scorePromises = Array.from(scoreIdsToFetch).map(async (scoreId) => {
+      const docRef = utils.doc(utils.db, 'scores', scoreId);
       const snap = await utils.getWrapDoc(docRef);
       if (snap.exists()) {
-        sectionsCache[sectionId] = snap.data();
-      }
-    }
-  );
-
-  await Promise.all(sectionPromises);
-
-  Object.keys(sectionsCache).forEach((sectionId) => {
-    const sectionName = sectionsCache[sectionId].name_decoded;
-    if (!sectionGroups[sectionName]) {
-      sectionGroups[sectionName] = {
-        partNames: [],
-        sectionIds: [],
-      };
-    }
-    sectionGroups[sectionName].sectionIds.push(sectionId);
-
-    Object.values(scoresCache).forEach((score) => {
-      if (score.instrumentConfig && score.instrumentConfig[sectionId]) {
-        score.instrumentConfig[sectionId].forEach((config) => {
-          const partName = config.partName_decoded;
-          if (!sectionGroups[sectionName].partNames.includes(partName)) {
-            sectionGroups[sectionName].partNames.push(partName);
-          }
-        });
+        scoresCache[scoreId] = snap.data();
       }
     });
-  });
+    await Promise.all(scorePromises);
+  }
 
-  // パート名はアルファベット順などでソートしておくと見やすい
-  Object.keys(sectionGroups).forEach((name) => {
-    sectionGroups[name].partNames.sort();
-  });
+  // 3. eventData.instrumentConfigからsectionsCacheとsectionGroupsを構築 (メイン修正箇所)
+  if (eventData.instrumentConfig) {
+    // instrumentConfigのキー（sectionsのdoc.id）を収集
+    Object.keys(eventData.instrumentConfig).forEach((sectionId) => {
+      sectionIdsToFetch.add(sectionId);
+    });
+  }
+
+  // 4. sectionsデータをキャッシュ (セクション名取得のため)
+  if (sectionIdsToFetch.size > 0) {
+    const sectionPromises = Array.from(sectionIdsToFetch).map(
+      async (sectionId) => {
+        const docRef = utils.doc(utils.db, 'sections', sectionId);
+        const snap = await utils.getWrapDoc(docRef);
+        if (snap.exists()) {
+          sectionsCache[sectionId] = snap.data();
+        }
+      }
+    );
+    await Promise.all(sectionPromises);
+  }
+
+  // 5. sectionGroupsを構築
+  if (eventData.instrumentConfig) {
+    Object.keys(eventData.instrumentConfig).forEach((sectionId) => {
+      const sectionData = sectionsCache[sectionId];
+      if (!sectionData) return;
+
+      const sectionName = sectionData.name_decoded;
+
+      // instrumentConfig[sectionId]はパート設定の配列。配列の順番を維持してpartNameを取得する
+      const partNames = eventData.instrumentConfig[sectionId]
+        .map((config) => config.partName_decoded)
+        .filter((partName) => partName); // partNameが空でないもののみをフィルタリング
+
+      // セクション名（タブ名）をキーとして、パート名リストを保存
+      if (!sectionGroups[sectionName]) {
+        sectionGroups[sectionName] = { partNames: [] };
+      }
+      // パート名は配列の順番通りに格納する (既存のパート名があれば上書きしないように結合)
+      // ただし、新しい仕様ではinstrumentConfigはセクションごとに一意なので、単純に代入
+      sectionGroups[sectionName].partNames = partNames;
+    });
+  }
+
+  // ⚠️ パート名のソートは行わない (instrumentConfigの配列順を維持するため)
 }
 
 //////////////////////////////////
@@ -152,7 +156,7 @@ async function renderAssignConfirm() {
   if (Object.keys(sectionGroups).length === 0) {
     $('#no-assign-message')
       .removeClass('hidden')
-      .text('セットリスト内の曲に楽器パートが設定されていません。');
+      .text('イベントに楽器パートが設定されていません。');
     return;
   }
 
@@ -193,22 +197,10 @@ function renderTabsAndContent() {
   const $tabButtons = $('<div id="assign-tabs" class="tab-buttons"></div>');
   const $tabContents = $('<div id="tab-contents" class="tab-contents"></div>');
 
-  // 初期選択セクションIDを取得
-  const initialSectionId = utils.getSession('sectionId');
-  let initialSectionName = null;
-  let defaultSectionName = Object.keys(sectionGroups)[0];
-
-  // 初期選択すべきセクション名を特定
-  if (initialSectionId) {
-    // sectionIdに紐づく sectionName (タブ名) を探す
-    const foundSectionName = Object.keys(sectionGroups).find((name) => {
-      return sectionGroups[name].sectionIds.includes(initialSectionId);
-    });
-    if (foundSectionName) {
-      initialSectionName = foundSectionName;
-    }
-  }
-  const targetSectionName = initialSectionName || defaultSectionName;
+  // 新しい仕様ではsectionIdではなくsectionNameをキーとして扱うため、
+  // セッションのキーを一時的に使わず、最初のセクションをデフォルトとする
+  const defaultSectionName = Object.keys(sectionGroups)[0];
+  const targetSectionName = defaultSectionName; // 初期表示は常に最初のセクション
 
   Object.keys(sectionGroups).forEach((sectionName, index) => {
     const tabId = `tab-${index}`;
@@ -250,8 +242,6 @@ function renderTabsAndContent() {
   // タブ切り替えのイベント設定
   $('#assign-tabs').on('click', '.tab-button', function () {
     const targetId = $(this).data('target');
-    const sectionName = $(this).data('section-name');
-
     // ボタンのアクティブ状態を切り替え
     $('.tab-button').removeClass('active');
     $(this).addClass('active');
@@ -259,9 +249,6 @@ function renderTabsAndContent() {
     // コンテンツの表示を切り替え
     $('.tab-content').removeClass('active');
     $(`#${targetId}`).addClass('active');
-
-    // utils.setSession('sectionId')を更新したい場合はここで実行
-    // 例: utils.setSession('lastSectionName', sectionName);
   });
 }
 
@@ -278,6 +265,7 @@ function renderTableHeadersAndBody(index, sectionName, partNamesForTab) {
 
   // ヘッダー描画 (パート名のみ)
   let htmlParts = '';
+  // partNamesForTab は既にinstrumentConfigの配列順に並んでいる
   partNamesForTab.forEach((partName) => {
     htmlParts += `<th class="part-header-cell">${partName}</th>`;
   });
@@ -290,9 +278,10 @@ function renderTableHeadersAndBody(index, sectionName, partNamesForTab) {
     const groupTitle = group.title_decoded || 'No Group Title';
     const colspan = partNamesForTab.length + 1; // 1は曲名列
 
+    // 修正: 表のpartNameの行の一つ上の行にsectionsのnameを表示
     $tbody.append(`
             <tr class="group-title-row">
-                <td colspan="${colspan}">${sectionName}: ${groupTitle}</td>
+                <td colspan="${colspan}">${groupTitle}</td>
             </tr>
         `);
 
@@ -308,6 +297,7 @@ function renderTableHeadersAndBody(index, sectionName, partNamesForTab) {
 
       // 中身のセル
       partNamesForTab.forEach((partName) => {
+        // assignsDataはpartNameをキーに持っているので、そのまま参照
         const assignValue = globalAssignsData[songId]
           ? globalAssignsData[songId][partName] || 'ー'
           : 'ー';
