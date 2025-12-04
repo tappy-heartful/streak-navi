@@ -536,6 +536,9 @@ async function renderEvent() {
   // 施設に借りるもの
   $('#event-rent').html(eventData.rent?.replace(/\n/g, '<br>') || '');
 
+  // 🔽 【新規追加】楽器構成の表示
+  await renderInstrumentConfig(eventData.instrumentConfig);
+
   // その他
   $('#event-other').html(eventData.other?.replace(/\n/g, '<br>') || '');
 
@@ -598,6 +601,60 @@ function renderRecordings(eventId, currentUid, isAdmin) {
     });
     $container.append($ul);
   }
+}
+
+////////////////////////////
+// 楽器構成データ表示 (修正)
+////////////////////////////
+async function renderInstrumentConfig(configData) {
+  const $configDiv = $('#instrument-config');
+
+  if (!configData || Object.keys(configData).length === 0) {
+    $configDiv.text('未設定');
+    return;
+  }
+
+  let configHtml = '';
+
+  // sectionsコレクションから全てのセクションを取得
+  const sectionSnap = await utils.getWrapDocs(
+    utils.collection(utils.db, 'sections')
+  );
+
+  // セクションデータをIDでルックアップできるように整形（IDが99のものを除外）
+  const sectionsMap = new Map();
+  sectionSnap.docs
+    .filter((doc) => doc.id !== '99')
+    .forEach((doc) => {
+      sectionsMap.set(doc.id, doc.data().name_decoded || doc.data().name);
+    });
+
+  // データをセクションID順にソートして処理
+  const sortedSectionIds = Object.keys(configData).sort((a, b) => {
+    return parseInt(a, 10) - parseInt(b, 10);
+  });
+
+  for (const sectionId of sortedSectionIds) {
+    const parts = configData[sectionId];
+    const sectionName = sectionsMap.get(sectionId);
+
+    // partNameのみを抽出し、「、」で連結
+    const partNames = parts
+      .map((p) => p.partName)
+      .filter((name) => name) // 空のパート名を除外
+      .join('、');
+
+    if (sectionName && partNames) {
+      // 🔽 修正: セクション名を太字にして改行し、パート名を表示
+      configHtml += `
+        <strong>${sectionName}</strong><br>
+        ${partNames}<br><br>
+      `;
+    }
+  }
+
+  // 末尾の不要な改行タグを削除してセット
+  $configDiv.html(configHtml.trim().replace(/<br><br>$/, ''));
 }
 
 ////////////////////////////
