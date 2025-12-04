@@ -20,8 +20,6 @@
   font-size: 16px;
   box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.05);
   transition: background-color 0.3s ease;
-  text-decoration: none; /* リンクの下線消す */
-  color: inherit; /* 文字色を親から継承（リンク色にならないように） */
 }
 
 .event-link:hover {
@@ -57,11 +55,6 @@
 /* ---------------------------------- */
 /* 譜割り一覧固有のスタイル */
 /* ---------------------------------- */
-
-.page-header h1 {
-  /* イベント一覧よりも若干装飾を強める */
-  color: #3f51b5;
-}
 
 .section-description {
   font-size: 14px;
