@@ -535,7 +535,7 @@ function addSetlistGroup($container, songIds = [''], groupTitle = '') {
   const $group = $(`
     <div class="setlist-group" data-group-id="${groupId}">
       <div class="group-header" style="display: flex; align-items: center; margin-bottom: 5px; gap: 10px;">
-        <input type="text" class="group-title-input" placeholder="グループ名 (例: 1st Stage)" value="${groupTitle}" style="flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        <input type="text" class="group-title-input" placeholder="例: 1st Stage" value="${groupTitle}" style="flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
         <button type="button" class="remove-group-button" title="このグループを削除">
           <i class="fas fa-times"></i> グループを削除
         </button>

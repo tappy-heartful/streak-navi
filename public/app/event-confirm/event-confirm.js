@@ -473,7 +473,7 @@ async function renderEvent() {
     if (Array.isArray(setlistGroups) && setlistGroups.length > 0) {
       setlistGroups.forEach((group) => {
         // 編集画面のデータ構造に合わせる: groupName -> title, songs -> songIds
-        const groupTitle = group.title || 'グループ名なし';
+        const groupTitle = group.title || '';
 
         let songListHtml = '';
 
