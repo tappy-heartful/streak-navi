@@ -799,11 +799,6 @@ function validateEventData() {
     if (configHasError) return false; // 外側のeachループも抜ける
   });
 
-  // 全セクションで有効なパートが1つも登録されていない場合はエラー
-  if (totalParts === 0) {
-    utils.markError($configGroup, '楽器構成を最低1つ登録してください');
-    isValid = false;
-  }
   return isValid;
 }
 
