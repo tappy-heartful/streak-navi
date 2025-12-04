@@ -12,7 +12,8 @@ let globalEventData = {};
 
 $(document).ready(async function () {
   try {
-    await utils.initDisplay(); // 画面ごとのパンくずをセット
+    await utils.initDisplay();
+    // 画面ごとのパンくずをセット
     utils.renderBreadcrumb([
       { title: '譜割り一覧', url: '../assign-list/assign-list.html' },
       { title: '譜割り確認' },
@@ -25,7 +26,8 @@ $(document).ready(async function () {
       action: '譜割り確認 初期表示',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
-    }); // エラーメッセージを表示してスピナーを非表示
+    });
+    // エラーメッセージを表示してスピナーを非表示
     $('#assign-table-wrapper').html(
       '<p class="error-message">データの読み込み中にエラーが発生しました。</p>'
     );
@@ -46,20 +48,20 @@ $(document).ready(async function () {
  */
 async function prefetchData(eventData) {
   const scoreIdsToFetch = new Set();
-  const sectionIdsToFetch = new Set(); // 譜面IDを抽出
+  const sectionIdsToFetch = new Set();
 
   eventData.setlist.forEach((group) => {
     group.songIds.forEach((id) => scoreIdsToFetch.add(id));
   });
 
-  if (scoreIdsToFetch.size === 0) return; // scoresデータを取得し、instrumentConfigからsectionIdを抽出
+  if (scoreIdsToFetch.size === 0) return;
 
   const scorePromises = Array.from(scoreIdsToFetch).map(async (scoreId) => {
     const docRef = utils.doc(utils.db, 'scores', scoreId);
     const snap = await utils.getWrapDoc(docRef);
     if (snap.exists()) {
       const data = snap.data();
-      scoresCache[scoreId] = data; // 横軸ラベルに必要なsectionIdを抽出
+      scoresCache[scoreId] = data;
 
       if (data.instrumentConfig) {
         Object.keys(data.instrumentConfig).forEach((sectionId) => {
@@ -69,7 +71,7 @@ async function prefetchData(eventData) {
     }
   });
 
-  await Promise.all(scorePromises); // sectionsデータを取得
+  await Promise.all(scorePromises);
 
   const sectionPromises = Array.from(sectionIdsToFetch).map(
     async (sectionId) => {
@@ -81,7 +83,7 @@ async function prefetchData(eventData) {
     }
   );
 
-  await Promise.all(sectionPromises); // sectionGroupsを作成: { sectionName: { partNames: ['part1', ...], sectionIds: [...] } }
+  await Promise.all(sectionPromises);
 
   Object.keys(sectionsCache).forEach((sectionId) => {
     const sectionName = sectionsCache[sectionId].name_decoded;
@@ -91,7 +93,7 @@ async function prefetchData(eventData) {
         sectionIds: [],
       };
     }
-    sectionGroups[sectionName].sectionIds.push(sectionId); // 該当セクションに属する全てのパート名を集約
+    sectionGroups[sectionName].sectionIds.push(sectionId);
 
     Object.values(scoresCache).forEach((score) => {
       if (score.instrumentConfig && score.instrumentConfig[sectionId]) {
@@ -119,7 +121,7 @@ async function renderAssignConfirm() {
   const eventId = utils.globalGetParamEventId;
   if (!eventId) {
     throw new Error('eventIdが指定されていません。');
-  } // 1. イベントデータの取得
+  }
 
   const eventSnap = await utils.getWrapDoc(
     utils.doc(utils.db, 'events', eventId)
@@ -127,12 +129,12 @@ async function renderAssignConfirm() {
   if (!eventSnap.exists()) {
     throw new Error('イベントが見つかりません：' + eventId);
   }
-  globalEventData = eventSnap.data(); // 2. 基本情報の表示
+  globalEventData = eventSnap.data();
 
   $('#event-date').text(
     utils.getDayOfWeek(globalEventData.date_decoded) || '日付未定'
   );
-  $('#event-title').text(globalEventData.title_decoded || ''); // 3. 譜割り編集ボタンのリンク設定
+  $('#event-title').text(globalEventData.title_decoded || '');
 
   $('#assign-edit-button').on('click', () => {
     window.location.href = `../assign-edit/assign-edit.html?eventId=${eventId}`;
@@ -143,7 +145,7 @@ async function renderAssignConfirm() {
       .removeClass('hidden')
       .text('セットリストが設定されていません。');
     return;
-  } // 4. 譜面・セクション・パート情報の事前取得とキャッシュ
+  }
 
   await prefetchData(globalEventData);
 
@@ -152,7 +154,7 @@ async function renderAssignConfirm() {
       .removeClass('hidden')
       .text('セットリスト内の曲に楽器パートが設定されていません。');
     return;
-  } // 5. 譜割りデータの一括取得
+  }
 
   const assignsSnap = await utils.getWrapDocs(
     utils.query(
@@ -173,8 +175,9 @@ async function renderAssignConfirm() {
     }
     assignsData[songId][partName] = assignValue;
   });
-  globalAssignsData = assignsData; // 6. タブとコンテンツの生成
+  globalAssignsData = assignsData;
 
+  // 6. タブとコンテンツの生成
   renderTabsAndContent();
 }
 
@@ -183,22 +186,37 @@ async function renderAssignConfirm() {
 //////////////////////////////////
 
 /**
- * タブとタブコンテンツのコンテナを生成し、最初のタブを選択する
+ * タブとタブコンテンツのコンテナを生成し、utils.getSession('sectionId')に基づいて初期タブを選択する
  */
 function renderTabsAndContent() {
   const $wrapper = $('#assign-table-wrapper').empty();
   const $tabButtons = $('<div id="assign-tabs" class="tab-buttons"></div>');
   const $tabContents = $('<div id="tab-contents" class="tab-contents"></div>');
 
-  let isFirst = true;
+  // 初期選択セクションIDを取得
+  const initialSectionId = utils.getSession('sectionId');
+  let initialSectionName = null;
+  let defaultSectionName = Object.keys(sectionGroups)[0];
+
+  // 初期選択すべきセクション名を特定
+  if (initialSectionId) {
+    // sectionIdに紐づく sectionName (タブ名) を探す
+    const foundSectionName = Object.keys(sectionGroups).find((name) => {
+      return sectionGroups[name].sectionIds.includes(initialSectionId);
+    });
+    if (foundSectionName) {
+      initialSectionName = foundSectionName;
+    }
+  }
+  const targetSectionName = initialSectionName || defaultSectionName;
 
   Object.keys(sectionGroups).forEach((sectionName, index) => {
     const tabId = `tab-${index}`;
-    const isActive = isFirst ? 'active' : '';
+    const isActive = sectionName === targetSectionName ? 'active' : '';
 
     // タブボタン
     $tabButtons.append(`
-            <button class="tab-button ${isActive}" data-target="${tabId}">
+            <button class="tab-button ${isActive}" data-target="${tabId}" data-section-name="${sectionName}">
                 ${sectionName}
             </button>
         `);
@@ -211,16 +229,14 @@ function renderTabsAndContent() {
                         <thead>
                             <tr class="table-header-parts">
                                 <th class="song-header">曲名</th>
-                                </tr>
+                            </tr>
                         </thead>
                         <tbody>
-                            </tbody>
+                        </tbody>
                     </table>
                 </div>
             </div>
         `);
-
-    isFirst = false;
   });
 
   $wrapper.append($tabButtons).append($tabContents);
@@ -234,6 +250,7 @@ function renderTabsAndContent() {
   // タブ切り替えのイベント設定
   $('#assign-tabs').on('click', '.tab-button', function () {
     const targetId = $(this).data('target');
+    const sectionName = $(this).data('section-name');
 
     // ボタンのアクティブ状態を切り替え
     $('.tab-button').removeClass('active');
@@ -242,6 +259,9 @@ function renderTabsAndContent() {
     // コンテンツの表示を切り替え
     $('.tab-content').removeClass('active');
     $(`#${targetId}`).addClass('active');
+
+    // utils.setSession('sectionId')を更新したい場合はここで実行
+    // 例: utils.setSession('lastSectionName', sectionName);
   });
 }
 
