@@ -172,7 +172,7 @@ function makeEventItem(eventId, date, dateIcon, title, status, statusClass) {
   // 💡 【修正点】リンク先を譜割り編集画面に変更
   return $(`
     <li>
-      <a href="../assign-edit/assign-edit.html?eventId=${eventId}" class="event-link">
+      <a href="../assign-confirm/assign-confirm.html?eventId=${eventId}" class="event-link">
         <div class="event-info">
         ${
           date
