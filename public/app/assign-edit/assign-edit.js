@@ -450,8 +450,9 @@ async function saveAssigns(eventId) {
   let successCount = 0;
 
   // assignsドキュメントIDを生成
+  // 修正: partNameがundefined/nullの場合に備えて空文字列を代入してからreplaceを適用する
   const generateAssignId = (eventId, songId, partName) =>
-    `${eventId}_${songId}_${partName.replace(/[^a-zA-Z0-9]/g, '')}`;
+    `${eventId}_${songId}_${(partName || '').replace(/[^a-zA-Z0-9]/g, '')}`; // ← partName || '' を追加
 
   for (const item of assignmentsToProcess) {
     const assignId = generateAssignId(item.eventId, item.songId, item.partName);
