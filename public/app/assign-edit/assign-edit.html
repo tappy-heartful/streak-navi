@@ -25,12 +25,17 @@
     </div>
 
     <main class="container">
-      <div class="info-group">
-        <p><strong>日付:</strong> <span id="event-date"></span></p>
-        <p><strong>イベント名:</strong> <span id="event-title"></span></p>
+        <div class="form-group">
+          <label class="label-title">日付</label>
+          <div class="label-value" id="event-date"></div>
+        </div>
+
+        <div class="form-group">
+          <label class="label-title">イベント名</label>
+          <div class="label-value" id="event-title"></div>
+        </div>
       </div>
 
-      <h2 class="section-title">譜割り編集表</h2>
       <div id="assign-table-wrapper" class="table-responsive">
         <p id="no-assign-message" class="error-message hidden">
           イベントデータが不完全です。

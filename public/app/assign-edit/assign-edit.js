@@ -11,7 +11,6 @@ let initialAssigns = {}; // 初期状態を保存 (クリア/復元用)
 // ユーザーの演奏可能楽器IDリスト
 let userInstrumentIds = [];
 // パート情報 ({ sectionName: [{ partName: '...', instrumentId: '...' }, ...], ...})
-// 修正: 自分のパートのみを格納する
 let sectionGroups = {};
 
 //===========================
@@ -28,7 +27,7 @@ $(document).ready(async function () {
   try {
     await utils.initDisplay();
 
-    // ユーザーの演奏可能楽器IDを取得 (修正: セッションから直接配列として取得する場合に対応)
+    // ユーザーの演奏可能楽器IDを取得
     const sessionInstrumentIds = utils.getSession('instrumentIds');
     if (Array.isArray(sessionInstrumentIds)) {
       userInstrumentIds = sessionInstrumentIds;
@@ -39,7 +38,6 @@ $(document).ready(async function () {
         .map((id) => id.trim())
         .filter((id) => id);
     }
-    // console.log("User Instrument IDs:", userInstrumentIds);
 
     // 画面ごとのパンくずをセット
     utils.renderBreadcrumb([
@@ -73,11 +71,11 @@ $(document).ready(async function () {
 // ページ設定とデータ取得
 //===========================
 async function setupPage(eventId) {
-  const pageTitle = $('#page-title');
-  const title = $('#title');
+  // const pageTitle = $('#page-title'); // 削除
+  // const title = $('#title'); // 削除
 
-  pageTitle.text('譜割り編集');
-  title.text('譜割り編集');
+  // pageTitle.text('譜割り編集'); // 削除
+  // title.text('譜割り編集'); // 削除
 
   // 全データのプリフェッチ
   await prefetchAllData(eventId);
@@ -149,9 +147,10 @@ async function prefetchAllData(eventId) {
   );
   usersSnap.docs.forEach((docSnap) => {
     const data = docSnap.data();
-    // 修正: instrumentIdsが配列で格納されていることを前提とする
+    // abbreviation_decodedも取得し、プルダウンの表示名として使用
     usersCache[docSnap.id] = {
-      name: data.displayName_decoded,
+      name: data.displayName_decoded, // valueとして使用 (保存時のキー)
+      abbreviation: data.abbreviation_decoded || data.displayName_decoded, // プルダウン表示名として使用
       instrumentIds: Array.isArray(data.instrumentIds)
         ? data.instrumentIds
         : [],
@@ -191,7 +190,7 @@ function buildSectionGroups(instrumentConfig) {
 
     const sectionName = sectionData.name_decoded;
 
-    // 修正: 自分のパート（担当楽器）のみをフィルタリングして格納する
+    // 自分のパート（担当楽器）のみをフィルタリングして格納する
     const filteredParts = instrumentConfig[sectionId]
       .filter((config) => {
         // ユーザーの演奏可能楽器ID (userInstrumentIds) に、このパートの楽器ID (config.instrumentId) が含まれているかチェック
@@ -221,8 +220,7 @@ function renderAssignTable() {
   const $table = $(
     `<table class="assign-edit-table"><thead><tr></tr></thead><tbody></tbody></table>`
   );
-  const $thead = $table.find('thead tr');
-  const $tbody = $table.find('tbody');
+  const $thead = $table.find('thead'); // thead全体を取得
 
   // 1. ヘッダー (セクション名, パート名) の描画
   const sectionNames = Object.keys(sectionGroups);
@@ -231,29 +229,38 @@ function renderAssignTable() {
     0
   );
 
-  // 自分のパートしかないため、totalPartsが0ならテーブル描画は不要（setupPageで処理済み）
   if (totalParts === 0) return;
 
-  // 1-1. 列ラベル1行目: セクション名
-  let sectionHeaderHtml =
-    '<th rowspan="2" class="song-header">曲名 / グループ</th>';
+  // 1-1. 列ラベル1行目: 曲名 + セクション名
+  const $firstRow = $('<tr></tr>');
+
+  // 曲名ヘッダーは2行をまたぐ (rowspan="2")
+  $firstRow.append('<th rowspan="2" class="song-header">曲名</th>');
+
   sectionNames.forEach((name) => {
     const partCount = sectionGroups[name].length;
     if (partCount > 0) {
-      sectionHeaderHtml += `<th colspan="${partCount}" class="section-name-header">${name}</th>`;
+      // セクション名ヘッダーは1行のみ (colspanで複数のパートを束ねる)
+      $firstRow.append(
+        `<th colspan="${partCount}" class="section-name-header">${name}</th>`
+      );
     }
   });
-  $thead.append(sectionHeaderHtml);
+  $thead.append($firstRow); // 1行目をtheadに追加
 
   // 1-2. 列ラベル2行目: パート名
-  let partHeaderHtml = '<tr><th class="song-header-spacer hidden"></th>'; // spacer for rowspan
+  const $secondRow = $('<tr></tr>');
+  // 曲名ヘッダーのスペーサーは不要。代わりにパート名セルのみを配置。
+  // ここにセルを追加すると、曲名ヘッダーの横にセルが並び始めるため、
+  // 必要なのはパート名ヘッダーのみです。
   sectionNames.forEach((name) => {
     sectionGroups[name].forEach((part) => {
-      partHeaderHtml += `<th class="part-header-cell">${part.partName}</th>`;
+      $secondRow.append(`<th class="part-header-cell">${part.partName}</th>`);
     });
   });
-  partHeaderHtml += '</tr>';
-  $thead.append(partHeaderHtml);
+  $thead.append($secondRow); // 2行目をtheadに追加
+
+  const $tbody = $table.find('tbody');
 
   // 2. ボディ (曲、プルダウン) の描画
   globalEventData.setlist.forEach((group) => {
@@ -274,8 +281,9 @@ function renderAssignTable() {
 
       const songAbbreviation =
         score.abbreviation_decoded || score.title_decoded || '曲名不明';
+      // song-cellはCSSで左寄せに設定済み
       let rowHtml = `<tr data-song-id="${songId}">
-                <td class="song-cell">${songAbbreviation}</td>`;
+                <td class="song-cell">${songAbbreviation}</td>`; // 曲名は左寄せ
 
       // 各パートのセル (プルダウン)
       sectionNames.forEach((sectionName) => {
@@ -306,7 +314,8 @@ function renderAssignTable() {
  * @returns {string} selectタグのHTML
  */
 function buildUserSelect(part, selectedValue) {
-  let optionsHtml = '<option value="">未割り当て</option>'; // 未割り当てオプション
+  // 修正: 未割り当て → 未割
+  let optionsHtml = '<option value="">未割</option>';
 
   // 該当楽器を演奏できるユーザーをフィルタリング
   const filteredUsers = Object.values(usersCache).filter((user) =>
@@ -314,12 +323,13 @@ function buildUserSelect(part, selectedValue) {
     user.instrumentIds.includes(part.instrumentId)
   );
 
-  filteredUsers.sort((a, b) => a.name.localeCompare(b.name, 'ja')); // 名前でソート
+  // ソートはdisplayName (user.name) で行う
+  filteredUsers.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
 
   filteredUsers.forEach((user) => {
     const isSelected = user.name === selectedValue ? 'selected' : '';
-    // valueには表示名 (displayName) をそのまま使う
-    optionsHtml += `<option value="${user.name}" ${isSelected}>${user.name}</option>`;
+    // オプションの表示名にはabbreviationを使用
+    optionsHtml += `<option value="${user.name}" ${isSelected}>${user.abbreviation}</option>`;
   });
 
   return `<select class="assign-select">${optionsHtml}</select>`;
