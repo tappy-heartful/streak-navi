@@ -31,6 +31,10 @@
   cursor: pointer;
 }
 
+.user-item:hover {
+  background-color: #e0f5e9;
+}
+
 .section-user-list {
   list-style: none;
   padding-left: 0;
