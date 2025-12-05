@@ -450,7 +450,7 @@ function validateUserData() {
     utils.markError($('#abbreviation'), '略称を入力してください');
     isValid = false;
   } else if (abbreviation.length > 2) {
-    utils.markError($('#abbreviation'), '略称は2文字で以下で入力してください');
+    utils.markError($('#abbreviation'), '略称は2文字以下で入力してください');
     isValid = false;
   }
 

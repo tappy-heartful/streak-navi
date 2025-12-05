@@ -3,7 +3,9 @@ import * as utils from '../common/functions.js'; // 共通関数群読み込み
 //==================================
 // グローバル変数
 //==================================
-let initialStateHtml; // 初期表示状態の保存用
+let initialState; // 初期表示状態の保存用
+let allSections = [];
+let allInstruments = [];
 
 //==================================
 // 初期化処理（ページ読込時）
@@ -71,6 +73,9 @@ async function setupPage(mode) {
   const submitButton = $('#save-button');
   const backLink = $('.back-link');
 
+  // 🔽 【新規追加】セクションと楽器の一覧をロード
+  await fetchSectionsAndInstruments();
+
   if (mode === 'new') {
     pageTitle.text('イベント新規作成');
     title.text('イベント新規作成');
@@ -104,6 +109,7 @@ async function setupPage(mode) {
 
     if (initialType === 'schedule') renderCandidateDates(['']); // 候補日を1つ初期表示
     renderSetlistGroups(null); // 空のグループを1つ表示
+    renderInstrumentConfig(null); // 🔽 【新規追加】楽器構成を初期描画
   } else {
     pageTitle.text(
       mode === 'edit' ? 'イベント編集' : 'イベント新規作成(コピー)'
@@ -114,6 +120,34 @@ async function setupPage(mode) {
     // 編集 or コピー
     await loadEventData(utils.globalGetParamEventId, mode);
   }
+}
+
+// 🔽 【新規追加】セクションと楽器のデータを取得
+async function fetchSectionsAndInstruments() {
+  // 1. sectionsコレクションから全てのデータを取得
+  const sectionSnap = await utils.getWrapDocs(
+    utils.collection(utils.db, 'sections') // where句を削除
+  );
+
+  // 2. クライアント側（JavaScript）でdoc.idが '99' のものを除外
+  allSections = sectionSnap.docs
+    .filter((doc) => doc.id !== '99') // IDが'99'のドキュメントを除外
+    .map((doc) => ({
+      id: doc.id,
+      name: doc.data().name,
+    }));
+
+  allSections.sort((a, b) => a.id - b.id);
+
+  // 2. instrumentsコレクションから全データを取得
+  const instrumentSnap = await utils.getWrapDocs(
+    utils.collection(utils.db, 'instruments')
+  );
+  allInstruments = instrumentSnap.docs.map((doc) => ({
+    id: doc.id,
+    ...doc.data(),
+  }));
+  allInstruments.sort((a, b) => (a.id > b.id ? 1 : -1));
 }
 
 //==================================
@@ -153,13 +187,16 @@ async function loadEventData(eventId, mode) {
   renderCandidateDates(candidateDates.length > 0 ? candidateDates : ['']); // 候補日を画面に表示
 
   renderSetlistGroups(data.setlist); // setlistデータを描画
+
+  // 🔽 【新規追加】楽器構成をロード
+  renderInstrumentConfig(data.instrumentConfig);
 }
 
 //==================================
 // 初期状態の保存
 //==================================
 function captureInitialState() {
-  initialStateHtml = {
+  initialState = {
     title: $('#event-title').val(),
     date: $('#event-date').val(), // ← inputのyyyy-MM-ddをそのまま保存
     placeName: $('#event-place-name').val(),
@@ -179,29 +216,33 @@ function captureInitialState() {
     allowAssign: $('input[name="allow-assign"]:checked').val(),
     // 【新規追加】候補日
     candidateDates: getCandidateDatesFromInputs(),
+    // 🔽 【新規追加】楽器構成
+    instrumentConfig: getInstrumentConfigFromInputs(),
   };
 }
 function restoreInitialState() {
-  $('#event-title').val(initialStateHtml.title);
-  $('#event-date').val(initialStateHtml.date || ''); // ← yyyy-MM-dd形式
-  $('#event-place-name').val(initialStateHtml.placeName || '');
-  $('#event-website').val(initialStateHtml.website || '');
-  $('#event-access').val(initialStateHtml.access || '');
-  $('#event-google-map').val(initialStateHtml.googleMap || '');
-  $('#event-schedule').val(initialStateHtml.schedule || '');
-  renderSetlistGroups(initialStateHtml.setlist); // 【修正】セットリストを復元
-  $('#event-dress').val(initialStateHtml.dress || '');
-  $('#event-bring').val(initialStateHtml.bring || '');
-  $('#event-rent').val(initialStateHtml.rent || '');
-  $('#event-other').val(initialStateHtml.other || '');
+  $('#event-title').val(initialState.title);
+  $('#event-date').val(initialState.date || ''); // ← yyyy-MM-dd形式
+  $('#event-place-name').val(initialState.placeName || '');
+  $('#event-website').val(initialState.website || '');
+  $('#event-access').val(initialState.access || '');
+  $('#event-google-map').val(initialState.googleMap || '');
+  $('#event-schedule').val(initialState.schedule || '');
+  renderSetlistGroups(initialState.setlist); // 【修正】セットリストを復元
+  $('#event-dress').val(initialState.dress || '');
+  $('#event-bring').val(initialState.bring || '');
+  $('#event-rent').val(initialState.rent || '');
+  $('#event-other').val(initialState.other || '');
 
   // 【修正】日程調整/出欠確認の種別と回答受付状態の復元
-  $('input[name="attendance-type"]').val([initialStateHtml.attendanceType]);
-  $('input[name="attendance-status"]').val([initialStateHtml.attendanceStatus]);
-  $('input[name="allow-assign"]').val([initialStateHtml.allowAssign]);
-  renderCandidateDates(initialStateHtml.candidateDates);
+  $('input[name="attendance-type"]').val([initialState.attendanceType]);
+  $('input[name="attendance-status"]').val([initialState.attendanceStatus]);
+  $('input[name="allow-assign"]').val([initialState.allowAssign]);
+  renderCandidateDates(initialState.candidateDates);
   toggleDateFields(); // フィールドの表示切り替え
 
+  // 🔽 【新規追加】楽器構成を復元
+  renderInstrumentConfig(initialState.instrumentConfig);
   utils.clearErrors();
 }
 
@@ -241,6 +282,20 @@ function setupEventHandlers(mode) {
       )
     )
       restoreInitialState();
+  });
+
+  // 🔽 【新規追加】パート追加ボタン（動的要素）
+  $(document).on('click', '.add-part-button', function () {
+    const sectionId = $(this).closest('.instrument-section').data('section-id');
+    const $container = $(this).siblings('.part-list-container');
+    addPartInput($container, sectionId);
+  });
+
+  // 🔽 【新規追加】パート削除ボタン（動的要素）
+  $(document).on('click', '.remove-part-button', function () {
+    $(this).closest('.part-item').remove();
+    // 削除後にエラーを再チェック
+    utils.clearErrors();
   });
 
   // 🔽 【新規追加】曲の並び替え機能の有効化
@@ -448,6 +503,7 @@ async function collectEventData(mode) {
     dress: $('#event-dress').val().trim(),
     bring: $('#event-bring').val().trim(),
     rent: $('#event-rent').val().trim(),
+    instrumentConfig: getInstrumentConfigFromInputs(),
     other: $('#event-other').val().trim(),
 
     // 【修正・新規追加】日程/出欠関連のデータ
@@ -535,7 +591,7 @@ function addSetlistGroup($container, songIds = [''], groupTitle = '') {
   const $group = $(`
     <div class="setlist-group" data-group-id="${groupId}">
       <div class="group-header" style="display: flex; align-items: center; margin-bottom: 5px; gap: 10px;">
-        <input type="text" class="group-title-input" placeholder="グループ名 (例: 1st Stage)" value="${groupTitle}" style="flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+        <input type="text" class="group-title-input" placeholder="例: 1st Stage" value="${groupTitle}" style="flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
         <button type="button" class="remove-group-button" title="このグループを削除">
           <i class="fas fa-times"></i> グループを削除
         </button>
@@ -698,7 +754,186 @@ function validateEventData() {
   }
   // TODO:googlemapのURLがGoogle Mapの形式かどうかもチェック
 
+  // 🔽 【新規追加】楽器構成のチェック
+  const config = getInstrumentConfigFromInputs();
+  const $configGroup = $('#instrument-config-group');
+
+  let totalParts = 0;
+  let configHasError = false;
+
+  $('#instrument-config-group .instrument-section').each(function () {
+    const $section = $(this);
+    const sectionName = $section.find('h3').text();
+
+    $section.find('.part-item').each(function () {
+      const $partInput = $(this).find('.part-name-input');
+      const $instSelect = $(this).find('.instrument-select');
+      const partName = $partInput.val().trim();
+      const instrumentId = $instSelect.val();
+
+      // パート名が4文字を超えていないかチェック
+      if (partName.length > 4) {
+        utils.markError($partInput, '4文字以下で入力してください');
+        isValid = false;
+        configHasError = true;
+        return false; // eachループを抜ける
+      }
+
+      // パート名と楽器IDが両方入力されているかチェック
+      if (partName || instrumentId) {
+        totalParts++; // 有効なパートとしてカウント
+
+        if (!partName) {
+          utils.markError($partInput, 'パート名は必須です');
+          isValid = false;
+          configHasError = true;
+        }
+
+        if (!instrumentId) {
+          utils.markError($instSelect, '楽器を選択してください');
+          isValid = false;
+          configHasError = true;
+        }
+      }
+    });
+    if (configHasError) return false; // 外側のeachループも抜ける
+  });
+
   return isValid;
+}
+
+//===========================
+// 楽器構成描画関連 (修正)
+//===========================
+
+/**
+ * 楽器構成の選択肢HTMLを生成
+ * @param {string} sectionId - 所属するセクションのID
+ * @param {string} selectedId - 選択されている楽器のID
+ * @returns {string} - optionタグのHTML文字列
+ */
+function getInstrumentOptionsHtml(sectionId, selectedId = '') {
+  // 🔽 sectionIdを追加
+  let options = '<option value="">楽器を選択</option>';
+
+  // 🔽 1. sectionIdでinstrumentsをフィルタリング
+  const filteredInstruments = allInstruments.filter(
+    (inst) => inst.sectionId === String(sectionId)
+  );
+
+  // 🔽 2. instruments.nameを表示名として使用
+  filteredInstruments.forEach((inst) => {
+    const selected = inst.id === selectedId ? 'selected' : '';
+    // inst.abbreviation ではなく inst.name を表示
+    options += `<option value="${inst.id}" ${selected}>${inst.name}</option>`;
+  });
+  return options;
+}
+
+/**
+ * パート入力フィールドを生成しコンテナに追加
+ * @param {jQuery} $container - パートリストを格納するコンテナ
+ * @param {string} sectionId - 所属するセクションID
+ * @param {string} partName - パート名
+ * @param {string} instrumentId - 選択する楽器ID
+ */
+function addPartInput($container, sectionId, partName = '', instrumentId = '') {
+  // 🔽 getInstrumentOptionsHtmlに関数にsectionIdを渡すように修正
+  const optionsHtml = getInstrumentOptionsHtml(sectionId, instrumentId);
+
+  const $item = $(`
+        <div class="part-item" data-section-id="${sectionId}">
+            <input type="text" class="part-name-input" value="${partName}" placeholder="パート名" maxlength="4" />
+            <select class="instrument-select" style="flex-grow: 1;">${optionsHtml}</select>
+            <button type="button" class="remove-part-button" title="このパートを削除">
+                <i class="fas fa-trash-alt"></i>
+            </button>
+        </div>
+    `);
+  $container.append($item);
+}
+
+/**
+ * 楽器構成全体を描画
+ * @param {Object} configData - Firestoreから読み込んだ楽器構成データ
+ */
+function renderInstrumentConfig(configData) {
+  const $container = $('#instrument-config-group').empty();
+
+  // configDataが存在しない場合は空のパートを1つ持つセクションを全てもとに描画
+  if (!configData) {
+    configData = {};
+    allSections.forEach((section) => {
+      // 初期表示は空のパートを持つ（登録時にバリデーションで弾く）
+      configData[section.id] = [{ partName: '', instrumentId: '' }];
+    });
+  }
+
+  allSections.forEach((section) => {
+    const sectionId = section.id;
+    const sectionName = section.name;
+    const parts = configData[sectionId] || [];
+
+    const $section = $(`
+            <div class="instrument-section" data-section-id="${sectionId}">
+                <h3>${sectionName}</h3>
+                <div class="part-list-container">
+                    </div>
+                <button type="button" class="add-part-button">＋ パートを追加</button>
+            </div>
+        `);
+
+    const $partContainer = $section.find('.part-list-container');
+
+    if (parts.length === 0) {
+      // データがない場合でも、パート追加ボタンのみ表示するために空の配列をセット
+      // addPartInput($partContainer, sectionId);
+    } else {
+      // データが存在する場合
+      parts.forEach((part) => {
+        addPartInput(
+          $partContainer,
+          sectionId,
+          part.partName,
+          part.instrumentId
+        );
+      });
+    }
+    $container.append($section);
+  });
+}
+
+/**
+ * 画面上の入力から楽器構成データを取得
+ * @returns {Object} 楽器構成データ (セクションID: [パート情報])
+ */
+function getInstrumentConfigFromInputs() {
+  const config = {};
+  $('#instrument-config-group .instrument-section').each(function () {
+    const sectionId = $(this).data('section-id');
+    const parts = [];
+
+    $(this)
+      .find('.part-item')
+      .each(function () {
+        const partName = $(this).find('.part-name-input').val().trim();
+        const instrumentId = $(this).find('.instrument-select').val();
+
+        // パート名、または楽器IDのどちらかが入力されていれば保存対象
+        if (partName || instrumentId) {
+          parts.push({
+            partName: partName,
+            instrumentId: instrumentId,
+          });
+        }
+      });
+
+    // パートが1つ以上あればセクションに追加
+    if (parts.length > 0) {
+      config[sectionId] = parts;
+    }
+  });
+  return config;
 }
 
 // yyyy-MM-dd → yyyy.MM.dd

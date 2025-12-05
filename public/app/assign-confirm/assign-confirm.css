@@ -1,0 +1,193 @@
+/* ---------------------------------- */
+/* 共通デザインとの統合 */
+/* ---------------------------------- */
+
+/* 譜割り表のラッパー (HTML修正に伴い、外枠の見た目を調整) */
+.table-view-wrapper {
+    margin-top: 20px;
+    padding: 10px; /* 内部のタブUIに少し余白を持たせる */
+    background-color: #fff; /* 背景を白に設定 */
+    border-radius: 10px; /* 共通コンテナに合わせた丸み */
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05); /* 控えめな影 */
+}
+
+/* ---------------------------------- */
+/* タブ UI のスタイル */
+/* ---------------------------------- */
+.tab-buttons {
+    display: flex;
+    overflow-x: auto;
+    white-space: nowrap;
+    border-bottom: 2px solid #e0e0e0; /* 薄いグレーの線 */
+    margin-bottom: 10px;
+    padding-bottom: 0; /* タブボタンの線が下線と重なるように */
+    background-color: #fcfcfc; /* タブエリアの背景をわずかに明るく */
+    border-radius: 8px 8px 0 0;
+}
+
+.tab-button {
+    background: none;
+    border: none;
+    padding: 12px 18px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    color: #666;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+    flex-shrink: 0; 
+}
+
+.tab-button:hover {
+    color: #4CAF50; /* メインカラー (緑) */
+}
+
+.tab-button.active {
+    color: #4CAF50; /* メインカラー (緑) */
+    border-bottom: 3px solid #4CAF50; /* メインカラーで強調 */
+    background-color: #fff;
+}
+
+.tab-contents .tab-content {
+    display: none;
+}
+
+.tab-contents .tab-content.active {
+    display: block;
+}
+
+
+/* ---------------------------------- */
+/* 譜割り表本体のスタイル */
+/* ---------------------------------- */
+
+/* 横スクロール可能なコンテナ */
+.table-responsive {
+    overflow-x: auto;
+    position: relative;
+    border: 1px solid #ddd; /* 外枠の色を統一 */
+    border-radius: 6px;
+    background-color: #fff;
+    margin: 10px 0; /* タブコンテンツ内でのマージン */
+}
+
+.assign-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+/* ヘッダーのスタイル */
+.assign-table thead th {
+    background-color: #e3f2fd; /* Light Blue 50 */
+    border: 1px solid #bbdefb; /* Light Blue 200 */
+    padding: 10px 6px;
+    font-size: 13px;
+    font-weight: bold;
+    text-align: center;
+    white-space: nowrap; 
+    vertical-align: middle;
+}
+
+/* 縦軸ラベル（曲名ヘッダー） - thead内のヘッダーセル */
+.assign-table .song-header {
+    background-color: #f1f8e9; /* Light Green 50 */
+    color: #333;
+    border-right: 2px solid #aed581; /* Light Green 300 */
+    text-align: left;
+    /* paddingを狭くする */
+    padding: 6px 15px; 
+    /* min-widthを削除 */
+    
+    position: sticky;
+    left: 0;
+    z-index: 3; /* 最前面に */
+    border-top-color: #f1f8e9; 
+    border-bottom-color: #e0e0e0; /* ボディとの境 */
+}
+
+/* 横軸パート名（partName） */
+.assign-table .part-header-cell {
+    background-color: #e3f2fd; /* Light Blue 50 */
+    font-weight: normal;
+    font-size: 12px;
+}
+
+/* ボディ（中身）のスタイル */
+.assign-table tbody td {
+    border: 1px solid #eee;
+    /* paddingを狭くする */
+    padding: 6px 5px; 
+    text-align: center;
+    font-size: 14px;
+    white-space: nowrap;
+    /* heightも狭くする */
+    height: 32px; 
+}
+
+/* 曲のグループタイトル行 (setlist.title) */
+.group-title-row td {
+    background-color: #f5f5f5;
+    font-weight: bold;
+    text-align: left;
+    padding: 10px 15px;
+    border-top: 2px solid #ccc; /* セクションの区切りを強調 */
+    color: #444;
+    
+    position: sticky;
+    left: 0;
+    z-index: 2; 
+}
+
+/* 曲名のセル（ボディ内の左端）にもsong-headerを適用 */
+.assign-table tbody .song-header {
+    background-color: #f1f8e9; 
+    border-right: 2px solid #aed581;
+    color: #333;
+    
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    /* paddingはtbody tdと同じ設定に */
+    padding: 6px 15px; 
+    /* heightはtbody tdと同じ設定に */
+    height: 32px;
+}
+
+/* 譜割りの中身 (担当者名/記号など) */
+.assign-table .assign-cell {
+    color: #333;
+}
+
+/* ---------------------------------- */
+/* ボタンセクション */
+/* ---------------------------------- */
+
+.confirm-buttons {
+    margin-top: 30px;
+    text-align: center;
+}
+
+/* 編集ボタンのスタイルを共通の .edit-button に基づき調整 */
+.edit-button {
+    background-color: #2196F3; /* サブカラー (青) */
+    color: white;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: bold;
+    display: inline-block;
+    transition: background-color 0.3s;
+}
+
+.edit-button:hover {
+    background-color: #1e88e5; /* 濃い青 */
+}
+
+/* 譜割りがない場合のメッセージ */
+#no-assign-message {
+    text-align: center;
+    padding: 20px;
+    color: #777;
+    background-color: #fff;
+    border-radius: 8px;
+}

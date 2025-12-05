@@ -473,7 +473,7 @@ async function renderEvent() {
     if (Array.isArray(setlistGroups) && setlistGroups.length > 0) {
       setlistGroups.forEach((group) => {
         // 編集画面のデータ構造に合わせる: groupName -> title, songs -> songIds
-        const groupTitle = group.title || 'グループ名なし';
+        const groupTitle = group.title || '';
 
         let songListHtml = '';
 
@@ -517,13 +517,6 @@ async function renderEvent() {
     );
   }
 
-  // 譜割
-  if (eventData.allowAssign) {
-    // TODO 譜割の表示
-  } else {
-    $('#event-asssign-group').hide();
-  }
-
   // タイムスケジュール
   $('#event-schedule').html(eventData.schedule?.replace(/\n/g, '<br>') || '');
 
@@ -535,6 +528,20 @@ async function renderEvent() {
 
   // 施設に借りるもの
   $('#event-rent').html(eventData.rent?.replace(/\n/g, '<br>') || '');
+
+  // 🔽 【新規追加】楽器構成の表示
+  await renderInstrumentConfig(eventData.instrumentConfig);
+
+  // 譜割
+  if (eventData.allowAssign) {
+    $('#event-asssign').html(
+      `<a href="../assign-confirm/assign-confirm.html?eventId=${eventId}" target="_blank" rel="noopener noreferrer">
+        譜割りを見る<i class="fas fa-arrow-up-right-from-square"></i>
+      </a>`
+    );
+  } else {
+    $('#event-asssign-group').hide();
+  }
 
   // その他
   $('#event-other').html(eventData.other?.replace(/\n/g, '<br>') || '');
@@ -598,6 +605,60 @@ function renderRecordings(eventId, currentUid, isAdmin) {
     });
     $container.append($ul);
   }
+}
+
+////////////////////////////
+// 楽器構成データ表示 (修正)
+////////////////////////////
+async function renderInstrumentConfig(configData) {
+  const $configDiv = $('#instrument-config');
+
+  if (!configData || Object.keys(configData).length === 0) {
+    $configDiv.text('未設定');
+    return;
+  }
+
+  let configHtml = '';
+
+  // sectionsコレクションから全てのセクションを取得
+  const sectionSnap = await utils.getWrapDocs(
+    utils.collection(utils.db, 'sections')
+  );
+
+  // セクションデータをIDでルックアップできるように整形（IDが99のものを除外）
+  const sectionsMap = new Map();
+  sectionSnap.docs
+    .filter((doc) => doc.id !== '99')
+    .forEach((doc) => {
+      sectionsMap.set(doc.id, doc.data().name_decoded || doc.data().name);
+    });
+
+  // データをセクションID順にソートして処理
+  const sortedSectionIds = Object.keys(configData).sort((a, b) => {
+    return parseInt(a, 10) - parseInt(b, 10);
+  });
+
+  for (const sectionId of sortedSectionIds) {
+    const parts = configData[sectionId];
+    const sectionName = sectionsMap.get(sectionId);
+
+    // partNameのみを抽出し、「、」で連結
+    const partNames = parts
+      .map((p) => p.partName)
+      .filter((name) => name) // 空のパート名を除外
+      .join('、');
+
+    if (sectionName && partNames) {
+      // 🔽 修正: セクション名を太字にして改行し、パート名を表示
+      configHtml += `
+        <strong>${sectionName}</strong><br>
+        ${partNames}<br><br>
+      `;
+    }
+  }
+
+  // 末尾の不要な改行タグを削除してセット
+  $configDiv.html(configHtml.trim().replace(/<br><br>$/, ''));
 }
 
 ////////////////////////////
