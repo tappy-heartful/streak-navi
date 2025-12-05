@@ -237,7 +237,7 @@ async function populateRoles(selectedId) {
   });
 }
 
-function setupEventHandlers() {
+function setupEventHandlers(uid) {
   // 💡 修正: パート選択時のイベントハンドラ
   $('#section-select').on('change', function () {
     const selectedSectionId = $(this).val();
