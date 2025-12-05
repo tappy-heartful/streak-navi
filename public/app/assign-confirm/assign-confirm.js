@@ -7,7 +7,7 @@ let sectionGroups = {}; // { sectionName: { partNames: ['part1', 'part2', ...] }
 // sectionIdsは不要になるため削除
 
 // グローバル変数として譜割りデータを保持
-let globalAssignsData = {};
+let globalAssignsData = {}; // { songId: { partName: assignValue } }
 let globalEventData = {};
 let sectionsCache = {}; // セクション名取得用として残す
 
@@ -108,8 +108,7 @@ async function prefetchData(eventData) {
       if (!sectionGroups[sectionName]) {
         sectionGroups[sectionName] = { partNames: [] };
       }
-      // パート名は配列の順番通りに格納する (既存のパート名があれば上書きしないように結合)
-      // ただし、新しい仕様ではinstrumentConfigはセクションごとに一意なので、単純に代入
+      // パート名は配列の順番通りに格納する
       sectionGroups[sectionName].partNames = partNames;
     });
   }
@@ -172,7 +171,8 @@ async function renderAssignConfirm() {
     const data = docSnap.data();
     const partName = data.partName_decoded;
     const songId = data.songId;
-    const assignValue = data.assignValue_decoded || 'ー'; // 割り当てがない場合はハイフン等
+    // assignValueがない、または空文字列の場合は 'ー' として扱う
+    const assignValue = data.assignValue_decoded || 'ー';
 
     if (!assignsData[songId]) {
       assignsData[songId] = {};
@@ -181,7 +181,7 @@ async function renderAssignConfirm() {
   });
   globalAssignsData = assignsData;
 
-  // 6. タブとコンテンツの生成
+  // 6. タブとコンテンツ、小計の生成
   renderTabsAndContent();
 }
 
@@ -240,16 +240,25 @@ function renderTabsAndContent() {
   });
 
   // タブ切り替えのイベント設定
-  $('#assign-tabs').on('click', '.tab-button', function () {
-    const targetId = $(this).data('target');
-    // ボタンのアクティブ状態を切り替え
-    $('.tab-button').removeClass('active');
-    $(this).addClass('active');
+  $('#assign-tabs')
+    .on('click', '.tab-button', function () {
+      const targetId = $(this).data('target');
+      // ボタンのアクティブ状態を切り替え
+      $('.tab-button').removeClass('active');
+      $(this).addClass('active');
 
-    // コンテンツの表示を切り替え
-    $('.tab-content').removeClass('active');
-    $(`#${targetId}`).addClass('active');
-  });
+      // コンテンツの表示を切り替え
+      $('.tab-content').removeClass('active');
+      $(`#${targetId}`).addClass('active');
+
+      // ★ 小計表示の更新
+      renderAssignSummary($(this).data('section-name'));
+    })
+    .find('.tab-button.active')
+    .trigger('click'); // 初期表示のためにアクティブなタブをトリガー
+
+  // ★ 最初の小計表示をセット
+  renderAssignSummary(targetSectionName);
 }
 
 /**
@@ -278,7 +287,6 @@ function renderTableHeadersAndBody(index, sectionName, partNamesForTab) {
     const groupTitle = group.title_decoded || 'No Group Title';
     const colspan = partNamesForTab.length + 1; // 1は曲名列
 
-    // 修正: 表のpartNameの行の一つ上の行にsectionsのnameを表示
     $tbody.append(`
             <tr class="group-title-row">
                 <td colspan="${colspan}">${groupTitle}</td>
@@ -309,4 +317,93 @@ function renderTableHeadersAndBody(index, sectionName, partNamesForTab) {
       $tbody.append(rowHtml);
     });
   });
+}
+
+//////////////////////////////////
+// 4. 小計計算と描画 (修正)
+//////////////////////////////////
+
+/**
+ * 譜割りデータを集計し、セクションごとのassignValue（担当者）別カウントを生成する
+ * @returns {Object} { sectionName: { assignValue: count, ... }, ... }
+ */
+function calculateAssignSummary() {
+  const summary = {};
+
+  // 全セクションをループ
+  Object.keys(sectionGroups).forEach((sectionName) => {
+    const partNames = sectionGroups[sectionName].partNames;
+    const assignCounts = {}; // { assignValue: count }
+
+    // 全曲をループ
+    Object.keys(globalAssignsData).forEach((songId) => {
+      const songAssigns = globalAssignsData[songId];
+
+      // そのセクションの全パートをループ
+      partNames.forEach((partName) => {
+        // 割り当て値を取得 ('ー' は未割り当て)
+        const assignValue = songAssigns ? songAssigns[partName] || 'ー' : 'ー';
+
+        // カウントをインクリメント
+        if (assignValue !== 'ー') {
+          assignCounts[assignValue] = (assignCounts[assignValue] || 0) + 1;
+        }
+      });
+    });
+
+    // 0件の担当者は除外して保存
+    const filteredCounts = Object.keys(assignCounts).reduce((acc, key) => {
+      if (assignCounts[key] > 0) {
+        acc[key] = assignCounts[key];
+      }
+      return acc;
+    }, {});
+
+    summary[sectionName] = filteredCounts;
+  });
+
+  return summary;
+}
+
+/**
+ * 小計データを表示エリアに描画する
+ * @param {string} activeSectionName - 現在アクティブなセクション名
+ */
+function renderAssignSummary(activeSectionName) {
+  const $summaryWrapper = $('#assign-summary-wrapper');
+  $summaryWrapper.find('.summary-content').remove(); // 既存のコンテンツをクリア
+
+  const summaryData = calculateAssignSummary();
+  const summaryForActiveSection = summaryData[activeSectionName];
+
+  if (
+    !summaryForActiveSection ||
+    Object.keys(summaryForActiveSection).length === 0
+  ) {
+    // 割り当てがない場合は非表示
+    $summaryWrapper.addClass('hidden');
+    return;
+  }
+
+  $summaryWrapper.removeClass('hidden');
+
+  let html = `<div class="summary-content">`;
+  html += `<div class="summary-section">`;
+  html += `<h3>${activeSectionName}</h3>`;
+  // ★ 修正: summary-listのflex-wrapを解除し、各項目が1行になるようにする (CSSで対応)
+  // ここではul/liの構造を維持し、CSSで制御できるようにする
+  html += `<ul class="summary-list">`;
+
+  // 担当者名でソートして表示
+  const sortedAssignValues = Object.keys(summaryForActiveSection).sort();
+
+  sortedAssignValues.forEach((assignValue) => {
+    const count = summaryForActiveSection[assignValue];
+    // ★ 修正: 各項目が独立した<li>となり、CSSで縦並びになるようにする
+    html += `<li class="summary-item">${assignValue}：<strong>${count}</strong></li>`;
+  });
+
+  html += `</ul></div></div>`;
+
+  $summaryWrapper.append(html);
 }

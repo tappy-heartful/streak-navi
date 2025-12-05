@@ -92,6 +92,9 @@ async function setupPage(eventId) {
   // テーブルの描画
   renderAssignTable();
 
+  // ★ 追加: 小計の初期表示
+  renderAssignSummary();
+
   // 初期状態を保存
   initialAssigns = JSON.parse(JSON.stringify(currentAssigns));
 }
@@ -170,7 +173,6 @@ async function prefetchAllData(eventId) {
     const assignedId = data.userId_decoded || '';
 
     // currentAssignsにはプルダウンで使用するユーザーIDを格納する
-    // 略称からの逆引き処理が不要になり、略称重複の問題がなくなる
     currentAssigns[data.songId][data.partName_decoded] = assignedId;
   });
 
@@ -250,9 +252,6 @@ function renderAssignTable() {
 
   // 1-2. 列ラベル2行目: パート名
   const $secondRow = $('<tr></tr>');
-  // 曲名ヘッダーのスペーサーは不要。代わりにパート名セルのみを配置。
-  // ここにセルを追加すると、曲名ヘッダーの横にセルが並び始めるため、
-  // 必要なのはパート名ヘッダーのみです。
   sectionNames.forEach((name) => {
     sectionGroups[name].forEach((part) => {
       $secondRow.append(`<th class="part-header-cell">${part.partName}</th>`);
@@ -354,12 +353,17 @@ function setupEventHandlers(eventId) {
       currentAssigns[songId] = {};
     }
     currentAssigns[songId][partName] = newUserId; // currentAssignsにユーザーIDを格納
+
+    // ★ 追加: 小計を更新
+    renderAssignSummary();
   });
 
   // 2. 初期値に戻すボタン
   $('#clear-button').on('click', async () => {
     if (await utils.showDialog('編集前に戻しますか？')) {
       restoreInitialState();
+      // ★ 追加: 小計を更新
+      renderAssignSummary();
     }
   });
 
@@ -535,4 +539,105 @@ function restoreInitialState() {
   renderAssignTable();
 
   utils.clearErrors();
+}
+
+//=====================================
+// 4. 小計計算と描画 (追加)
+//=====================================
+
+/**
+ * 譜割りデータを集計し、セクションごとのassignValue（担当者）別カウントを生成する
+ * @returns {Object} { sectionName: { assignValue: count, ... }, ... }
+ */
+function calculateAssignSummary() {
+  const summary = {};
+
+  // currentAssignsは { songId: { partName: userId } } 形式
+
+  // 全セクションをループ (この画面では自分のパートのみが表示されるセクションのみ)
+  Object.keys(sectionGroups).forEach((sectionName) => {
+    const assignCounts = {}; // { userId: count }
+
+    // 全曲をループ
+    Object.keys(currentAssigns).forEach((songId) => {
+      const songAssigns = currentAssigns[songId];
+
+      // そのセクションの全パートをループ
+      sectionGroups[sectionName].forEach((part) => {
+        const partName = part.partName;
+        // 割り当て値を取得 (ユーザーID。空文字列は未割り当て)
+        const assignedUserId = songAssigns ? songAssigns[partName] || '' : '';
+
+        // ユーザーIDが割り当てられている場合のみカウント
+        if (assignedUserId !== '') {
+          assignCounts[assignedUserId] =
+            (assignCounts[assignedUserId] || 0) + 1;
+        }
+      });
+    });
+
+    // ユーザーIDから略称に変換し、略称-カウントのペアを作成
+    const abbreviationCounts = Object.keys(assignCounts).reduce(
+      (acc, userId) => {
+        const user = usersCache[userId];
+        if (user) {
+          // 小計には略称と曲数を使用
+          acc[user.abbreviation] = assignCounts[userId];
+        }
+        return acc;
+      },
+      {}
+    );
+
+    summary[sectionName] = abbreviationCounts;
+  });
+
+  return summary;
+}
+
+/**
+ * 小計データを表示エリアに描画する
+ */
+function renderAssignSummary() {
+  const $summaryWrapper = $('#assign-summary-wrapper');
+  $summaryWrapper.find('.summary-content').remove(); // 既存のコンテンツをクリア
+
+  const summaryData = calculateAssignSummary();
+  // 譜割り編集画面では、タブがないため、全てのセクションの小計をまとめて表示する
+
+  let totalHasSummary = false;
+  let html = `<div class="summary-content">`;
+
+  Object.keys(summaryData).forEach((sectionName) => {
+    const summaryForSection = summaryData[sectionName];
+
+    if (Object.keys(summaryForSection).length > 0) {
+      totalHasSummary = true;
+      html += `<div class="summary-section">`;
+      html += `<h3>${sectionName}</h3>`;
+      html += `<ul class="summary-list">`;
+
+      // 担当者名（略称）でソートして表示
+      const sortedAssignValues = Object.keys(summaryForSection).sort();
+
+      sortedAssignValues.forEach((assignValue) => {
+        const count = summaryForSection[assignValue];
+        // 項目が縦に並ぶようにする
+        html += `<li class="summary-item">${assignValue}：<strong>${count}</strong>曲</li>`;
+      });
+
+      html += `</ul></div>`;
+    }
+  });
+
+  html += `</div>`;
+
+  if (!totalHasSummary) {
+    // 割り当てがない場合は非表示
+    $summaryWrapper.addClass('hidden');
+    return;
+  }
+
+  $summaryWrapper.removeClass('hidden');
+  $summaryWrapper.append(html);
 }
