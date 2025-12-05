@@ -4,6 +4,7 @@ let allInstruments = [];
 let userInstrumentIds = [];
 
 $(document).ready(async function () {
+  const uid = utils.globalGetParamUid ?? utils.getSession('uid');
   try {
     await utils.initDisplay();
     // 画面ごとのパンくずをセット
@@ -11,19 +12,19 @@ $(document).ready(async function () {
       { title: 'ユーザ一覧', url: '../user-list/user-list.html' },
       {
         title: 'ユーザ確認',
-        url: '../user-confirm/user-confirm.html?uid=' + utils.globalGetParamUid,
+        url: '../user-confirm/user-confirm.html?uid=' + uid,
       },
       { title: 'ユーザ編集' },
     ]);
 
     // Instrumentsデータを事前に取得
     await loadAllInstruments();
-    await setUpPage();
-    setupEventHandlers();
+    await setUpPage(uid);
+    setupEventHandlers(uid);
   } catch (e) {
     // ログ登録
     await utils.writeLog({
-      dataId: utils.globalGetParamUid,
+      dataId: uid,
       action: '初期表示',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
@@ -57,8 +58,7 @@ async function loadAllInstruments() {
   });
 }
 
-async function setUpPage() {
-  const uid = utils.globalGetParamUid;
+async function setUpPage(uid) {
   const isInit = utils.globalGetParamIsInit;
   const userRef = utils.doc(utils.db, 'users', uid);
   const userSnap = await utils.getWrapDoc(userRef);
@@ -282,7 +282,6 @@ function setupEventHandlers() {
     // スピナー表示
     utils.showSpinner();
 
-    const uid = utils.globalGetParamUid;
     const isInit = utils.globalGetParamIsInit === 'true';
 
     utils.clearErrors(); // エラークリア
@@ -376,7 +375,7 @@ function setupEventHandlers() {
     } catch (e) {
       // ログ登録
       await utils.writeLog({
-        dataId: utils.globalGetParamUid,
+        dataId: uid,
         action: isInit ? '登録' : '更新',
         status: 'error',
         errorDetail: { message: e.message, stack: e.stack },
@@ -389,8 +388,7 @@ function setupEventHandlers() {
 
   // 確認画面に戻る
   $(document).on('click', '.back-link', function (e) {
-    window.location.href =
-      '../user-confirm/user-confirm.html?uid=' + utils.globalGetParamUid;
+    window.location.href = '../user-confirm/user-confirm.html?uid=' + uid;
   });
 }
 

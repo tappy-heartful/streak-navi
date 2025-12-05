@@ -361,8 +361,8 @@ async function initScorePlayer() {
 
   if (scores.length === 0) return;
 
-  // デフォルト → 最新曲
-  currentScoreIndex = 0;
+  // デフォルト → 4つのうちからランダム
+  currentScoreIndex = utils.getRandomIndex(-1, 4);
   renderScoreVideos();
 }
 

@@ -4,6 +4,7 @@ import * as utils from '../common/functions.js';
 let allInstruments = [];
 
 $(document).ready(async function () {
+  const uid = utils.globalGetParamUid ?? utils.getSession('uid');
   try {
     await utils.initDisplay();
     // 画面ごとのパンくずをセット
@@ -14,12 +15,12 @@ $(document).ready(async function () {
 
     // 💡 変更点2: Instrumentsデータを事前に取得
     await loadAllInstruments();
-    await setUpPage();
-    setupEventHandlers();
+    await setUpPage(uid);
+    setupEventHandlers(uid);
   } catch (e) {
     // ログ登録
     await utils.writeLog({
-      dataId: utils.globalGetParamUid,
+      dataId: uid,
       action: '初期表示',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
@@ -42,9 +43,7 @@ async function loadAllInstruments() {
   }));
 }
 
-async function setUpPage() {
-  // GETパラメータからuid取得
-  const uid = utils.globalGetParamUid;
+async function setUpPage(uid) {
   if (!uid) {
     throw new Error('ユーザが見つかりません：' + uid);
   }
@@ -136,11 +135,9 @@ async function setUpPage() {
     : $('#confirm-buttons').hide();
 }
 
-function setupEventHandlers() {
+function setupEventHandlers(uid) {
   // 編集するボタン
   $('#confirm-buttons .edit-button').on('click', () => {
-    // 現在のURLのクエリパラメータからuidを取得
-    const uid = utils.globalGetParamUid;
     if (!uid) {
       throw new Error('ユーザが見つかりません：' + uid);
     }
@@ -153,7 +150,6 @@ function setupEventHandlers() {
   // 削除するボタン
   $('#confirm-buttons .delete-button').on('click', async () => {
     try {
-      const uid = utils.globalGetParamUid;
       if (!uid) {
         throw new Error('ユーザが見つかりません：' + uid);
       }
@@ -201,7 +197,7 @@ function setupEventHandlers() {
     } catch (e) {
       // ログ登録
       await utils.writeLog({
-        dataId: utils.globalGetParamUid,
+        dataId: uid,
         action: '退会',
         status: 'error',
         errorDetail: { message: e.message, stack: e.stack },
