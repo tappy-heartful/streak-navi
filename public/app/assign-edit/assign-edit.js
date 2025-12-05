@@ -314,8 +314,8 @@ function renderAssignTable() {
  * @returns {string} selectタグのHTML
  */
 function buildUserSelect(part, selectedValue) {
-  // 修正: 未割り当て → 未割
-  let optionsHtml = '<option value="">未割</option>';
+  // 修正: 未割り当て →-
+  let optionsHtml = '<option value="">-</option>';
 
   // 該当楽器を演奏できるユーザーをフィルタリング
   const filteredUsers = Object.values(usersCache).filter((user) =>
