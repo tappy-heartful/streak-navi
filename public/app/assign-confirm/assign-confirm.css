@@ -35,7 +35,7 @@
     color: #666;
     border-bottom: 3px solid transparent;
     transition: all 0.2s;
-    flex-shrink: 0; 
+    flex-shrink: 0;
 }
 
 .tab-button:hover {
@@ -84,7 +84,7 @@
     font-size: 13px;
     font-weight: bold;
     text-align: center;
-    white-space: nowrap; 
+    white-space: nowrap;
     vertical-align: middle;
 }
 
@@ -95,13 +95,13 @@
     border-right: 2px solid #aed581; /* Light Green 300 */
     text-align: left;
     /* paddingを狭くする */
-    padding: 6px 15px; 
+    padding: 6px 15px;
     /* min-widthを削除 */
-    
+
     position: sticky;
     left: 0;
     z-index: 3; /* 最前面に */
-    border-top-color: #f1f8e9; 
+    border-top-color: #f1f8e9;
     border-bottom-color: #e0e0e0; /* ボディとの境 */
 }
 
@@ -116,12 +116,12 @@
 .assign-table tbody td {
     border: 1px solid #eee;
     /* paddingを狭くする */
-    padding: 6px 5px; 
+    padding: 6px 5px;
     text-align: center;
     font-size: 14px;
     white-space: nowrap;
     /* heightも狭くする */
-    height: 32px; 
+    height: 32px;
 }
 
 /* 曲のグループタイトル行 (setlist.title) */
@@ -132,23 +132,23 @@
     padding: 10px 15px;
     border-top: 2px solid #ccc; /* セクションの区切りを強調 */
     color: #444;
-    
+
     position: sticky;
     left: 0;
-    z-index: 2; 
+    z-index: 2;
 }
 
 /* 曲名のセル（ボディ内の左端）にもsong-headerを適用 */
 .assign-table tbody .song-header {
-    background-color: #f1f8e9; 
+    background-color: #f1f8e9;
     border-right: 2px solid #aed581;
     color: #333;
-    
+
     position: sticky;
     left: 0;
     z-index: 2;
     /* paddingはtbody tdと同じ設定に */
-    padding: 6px 15px; 
+    padding: 6px 15px;
     /* heightはtbody tdと同じ設定に */
     height: 32px;
 }
@@ -157,6 +157,65 @@
 .assign-table .assign-cell {
     color: #333;
 }
+
+/* ---------------------------------- */
+/* 小計表示エリアのスタイル (追加) */
+/* ---------------------------------- */
+#assign-summary-wrapper {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+}
+
+.summary-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #4CAF50; /* メインカラー */
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.summary-section {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.summary-section h3 {
+    font-size: 16px;
+    color: #555;
+    margin-top: 0;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.summary-list {
+    display: flex;
+    flex-wrap: wrap;
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.summary-item {
+    margin-right: 15px;
+    font-size: 15px;
+    color: #333;
+    /* 項目を縦に並べる場合 */
+    /* width: 100%; */
+}
+
+.summary-item strong {
+    font-weight: bold;
+    color: #2196F3; /* サブカラー (青) */
+    margin-left: 5px;
+}
+
 
 /* ---------------------------------- */
 /* ボタンセクション */
