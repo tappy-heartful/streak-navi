@@ -196,18 +196,20 @@
 
 .summary-list {
     display: flex;
-    flex-wrap: wrap;
+    /* flex-wrap: wrap; を削除またはコメントアウト */
     list-style: none;
     padding: 0;
     margin: 0;
+    /* 項目を縦に並べるためにflex-direction: column; に変更、または各項目を100%幅にする */
+    flex-direction: column; 
 }
 
 .summary-item {
-    margin-right: 15px;
+    margin-right: 0; /* 右マージンを解除 */
+    margin-bottom: 5px; /* 各項目の下に少しスペースを開ける */
     font-size: 15px;
     color: #333;
-    /* 項目を縦に並べる場合 */
-    /* width: 100%; */
+    /* width: 100%; は不要、flex-direction: column; で縦並びになる */
 }
 
 .summary-item strong {

@@ -320,7 +320,7 @@ function renderTableHeadersAndBody(index, sectionName, partNamesForTab) {
 }
 
 //////////////////////////////////
-// 4. 小計計算と描画 (追加)
+// 4. 小計計算と描画 (修正)
 //////////////////////////////////
 
 /**
@@ -390,6 +390,8 @@ function renderAssignSummary(activeSectionName) {
   let html = `<div class="summary-content">`;
   html += `<div class="summary-section">`;
   html += `<h3>${activeSectionName}</h3>`;
+  // ★ 修正: summary-listのflex-wrapを解除し、各項目が1行になるようにする (CSSで対応)
+  // ここではul/liの構造を維持し、CSSで制御できるようにする
   html += `<ul class="summary-list">`;
 
   // 担当者名でソートして表示
@@ -397,6 +399,7 @@ function renderAssignSummary(activeSectionName) {
 
   sortedAssignValues.forEach((assignValue) => {
     const count = summaryForActiveSection[assignValue];
+    // ★ 修正: 各項目が独立した<li>となり、CSSで縦並びになるようにする
     html += `<li class="summary-item">${assignValue}：<strong>${count}</strong></li>`;
   });
 
