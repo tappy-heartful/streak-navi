@@ -5,7 +5,8 @@ let globalEventData = {}; // イベントデータ (instrumentConfig, setlistを
 let scoresCache = {}; // scoresデータ (曲名取得用)
 let sectionsCache = {}; // sectionsデータ (セクション名取得用)
 let usersCache = {}; // usersデータ (プルダウンの選択肢用)
-let currentAssigns = {}; // 現在の割り当てデータ ({ songId: { partName: assignValue, ... }, ... })
+// currentAssigns/initialAssignsに格納するのは、常にユーザーID(userId)とする
+let currentAssigns = {}; // 現在の割り当てデータ ({ songId: { partName: userId, ... }, ... })
 let initialAssigns = {}; // 初期状態を保存 (クリア/復元用)
 
 // ユーザーの演奏可能楽器IDリスト
@@ -71,12 +72,6 @@ $(document).ready(async function () {
 // ページ設定とデータ取得
 //===========================
 async function setupPage(eventId) {
-  // const pageTitle = $('#page-title'); // 削除
-  // const title = $('#title'); // 削除
-
-  // pageTitle.text('譜割り編集'); // 削除
-  // title.text('譜割り編集'); // 削除
-
   // 全データのプリフェッチ
   await prefetchAllData(eventId);
 
@@ -149,7 +144,7 @@ async function prefetchAllData(eventId) {
     const data = docSnap.data();
     // abbreviation_decodedも取得し、プルダウンの表示名として使用
     usersCache[docSnap.id] = {
-      name: data.displayName_decoded, // valueとして使用 (保存時のキー)
+      name: data.displayName_decoded, // フルネーム
       abbreviation: data.abbreviation_decoded || data.displayName_decoded, // プルダウン表示名として使用
       instrumentIds: Array.isArray(data.instrumentIds)
         ? data.instrumentIds
@@ -169,9 +164,14 @@ async function prefetchAllData(eventId) {
     if (!currentAssigns[data.songId]) {
       currentAssigns[data.songId] = {};
     }
-    // assignsのIDは保存しない (新規登録/更新時に再構築するため)
-    currentAssigns[data.songId][data.partName_decoded] =
-      data.assignValue_decoded || '';
+
+    // ★ 修正: 保存されている userId_decoded を直接利用する
+    // userIdが保存されている場合はその値を、ない場合は空文字（未割り当て）
+    const assignedId = data.userId_decoded || '';
+
+    // currentAssignsにはプルダウンで使用するユーザーIDを格納する
+    // 略称からの逆引き処理が不要になり、略称重複の問題がなくなる
+    currentAssigns[data.songId][data.partName_decoded] = assignedId;
   });
 
   // 5. sectionGroupsを構築
@@ -289,12 +289,13 @@ function renderAssignTable() {
       sectionNames.forEach((sectionName) => {
         // sectionGroupsには既に自分の担当パートのみ含まれている
         sectionGroups[sectionName].forEach((part) => {
-          const assignValue = currentAssigns[songId]
+          // currentAssignsにはユーザーIDが格納されている
+          const assignedUserId = currentAssigns[songId]
             ? currentAssigns[songId][part.partName]
             : '';
 
           // 自分のパートのみが表示されているため、常に編集可能なプルダウンを生成
-          const selectHtml = buildUserSelect(part, assignValue);
+          const selectHtml = buildUserSelect(part, assignedUserId);
           rowHtml += `<td class="assign-cell editable" data-part-name="${part.partName}" data-instrument-id="${part.instrumentId}">${selectHtml}</td>`;
         });
       });
@@ -310,26 +311,29 @@ function renderAssignTable() {
 /**
  * ユーザー選択用のプルダウンHTMLを生成する
  * @param {Object} part - パート情報 ({ partName, instrumentId })
- * @param {string} selectedValue - 現在選択されているユーザー名 (assignValue)
+ * @param {string} selectedUserId - 現在選択されているユーザーID
  * @returns {string} selectタグのHTML
  */
-function buildUserSelect(part, selectedValue) {
-  // 修正: 未割り当て →ー
+function buildUserSelect(part, selectedUserId) {
+  // 未割り当てオプション
   let optionsHtml = '<option value="">ー</option>';
 
   // 該当楽器を演奏できるユーザーをフィルタリング
-  const filteredUsers = Object.values(usersCache).filter((user) =>
-    // user.instrumentIdsは配列であることを前提
-    user.instrumentIds.includes(part.instrumentId)
-  );
+  const filteredUsers = Object.keys(usersCache)
+    .map((id) => ({ userId: id, ...usersCache[id] }))
+    .filter((user) =>
+      // user.instrumentIdsは配列であることを前提
+      user.instrumentIds.includes(part.instrumentId)
+    );
 
   // ソートはdisplayName (user.name) で行う
   filteredUsers.sort((a, b) => a.name.localeCompare(b.name, 'ja'));
 
   filteredUsers.forEach((user) => {
-    const isSelected = user.name === selectedValue ? 'selected' : '';
+    // optionsのvalueはユーザーID (user.userId)
+    const isSelected = user.userId === selectedUserId ? 'selected' : '';
     // オプションの表示名にはabbreviationを使用
-    optionsHtml += `<option value="${user.name}" ${isSelected}>${user.abbreviation}</option>`;
+    optionsHtml += `<option value="${user.userId}" ${isSelected}>${user.abbreviation}</option>`;
   });
 
   return `<select class="assign-select">${optionsHtml}</select>`;
@@ -344,12 +348,12 @@ function setupEventHandlers(eventId) {
     const $select = $(this);
     const songId = $select.closest('tr').data('song-id');
     const partName = $select.closest('td').data('part-name');
-    const newValue = $select.val();
+    const newUserId = $select.val(); // これはユーザーID
 
     if (!currentAssigns[songId]) {
       currentAssigns[songId] = {};
     }
-    currentAssigns[songId][partName] = newValue;
+    currentAssigns[songId][partName] = newUserId; // currentAssignsにユーザーIDを格納
   });
 
   // 2. 初期値に戻すボタン
@@ -362,7 +366,6 @@ function setupEventHandlers(eventId) {
   // 3. 更新ボタン
   $('#save-button').on('click', async () => {
     if (!validateData()) {
-      // ここでは必須チェックなどはないため、主に権限チェックなどを行う
       utils.showDialog('保存処理中に問題が発生しました。', true);
       return;
     }
@@ -407,35 +410,51 @@ async function saveAssigns(eventId) {
 
   for (const songId in currentAssigns) {
     for (const partName in currentAssigns[songId]) {
-      const newValue = currentAssigns[songId][partName];
-      const initialValue = initialAssigns[songId]
+      // newUserIdはプルダウンの値（ユーザーID）
+      const newUserId = currentAssigns[songId][partName];
+      // initialUserIdもユーザーIDになっている
+      const initialUserId = initialAssigns[songId]
         ? initialAssigns[songId][partName]
         : '';
 
-      // 値が変更された、または新規に割り当てられた場合のみ処理対象とする
-      if (newValue !== initialValue) {
-        // 新しい割り当て値が空欄（未割り当て）の場合、ドキュメントを削除する必要がある
-        if (newValue === '') {
-          // 削除対象
+      // 値が変更された場合のみ処理対象とする
+      if (newUserId !== initialUserId) {
+        // ★ 修正: データベースに保存する略称とユーザーIDを決定する
+        let assignValueToSave = '';
+        let userIdToSave = '';
+
+        if (newUserId !== '') {
+          const assignedUser = usersCache[newUserId];
+          // ユーザーIDは存在するがデータがないというケースは極めて稀だが、念のためチェック
+          if (assignedUser) {
+            userIdToSave = newUserId; // ユーザーIDをそのまま保存
+            assignValueToSave = assignedUser.abbreviation; // 略称も保存
+          }
+        }
+
+        if (newUserId === '') {
+          // 削除対象 (統一構造)
           assignmentsToProcess.push({
             type: 'delete',
             data: {
+              // ID生成に必要な情報を data オブジェクトに格納
               eventId,
               songId,
               partName,
             },
           });
         } else {
-          // 更新または新規作成対象
+          // 更新または新規作成対象 (統一構造)
           assignmentsToProcess.push({
-            type: 'set', // setDoc (merge) を使用して、あれば更新、なければ新規作成
+            type: 'set',
             data: {
               eventId,
               songId,
               partName,
-              assignValue: newValue, // 割り当てられたユーザー名
+              // ★ 修正: 略称とユーザーIDの両方を保存する
+              assignValue: assignValueToSave, // 略称 (表示用)
+              userId: userIdToSave, // ユーザーID (制御用)
               createdAt: utils.serverTimestamp(),
-              // 更新の場合、updatedAtも追加可能だが、ここではシンプルにcreatedAtのみで対応
             },
           });
         }
@@ -452,12 +471,16 @@ async function saveAssigns(eventId) {
   let successCount = 0;
 
   // assignsドキュメントIDを生成
-  // 修正: partNameがundefined/nullの場合に備えて空文字列を代入してからreplaceを適用する
-  const generateAssignId = (eventId, songId, partName) =>
-    `${eventId}_${songId}_${(partName || '').replace(/[^a-zA-Z0-9]/g, '')}`; // ← partName || '' を追加
+  const generateSafeAssignId = (eventId, songId, partName) => {
+    // パート名から英数字のみを抽出し、IDを構成する。日本語は除外。
+    const safePartName = (partName || '').replace(/[^a-zA-Z0-9]/g, '');
+    // IDの長さを制限
+    return `${eventId}_${songId}_${safePartName.substring(0, 8)}`;
+  };
 
   for (const item of assignmentsToProcess) {
-    const assignId = generateAssignId(
+    // 構造統一により、item.data から一律にID生成情報を取得
+    const assignId = generateSafeAssignId(
       item.data.eventId,
       item.data.songId,
       item.data.partName
