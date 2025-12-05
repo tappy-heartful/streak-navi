@@ -258,28 +258,79 @@ function renderTabsAndContent() {
     renderTableHeadersAndBody(index, sectionName, partNamesForTab);
   });
 
+  // ★ ここからタブスクロール処理の追加 ★
+
+  /**
+   * 指定されたタブボタンがコンテナ内で見えるようにスクロールする
+   * @param {jQuery} $button - スクロール対象のタブボタン要素
+   */
+  function scrollTabIntoView($button) {
+    const $container = $('#assign-tabs');
+    if (!$button.length || !$container.length) return;
+
+    // タブコンテナの現在のスクロール位置
+    const containerScrollLeft = $container.scrollLeft();
+    // タブボタンのコンテナ内での相対位置 (左端)
+    const buttonOffsetLeft = $button.position().left;
+    // タブボタンの幅
+    const buttonWidth = $button.outerWidth(true);
+    // タブコンテナの表示幅
+    const containerWidth = $container.width();
+
+    let newScrollLeft = containerScrollLeft;
+
+    // タブが左側に見切れている場合
+    if (buttonOffsetLeft < 0) {
+      newScrollLeft = containerScrollLeft + buttonOffsetLeft; // 見切れている分だけ左にスクロール
+    }
+    // タブが右側に見切れている場合 (タブの右端の位置 > コンテナの表示幅)
+    else if (buttonOffsetLeft + buttonWidth > containerWidth) {
+      // タブの右端がコンテナの右端に合うようにスクロール位置を調整
+      newScrollLeft =
+        containerScrollLeft + (buttonOffsetLeft + buttonWidth - containerWidth);
+    }
+
+    // スクロールを実行
+    if (newScrollLeft !== containerScrollLeft) {
+      $container.animate({ scrollLeft: newScrollLeft }, 200);
+    }
+  }
+  // ★ ここまでタブスクロール処理の追加 ★
+
   // タブ切り替えのイベント設定
-  $('#assign-tabs')
-    .on('click', '.tab-button', function () {
-      const targetId = $(this).data('target');
-      const clickedSectionName = $(this).data('section-name');
-      // const clickedSectionId = $(this).data('section-id'); // セクションIDは取得するが、
+  $('#assign-tabs').on('click', '.tab-button', function () {
+    const $this = $(this);
+    const targetId = $this.data('target');
+    const clickedSectionName = $this.data('section-name');
+    // const clickedSectionId = $this.data('section-id');
 
-      // ボタンのアクティブ状態を切り替え
-      $('.tab-button').removeClass('active');
-      $(this).addClass('active');
+    // ボタンのアクティブ状態を切り替え
+    $('.tab-button').removeClass('active');
+    $this.addClass('active');
 
-      // コンテンツの表示を切り替え
-      $('.tab-content').removeClass('active');
-      $(`#${targetId}`).addClass('active');
+    // コンテンツの表示を切り替え
+    $('.tab-content').removeClass('active');
+    $(`#${targetId}`).addClass('active');
 
-      // ★ 削除: セッションへの保存処理を削除 (utils.setSession('sectionId', clickedSectionId);)
+    // ★ クリック時にもスクロール処理を実行 ★
+    scrollTabIntoView($this);
 
-      // 小計表示の更新
-      renderAssignSummary(clickedSectionName);
-    })
-    .find(`.tab-button[data-section-id="${targetSectionId}"]`)
-    .trigger('click'); // 初期表示のためにアクティブなタブをトリガー
+    // 小計表示の更新
+    renderAssignSummary(clickedSectionName);
+  });
+
+  // 初期表示のためにアクティブなタブを特定し、クリックをトリガー
+  const $initialActiveTab = $(
+    `.tab-button[data-section-id="${targetSectionId}"]`
+  );
+  $initialActiveTab.trigger('click');
+
+  // ★ 初期クリック後に、念のため再度スクロール処理を実行 ★
+  // (trigger('click')内で既に実行されているが、非同期処理やレンダリング順序の問題を防ぐため)
+  // ただし、jQueryのanimateが使われているため、trigger('click')の処理が完了するのを待つ必要はないかもしれない
+  // ここではトリガー後の処理として実行するが、実際のアニメーション完了前に実行される可能性はある
+  // もしスクロールが不安定な場合は、setTimeoutなどで遅延させることを検討してください。
+  scrollTabIntoView($initialActiveTab);
 }
 
 /**
