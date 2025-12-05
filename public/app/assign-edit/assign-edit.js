@@ -419,9 +419,11 @@ async function saveAssigns(eventId) {
           // 削除対象
           assignmentsToProcess.push({
             type: 'delete',
-            eventId,
-            songId,
-            partName,
+            data: {
+              eventId,
+              songId,
+              partName,
+            },
           });
         } else {
           // 更新または新規作成対象
@@ -455,7 +457,11 @@ async function saveAssigns(eventId) {
     `${eventId}_${songId}_${(partName || '').replace(/[^a-zA-Z0-9]/g, '')}`; // ← partName || '' を追加
 
   for (const item of assignmentsToProcess) {
-    const assignId = generateAssignId(item.eventId, item.songId, item.partName);
+    const assignId = generateAssignId(
+      item.data.eventId,
+      item.data.songId,
+      item.data.partName
+    );
     const assignRef = utils.doc(utils.db, 'assigns', assignId);
 
     try {
