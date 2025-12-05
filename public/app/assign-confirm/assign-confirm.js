@@ -3,7 +3,8 @@ import * as utils from '../common/functions.js';
 // 譜面（scores）とセクション（sections）のキャッシュ
 let scoresCache = {};
 // allPartNames はタブ表示のため廃止し、sectionGroupsに集約
-let sectionGroups = {}; // { sectionName: { partNames: ['part1', 'part2', ...] } }
+// ★ 修正: sectionIdも保持する構造に変更 { sectionId: { sectionName: '...', partNames: ['part1', 'part2', ...] } }
+let sectionGroups = {};
 // sectionIdsは不要になるため削除
 
 // グローバル変数として譜割りデータを保持
@@ -69,7 +70,7 @@ async function prefetchData(eventData) {
     await Promise.all(scorePromises);
   }
 
-  // 3. eventData.instrumentConfigからsectionsCacheとsectionGroupsを構築 (メイン修正箇所)
+  // 3. eventData.instrumentConfigからsectionsCacheとsectionGroupsを構築
   if (eventData.instrumentConfig) {
     // instrumentConfigのキー（sectionsのdoc.id）を収集
     Object.keys(eventData.instrumentConfig).forEach((sectionId) => {
@@ -93,6 +94,7 @@ async function prefetchData(eventData) {
 
   // 5. sectionGroupsを構築
   if (eventData.instrumentConfig) {
+    // ★ 修正: sectionIdをキーとしてsectionGroupsを構築
     Object.keys(eventData.instrumentConfig).forEach((sectionId) => {
       const sectionData = sectionsCache[sectionId];
       if (!sectionData) return;
@@ -104,12 +106,13 @@ async function prefetchData(eventData) {
         .map((config) => config.partName_decoded)
         .filter((partName) => partName); // partNameが空でないもののみをフィルタリング
 
-      // セクション名（タブ名）をキーとして、パート名リストを保存
-      if (!sectionGroups[sectionName]) {
-        sectionGroups[sectionName] = { partNames: [] };
+      // セクションIDをキーとして、セクション名とパート名リストを保存
+      if (partNames.length > 0) {
+        sectionGroups[sectionId] = {
+          sectionName: sectionName,
+          partNames: partNames,
+        };
       }
-      // パート名は配列の順番通りに格納する
-      sectionGroups[sectionName].partNames = partNames;
     });
   }
 
@@ -190,25 +193,40 @@ async function renderAssignConfirm() {
 //////////////////////////////////
 
 /**
- * タブとタブコンテンツのコンテナを生成し、utils.getSession('sectionId')に基づいて初期タブを選択する
+ * タブとタブコンテンツのコンテナを生成し, utils.getSession('sectionId')に基づいて初期タブを選択する
  */
 function renderTabsAndContent() {
   const $wrapper = $('#assign-table-wrapper').empty();
   const $tabButtons = $('<div id="assign-tabs" class="tab-buttons"></div>');
   const $tabContents = $('<div id="tab-contents" class="tab-contents"></div>');
 
-  // 新しい仕様ではsectionIdではなくsectionNameをキーとして扱うため、
-  // セッションのキーを一時的に使わず、最初のセクションをデフォルトとする
-  const defaultSectionName = Object.keys(sectionGroups)[0];
-  const targetSectionName = defaultSectionName; // 初期表示は常に最初のセクション
+  // セッションからsectionIdを取得し、初期表示タブを決定する
+  const sessionSectionId = utils.getSession('sectionId');
+  const sectionIds = Object.keys(sectionGroups);
+  let targetSectionId = sectionIds[0]; // デフォルトは最初のセクションID
 
-  Object.keys(sectionGroups).forEach((sectionName, index) => {
+  // セッションIDが存在し、かつそれがsectionGroupsに存在する場合、初期タブとして設定する
+  if (sessionSectionId && sectionGroups[sessionSectionId]) {
+    targetSectionId = sessionSectionId;
+  }
+
+  // タブの初期選択に使用するセクション名を取得
+  const targetSectionName = sectionGroups[targetSectionId]
+    ? sectionGroups[targetSectionId].sectionName
+    : sectionGroups[sectionIds[0]]
+    ? sectionGroups[sectionIds[0]].sectionName
+    : '';
+
+  // sectionGroupsはsectionIdをキーとしている
+  sectionIds.forEach((sectionId, index) => {
+    const groupData = sectionGroups[sectionId];
+    const sectionName = groupData.sectionName;
     const tabId = `tab-${index}`;
-    const isActive = sectionName === targetSectionName ? 'active' : '';
+    const isActive = sectionId === targetSectionId ? 'active' : '';
 
     // タブボタン
     $tabButtons.append(`
-            <button class="tab-button ${isActive}" data-target="${tabId}" data-section-name="${sectionName}">
+            <button class="tab-button ${isActive}" data-target="${tabId}" data-section-name="${sectionName}" data-section-id="${sectionId}">
                 ${sectionName}
             </button>
         `);
@@ -226,7 +244,7 @@ function renderTabsAndContent() {
                         <tbody>
                         </tbody>
                     </table>
-                </div>
+            </div>
             </div>
         `);
   });
@@ -234,8 +252,9 @@ function renderTabsAndContent() {
   $wrapper.append($tabButtons).append($tabContents);
 
   // 各タブのテーブルを個別に描画
-  Object.keys(sectionGroups).forEach((sectionName, index) => {
-    const partNamesForTab = sectionGroups[sectionName].partNames;
+  sectionIds.forEach((sectionId, index) => {
+    const sectionName = sectionGroups[sectionId].sectionName;
+    const partNamesForTab = sectionGroups[sectionId].partNames;
     renderTableHeadersAndBody(index, sectionName, partNamesForTab);
   });
 
@@ -243,6 +262,9 @@ function renderTabsAndContent() {
   $('#assign-tabs')
     .on('click', '.tab-button', function () {
       const targetId = $(this).data('target');
+      const clickedSectionName = $(this).data('section-name');
+      // const clickedSectionId = $(this).data('section-id'); // セクションIDは取得するが、
+
       // ボタンのアクティブ状態を切り替え
       $('.tab-button').removeClass('active');
       $(this).addClass('active');
@@ -251,14 +273,13 @@ function renderTabsAndContent() {
       $('.tab-content').removeClass('active');
       $(`#${targetId}`).addClass('active');
 
-      // ★ 小計表示の更新
-      renderAssignSummary($(this).data('section-name'));
-    })
-    .find('.tab-button.active')
-    .trigger('click'); // 初期表示のためにアクティブなタブをトリガー
+      // ★ 削除: セッションへの保存処理を削除 (utils.setSession('sectionId', clickedSectionId);)
 
-  // ★ 最初の小計表示をセット
-  renderAssignSummary(targetSectionName);
+      // 小計表示の更新
+      renderAssignSummary(clickedSectionName);
+    })
+    .find(`.tab-button[data-section-id="${targetSectionId}"]`)
+    .trigger('click'); // 初期表示のためにアクティブなタブをトリガー
 }
 
 /**
@@ -331,8 +352,11 @@ function calculateAssignSummary() {
   const summary = {};
 
   // 全セクションをループ
-  Object.keys(sectionGroups).forEach((sectionName) => {
-    const partNames = sectionGroups[sectionName].partNames;
+  // ★ 修正: sectionGroupsはsectionIdをキーに持っているが、sectionNameで集計するためにループ
+  Object.keys(sectionGroups).forEach((sectionId) => {
+    const groupData = sectionGroups[sectionId];
+    const sectionName = groupData.sectionName;
+    const partNames = groupData.partNames;
     const assignCounts = {}; // { assignValue: count }
 
     // 全曲をループ
@@ -390,7 +414,6 @@ function renderAssignSummary(activeSectionName) {
   let html = `<div class="summary-content">`;
   html += `<div class="summary-section">`;
   html += `<h3>${activeSectionName}</h3>`;
-  // ★ 修正: summary-listのflex-wrapを解除し、各項目が1行になるようにする (CSSで対応)
   // ここではul/liの構造を維持し、CSSで制御できるようにする
   html += `<ul class="summary-list">`;
 
@@ -399,7 +422,7 @@ function renderAssignSummary(activeSectionName) {
 
   sortedAssignValues.forEach((assignValue) => {
     const count = summaryForActiveSection[assignValue];
-    // ★ 修正: 各項目が独立した<li>となり、CSSで縦並びになるようにする
+    // 各項目が独立した<li>となり、CSSで縦並びになるようにする
     html += `<li class="summary-item">${assignValue}：<strong>${count}</strong></li>`;
   });
 
