@@ -1,0 +1,177 @@
+/*
+ * assign-edit.css
+ * 譜割り編集画面専用のスタイル
+ * 共通CSS (max-width: 768px, background-color: #f4f4f4, .container, etc.) を継承
+ */
+
+/* ====================================
+ * 1. 基本レイアウトと情報表示
+ * ==================================== */
+
+/* .container は共通CSSで定義済み */
+
+.section-title {
+    margin-top: 30px;
+    margin-bottom: 15px;
+    font-size: 1.5em;
+    border-bottom: 2px solid #ddd;
+    padding-bottom: 5px;
+}
+
+.info-group {
+    padding: 10px 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.info-group p {
+    margin: 5px 0;
+    font-size: 1.1em;
+    color: #333;
+}
+
+.info-group strong {
+    color: #4CAF50; /* 共通ボタンの色に合わせる */
+    margin-right: 8px;
+    font-weight: bold;
+}
+
+/* ====================================
+ * 2. 譜割り編集テーブルのスタイル
+ * ==================================== */
+
+.table-responsive {
+    overflow-x: auto; /* テーブルが画面幅を超えた場合に横スクロールを可能にする */
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    /* 共通CSSの.containerのbox-shadowと馴染むように */
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05); 
+}
+
+.assign-edit-table {
+    width: 100%;
+    border-collapse: collapse; 
+    /* 画面幅が狭くても、パートが多ければ横スクロールさせるための最小幅 */
+    min-width: 600px; 
+}
+
+/* ヘッダー全体 */
+.assign-edit-table thead {
+    /* スクロールしてもヘッダーを固定 */
+    position: sticky; 
+    top: 0;
+    z-index: 10;
+}
+
+.assign-edit-table th, 
+.assign-edit-table td {
+    border: 1px solid #ddd;
+    padding: 8px 6px;
+    text-align: center;
+    white-space: nowrap; 
+    vertical-align: middle;
+}
+
+/* 1行目: セクション名ヘッダー */
+.section-name-header {
+    background-color: #e8f5e9; /* 緑系の薄い色 */
+    font-weight: bold;
+    font-size: 1.05em;
+    color: #388e3c;
+    border-bottom: 2px solid #4CAF50; 
+}
+
+/* 2行目: パート名ヘッダー */
+.part-header-cell {
+    background-color: #f0f4f7;
+    font-weight: normal;
+    font-size: 0.9em;
+    color: #555;
+}
+
+/* 曲名/グループヘッダー (左端) */
+.song-header {
+    background-color: #e0f2f1; /* 左上の固定セル */
+    font-weight: bold;
+    text-align: left;
+    min-width: 120px; 
+    position: sticky; /* 左端の曲名列を固定 */
+    left: 0;
+    z-index: 15; /* 他のセルより前面に */
+}
+
+/* ボディ行 */
+.assign-edit-table tbody tr:nth-child(even) {
+    background-color: #fafafa;
+}
+
+/* グループタイトル行 */
+.group-title-row td {
+    background-color: #d8f7de; /* 明るい緑系 */
+    font-weight: bold;
+    text-align: left;
+    padding: 10px;
+    /* この行の左端セルも固定する */
+    position: sticky;
+    left: 0;
+    z-index: 5;
+}
+
+/* 曲名のセル (行ラベル) */
+.song-cell {
+    text-align: left;
+    font-weight: 500;
+    color: #333;
+    background-color: #fff; 
+    position: sticky; /* 左端の曲名列を固定 */
+    left: 0;
+    z-index: 5;
+}
+
+/* 譜割りセル */
+.assign-cell {
+    padding: 4px 5px; 
+}
+
+/* 編集可能なセル内のプルダウン */
+/* 共通CSSのselectを継承しつつ、テーブルセル内にフィットさせる */
+.assign-cell.editable .assign-select {
+    width: 100%;
+    min-width: 80px; 
+    padding: 4px 30px 4px 8px; /* 縦パディングを減らし、矢印スペースを確保 */
+    font-size: 14px; /* セルに収まりやすいサイズ */
+    border: 1px solid #aaa;
+    /* 共通CSSのbackground-imageを上書きしたいが、ここではそのまま利用 */
+}
+
+
+/* ====================================
+ * 3. アクションボタン
+ * ==================================== */
+/* .confirm-buttons は共通CSSで定義済み (justify-content: space-between) */
+
+/* クリアボタンのスタイルを調整 (共通CSSは.clear-buttonを#cccとしている) */
+.clear-button {
+    background-color: #f8f9fa;
+    color: #343a40;
+    border: 1px solid #ccc;
+}
+
+.clear-button:hover {
+    background-color: #e2e6ea;
+}
+
+/* save-button は共通CSSの#4CAF50を使用 */
+
+/* 自分のパートがない場合のエラーメッセージ */
+#no-assign-message {
+    color: #dc3545;
+    background-color: #f8d7da;
+    border: 1px solid #f5c6cb;
+    padding: 15px;
+    border-radius: 6px;
+    text-align: center;
+    margin-top: 20px;
+    font-weight: bold;
+}
