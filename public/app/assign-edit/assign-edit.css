@@ -8,40 +8,40 @@
     border: 1px solid #ccc;
     border-radius: 6px;
     /* 共通CSSの.containerのbox-shadowと馴染むように */
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05); 
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
 }
 
 .assign-edit-table {
     width: 100%;
-    border-collapse: collapse; 
+    border-collapse: collapse;
     /* 最小幅を大幅に縮小し、パーツが少ない時の横スクロールを抑制 */
-    min-width: 300px; 
+    min-width: 300px;
 }
 
 /* ヘッダー全体 */
 .assign-edit-table thead {
     /* スクロールしてもヘッダーを固定 */
-    position: sticky; 
+    position: sticky;
     top: 0;
     z-index: 10;
 }
 
-.assign-edit-table th, 
+.assign-edit-table th,
 .assign-edit-table td {
     border: 1px solid #ddd;
     /* 縦パディングをやや減らす */
-    padding: 6px 8px; 
-    white-space: nowrap; 
+    padding: 6px 8px;
+    white-space: nowrap;
     vertical-align: middle;
 }
 
 /* 1行目: セクション名ヘッダー */
 .section-name-header {
-    background-color: #e8f5e9; 
+    background-color: #e8f5e9;
     font-weight: bold;
     font-size: 1.05em;
     color: #388e3c;
-    border-bottom: 2px solid #4CAF50; 
+    border-bottom: 2px solid #4CAF50;
 }
 
 /* 2行目: パート名ヘッダー */
@@ -51,20 +51,20 @@
     font-size: 0.9em;
     color: #555;
     /* 修正: パート名の表示崩れ防止のため最小幅を50pxに増やす */
-    min-width: 50px; 
+    min-width: 50px;
 }
 
 /* 曲名ヘッダー (左端) */
 .song-header {
-    background-color: #e0f2f1; 
+    background-color: #e0f2f1;
     font-weight: bold;
     /* 修正: 曲名ヘッダーは左寄せ */
-    text-align: left; 
+    text-align: left;
     /* 曲名（最大8文字）に対応した最小幅 */
-    min-width: 80px; 
-    position: sticky; 
+    min-width: 80px;
+    position: sticky;
     left: 0;
-    z-index: 15; 
+    z-index: 15;
 }
 
 /* ボディ行 */
@@ -74,7 +74,7 @@
 
 /* グループタイトル行 */
 .group-title-row td {
-    background-color: #d8f7de; 
+    background-color: #d8f7de;
     font-weight: bold;
     text-align: left;
     padding: 8px 10px;
@@ -88,10 +88,10 @@
     text-align: left;
     font-weight: 500;
     color: #333;
-    background-color: #fff; 
+    background-color: #fff;
     /* 曲名ヘッダーと同じ最小幅に設定 */
-    min-width: 80px; 
-    position: sticky; 
+    min-width: 80px;
+    position: sticky;
     left: 0;
     z-index: 5;
 }
@@ -99,30 +99,87 @@
 /* 譜割りセル */
 .assign-cell {
     /* 修正: プルダウンの幅を広げるため最小幅を50pxに増やす */
-    padding: 4px 5px; 
-    min-width: 50px; 
+    padding: 4px 5px;
+    min-width: 50px;
 }
 
 /* 編集可能なセル内のプルダウン */
 .assign-cell.editable .assign-select {
     width: 100%;
     /* 修正: プルダウンの幅を広げるため最小幅を50pxに増やす */
-    min-width: 50px; 
+    min-width: 50px;
     /* 修正: 矢印を非表示にしたので右側のpaddingを調整 */
     padding: 4px 4px 4px 4px; /* 右側の20pxを4pxに修正 */
-    font-size: 13px; 
+    font-size: 13px;
     border: 1px solid #aaa;
-    
+
     /* ↓↓↓ ここから追加 ↓↓↓ */
     /* プルダウンの開閉ボタン（矢印）を非表示にする */
     -webkit-appearance: none; /* Chrome, Safari, Opera */
     -moz-appearance: none; /* Firefox */
     appearance: none; /* 標準 */
     /* 背景に設定されている矢印画像を消す（IE/Edge対策など） */
-    background-image: none; 
+    background-image: none;
     /* ↑↑↑ ここまで追加 ↑↑↑ */
 }
 
+/* ====================================
+ * 2.5. 小計表示エリアのスタイル (追加)
+ * ==================================== */
+.summary-wrapper {
+    margin-top: 30px;
+    padding: 20px;
+    background-color: #f9f9f9;
+    border: 1px solid #eee;
+    border-radius: 10px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05); 
+}
+
+.summary-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #4CAF50; /* メインカラー */
+    border-bottom: 2px solid #eee;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+
+.summary-section {
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+.summary-section h3 {
+    font-size: 16px;
+    color: #555;
+    margin-top: 0;
+    border-bottom: 1px dashed #eee;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+}
+
+.summary-list {
+    display: flex;
+    flex-direction: column; /* 担当者ごとに改行するために縦並びにする */
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.summary-item {
+    margin-bottom: 5px; /* 各項目の下に少しスペースを開ける */
+    font-size: 15px;
+    color: #333;
+}
+
+.summary-item strong {
+    font-weight: bold;
+    color: #2196F3; /* サブカラー (青) */
+    margin-left: 5px;
+}
 
 /* ====================================
  * 3. アクションボタン
