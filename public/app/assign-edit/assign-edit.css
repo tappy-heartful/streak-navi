@@ -108,27 +108,25 @@
     width: 100%;
     /* 修正: プルダウンの幅を広げるため最小幅を50pxに増やす */
     min-width: 50px; 
-    padding: 4px 20px 4px 4px; /* 矢印スペースを確保しつつ左右パディングを詰める */
+    /* 修正: 矢印を非表示にしたので右側のpaddingを調整 */
+    padding: 4px 4px 4px 4px; /* 右側の20pxを4pxに修正 */
     font-size: 13px; 
     border: 1px solid #aaa;
+    
+    /* ↓↓↓ ここから追加 ↓↓↓ */
+    /* プルダウンの開閉ボタン（矢印）を非表示にする */
+    -webkit-appearance: none; /* Chrome, Safari, Opera */
+    -moz-appearance: none; /* Firefox */
+    appearance: none; /* 標準 */
+    /* 背景に設定されている矢印画像を消す（IE/Edge対策など） */
+    background-image: none; 
+    /* ↑↑↑ ここまで追加 ↑↑↑ */
 }
 
 
 /* ====================================
  * 3. アクションボタン
  * ==================================== */
-
-/* クリアボタンのスタイルを調整 */
-.clear-button {
-    background-color: #f8f9fa;
-    color: #343a40;
-    border: 1px solid #ccc;
-}
-
-.clear-button:hover {
-    background-color: #e2e6ea;
-}
-
 /* 自分のパートがない場合のエラーメッセージ */
 #no-assign-message {
     color: #dc3545;

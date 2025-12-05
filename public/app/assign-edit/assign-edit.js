@@ -354,11 +354,7 @@ function setupEventHandlers(eventId) {
 
   // 2. 初期値に戻すボタン
   $('#clear-button').on('click', async () => {
-    if (
-      await utils.showDialog(
-        '編集内容を初期値（データベースの値）に戻しますか？'
-      )
-    ) {
+    if (await utils.showDialog('編集前に戻しますか？')) {
       restoreInitialState();
     }
   });
@@ -371,7 +367,7 @@ function setupEventHandlers(eventId) {
       return;
     }
 
-    if (!(await utils.showDialog('譜割り内容を更新しますか？'))) return;
+    if (!(await utils.showDialog('譜割りを更新しますか？'))) return;
 
     utils.showSpinner();
     try {
