@@ -4,9 +4,10 @@ import * as utils from '../common/functions.js';
 let allInstruments = [];
 
 $(document).ready(async function () {
-  const uid = utils.globalGetParamUid ?? utils.getSession('uid');
+  let uid = '';
   try {
     await utils.initDisplay();
+    uid = utils.globalGetParamUid ?? utils.getSession('uid') ?? '';
     // 画面ごとのパンくずをセット
     utils.renderBreadcrumb([
       { title: 'ユーザ一覧', url: '../user-list/user-list.html' },
