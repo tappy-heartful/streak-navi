@@ -8,9 +8,13 @@ let sectionGroups = {};
 // sectionIdsは不要になるため削除
 
 // グローバル変数として譜割りデータを保持
-let globalAssignsData = {}; // { songId: { partName: assignValue } }
+// ★ 変更: partNameに対応するのは assignValue（担当者の名前）ではなく、users.doc.id（userId）とする
+let globalAssignsData = {}; // { songId: { partName: userId } }
 let globalEventData = {};
 let sectionsCache = {}; // セクション名取得用として残す
+
+// ★ 追加: ユーザーIDと略称のマッピングキャッシュ
+let usersAbbreviationCache = {}; // { userId: abbreviation }
 
 $(document).ready(async function () {
   try {
@@ -123,6 +127,44 @@ async function prefetchData(eventData) {
 // 2. メインレンダリング処理
 //////////////////////////////////
 
+/**
+ * assignsデータから収集したuserIdに基づいてusersデータをキャッシュする
+ * @param {Array<Object>} assignsDocs - assignsコレクションのドキュメントデータ配列
+ * @returns {Promise<void>}
+ */
+async function prefetchUsers(assignsDocs) {
+  const userIdsToFetch = new Set();
+
+  // assignValue が userId であると想定して収集
+  assignsDocs.forEach((data) => {
+    if (data.userId) {
+      // userIdがセットされている場合のみ
+      userIdsToFetch.add(data.userId);
+    }
+  });
+
+  if (userIdsToFetch.size === 0) {
+    return;
+  }
+
+  const userPromises = Array.from(userIdsToFetch).map(async (userId) => {
+    const docRef = utils.doc(utils.db, 'users', userId);
+    const snap = await utils.getWrapDoc(docRef);
+    if (snap.exists()) {
+      // users.abbreviation_decoded をキャッシュする
+      const userData = snap.data();
+      usersAbbreviationCache[userId] =
+        userData.abbreviation_decoded || userData.name_decoded || userId;
+    } else {
+      // users が見つからない場合は assignValue を表示するために、assignValue_decoded をキャッシュする
+      // ★ 注: 後の処理で assignValue_decoded は assignsSnap.docs から取得する必要があるため、
+      // ここでは users が見つからなかったというフラグとして userId をそのまま保持する (後の処理で上書きされる可能性あり)
+      // ただし、今回は globalAssignsData の構築時に assignValue も保持するため、ここではキャッシュしない。
+    }
+  });
+  await Promise.all(userPromises);
+}
+
 async function renderAssignConfirm() {
   const eventId = utils.globalGetParamEventId;
   if (!eventId) {
@@ -168,24 +210,49 @@ async function renderAssignConfirm() {
       utils.where('eventId', '==', eventId)
     )
   );
-  const assignsData = {}; // { songId: { partName: assignValue } }
+
+  // assignsデータから userId を取得し、users データを事前キャッシュ
+  const rawAssignsData = assignsSnap.docs.map((doc) => doc.data());
+  await prefetchUsers(rawAssignsData);
+
+  // ★ 変更: globalAssignsData には assignValue_decoded ではなく、userId と assignValue_decoded の両方を保持する
+  const assignsData = {}; // { songId: { partName: { userId: '...', assignValue: '...' } } }
 
   assignsSnap.docs.forEach((docSnap) => {
     const data = docSnap.data();
     const partName = data.partName_decoded;
     const songId = data.songId;
-    // assignValueがない、または空文字列の場合は 'ー' として扱う
+    // userId がない場合は null、assignValue がない場合は 'ー'
+    const userId = data.userId || null;
     const assignValue = data.assignValue_decoded || 'ー';
 
     if (!assignsData[songId]) {
       assignsData[songId] = {};
     }
-    assignsData[songId][partName] = assignValue;
+    // ★ 変更: ユーザーIDと元の assignValue の両方を保存
+    assignsData[songId][partName] = {
+      userId: userId,
+      assignValue: assignValue,
+    };
   });
   globalAssignsData = assignsData;
 
   // 6. タブとコンテンツ、小計の生成
   renderTabsAndContent();
+}
+
+/**
+ * 譜割り値（ユーザー略称または元の値）を取得するヘルパー関数
+ * @param {Object} assignData - { userId: string | null, assignValue: string }
+ * @returns {string} 表示する略称または元の assignValue
+ */
+function getDisplayAssignValue(assignData) {
+  if (assignData.userId) {
+    // userId があり、かつ usersAbbreviationCache に存在する場合
+    return usersAbbreviationCache[assignData.userId] || assignData.assignValue;
+  }
+  // userId がない、または見つからない場合は assignValue をそのまま表示 ('ー'を含む)
+  return assignData.assignValue;
 }
 
 //////////////////////////////////
@@ -326,10 +393,6 @@ function renderTabsAndContent() {
   $initialActiveTab.trigger('click');
 
   // ★ 初期クリック後に、念のため再度スクロール処理を実行 ★
-  // (trigger('click')内で既に実行されているが、非同期処理やレンダリング順序の問題を防ぐため)
-  // ただし、jQueryのanimateが使われているため、trigger('click')の処理が完了するのを待つ必要はないかもしれない
-  // ここではトリガー後の処理として実行するが、実際のアニメーション完了前に実行される可能性はある
-  // もしスクロールが不安定な場合は、setTimeoutなどで遅延させることを検討してください。
   scrollTabIntoView($initialActiveTab);
 }
 
@@ -378,11 +441,18 @@ function renderTableHeadersAndBody(index, sectionName, partNamesForTab) {
       // 中身のセル
       partNamesForTab.forEach((partName) => {
         // assignsDataはpartNameをキーに持っているので、そのまま参照
-        const assignValue = globalAssignsData[songId]
-          ? globalAssignsData[songId][partName] || 'ー'
-          : 'ー';
+        const assignEntry = globalAssignsData[songId]
+          ? globalAssignsData[songId][partName]
+          : null;
 
-        rowHtml += `<td class="assign-cell">${assignValue}</td>`;
+        let displayValue = 'ー';
+
+        if (assignEntry) {
+          // ★ 修正: userIdを使って略称を取得し、なければ元のassignValueを使用
+          displayValue = getDisplayAssignValue(assignEntry);
+        }
+
+        rowHtml += `<td class="assign-cell">${displayValue}</td>`;
       });
 
       rowHtml += `</tr>`;
@@ -416,12 +486,19 @@ function calculateAssignSummary() {
 
       // そのセクションの全パートをループ
       partNames.forEach((partName) => {
-        // 割り当て値を取得 ('ー' は未割り当て)
-        const assignValue = songAssigns ? songAssigns[partName] || 'ー' : 'ー';
+        // 割り当て値を取得
+        const assignEntry = songAssigns ? songAssigns[partName] : null;
+
+        let displayValue = 'ー';
+
+        if (assignEntry) {
+          // ★ 修正: userIdを使って略称を取得し、なければ元のassignValueを使用
+          displayValue = getDisplayAssignValue(assignEntry);
+        }
 
         // カウントをインクリメント
-        if (assignValue !== 'ー') {
-          assignCounts[assignValue] = (assignCounts[assignValue] || 0) + 1;
+        if (displayValue !== 'ー') {
+          assignCounts[displayValue] = (assignCounts[displayValue] || 0) + 1;
         }
       });
     });
