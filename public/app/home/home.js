@@ -109,7 +109,9 @@ async function loadPendingAnnouncements() {
   // 収集用の配列
   const schedulePending = []; // 日程調整中（未回答）
   const attendancePending = []; // 出欠受付中（未回答）
-  const imminentEvents = []; // 30日以内のイベント（回答済みは除くロジックも検討したが、今回は「もうすぐイベントです！」の告知用途として回答の有無に関わらず抽出）
+  const imminentEvents = []; // 30日以内のイベント
+  // ★ 追加: 譜割り受付中のイベント
+  const assignPending = [];
 
   const now = new Date();
   const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate()); // 今日の0:00
@@ -136,6 +138,23 @@ async function loadPendingAnnouncements() {
 
     // 過去のイベントはスキップ
     if (eventDateObj && eventDateObj < todayOnly) continue;
+
+    // ------------------------------------------------------------------
+    // 0. 譜割り受付中のイベントの判定 (allowAssign=true かつ未来)
+    // ------------------------------------------------------------------
+    const allowAssign = eventData.allowAssign || false;
+
+    if (allowAssign) {
+      // 譜割り確認ページへ誘導
+      assignPending.push({
+        id: eventId,
+        title: eventData.title,
+        date: eventDateStr,
+        type: 'assign', // 新しいタイプ
+        display: `🎵${eventDateStr}`,
+        message: '譜割り、受付中です！', // 新しいメッセージ
+      });
+    }
 
     // ------------------------------------------------------------------
     // 1. 未回答のイベントの判定
@@ -187,12 +206,7 @@ async function loadPendingAnnouncements() {
       eventDateObj >= todayOnly &&
       eventDateObj < thirtyDaysLater
     ) {
-      // 30日以内のイベントとして追加（重複を避けるために未回答イベントはスキップ）
-      // 30日以内のイベントは、告知メッセージを優先するため、未回答リストに追加されたものはここではスキップしない。
-      // ただし、同じイベントが二重にリストに表示されないように、リストを結合する際に工夫が必要です。
-
-      // 🚨 今回は「もうすぐイベントです！」を最優先で表示するため、isPendingかどうかに関わらず、
-      // 30日以内であれば imminentEvents に追加します。
+      // 30日以内のイベントとして追加
       imminentEvents.push({
         id: eventId,
         title: eventData.title,
@@ -205,18 +219,26 @@ async function loadPendingAnnouncements() {
   }
 
   // ------------------------------------------------------------------
-  // 3. 画面への表示 (優先順位: 日程調整未回答 > 出欠未回答 > もうすぐイベント)
+  // 3. 画面への表示 (優先順位: 譜割り受付中 > 日程調整未回答 > 出欠未回答 > もうすぐイベント)
   // ------------------------------------------------------------------
   let finalAnnouncements = {}; // {eventId: eventObject} で重複を排除
 
+  // 優先度0: 譜割り受付中
+  assignPending.forEach((event) => {
+    finalAnnouncements[event.id] = event;
+  });
+
   // 優先度1: 日程調整中（未回答）
   schedulePending.forEach((event) => {
-    finalAnnouncements[event.id] = event;
+    // 既に譜割り受付中として追加されていなければ追加
+    if (!finalAnnouncements[event.id]) {
+      finalAnnouncements[event.id] = event;
+    }
   });
 
   // 優先度2: 出欠受付中（未回答）
   attendancePending.forEach((event) => {
-    // 既に日程調整として追加されていなければ追加
+    // 既に高優先度で追加されていなければ追加
     if (!finalAnnouncements[event.id]) {
       finalAnnouncements[event.id] = event;
     }
@@ -224,7 +246,7 @@ async function loadPendingAnnouncements() {
 
   // 優先度3: 30日以内のイベント
   imminentEvents.forEach((event) => {
-    // 既に未回答イベントとして追加されていなければ追加
+    // 既に高優先度で追加されていなければ追加
     if (!finalAnnouncements[event.id]) {
       finalAnnouncements[event.id] = event;
     }
@@ -245,9 +267,15 @@ async function loadPendingAnnouncements() {
       currentMessage = event.message;
     }
 
+    // 譜割り受付中のイベントは譜割り確認画面へリンクさせる
+    const url =
+      event.type === 'assign'
+        ? `../assign-confirm/assign-confirm.html?eventId=${event.id}`
+        : `../event-confirm/event-confirm.html?eventId=${event.id}`;
+
     $announcementList.append(`
         <li>
-          <a href="../event-confirm/event-confirm.html?eventId=${event.id}" class="notification-link">
+          <a href="${url}" class="notification-link">
             ${event.display} ${event.title}
           </a>
         </li>
