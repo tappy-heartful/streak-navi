@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="../../images/favicon.png" />
+    <title>通知設定一覧</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="notice-list.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="page-header">
+        <h1>LINE通知設定</h1>
+      </div>
+
+      <div class="container" id="base-config-container">
+        <h3>⚙️ 通知基本設定</h3>
+        <section class="notice-list">
+          <ul class="notice-list">
+            <li>
+              <a
+                href="../notice-confirm/notice-confirm.html?mode=base"
+                class="notice-link"
+              >
+                <div class="notice-info">
+                  <span class="notice-title">⚙️ 通知基本設定</span>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </section>
+      </div>
+
+      <div class="container" id="custom-future-container">
+        <h3>🔔 カスタム通知（今後）</h3>
+        <section class="notice-list">
+          <ul class="notice-list" id="custom-future-list"></ul>
+        </section>
+        <button
+          id="custom-add-button"
+          class="add-button"
+          onclick="window.location.href = '../notice-edit/notice-edit.html?mode=new'"
+        >
+          ＋ 新規作成
+        </button>
+      </div>
+
+      <div class="container" id="closed-container">
+        <h3>🔚 カスタム通知（終了）</h3>
+        <section class="notice-list">
+          <ul class="notice-list" id="custom-closed-list"></ul>
+        </section>
+      </div>
+
+      <div class="page-footer">
+        <a href="../home/home.html" class="back-link">← ホームに戻る</a>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="notice-list.js"></script>
+  </body>
+</html>

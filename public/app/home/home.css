@@ -226,12 +226,20 @@
   content: '🎶';
 }
 
+.menu-button.assign::after {
+  content: '🎵';
+}
+
 .menu-button.vote::after {
   content: '📊';
 }
 
 .menu-button.user::after {
   content: '👥';
+}
+
+.menu-button.notice::after {
+  content: '📣';
 }
 
 .menu-button.blue-note::after {
