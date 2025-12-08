@@ -1,0 +1,29 @@
+.notify-group {
+  padding: 15px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.sub-group {
+  margin-left: 20px;
+  margin-top: 10px;
+}
+
+.date-row {
+  display: flex;
+  gap: 20px;
+}
+
+textarea {
+  margin-top: 8px;
+  min-height: 80px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.required {
+  color: #f44336;
+}
