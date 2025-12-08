@@ -245,7 +245,7 @@ export async function initDisplay(isShowSpinner = true) {
   const path = window.location.pathname;
 
   // 権限チェックが必要なモジュール名のリスト
-  const modules = ['call', 'event', 'media', 'score', 'vote'];
+  const modules = ['call', 'event', 'media', 'notice', 'score', 'vote'];
 
   for (const moduleName of modules) {
     const editPagePath = `${moduleName}-edit/${moduleName}-edit.html`;
