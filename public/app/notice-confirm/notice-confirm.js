@@ -25,26 +25,22 @@ async function setUpPage() {
   const noticeId = utils.globalGetparams.get('noticeId');
 
   if (mode === 'base') {
-    // 基本設定モード
     $('#page-title').text('通知基本設定の確認');
     $('#base-config-section').removeClass('hidden');
     await loadBaseConfig();
   } else {
-    // カスタム通知モード
     $('#page-title').text('カスタム通知の確認');
     $('#custom-config-section').removeClass('hidden');
     $('#delete-button').removeClass('hidden');
     await loadCustomNotice(noticeId);
   }
 
-  // 編集ボタンの遷移先設定
   $('#edit-button').on('click', () => {
     let url = `../notice-edit/notice-edit.html?mode=${mode}`;
     if (noticeId) url += `&noticeId=${noticeId}`;
     window.location.href = url;
   });
 
-  // 削除ボタン（カスタムのみ）
   $('#delete-button').on('click', async () => {
     const confirm = await utils.showDialog('この通知設定を削除しますか？');
     if (!confirm) return;
@@ -63,50 +59,52 @@ async function setUpPage() {
 
 // 基本設定の読み込み
 async function loadBaseConfig() {
-  const docRef = utils.doc(utils.db, 'configs', 'noticeBase'); // 固定ドキュメント
+  const docRef = utils.doc(utils.db, 'configs', 'noticeBase');
   const docSnap = await utils.getWrapDoc(docRef);
 
   if (docSnap.exists()) {
     const d = docSnap.data();
-    $('#base-event-info').html(
-      d.eventNotify
-        ? `イベントの${d.eventDaysBefore}日前：<br>${d.eventMessage?.replace(
-            /\n/g,
-            '<br>'
-          )}`
-        : '通知しない'
-    );
-    $('#base-vote-info').html(
-      d.voteNotify
-        ? `締切の${d.voteDaysBefore}日前：<br>${d.voteMessage?.replace(
-            /\n/g,
-            '<br>'
-          )}`
-        : '通知しない'
-    );
-    $('#base-call-info').html(
-      d.callNotify
-        ? `締切の${d.callDaysBefore}日前：<br>${d.callMessage?.replace(
-            /\n/g,
-            '<br>'
-          )}`
-        : '通知しない'
-    );
+
+    // イベント
+    if (d.eventNotify) {
+      $('#base-event-timing').text(`イベントの ${d.eventDaysBefore} 日前`);
+      $('#base-event-msg').text(d.eventMessage_decoded || d.eventMessage || '');
+    } else {
+      $('#base-event-timing').text('通知しない');
+      $('#base-event-msg').text('ー');
+    }
+
+    // 投票
+    if (d.voteNotify) {
+      $('#base-vote-timing').text(`締切の ${d.voteDaysBefore} 日前`);
+      $('#base-vote-msg').text(d.voteMessage_decoded || d.voteMessage || '');
+    } else {
+      $('#base-vote-timing').text('通知しない');
+      $('#base-vote-msg').text('ー');
+    }
+
+    // 曲募集
+    if (d.callNotify) {
+      $('#base-call-timing').text(`締切の ${d.callDaysBefore} 日前`);
+      $('#base-call-msg').text(d.callMessage_decoded || d.callMessage || '');
+    } else {
+      $('#base-call-timing').text('通知しない');
+      $('#base-call-msg').text('ー');
+    }
   } else {
     $('.label-value').text('未設定');
   }
 }
 
-// カスタム通知の読み込み
 async function loadCustomNotice(id) {
   const docRef = utils.doc(utils.db, 'notices', id);
   const docSnap = await utils.getWrapDoc(docRef);
 
   if (docSnap.exists()) {
     const d = docSnap.data();
-    $('#custom-title').text(d.title);
+    $('#custom-title').text(d.title_decoded || d.title);
     $('#custom-date').text(`${d.scheduledDate} ${d.scheduledTime}`);
     $('#custom-related').text(`${d.relatedType}：${d.relatedTitle}`);
-    $('#custom-message').text(d.message);
+    $('#custom-message').text(d.message_decoded || d.message);
   }
 }

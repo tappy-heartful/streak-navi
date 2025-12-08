@@ -1,42 +1,28 @@
-.menu-title {
-  margin-top: 25px;
-  font-size: 16px;
-  color: #4CAF50;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 5px;
+.base-notify-box {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  background-color: #ffffff;
 }
 
-.label-title {
-  font-size: 14px;
+.base-notify-box .label-title {
+  margin-top: 10px;
   color: #666;
-  margin-bottom: 4px;
+  font-size: 0.9em;
 }
 
-.label-value {
-  font-size: 16px;
-  color: #333;
-  padding: 10px;
-  background-color: #f9f9f9;
-  border-radius: 6px;
-  min-height: 24px;
+.base-notify-box .label-title:first-child {
+  margin-top: 0;
 }
 
 .pre-wrap {
-  white-space: pre-wrap; /* 改行を反映させる */
+  white-space: pre-wrap;
+  min-height: 40px;
 }
 
-.hidden {
-  display: none !important;
-}
-
-.confirm-buttons {
-  display: flex;
-  gap: 15px;
-  margin-top: 30px;
-}
-
-.edit-button, .delete-button {
-  flex: 1;
-  padding: 12px;
-  font-size: 16px;
+.menu-title {
+  border-left: 5px solid #4caf50;
+  padding-left: 10px;
+  margin-bottom: 10px;
 }
