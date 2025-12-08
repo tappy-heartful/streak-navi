@@ -1,110 +1,199 @@
 import * as utils from '../common/functions.js';
 
-let scoresCache = [];
+let initialState = {};
 
 $(document).ready(async function () {
   try {
-    await utils.initDisplay();
     const mode = utils.globalGetParamMode;
+    await utils.initDisplay();
+
     utils.renderBreadcrumb([
       { title: '通知一覧', url: '../notice-list/notice-list.html' },
       { title: '通知編集' },
     ]);
-    await setUpPage(mode);
+
+    await setupPage(mode);
+    captureInitialState(mode);
+    setupEventHandlers(mode);
   } catch (e) {
+    await utils.writeLog({
+      dataId: 'none',
+      action: '通知確認初期表示',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+  } finally {
     utils.hideSpinner();
   }
 });
 
-async function setUpPage(mode) {
+async function setupPage(mode) {
   const noticeId = utils.globalGetparams.get('noticeId');
 
   if (mode === 'base') {
-    $('#base-edit-section').removeClass('hidden');
+    $('#page-title').text('通知基本設定');
+    $('#base-config-section').removeClass('hidden');
     await loadBaseConfig();
   } else {
-    $('#custom-edit-section').removeClass('hidden');
-    setupCustomHandlers();
+    $('#page-title').text(noticeId ? 'カスタム通知編集' : 'カスタム通知作成');
+    $('#custom-config-section').removeClass('hidden');
     if (noticeId) await loadCustomNotice(noticeId);
   }
-
-  $('#save-button').on('click', () => saveNotice(mode, noticeId));
-  $('#clear-button').on('click', () => location.reload());
 }
 
-// カスタム設定時の動的プルダウン
-function setupCustomHandlers() {
-  $('#related-type').on('change', async function () {
-    const type = $(this).val();
-    const $target = $('#related-id');
-
-    if (type === 'none') {
-      $target.addClass('hidden').empty();
-      return;
-    }
-
-    utils.showSpinner();
-    const snap = await utils.getWrapDocs(utils.collection(utils.db, type));
-    $target.empty().append('<option value="">対象を選択してください</option>');
-
-    snap.docs.forEach((doc) => {
-      const d = doc.data();
-      $target.append(`<option value="${doc.id}">${d.title || d.name}</option>`);
-    });
-
-    $target.removeClass('hidden');
-    utils.hideSpinner();
-  });
-}
-
+// データ読み込み（基本設定）
 async function loadBaseConfig() {
   const docSnap = await utils.getWrapDoc(
     utils.doc(utils.db, 'configs', 'noticeBase')
   );
   if (docSnap.exists()) {
     const d = docSnap.data();
-    $('#event-notify').prop('checked', d.eventNotify);
-    $('#event-days').val(d.eventDaysBefore);
-    $('#event-msg').val(d.eventMessage);
-    // 投票・募集も同様に反映...
+    $('#base-event-notify').prop('checked', d.eventNotify);
+    $('#base-event-days').val(d.eventDaysBefore);
+    $('#base-event-msg').val(d.eventMessage);
+    $('#base-vote-notify').prop('checked', d.voteNotify);
+    $('#base-vote-days').val(d.voteDaysBefore);
+    $('#base-vote-msg').val(d.voteMessage);
+    $('#base-call-notify').prop('checked', d.callNotify);
+    $('#base-call-days').val(d.callDaysBefore);
+    $('#base-call-msg').val(d.callMessage);
   }
 }
 
-async function saveNotice(mode, noticeId) {
-  utils.showSpinner();
-  const data = {};
+// データ読み込み（カスタム通知）
+async function loadCustomNotice(id) {
+  const docSnap = await utils.getWrapDoc(utils.doc(utils.db, 'notices', id));
+  if (docSnap.exists()) {
+    const d = docSnap.data();
+    $('#custom-title').val(d.title);
+    $('#custom-date').val(utils.formatDateToYMDHyphen(d.scheduledDate));
+    $('#custom-time').val(d.scheduledTime);
+    $('#custom-message').val(d.message);
 
-  if (mode === 'base') {
-    // 基本設定の保存
-    const baseData = {
-      eventNotify: $('#event-notify').prop('checked'),
-      eventDaysBefore: parseInt($('#event-days').val()),
-      eventMessage: $('#event-msg').val(),
-      // 投票・募集...
-    };
-    await utils.setDoc(utils.doc(utils.db, 'configs', 'noticeBase'), baseData);
-  } else {
-    // カスタム通知の保存
-    const customData = {
-      title: $('#custom-title').val(),
-      scheduledDate: $('#custom-date').val().replace(/-/g, '.'),
-      scheduledTime: $('#custom-time').val(),
-      relatedType: $('#related-type').val(),
-      relatedId: $('#related-id').val(),
-      message: $('#custom-message').val(),
-      createdAt: utils.serverTimestamp(),
-    };
-
-    if (noticeId) {
-      await utils.updateDoc(
-        utils.doc(utils.db, 'notices', noticeId),
-        customData
-      );
-    } else {
-      await utils.addDoc(utils.collection(utils.db, 'notices'), customData);
+    // 紐づけ対象の復元
+    if (d.relatedType !== 'none') {
+      $('#related-type').val(d.relatedType).trigger('change');
+      // IDのセットは非同期ロード後に行うため、setTimeout等で微調整が必要な場合あり
+      setTimeout(() => $('#related-id').val(d.relatedId), 500);
     }
   }
+}
 
-  await utils.showDialog('保存しました', true);
-  window.location.href = '../notice-list/notice-list.html';
+function setupEventHandlers(mode) {
+  // カスタム通知：紐づけ対象の動的切り替え
+  $('#related-type').on('change', async function () {
+    const type = $(this).val();
+    const $idSelect = $('#related-id');
+
+    if (type === 'none') {
+      $idSelect.addClass('hidden').empty();
+      return;
+    }
+
+    utils.showSpinner();
+    const snap = await utils.getWrapDocs(utils.collection(utils.db, type));
+    $idSelect
+      .empty()
+      .append('<option value="">対象を選択してください</option>');
+    snap.docs.forEach((doc) => {
+      const d = doc.data();
+      $idSelect.append(
+        `<option value="${doc.id}">${
+          d.title || d.name || '名称未設定'
+        }</option>`
+      );
+    });
+    $idSelect.removeClass('hidden');
+    utils.hideSpinner();
+  });
+
+  $('#clear-button').on('click', () => restoreInitialState(mode));
+
+  $('#save-button').on('click', async () => {
+    if (!validateData(mode)) return;
+    const confirm = await utils.showDialog('設定を保存しますか？');
+    if (!confirm) return;
+
+    utils.showSpinner();
+    try {
+      const noticeId = utils.globalGetparams.get('noticeId');
+      if (mode === 'base') {
+        const data = collectBaseData();
+        await utils.setDoc(utils.doc(utils.db, 'configs', 'noticeBase'), data);
+      } else {
+        const data = collectCustomData();
+        if (noticeId) {
+          await utils.updateDoc(utils.doc(utils.db, 'notices', noticeId), data);
+        } else {
+          await utils.addDoc(utils.collection(utils.db, 'notices'), data);
+        }
+      }
+      await utils.showDialog('保存しました', true);
+      window.location.href = '../notice-list/notice-list.html';
+    } catch (e) {
+      utils.hideSpinner();
+      await utils.showDialog('エラーが発生しました');
+    }
+  });
+}
+
+function collectBaseData() {
+  return {
+    eventNotify: $('#base-event-notify').prop('checked'),
+    eventDaysBefore: parseInt($('#base-event-days').val()) || 0,
+    eventMessage: $('#base-event-msg').val(),
+    voteNotify: $('#base-vote-notify').prop('checked'),
+    voteDaysBefore: parseInt($('#base-vote-days').val()) || 0,
+    voteMessage: $('#base-vote-msg').val(),
+    callNotify: $('#base-call-notify').prop('checked'),
+    callDaysBefore: parseInt($('#base-call-days').val()) || 0,
+    callMessage: $('#base-call-msg').val(),
+    updatedAt: utils.serverTimestamp(),
+  };
+}
+
+function collectCustomData() {
+  const relId = $('#related-id').val();
+  const relTitle = $('#related-id option:selected').text();
+  return {
+    title: $('#custom-title').val(),
+    scheduledDate: utils.formatDateToYMDDot($('#custom-date').val()),
+    scheduledTime: $('#custom-time').val(),
+    relatedType: $('#related-type').val(),
+    relatedId: relId || '',
+    relatedTitle: relId ? relTitle : '',
+    message: $('#custom-message').val(),
+    createdAt: utils.serverTimestamp(),
+  };
+}
+
+function validateData(mode) {
+  utils.clearErrors();
+  if (mode === 'base') return true; // 基本設定は任意
+
+  let isValid = true;
+  if (!$('#custom-title').val()) {
+    utils.markError($('#custom-title'), '必須');
+    isValid = false;
+  }
+  if (!$('#custom-date').val()) {
+    utils.markError($('#custom-date'), '必須');
+    isValid = false;
+  }
+  if (!$('#custom-time').val()) {
+    utils.markError($('#custom-time'), '必須');
+    isValid = false;
+  }
+  if (!$('#custom-message').val()) {
+    utils.markError($('#custom-message'), '必須');
+    isValid = false;
+  }
+  return isValid;
+}
+
+function captureInitialState(mode) {
+  /* 復元ロジック（省略可、reloadで代用） */
+}
+function restoreInitialState(mode) {
+  location.reload();
 }

@@ -68,16 +68,29 @@ async function loadBaseConfig() {
 
   if (docSnap.exists()) {
     const d = docSnap.data();
-    $('#base-event-info').text(
+    $('#base-event-info').html(
       d.eventNotify
-        ? `${d.eventDaysBefore}日前：${d.eventMessage}`
+        ? `イベントの${d.eventDaysBefore}日前：<br>${d.eventMessage?.replace(
+            /\n/g,
+            '<br>'
+          )}`
         : '通知しない'
     );
-    $('#base-vote-info').text(
-      d.voteNotify ? `${d.voteDaysBefore}日前：${d.voteMessage}` : '通知しない'
+    $('#base-vote-info').html(
+      d.voteNotify
+        ? `締切の${d.voteDaysBefore}日前：<br>${d.voteMessage?.replace(
+            /\n/g,
+            '<br>'
+          )}`
+        : '通知しない'
     );
-    $('#base-call-info').text(
-      d.callNotify ? `${d.callDaysBefore}日前：${d.callMessage}` : '通知しない'
+    $('#base-call-info').html(
+      d.callNotify
+        ? `締切の${d.callDaysBefore}日前：<br>${d.callMessage?.replace(
+            /\n/g,
+            '<br>'
+          )}`
+        : '通知しない'
     );
   } else {
     $('.label-value').text('未設定');

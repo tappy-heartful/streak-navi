@@ -8,6 +8,10 @@
     <link rel="apple-touch-icon" href="../../images/favicon.png" />
     <link rel="stylesheet" href="../common/common.css" />
     <link rel="stylesheet" href="notice-edit.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
   </head>
   <body>
     <div id="header-placeholder"></div>
@@ -17,62 +21,78 @@
     </div>
 
     <main class="container">
-      <div id="base-edit-section" class="hidden">
+      <div id="base-config-section" class="hidden">
         <h3 class="menu-title">通知基本設定</h3>
+        <p class="form-help">各項目の何日前に自動通知するか設定します。</p>
 
-        <div class="notify-group">
+        <div class="notify-card">
           <h4>📅 イベント通知</h4>
-          <label
-            ><input type="checkbox" id="event-notify" /> 通知を有効にする</label
+          <label class="switch-label"
+            ><input type="checkbox" id="base-event-notify" /> 有効にする</label
           >
-          <div class="form-group sub-group">
+          <div class="form-group indent">
             <label
-              >通知タイミング:
-              <input type="number" id="event-days" min="0" /> 日前</label
+              >通知タイミング: イベントの<input
+                type="number"
+                id="base-event-days"
+                min="0"
+              />
+              日前</label
             >
             <textarea
-              id="event-msg"
-              placeholder="通知メッセージを入力..."
+              id="base-event-msg"
+              rows="2"
+              placeholder="通知メッセージ..."
             ></textarea>
           </div>
         </div>
 
-        <div class="notify-group">
+        <div class="notify-card">
           <h4>🗳️ 投票通知</h4>
-          <label
-            ><input type="checkbox" id="vote-notify" /> 通知を有効にする</label
+          <label class="switch-label"
+            ><input type="checkbox" id="base-vote-notify" /> 有効にする</label
           >
-          <div class="form-group sub-group">
+          <div class="form-group indent">
             <label
-              >通知タイミング:
-              <input type="number" id="vote-days" min="0" /> 日前</label
+              >通知タイミング: 締切の<input
+                type="number"
+                id="base-vote-days"
+                min="0"
+              />
+              日前</label
             >
             <textarea
-              id="vote-msg"
-              placeholder="通知メッセージを入力..."
+              id="base-vote-msg"
+              rows="2"
+              placeholder="通知メッセージ..."
             ></textarea>
           </div>
         </div>
 
-        <div class="notify-group">
+        <div class="notify-card">
           <h4>🎶 曲募集通知</h4>
-          <label
-            ><input type="checkbox" id="call-notify" /> 通知を有効にする</label
+          <label class="switch-label"
+            ><input type="checkbox" id="base-call-notify" /> 有効にする</label
           >
-          <div class="form-group sub-group">
+          <div class="form-group indent">
             <label
-              >通知タイミング:
-              <input type="number" id="call-days" min="0" /> 日前</label
+              >通知タイミング: 締切の<input
+                type="number"
+                id="base-call-days"
+                min="0"
+              />
+              日前</label
             >
             <textarea
-              id="call-msg"
-              placeholder="通知メッセージを入力..."
+              id="base-call-msg"
+              rows="2"
+              placeholder="通知メッセージ..."
             ></textarea>
           </div>
         </div>
       </div>
 
-      <div id="custom-edit-section" class="hidden">
+      <div id="custom-config-section" class="hidden">
         <div class="form-group">
           <label class="label-title"
             >通知タイトル <span class="required">*</span></label
@@ -80,33 +100,38 @@
           <input
             type="text"
             id="custom-title"
-            placeholder="例: 練習日の持ち物連絡"
+            placeholder="例: 明日の練習の最終確認"
           />
         </div>
-        <div class="form-group date-row">
-          <div>
+
+        <div class="form-group-dates">
+          <div class="form-sub">
             <label class="label-title"
               >送信予定日 <span class="required">*</span></label
             >
             <input type="date" id="custom-date" />
           </div>
-          <div>
+          <div class="form-sub">
             <label class="label-title"
-              >送信予定時刻 <span class="required">*</span></label
+              >時刻 <span class="required">*</span></label
             >
             <input type="time" id="custom-time" />
           </div>
         </div>
+
         <div class="form-group">
           <label class="label-title">紐づけ対象</label>
-          <select id="related-type">
-            <option value="none">紐づけなし</option>
-            <option value="events">イベント</option>
-            <option value="votes">投票</option>
-            <option value="calls">曲募集</option>
-          </select>
-          <select id="related-id" class="hidden"></select>
+          <div class="related-group">
+            <select id="related-type">
+              <option value="none">紐づけなし</option>
+              <option value="events">イベント</option>
+              <option value="votes">投票</option>
+              <option value="calls">曲募集</option>
+            </select>
+            <select id="related-id" class="hidden"></select>
+          </div>
         </div>
+
         <div class="form-group">
           <label class="label-title"
             >通知メッセージ <span class="required">*</span></label
@@ -119,13 +144,20 @@
         </div>
       </div>
 
-      <div class="confirm-buttons">
+      <div id="confirm-buttons" class="confirm-buttons">
         <button id="clear-button" class="clear-button">クリア</button>
         <button id="save-button" class="save-button">保存する</button>
       </div>
     </main>
 
+    <div class="page-footer">
+      <a class="back-link">← 前の画面に戻る</a>
+    </div>
+
     <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="module" src="../common/functions.js"></script>
     <script type="module" src="notice-edit.js"></script>
