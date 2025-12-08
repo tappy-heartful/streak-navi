@@ -5,20 +5,34 @@ let initialState = {};
 $(document).ready(async function () {
   try {
     const mode = utils.globalGetParamMode;
+    const noticeId = utils.globalGetparams.get('noticeId');
     await utils.initDisplay();
 
-    utils.renderBreadcrumb([
+    // 画面ごとのパンくずをセット
+    let breadcrumb = [
       { title: '通知一覧', url: '../notice-list/notice-list.html' },
-      { title: '通知編集' },
-    ]);
+    ];
+    if (['new'].includes(mode)) {
+      breadcrumb.push({ title: '通知編集' });
+    } else {
+      breadcrumb.push(
+        {
+          title: '通知確認',
+          url: `../notice-confirm/notice-confirm.html?mode=${mode}
+        ${mode === 'base' ? '' : `&noticeId=${noticeId}`}`,
+        },
+        { title: mode === 'new' ? '通知新規作成' : '通知編集' }
+      );
+    }
+    utils.renderBreadcrumb(breadcrumb);
 
-    await setupPage(mode);
-    captureInitialState(mode);
-    setupEventHandlers(mode);
+    await setupPage(mode, noticeId);
+    captureInitialState(mode, noticeId);
+    setupEventHandlers(mode, noticeId);
   } catch (e) {
     await utils.writeLog({
       dataId: 'none',
-      action: '通知確認初期表示',
+      action: '通知編集',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
     });
@@ -27,9 +41,7 @@ $(document).ready(async function () {
   }
 });
 
-async function setupPage(mode) {
-  const noticeId = utils.globalGetparams.get('noticeId');
-
+async function setupPage(mode, noticeId) {
   if (mode === 'base') {
     $('#page-title').text('通知基本設定');
     $('#base-config-section').removeClass('hidden');
@@ -79,7 +91,7 @@ async function loadCustomNotice(id) {
   }
 }
 
-function setupEventHandlers(mode) {
+function setupEventHandlers(mode, noticeId) {
   // カスタム通知：紐づけ対象の動的切り替え
   $('#related-type').on('change', async function () {
     const type = $(this).val();
@@ -129,12 +141,23 @@ function setupEventHandlers(mode) {
         }
       }
       await utils.showDialog('保存しました', true);
-      window.location.href = '../notice-list/notice-list.html';
+      window.location.href = `../notice-comfirm/notice-comfirm.html?mode=${mode}
+        ${mode === 'base' ? '' : `&noticeId=${noticeId}`}`;
     } catch (e) {
       utils.hideSpinner();
       await utils.showDialog('エラーが発生しました');
     }
   });
+
+  $(document).on(
+    'click',
+    '.back-link',
+    () =>
+      (window.location.href = ['new'].includes(mode)
+        ? '../notice-list/notice-list.html'
+        : `../notice-confirm/notice-confirm.html?mode=${mode}
+        ${mode === 'base' ? '' : `&noticeId=${noticeId}`}`)
+  );
 }
 
 function collectBaseData() {
@@ -191,7 +214,7 @@ function validateData(mode) {
   return isValid;
 }
 
-function captureInitialState(mode) {
+function captureInitialState(mode, noticeId) {
   /* 復元ロジック（省略可、reloadで代用） */
 }
 function restoreInitialState(mode) {
