@@ -253,7 +253,7 @@ input[type="date"]:focus {
 }
 
 .time-input {
-  width:80px; /* 100%ではなく固定幅を指定 */
+  width:100px; /* 100%ではなく固定幅を指定 */
   box-sizing: border-box;
   padding: 10px;
   border: 1px solid #ccc;
