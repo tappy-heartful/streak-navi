@@ -252,6 +252,17 @@ input[type="date"]:focus {
   box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
 }
 
+.time-input {
+  width:80px; /* 100%ではなく固定幅を指定 */
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  border-radius: 4px;
+  /* Safari対策: 見た目を標準に近づけるため、フォント設定などを加える場合もありますが、
+     まずは幅の調整とボックスモデルの指定を徹底します。*/
+}
+
 .checkbox-group {
   margin-top: 20px;
   text-align: center;
