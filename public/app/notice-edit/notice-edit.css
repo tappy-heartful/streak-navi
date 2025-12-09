@@ -16,10 +16,11 @@
   margin-top: 10px;
 }
 
-.indent input[type="number"] {
-  width: 60px;
-  padding: 4px;
-}
+/* 💡 以前の.indent input[type="number"]の定義は、.small-inputと統合または上書きされます */
+/* .indent input[type="number"] {
+  width: 60px;
+  padding: 4px;
+} */
 
 .switch-label {
   font-weight: normal;
@@ -56,3 +57,67 @@ textarea {
   margin-top: -10px;
   margin-bottom: 20px;
 }
+
+/* 💡 縦積みレイアウトに対応するための追加/修正スタイル */
+
+.label-title {
+  display: block; /* ラベルをブロック要素にして次の入力欄と行を分ける */
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.full-width-input {
+  width: 100%; /* 時刻入力は全幅に近い形で確保 */
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.days-input-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 1em;
+}
+
+.small-input {
+  width: 50px; /* 日数入力は小さく */
+  padding: 4px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* 💡 以前の横並び関連のスタイルは削除またはコメントアウトされています */
+/*
+.time-days-group {
+  display: flex;
+  justify-content: space-between; 
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 10px; 
+}
+
+.time-input-sub {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.time-input-sub input[type="time"] {
+  width: 90px;
+  padding: 4px;
+}
+
+.days-input-sub {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.days-input-sub input[type="number"] {
+  width: 50px; 
+  padding: 4px;
+}
+*/

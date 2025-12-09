@@ -67,7 +67,11 @@ async function loadBaseConfig() {
 
     // イベント
     if (d.eventNotify) {
-      $('#base-event-timing').text(`イベントの ${d.eventDaysBefore} 日前`);
+      $('#base-event-timing').text(
+        'イベントの' +
+          (d.eventDaysBefore === 0 ? '当日' : ` ${d.eventDaysBefore} 日前 `) +
+          d.eventTime
+      );
       $('#base-event-msg').text(d.eventMessage_decoded || d.eventMessage || '');
     } else {
       $('#base-event-timing').text('通知しない');
@@ -76,7 +80,11 @@ async function loadBaseConfig() {
 
     // 投票
     if (d.voteNotify) {
-      $('#base-vote-timing').text(`締切の ${d.voteDaysBefore} 日前`);
+      $('#base-vote-timing').text(
+        '締切の' +
+          (d.voteDaysBefore === 0 ? '当日' : ` ${d.voteDaysBefore} 日前 `) +
+          d.voteTime
+      );
       $('#base-vote-msg').text(d.voteMessage_decoded || d.voteMessage || '');
     } else {
       $('#base-vote-timing').text('通知しない');
@@ -85,7 +93,11 @@ async function loadBaseConfig() {
 
     // 曲募集
     if (d.callNotify) {
-      $('#base-call-timing').text(`締切の ${d.callDaysBefore} 日前`);
+      $('#base-call-timing').text(
+        '締切の' +
+          (d.callDaysBefore === 0 ? '当日' : ` ${d.callDaysBefore} 日前 `) +
+          d.callTime
+      );
       $('#base-call-msg').text(d.callMessage_decoded || d.callMessage || '');
     } else {
       $('#base-call-timing').text('通知しない');

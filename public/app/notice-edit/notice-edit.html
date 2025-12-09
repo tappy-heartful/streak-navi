@@ -23,25 +23,44 @@
     <main class="container">
       <div id="base-config-section" class="hidden">
         <h3 class="menu-title">通知基本設定</h3>
-        <p class="form-help">各項目の何日前に自動通知するか設定します。</p>
+        <p class="form-help">
+          各項目の**何日前の何時**に自動通知するか設定します。
+        </p>
 
         <div class="notify-card">
           <h4>📅 イベント通知</h4>
-          <label class="switch-label"
-            ><input type="checkbox" id="base-event-notify" /> 有効にする</label
-          >
+          <label class="switch-label">
+            <input type="checkbox" id="base-event-notify" /> 有効にする
+          </label>
+
           <div class="form-group indent">
-            <label
-              >通知タイミング: イベントの<input
+            <label class="label-title">通知時刻</label>
+            <input
+              type="time"
+              id="base-event-time"
+              value="09:00"
+              class="full-width-input"
+            />
+          </div>
+
+          <div class="form-group indent">
+            <label class="label-title">通知タイミング</label>
+            <div class="days-input-group">
+              イベントの
+              <input
                 type="number"
                 id="base-event-days"
                 min="0"
+                value="1"
+                class="small-input"
               />
-              日前</label
-            >
+              日前
+            </div>
+          </div>
+          <div class="form-group indent">
             <textarea
               id="base-event-msg"
-              rows="2"
+              rows="4"
               placeholder="通知メッセージ..."
             ></textarea>
           </div>
@@ -49,21 +68,38 @@
 
         <div class="notify-card">
           <h4>🗳️ 投票通知</h4>
-          <label class="switch-label"
-            ><input type="checkbox" id="base-vote-notify" /> 有効にする</label
-          >
+          <label class="switch-label">
+            <input type="checkbox" id="base-vote-notify" /> 有効にする
+          </label>
+
           <div class="form-group indent">
-            <label
-              >通知タイミング: 締切の<input
+            <label class="label-title">通知時刻</label>
+            <input
+              type="time"
+              id="base-vote-time"
+              value="09:00"
+              class="full-width-input"
+            />
+          </div>
+
+          <div class="form-group indent">
+            <label class="label-title">通知タイミング</label>
+            <div class="days-input-group">
+              締切の
+              <input
                 type="number"
                 id="base-vote-days"
                 min="0"
+                value="1"
+                class="small-input"
               />
-              日前</label
-            >
+              日前
+            </div>
+          </div>
+          <div class="form-group indent">
             <textarea
               id="base-vote-msg"
-              rows="2"
+              rows="4"
               placeholder="通知メッセージ..."
             ></textarea>
           </div>
@@ -71,21 +107,38 @@
 
         <div class="notify-card">
           <h4>🎶 曲募集通知</h4>
-          <label class="switch-label"
-            ><input type="checkbox" id="base-call-notify" /> 有効にする</label
-          >
+          <label class="switch-label">
+            <input type="checkbox" id="base-call-notify" /> 有効にする
+          </label>
+
           <div class="form-group indent">
-            <label
-              >通知タイミング: 締切の<input
+            <label class="label-title">通知時刻</label>
+            <input
+              type="time"
+              id="base-call-time"
+              value="09:00"
+              class="full-width-input"
+            />
+          </div>
+
+          <div class="form-group indent">
+            <label class="label-title">通知タイミング</label>
+            <div class="days-input-group">
+              締切の
+              <input
                 type="number"
                 id="base-call-days"
                 min="0"
+                value="1"
+                class="small-input"
               />
-              日前</label
-            >
+              日前
+            </div>
+          </div>
+          <div class="form-group indent">
             <textarea
               id="base-call-msg"
-              rows="2"
+              rows="4"
               placeholder="通知メッセージ..."
             ></textarea>
           </div>

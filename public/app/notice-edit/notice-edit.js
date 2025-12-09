@@ -53,6 +53,8 @@ async function setupPage(mode, noticeId) {
   }
 }
 
+// notice-edit.js (一部抜粋)
+
 // データ読み込み（基本設定）
 async function loadBaseConfig() {
   const docSnap = await utils.getWrapDoc(
@@ -60,15 +62,33 @@ async function loadBaseConfig() {
   );
   if (docSnap.exists()) {
     const d = docSnap.data();
+
+    // イベント通知
     $('#base-event-notify').prop('checked', d.eventNotify);
     $('#base-event-days').val(d.eventDaysBefore);
+    $('#base-event-time').val(d.eventTime || '09:00'); // 💡 時刻を読み込む
     $('#base-event-msg').val(d.eventMessage);
+
+    // 投票通知
     $('#base-vote-notify').prop('checked', d.voteNotify);
     $('#base-vote-days').val(d.voteDaysBefore);
+    $('#base-vote-time').val(d.voteTime || '09:00'); // 💡 時刻を読み込む
     $('#base-vote-msg').val(d.voteMessage);
+
+    // 曲募集通知
     $('#base-call-notify').prop('checked', d.callNotify);
     $('#base-call-days').val(d.callDaysBefore);
+    $('#base-call-time').val(d.callTime || '09:00'); // 💡 時刻を読み込む
     $('#base-call-msg').val(d.callMessage);
+  } else {
+    // データがない場合の初期値設定
+    $('#base-event-time').val('09:00');
+    $('#base-vote-time').val('09:00');
+    $('#base-call-time').val('09:00');
+
+    $('#base-event-days').val('1');
+    $('#base-vote-days').val('1');
+    $('#base-call-days').val('1');
   }
 }
 
@@ -162,15 +182,24 @@ function setupEventHandlers(mode, noticeId) {
 
 function collectBaseData() {
   return {
+    // イベント
     eventNotify: $('#base-event-notify').prop('checked'),
     eventDaysBefore: parseInt($('#base-event-days').val()) || 0,
+    eventTime: $('#base-event-time').val(), // 💡 時刻を収集
     eventMessage: $('#base-event-msg').val(),
+
+    // 投票
     voteNotify: $('#base-vote-notify').prop('checked'),
     voteDaysBefore: parseInt($('#base-vote-days').val()) || 0,
+    voteTime: $('#base-vote-time').val(), // 💡 時刻を収集
     voteMessage: $('#base-vote-msg').val(),
+
+    // 曲募集
     callNotify: $('#base-call-notify').prop('checked'),
     callDaysBefore: parseInt($('#base-call-days').val()) || 0,
+    callTime: $('#base-call-time').val(), // 💡 時刻を収集
     callMessage: $('#base-call-msg').val(),
+
     updatedAt: utils.serverTimestamp(),
   };
 }
