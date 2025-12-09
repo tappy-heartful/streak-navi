@@ -139,7 +139,14 @@ function setupEventHandlers(mode, noticeId) {
     utils.hideSpinner();
   });
 
-  $('#clear-button').on('click', () => restoreInitialState(mode));
+  $('#clear-button').on('click', async () => {
+    if (
+      await utils.showDialog(
+        mode === 'new' ? '入力内容をクリアしますか？' : '編集前に戻しますか？'
+      )
+    )
+      restoreInitialState();
+  });
 
   $('#save-button').on('click', async () => {
     if (!validateData(mode)) return;
