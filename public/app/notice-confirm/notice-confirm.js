@@ -25,11 +25,11 @@ async function setUpPage() {
   const noticeId = utils.globalGetparams.get('noticeId');
 
   if (mode === 'base') {
-    $('#page-title').text('通知基本設定の確認');
+    $('#page-title').text('通知確認(基本設定)');
     $('#base-config-section').removeClass('hidden');
     await loadBaseConfig();
   } else {
-    $('#page-title').text('カスタム通知の確認');
+    $('#page-title').text('通知確認(カスタム通知)');
     $('#custom-config-section').removeClass('hidden');
     $('#delete-button').removeClass('hidden');
     await loadCustomNotice(noticeId);
