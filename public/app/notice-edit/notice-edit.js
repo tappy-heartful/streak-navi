@@ -141,7 +141,7 @@ function setupEventHandlers(mode, noticeId) {
         }
       }
       await utils.showDialog('保存しました', true);
-      window.location.href = `../notice-comfirm/notice-comfirm.html?mode=${mode}
+      window.location.href = `../notice-confirm/notice-confirm.html?mode=${mode}
         ${mode === 'base' ? '' : `&noticeId=${noticeId}`}`;
     } catch (e) {
       utils.hideSpinner();
