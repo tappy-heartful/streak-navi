@@ -4,14 +4,14 @@ $(document).ready(async function () {
   try {
     await utils.initDisplay();
     utils.renderBreadcrumb([
-      { title: '通知一覧', url: '../notice-list/notice-list.html' },
-      { title: '通知確認' },
+      { title: '通知設定一覧', url: '../notice-list/notice-list.html' },
+      { title: '通知設定確認' },
     ]);
     await setUpPage();
   } catch (e) {
     await utils.writeLog({
       dataId: 'none',
-      action: '通知確認初期表示',
+      action: '通知設定確認初期表示',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
     });
@@ -25,11 +25,11 @@ async function setUpPage() {
   const noticeId = utils.globalGetparams.get('noticeId');
 
   if (mode === 'base') {
-    $('#page-title').text('通知確認(基本設定)');
+    $('#page-title').text('通知設定確認(基本)');
     $('#base-config-section').removeClass('hidden');
     await loadBaseConfig();
   } else {
-    $('#page-title').text('通知確認(カスタム通知)');
+    $('#page-title').text('通知設定確認(カスタム)');
     $('#custom-config-section').removeClass('hidden');
     $('#delete-button').removeClass('hidden');
     await loadCustomNotice(noticeId);

@@ -10,18 +10,18 @@ $(document).ready(async function () {
 
     // 画面ごとのパンくずをセット
     let breadcrumb = [
-      { title: '通知一覧', url: '../notice-list/notice-list.html' },
+      { title: '通知設定一覧', url: '../notice-list/notice-list.html' },
     ];
     if (['new'].includes(mode)) {
-      breadcrumb.push({ title: '通知編集' });
+      breadcrumb.push({ title: '通知設定編集' });
     } else {
       breadcrumb.push(
         {
-          title: '通知確認',
+          title: '通知設定確認',
           url: `../notice-confirm/notice-confirm.html?mode=${mode}
         ${mode === 'base' ? '' : `&noticeId=${noticeId}`}`,
         },
-        { title: mode === 'new' ? '通知新規作成' : '通知編集' }
+        { title: mode === 'new' ? '通知設定新規作成' : '通知設定編集' }
       );
     }
     utils.renderBreadcrumb(breadcrumb);
@@ -32,7 +32,7 @@ $(document).ready(async function () {
   } catch (e) {
     await utils.writeLog({
       dataId: 'none',
-      action: '通知編集',
+      action: '通知設定編集',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
     });
@@ -43,11 +43,13 @@ $(document).ready(async function () {
 
 async function setupPage(mode, noticeId) {
   if (mode === 'base') {
-    $('#page-title').text('通知基本設定');
+    $('#page-title').text('通知設定編集(基本)');
     $('#base-config-section').removeClass('hidden');
     await loadBaseConfig();
   } else {
-    $('#page-title').text(noticeId ? 'カスタム通知編集' : 'カスタム通知作成');
+    $('#page-title').text(
+      '通知設定' + (noticeId ? '編集' : '新規作成') + '(カスタム)'
+    );
     $('#custom-config-section').removeClass('hidden');
     if (noticeId) await loadCustomNotice(noticeId);
   }
