@@ -43,13 +43,11 @@ $(document).ready(async function () {
 
 async function setupPage(mode, noticeId) {
   if (mode === 'base') {
-    $('#page-title').text('通知設定編集(基本)');
+    $('#page-title').text('通知設定編集');
     $('#base-config-section').removeClass('hidden');
     await loadBaseConfig();
   } else {
-    $('#page-title').text(
-      '通知設定' + (noticeId ? '編集' : '新規作成') + '(カスタム)'
-    );
+    $('#page-title').text('通知設定' + (noticeId ? '編集' : '新規作成'));
     $('#custom-config-section').removeClass('hidden');
     if (noticeId) await loadCustomNotice(noticeId);
   }
