@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="../../images/favicon.png" />
+    <title>通知設定確認</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="notice-confirm.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <div class="page-header">
+      <h1 id="page-title">通知設定確認</h1>
+    </div>
+
+    <main class="container">
+      <div id="base-config-section" class="hidden">
+        <h3 class="menu-title">📅 イベント通知</h3>
+        <div class="form-group base-notify-box">
+          <label class="label-title">通知タイミング</label>
+          <div class="label-value" id="base-event-timing"></div>
+          <label class="label-title">通知メッセージ</label>
+          <div class="label-value pre-wrap" id="base-event-msg"></div>
+        </div>
+
+        <h3 class="menu-title">🗳️ 投票通知</h3>
+        <div class="form-group base-notify-box">
+          <label class="label-title">通知タイミング</label>
+          <div class="label-value" id="base-vote-timing"></div>
+          <label class="label-title">通知メッセージ</label>
+          <div class="label-value pre-wrap" id="base-vote-msg"></div>
+        </div>
+
+        <h3 class="menu-title">🎶 曲募集通知</h3>
+        <div class="form-group base-notify-box">
+          <label class="label-title">通知タイミング</label>
+          <div class="label-value" id="base-call-timing"></div>
+          <label class="label-title">通知メッセージ</label>
+          <div class="label-value pre-wrap" id="base-call-msg"></div>
+        </div>
+      </div>
+
+      <div id="custom-config-section" class="hidden">
+        <div class="form-group">
+          <label class="label-title">通知タイトル</label>
+          <div class="label-value" id="custom-title"></div>
+        </div>
+        <div class="form-group">
+          <label class="label-title">通知予定日時</label>
+          <div class="label-value" id="custom-date"></div>
+        </div>
+        <div class="form-group">
+          <label class="label-title">紐づけ対象</label>
+          <div class="label-value" id="custom-related"></div>
+        </div>
+        <div class="form-group">
+          <label class="label-title">通知メッセージ</label>
+          <div class="label-value pre-wrap" id="custom-message"></div>
+        </div>
+      </div>
+
+      <div class="confirm-buttons">
+        <button id="edit-button" class="edit-button">編集する</button>
+        <button id="delete-button" class="delete-button hidden">
+          削除する
+        </button>
+      </div>
+    </main>
+
+    <div class="page-footer">
+      <a href="../notice-list/notice-list.html" class="back-link"
+        >← 通知設定一覧に戻る</a
+      >
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="notice-confirm.js"></script>
+  </body>
+</html>
