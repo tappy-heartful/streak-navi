@@ -248,9 +248,8 @@ export async function initDisplay(isShowSpinner = true) {
   const modules = ['call', 'event', 'media', 'notice', 'score', 'vote'];
 
   for (const moduleName of modules) {
-    const editPagePath = `${moduleName}-edit/${moduleName}-edit.html`;
-
-    if (path.includes(editPagePath)) {
+    // 編集画面初期表示時にチェック
+    if (path.includes(modules) && path.includes('edit')) {
       const adminKey = moduleName.charAt(0).toUpperCase() + moduleName.slice(1);
       // 編集画面にいて、かつ対応するAdmin権限を持っていない場合
       if (!isAdmin(adminKey)) {

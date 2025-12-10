@@ -10,18 +10,18 @@ $(document).ready(async function () {
 
     // 画面ごとのパンくずをセット
     let breadcrumb = [
-      { title: '通知一覧', url: '../notice-list/notice-list.html' },
+      { title: '通知設定一覧', url: '../notice-list/notice-list.html' },
     ];
     if (['new'].includes(mode)) {
-      breadcrumb.push({ title: '通知編集' });
+      breadcrumb.push({ title: '通知設定編集' });
     } else {
       breadcrumb.push(
         {
-          title: '通知確認',
+          title: '通知設定確認',
           url: `../notice-confirm/notice-confirm.html?mode=${mode}
         ${mode === 'base' ? '' : `&noticeId=${noticeId}`}`,
         },
-        { title: mode === 'new' ? '通知新規作成' : '通知編集' }
+        { title: mode === 'new' ? '通知設定新規作成' : '通知設定編集' }
       );
     }
     utils.renderBreadcrumb(breadcrumb);
@@ -32,7 +32,7 @@ $(document).ready(async function () {
   } catch (e) {
     await utils.writeLog({
       dataId: 'none',
-      action: '通知編集',
+      action: '通知設定編集',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
     });
@@ -43,15 +43,17 @@ $(document).ready(async function () {
 
 async function setupPage(mode, noticeId) {
   if (mode === 'base') {
-    $('#page-title').text('通知基本設定');
+    $('#page-title').text('通知設定編集');
     $('#base-config-section').removeClass('hidden');
     await loadBaseConfig();
   } else {
-    $('#page-title').text(noticeId ? 'カスタム通知編集' : 'カスタム通知作成');
+    $('#page-title').text('通知設定' + (noticeId ? '編集' : '新規作成'));
     $('#custom-config-section').removeClass('hidden');
     if (noticeId) await loadCustomNotice(noticeId);
   }
 }
+
+// notice-edit.js (一部抜粋)
 
 // データ読み込み（基本設定）
 async function loadBaseConfig() {
@@ -60,15 +62,33 @@ async function loadBaseConfig() {
   );
   if (docSnap.exists()) {
     const d = docSnap.data();
+
+    // イベント通知
     $('#base-event-notify').prop('checked', d.eventNotify);
     $('#base-event-days').val(d.eventDaysBefore);
+    $('#base-event-time').val(d.eventTime || '09:00'); // 💡 時刻を読み込む
     $('#base-event-msg').val(d.eventMessage);
+
+    // 投票通知
     $('#base-vote-notify').prop('checked', d.voteNotify);
     $('#base-vote-days').val(d.voteDaysBefore);
+    $('#base-vote-time').val(d.voteTime || '09:00'); // 💡 時刻を読み込む
     $('#base-vote-msg').val(d.voteMessage);
+
+    // 曲募集通知
     $('#base-call-notify').prop('checked', d.callNotify);
     $('#base-call-days').val(d.callDaysBefore);
+    $('#base-call-time').val(d.callTime || '09:00'); // 💡 時刻を読み込む
     $('#base-call-msg').val(d.callMessage);
+  } else {
+    // データがない場合の初期値設定
+    $('#base-event-time').val('09:00');
+    $('#base-vote-time').val('09:00');
+    $('#base-call-time').val('09:00');
+
+    $('#base-event-days').val('1');
+    $('#base-vote-days').val('1');
+    $('#base-call-days').val('1');
   }
 }
 
@@ -119,7 +139,14 @@ function setupEventHandlers(mode, noticeId) {
     utils.hideSpinner();
   });
 
-  $('#clear-button').on('click', () => restoreInitialState(mode));
+  $('#clear-button').on('click', async () => {
+    if (
+      await utils.showDialog(
+        mode === 'new' ? '入力内容をクリアしますか？' : '編集前に戻しますか？'
+      )
+    )
+      restoreInitialState();
+  });
 
   $('#save-button').on('click', async () => {
     if (!validateData(mode)) return;
@@ -141,7 +168,7 @@ function setupEventHandlers(mode, noticeId) {
         }
       }
       await utils.showDialog('保存しました', true);
-      window.location.href = `../notice-comfirm/notice-comfirm.html?mode=${mode}
+      window.location.href = `../notice-confirm/notice-confirm.html?mode=${mode}
         ${mode === 'base' ? '' : `&noticeId=${noticeId}`}`;
     } catch (e) {
       utils.hideSpinner();
@@ -162,15 +189,24 @@ function setupEventHandlers(mode, noticeId) {
 
 function collectBaseData() {
   return {
+    // イベント
     eventNotify: $('#base-event-notify').prop('checked'),
     eventDaysBefore: parseInt($('#base-event-days').val()) || 0,
+    eventTime: $('#base-event-time').val(), // 💡 時刻を収集
     eventMessage: $('#base-event-msg').val(),
+
+    // 投票
     voteNotify: $('#base-vote-notify').prop('checked'),
     voteDaysBefore: parseInt($('#base-vote-days').val()) || 0,
+    voteTime: $('#base-vote-time').val(), // 💡 時刻を収集
     voteMessage: $('#base-vote-msg').val(),
+
+    // 曲募集
     callNotify: $('#base-call-notify').prop('checked'),
     callDaysBefore: parseInt($('#base-call-days').val()) || 0,
+    callTime: $('#base-call-time').val(), // 💡 時刻を収集
     callMessage: $('#base-call-msg').val(),
+
     updatedAt: utils.serverTimestamp(),
   };
 }

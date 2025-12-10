@@ -1,0 +1,28 @@
+.base-notify-box {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  background-color: #ffffff;
+}
+
+.base-notify-box .label-title {
+  margin-top: 10px;
+  color: #666;
+  font-size: 0.9em;
+}
+
+.base-notify-box .label-title:first-child {
+  margin-top: 0;
+}
+
+.pre-wrap {
+  white-space: pre-wrap;
+  min-height: 40px;
+}
+
+.menu-title {
+  border-left: 5px solid #4caf50;
+  padding-left: 10px;
+  margin-bottom: 10px;
+}

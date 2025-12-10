@@ -3,12 +3,12 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
-    utils.renderBreadcrumb([{ title: '通知一覧' }]);
+    utils.renderBreadcrumb([{ title: '通知設定一覧' }]);
     await setUpPage();
   } catch (e) {
     await utils.writeLog({
       dataId: 'none',
-      action: '通知一覧初期表示',
+      action: '通知設定一覧初期表示',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
     });
