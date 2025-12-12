@@ -86,7 +86,7 @@ async function loadRelatedOptions(type, selectedId) {
   $typeSelect.val(type);
 
   if (type === 'none') {
-    // 💡 【修正】紐づけなしの場合、DBアクセスをスキップし、プルダウンを空にして隠す
+    // 紐づけなしの場合、DBアクセスをスキップし、プルダウンを空にして隠す
     $idSelect.addClass('hidden').empty();
     return;
   }
@@ -118,17 +118,57 @@ async function loadRelatedOptions(type, selectedId) {
       title = `${d.date} ${title}`;
     }
 
-    $idSelect.append(`<option value="${doc.id}">${title}</option>`);
+    $idSelect.append(
+      `<option value="${doc.id}" data-date="${d.date || ''}">${title}</option>`
+    );
   });
 
   $idSelect.val(selectedId).removeClass('hidden');
   utils.hideSpinner();
+
+  // 💡 【追加】新規モードでイベントが選択されている場合、日付を自動設定
+  const mode = utils.globalGetParamMode || 'new';
+  if (mode === 'new' && type === 'events' && selectedId) {
+    setupRelatedDate();
+  }
+}
+
+// 💡 【新規追加】紐づけられたイベントの日付を最初の通知スケジュールに設定する関数
+async function setupRelatedDate() {
+  const type = $('#related-type').val();
+  const relatedId = $('#related-id').val();
+  const mode = utils.globalGetParamMode || 'new';
+
+  // 紐づけ対象がイベントではない、または新規モードではない場合は何もしない
+  if (type !== 'events' || !relatedId || mode !== 'new') return;
+
+  // 最初の通知スケジュールの日付入力欄を取得
+  const $firstDateInput = $('.date-section:first').find('.schedule-date-input');
+
+  utils.showSpinner();
+  try {
+    const docSnap = await utils.getWrapDoc(
+      utils.doc(utils.db, type, relatedId)
+    );
+    if (docSnap.exists()) {
+      const date = docSnap.data().date;
+      if (date) {
+        // YYYY/MM/DD 形式を input[type="date"] で使える YYYY-MM-DD 形式に変換
+        const ymd = date.replace(/\./g, '-');
+        $firstDateInput.val(ymd);
+      }
+    }
+  } catch (e) {
+    console.error('Failed to load related event date:', e);
+  } finally {
+    utils.hideSpinner();
+  }
 }
 
 function addDateSection(
   schedule = {
     scheduledDate: '',
-    notifications: [{ scheduledTime: '', message: '' }],
+    notifications: [{ scheduledTime: '09:00', message: '' }],
   }
 ) {
   const dateId = utils.generateUniqueId();
@@ -200,7 +240,7 @@ function addTimeMessageGroup(
 
 function updateRemoveButtons($container) {
   const count = $container.children('.time-message-group').length;
-  // 💡 【修正】 time-input-control 内の削除ボタンを操作
+  // time-input-control 内の削除ボタンを操作
   $container.find('.remove-time-button').toggle(count > 1);
 }
 
@@ -213,7 +253,7 @@ function setupEventHandlers(mode, noticeId) {
     if ($('.date-section').length > 1) {
       $(this).closest('.date-section').remove();
     } else {
-      utils.showDialog('通知スケジュールは最低1つ必要です。');
+      utils.showDialog('通知スケジュールは最低1つ必要です。', true);
     }
   });
 
@@ -232,11 +272,22 @@ function setupEventHandlers(mode, noticeId) {
     updateRemoveButtons($container);
   });
 
-  // 紐づけ対象の動的切り替え
+  // 紐づけ対象の動的切り替え (タイプ変更時)
   $('#related-type').on('change', async function () {
     const type = $(this).val();
     const selectedId = $('#related-id').val();
     await loadRelatedOptions(type, selectedId);
+  });
+
+  // 💡 【追加】紐づけ対象IDが選択されたとき（新規モードでイベントが選ばれた場合）
+  $('#related-id').on('change', function () {
+    const type = $('#related-type').val();
+    const mode = utils.globalGetParamMode || 'new';
+
+    // イベントかつ新規モードの場合のみ実行
+    if (mode === 'new' && type === 'events') {
+      setupRelatedDate();
+    }
   });
 
   $('#clear-button').on('click', async () => {
