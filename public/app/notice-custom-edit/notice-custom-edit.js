@@ -5,14 +5,16 @@ let initialState = {};
 $(document).ready(async function () {
   try {
     const mode = utils.globalGetParamMode || 'new';
-    const noticeId = utils.globalGetparams.get('noticeId');
+    let noticeId = utils.globalGetparams.get('noticeId');
+
     await utils.initDisplay();
 
     let breadcrumb = [
       { title: '通知設定一覧', url: '../notice-list/notice-list.html' },
     ];
 
-    if (mode === 'new') {
+    if (mode === 'new' || mode === 'copy') {
+      // 💡 'copy' モードを追加
       breadcrumb.push({ title: 'カスタム通知新規作成' });
     } else {
       breadcrumb.push(
@@ -26,6 +28,12 @@ $(document).ready(async function () {
     utils.renderBreadcrumb(breadcrumb);
 
     await setupPage(mode, noticeId);
+
+    // noticeIdは編集元のIDとして使用し、保存時は新規扱いとするため、ここでnoticeIdをnullにする
+    if (mode === 'copy') {
+      noticeId = null;
+    }
+
     captureInitialState(mode, noticeId);
     setupEventHandlers(mode, noticeId);
   } catch (e) {
@@ -40,20 +48,23 @@ $(document).ready(async function () {
   }
 });
 
-async function setupPage(mode, noticeId) {
+async function setupPage(mode, targetId) {
+  // 💡 タイトル修正: copyモードも新規作成扱い
   $('#page-title').text(
-    mode === 'new' ? 'カスタム通知新規作成' : 'カスタム通知編集'
+    mode === 'new' || mode === 'copy'
+      ? 'カスタム通知新規作成'
+      : 'カスタム通知編集'
   );
 
-  if (noticeId) {
-    await loadCustomNotice(noticeId);
+  if (targetId) {
+    await loadCustomNotice(targetId, mode); // 💡 modeを渡す
   } else {
     addDateSection();
   }
 }
 
 // データ読み込み（カスタム通知）
-async function loadCustomNotice(id) {
+async function loadCustomNotice(id, mode) {
   const docSnap = await utils.getWrapDoc(utils.doc(utils.db, 'notices', id));
   if (docSnap.exists()) {
     const d = docSnap.data();
@@ -72,6 +83,11 @@ async function loadCustomNotice(id) {
       });
     } else {
       addDateSection();
+    }
+
+    // 💡 copyモードの場合、関連イベントの日付自動設定をトリガー
+    if (mode === 'copy' && d.relatedType === 'events' && d.relatedId) {
+      setupRelatedDate(mode);
     }
   } else {
     addDateSection();
@@ -126,24 +142,28 @@ async function loadRelatedOptions(type, selectedId) {
   $idSelect.val(selectedId).removeClass('hidden');
   utils.hideSpinner();
 
-  // 💡 【追加】新規モードでイベントが選択されている場合、日付を自動設定
+  // 💡 【修正】新規モードまたはコピーモードでイベントが選択されている場合、日付を自動設定
   const mode = utils.globalGetParamMode || 'new';
-  if (mode === 'new' && type === 'events' && selectedId) {
-    setupRelatedDate();
+  if ((mode === 'new' || mode === 'copy') && type === 'events' && selectedId) {
+    setupRelatedDate(mode);
   }
 }
 
-// 💡 【新規追加】紐づけられたイベントの日付を最初の通知スケジュールに設定する関数
-async function setupRelatedDate() {
+// 紐づけられたイベントの日付を最初の通知スケジュールに設定する関数
+async function setupRelatedDate(currentMode) {
   const type = $('#related-type').val();
   const relatedId = $('#related-id').val();
-  const mode = utils.globalGetParamMode || 'new';
+  const mode = currentMode || utils.globalGetParamMode || 'new';
 
-  // 紐づけ対象がイベントではない、または新規モードではない場合は何もしない
-  if (type !== 'events' || !relatedId || mode !== 'new') return;
+  // 💡 修正: 紐づけ対象がイベントではない、または新規・コピーモードではない場合は何もしない
+  if (type !== 'events' || !relatedId || (mode !== 'new' && mode !== 'copy'))
+    return;
 
   // 最初の通知スケジュールの日付入力欄を取得
   const $firstDateInput = $('.date-section:first').find('.schedule-date-input');
+
+  // 💡 修正: newモード時のみ、日付が設定済みならスキップ (copy時は上書きを許可しても良いが、今回はnewと同じくスキップ)
+  if (mode === 'new' && $firstDateInput.val()) return;
 
   utils.showSpinner();
   try {
@@ -153,8 +173,8 @@ async function setupRelatedDate() {
     if (docSnap.exists()) {
       const date = docSnap.data().date;
       if (date) {
-        // YYYY/MM/DD 形式を input[type="date"] で使える YYYY-MM-DD 形式に変換
-        const ymd = date.replace(/\./g, '-');
+        // YYYY.MM.DD または YYYY/MM/DD 形式を input[type="date"] で使える YYYY-MM-DD 形式に変換
+        const ymd = date.replace(/[\./]/g, '-');
         $firstDateInput.val(ymd);
       }
     }
@@ -282,21 +302,26 @@ function setupEventHandlers(mode, noticeId) {
     await loadRelatedOptions(type, selectedId);
   });
 
-  // 💡 【追加】紐づけ対象IDが選択されたとき（新規モードでイベントが選ばれた場合）
+  // 💡 【修正】紐づけ対象IDが選択されたとき（新規/コピーモードでイベントが選ばれた場合）
   $('#related-id').on('change', function () {
     const type = $('#related-type').val();
-    const mode = utils.globalGetParamMode || 'new';
+    const currentMode = utils.globalGetParamMode || 'new';
 
-    // イベントかつ新規モードの場合のみ実行
-    if (mode === 'new' && type === 'events') {
-      setupRelatedDate();
+    // イベントかつ新規モードまたはコピーモードの場合のみ実行
+    if (
+      (currentMode === 'new' || currentMode === 'copy') &&
+      type === 'events'
+    ) {
+      setupRelatedDate(currentMode);
     }
   });
 
   $('#clear-button').on('click', async () => {
     if (
       await utils.showDialog(
-        mode === 'new' ? '入力内容をクリアしますか？' : '編集前に戻しますか？'
+        mode === 'new' || mode === 'copy'
+          ? '入力内容をクリアしますか？'
+          : '編集前に戻しますか？'
       )
     )
       restoreInitialState();
@@ -309,39 +334,52 @@ function setupEventHandlers(mode, noticeId) {
 
     utils.showSpinner();
     try {
-      let noticeId = utils.globalGetparams.get('noticeId');
+      // noticeIdは、modeがeditのときのみ値を持つ（copy/newのときはnull）
+      let currentNoticeId = utils.globalGetparams.get('noticeId');
+      const currentMode = utils.globalGetParamMode || 'new';
+
+      // 💡 copy/newモードでは必ず新規作成とする
+      const isNew =
+        currentMode === 'new' || currentMode === 'copy' || !currentNoticeId;
+
       const data = collectCustomData();
 
-      if (noticeId) {
-        await utils.updateDoc(utils.doc(utils.db, 'notices', noticeId), data);
+      if (!isNew) {
+        // 編集
+        await utils.updateDoc(
+          utils.doc(utils.db, 'notices', currentNoticeId),
+          data
+        );
       } else {
+        // 新規作成 or コピー
         const docRef = await utils.addDoc(
           utils.collection(utils.db, 'notices'),
           data
         );
-        noticeId = docRef.id;
+        currentNoticeId = docRef.id;
       }
 
       await utils.showDialog('保存しました', true);
-      window.location.href = `../notice-custom-confirm/notice-custom-confirm.html?noticeId=${noticeId}`;
+      window.location.href = `../notice-custom-confirm/notice-custom-confirm.html?noticeId=${currentNoticeId}`;
     } catch (e) {
       utils.hideSpinner();
       await utils.showDialog('エラーが発生しました', true);
     }
   });
 
-  $(document).on(
-    'click',
-    '.back-link',
-    () =>
-      (window.location.href =
-        mode === 'new'
-          ? '../notice-list/notice-list.html'
-          : `../notice-custom-confirm/notice-custom-confirm.html?noticeId=${noticeId}`)
-  );
+  $(document).on('click', '.back-link', () => {
+    const currentMode = utils.globalGetParamMode || 'new';
+    // 💡 copy/newモードの場合は一覧へ戻る
+    if (currentMode === 'new' || currentMode === 'copy') {
+      window.location.href = '../notice-list/notice-list.html';
+    } else {
+      window.location.href = `../notice-custom-confirm/notice-custom-confirm.html?noticeId=${noticeId}`;
+    }
+  });
 }
 
 function collectCustomData() {
+  // ... (変更なし)
   const relId = $('#related-id').val();
   const relTitle = $('#related-id option:selected').text();
 
@@ -378,6 +416,7 @@ function collectCustomData() {
 }
 
 function validateData() {
+  // ... (変更なし)
   utils.clearErrors();
   let isValid = true;
   let hasSchedule = false;

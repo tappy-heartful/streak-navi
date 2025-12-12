@@ -40,8 +40,8 @@ async function setUpPage() {
 
   // 💡 【追加】コピーボタンのイベントハンドラ
   $('#copy-button').on('click', async () => {
-    // コピーはnoticeIdを付けずに編集画面へ遷移させる
-    window.location.href = `../notice-custom-edit/notice-custom-edit.html?mode=new&copyId=${noticeId}`;
+    // コピーはnoticeIdを付けて編集画面へ遷移させる
+    window.location.href = `../notice-custom-edit/notice-custom-edit.html?mode=new&noticeId=${noticeId}`;
   });
 
   $('#delete-button').on('click', async () => {
