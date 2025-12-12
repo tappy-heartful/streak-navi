@@ -14,7 +14,6 @@ $(document).ready(async function () {
     ];
 
     if (mode === 'new') {
-      // 💡 'copy' モードを追加
       breadcrumb.push({ title: 'カスタム通知新規作成' });
     } else {
       breadcrumb.push(
@@ -22,7 +21,12 @@ $(document).ready(async function () {
           title: 'カスタム通知確認',
           url: `../notice-custom-confirm/notice-custom-confirm.html?noticeId=${noticeId}`,
         },
-        { title: 'カスタム通知編集' }
+        {
+          title:
+            mode === 'copy'
+              ? 'カスタム通知新規作成(コピー)'
+              : 'カスタム通知編集',
+        }
       );
     }
     utils.renderBreadcrumb(breadcrumb);
