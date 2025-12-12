@@ -5,13 +5,13 @@ $(document).ready(async function () {
     await utils.initDisplay();
     utils.renderBreadcrumb([
       { title: '通知設定一覧', url: '../notice-list/notice-list.html' },
-      { title: '通知設定確認' },
+      { title: '通知基本設定確認' }, // 💡 パンくずリストも変更
     ]);
     await setUpPage();
   } catch (e) {
     await utils.writeLog({
-      dataId: 'none',
-      action: '通知設定確認初期表示',
+      dataId: 'noticeBase', // 基本設定はIDを固定
+      action: '通知基本設定確認初期表示',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
     });
@@ -21,43 +21,20 @@ $(document).ready(async function () {
 });
 
 async function setUpPage() {
-  const mode = utils.globalGetParamMode;
-  const noticeId = utils.globalGetparams.get('noticeId');
+  // ページタイトルを再設定
+  $('#page-title').text('通知基本設定の確認');
 
-  if (mode === 'base') {
-    $('#page-title').text('通知設定確認');
-    $('#base-config-section').removeClass('hidden');
-    await loadBaseConfig();
-  } else {
-    $('#page-title').text('通知設定確認');
-    $('#custom-config-section').removeClass('hidden');
-    $('#delete-button').removeClass('hidden');
-    await loadCustomNotice(noticeId);
-  }
+  // base-config-sectionのhiddenクラスを削除する必要はない（HTMLで削除済み）
+  await loadBaseConfig();
 
+  // 編集ボタンの遷移先設定 (mode=base 固定)
   $('#edit-button').on('click', () => {
-    let url = `../notice-edit/notice-edit.html?mode=${mode}`;
-    if (noticeId) url += `&noticeId=${noticeId}`;
-    window.location.href = url;
-  });
-
-  $('#delete-button').on('click', async () => {
-    const confirm = await utils.showDialog('この通知設定を削除しますか？');
-    if (!confirm) return;
-
-    utils.showSpinner();
-    try {
-      await utils.deleteDoc(utils.doc(utils.db, 'notices', noticeId));
-      await utils.showDialog('削除しました', true);
-      window.location.href = '../notice-list/notice-list.html';
-    } catch (e) {
-      utils.hideSpinner();
-      await utils.showDialog('削除に失敗しました');
-    }
+    // 💡 編集画面へ遷移。mode=baseを明示的に渡す
+    window.location.href = '../notice-edit/notice-edit.html?mode=base';
   });
 }
 
-// 基本設定の読み込み
+// 基本設定の読み込み (元のロジックを流用)
 async function loadBaseConfig() {
   const docRef = utils.doc(utils.db, 'configs', 'noticeBase');
   const docSnap = await utils.getWrapDoc(docRef);
@@ -69,8 +46,8 @@ async function loadBaseConfig() {
     if (d.eventNotify) {
       $('#base-event-timing').text(
         'イベントの' +
-          (d.eventDaysBefore === 0 ? '当日' : ` ${d.eventDaysBefore} 日前 `) +
-          d.eventTime
+          (d.eventDaysBefore === 0 ? ' 当日 ' : ` ${d.eventDaysBefore} 日前 `) +
+          (d.eventTime || '00:00') // 時刻を追加
       );
       $('#base-event-msg').text(d.eventMessage_decoded || d.eventMessage || '');
     } else {
@@ -82,8 +59,8 @@ async function loadBaseConfig() {
     if (d.voteNotify) {
       $('#base-vote-timing').text(
         '締切の' +
-          (d.voteDaysBefore === 0 ? '当日' : ` ${d.voteDaysBefore} 日前 `) +
-          d.voteTime
+          (d.voteDaysBefore === 0 ? ' 当日 ' : ` ${d.voteDaysBefore} 日前 `) +
+          (d.voteTime || '00:00')
       );
       $('#base-vote-msg').text(d.voteMessage_decoded || d.voteMessage || '');
     } else {
@@ -95,8 +72,8 @@ async function loadBaseConfig() {
     if (d.callNotify) {
       $('#base-call-timing').text(
         '締切の' +
-          (d.callDaysBefore === 0 ? '当日' : ` ${d.callDaysBefore} 日前 `) +
-          d.callTime
+          (d.callDaysBefore === 0 ? ' 当日 ' : ` ${d.callDaysBefore} 日前 `) +
+          (d.callTime || '00:00')
       );
       $('#base-call-msg').text(d.callMessage_decoded || d.callMessage || '');
     } else {
@@ -108,15 +85,4 @@ async function loadBaseConfig() {
   }
 }
 
-async function loadCustomNotice(id) {
-  const docRef = utils.doc(utils.db, 'notices', id);
-  const docSnap = await utils.getWrapDoc(docRef);
-
-  if (docSnap.exists()) {
-    const d = docSnap.data();
-    $('#custom-title').text(d.title_decoded || d.title);
-    $('#custom-date').text(`${d.scheduledDate} ${d.scheduledTime}`);
-    $('#custom-related').text(`${d.relatedType}：${d.relatedTitle}`);
-    $('#custom-message').text(d.message_decoded || d.message);
-  }
-}
+// 💡 loadCustomNotice 関数は削除
