@@ -250,6 +250,12 @@ function restoreInitialState() {
 // イベントハンドラ登録
 //==================================
 function setupEventHandlers(mode) {
+  // 💡 【新規追加】allow-assign ラジオボタンの変更時イベント
+  $('input[name="allow-assign"]').on('change', toggleInstrumentConfig);
+
+  // 起動時に一度実行して初期状態を反映
+  toggleInstrumentConfig();
+
   // 【新規追加】グループ追加ボタン
   $('#add-group-button').on('click', () => {
     addSetlistGroup($('#setlist-groups-container'));
@@ -399,6 +405,23 @@ function setupEventHandlers(mode) {
       ? `../event-confirm/event-confirm.html?eventId=${utils.globalGetParamEventId}`
       : '../event-list/event-list.html';
   });
+}
+
+// ==================================
+// 💡 新規追加：パート設定表示切替メソッド
+// ==================================
+function toggleInstrumentConfig() {
+  // name="allow-assign" の中で value="on" がチェックされているか確認
+  const isAssignAllowed =
+    $('input[name="allow-assign"]:checked').val() === 'on';
+
+  const $container = $('#instrument-config-container');
+
+  if (isAssignAllowed) {
+    $container.slideDown(); // 表示
+  } else {
+    $container.slideUp(); // 非表示
+  }
 }
 
 //==================================
@@ -798,6 +821,15 @@ function validateEventData() {
     });
     if (configHasError) return false; // 外側のeachループも抜ける
   });
+
+  // 全セクションで有効なパートが1つも登録されていない場合はエラー
+  if (
+    totalParts === 0 &&
+    $('input[name="allow-assign"]:checked').val() === 'on'
+  ) {
+    utils.markError($configGroup, '楽器構成を最低1つ登録してください');
+    isValid = false;
+  }
 
   return isValid;
 }
