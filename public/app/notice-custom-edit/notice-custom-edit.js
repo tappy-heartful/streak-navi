@@ -49,12 +49,28 @@ $(document).ready(async function () {
 });
 
 async function setupPage(mode, targetId) {
-  // 💡 タイトル修正: copyモードも新規作成扱い
-  $('#page-title').text(
-    mode === 'new' || mode === 'copy'
-      ? 'カスタム通知新規作成'
-      : 'カスタム通知編集'
-  );
+  const pageTitle = $('#page-title');
+  const title = $('#title');
+  const submitButton = $('#save-button');
+  const backLink = $('.back-link');
+
+  if (mode === 'new') {
+    pageTitle.text('カスタム通知新規作成');
+    title.text('カスタム通知新規作成');
+    submitButton.text('登録');
+    backLink.text('← カスタム通知一覧に戻る');
+  } else if (mode === 'edit' || mode === 'copy') {
+    pageTitle.text(
+      mode === 'edit' ? 'カスタム通知編集' : 'カスタム通知新規作成(コピー)'
+    );
+    title.text(
+      mode === 'edit' ? 'カスタム通知編集' : 'カスタム通知新規作成(コピー)'
+    );
+    submitButton.text(mode === 'edit' ? '更新' : '登録');
+    backLink.text('← カスタム通知確認に戻る');
+  } else {
+    throw new Error('モード不正です');
+  }
 
   if (targetId) {
     await loadCustomNotice(targetId, mode); // 💡 modeを渡す
@@ -329,8 +345,12 @@ function setupEventHandlers(mode, noticeId) {
 
   $('#save-button').on('click', async () => {
     if (!validateData()) return;
-    const confirm = await utils.showDialog('設定を保存しますか？');
-    if (!confirm) return;
+    if (
+      !(await utils.showDialog(
+        (['new', 'copy'].includes(mode) ? '登録' : '更新') + 'しますか？'
+      ))
+    )
+      return;
 
     utils.showSpinner();
     try {
