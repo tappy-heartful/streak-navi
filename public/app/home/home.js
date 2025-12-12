@@ -201,6 +201,8 @@ async function loadPendingAnnouncements() {
     // ------------------------------------------------------------------
     // 2. 30日以内のイベントの判定
     // ------------------------------------------------------------------
+    // ※未回答のイベントでも、30日以内であれば imminentEvents にも追加する。
+    //   ただし、最終表示で未回答が優先されるように処理する。
     if (
       eventDateObj &&
       eventDateObj >= todayOnly &&
@@ -219,26 +221,18 @@ async function loadPendingAnnouncements() {
   }
 
   // ------------------------------------------------------------------
-  // 3. 画面への表示 (優先順位: 譜割り受付中 > 日程調整未回答 > 出欠未回答 > もうすぐイベント)
+  // 3. 画面への表示 (優先順位: 日程調整未回答 > 出欠未回答 > もうすぐイベント > 譜割り受付中)
   // ------------------------------------------------------------------
   let finalAnnouncements = {}; // {eventId: eventObject} で重複を排除
 
-  // 優先度0: 譜割り受付中
-  assignPending.forEach((event) => {
-    finalAnnouncements[event.id] = event;
-  });
-
   // 優先度1: 日程調整中（未回答）
   schedulePending.forEach((event) => {
-    // 既に譜割り受付中として追加されていなければ追加
-    if (!finalAnnouncements[event.id]) {
-      finalAnnouncements[event.id] = event;
-    }
+    finalAnnouncements[event.id] = event;
   });
 
   // 優先度2: 出欠受付中（未回答）
   attendancePending.forEach((event) => {
-    // 既に高優先度で追加されていなければ追加
+    // 既に高優先度（日程調整）で追加されていなければ追加
     if (!finalAnnouncements[event.id]) {
       finalAnnouncements[event.id] = event;
     }
@@ -246,6 +240,14 @@ async function loadPendingAnnouncements() {
 
   // 優先度3: 30日以内のイベント
   imminentEvents.forEach((event) => {
+    // 既に高優先度で追加されていなければ追加
+    if (!finalAnnouncements[event.id]) {
+      finalAnnouncements[event.id] = event;
+    }
+  });
+
+  // 優先度4: 譜割り受付中
+  assignPending.forEach((event) => {
     // 既に高優先度で追加されていなければ追加
     if (!finalAnnouncements[event.id]) {
       finalAnnouncements[event.id] = event;
