@@ -326,7 +326,7 @@ function setupEventHandlers(mode, noticeId) {
       window.location.href = `../notice-custom-confirm/notice-custom-confirm.html?noticeId=${noticeId}`;
     } catch (e) {
       utils.hideSpinner();
-      await utils.showDialog('エラーが発生しました');
+      await utils.showDialog('エラーが発生しました', true);
     }
   });
 
@@ -419,7 +419,8 @@ function validateData() {
 
     if (scheduledDate && !hasNotification) {
       utils.showDialog(
-        '通知日には、少なくとも1つの時間とメッセージの設定が必要です。'
+        '通知日には、少なくとも1つの時間とメッセージの設定が必要です。',
+        true
       );
       isValid = false;
     }
@@ -427,7 +428,8 @@ function validateData() {
 
   if (!hasSchedule) {
     utils.showDialog(
-      '通知スケジュールは最低1つ、日付と時間/メッセージの設定が必要です。'
+      '通知スケジュールは最低1つ、日付と時間/メッセージの設定が必要です。',
+      true
     );
     isValid = false;
   }
