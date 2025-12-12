@@ -100,11 +100,6 @@ async function loadCustomNotice(id, mode) {
     } else {
       addDateSection();
     }
-
-    // 💡 copyモードの場合、関連イベントの日付自動設定をトリガー
-    if (mode === 'copy' && d.relatedType === 'events' && d.relatedId) {
-      setupRelatedDate(mode);
-    }
   } else {
     addDateSection();
   }
@@ -161,25 +156,23 @@ async function loadRelatedOptions(type, selectedId) {
   // 💡 【修正】新規モードまたはコピーモードでイベントが選択されている場合、日付を自動設定
   const mode = utils.globalGetParamMode || 'new';
   if ((mode === 'new' || mode === 'copy') && type === 'events' && selectedId) {
-    setupRelatedDate(mode);
+    setupRelatedDate();
   }
 }
-
 // 紐づけられたイベントの日付を最初の通知スケジュールに設定する関数
-async function setupRelatedDate(currentMode) {
+async function setupRelatedDate() {
+  // 💡 引数 (currentMode) を削除
   const type = $('#related-type').val();
   const relatedId = $('#related-id').val();
-  const mode = currentMode || utils.globalGetParamMode || 'new';
 
-  // 💡 修正: 紐づけ対象がイベントではない、または新規・コピーモードではない場合は何もしない
-  if (type !== 'events' || !relatedId || (mode !== 'new' && mode !== 'copy'))
-    return;
+  // 💡 【修正】通知スケジュール全体がちょうど1つであるかを確認
+  const scheduleCount = $('.date-section').length;
 
-  // 最初の通知スケジュールの日付入力欄を取得
+  // 紐づけ対象がイベントではない、または紐づけIDがない、またはスケジュールが1つではない場合は何もしない
+  if (type !== 'events' || !relatedId || scheduleCount !== 1) return;
+
+  // 最初の通知スケジュールの日付入力欄を取得 (スケジュールが1つなので、最初のものを使用)
   const $firstDateInput = $('.date-section:first').find('.schedule-date-input');
-
-  // 💡 修正: newモード時のみ、日付が設定済みならスキップ (copy時は上書きを許可しても良いが、今回はnewと同じくスキップ)
-  if (mode === 'new' && $firstDateInput.val()) return;
 
   utils.showSpinner();
   try {
@@ -320,16 +313,7 @@ function setupEventHandlers(mode, noticeId) {
 
   // 💡 【修正】紐づけ対象IDが選択されたとき（新規/コピーモードでイベントが選ばれた場合）
   $('#related-id').on('change', function () {
-    const type = $('#related-type').val();
-    const currentMode = utils.globalGetParamMode || 'new';
-
-    // イベントかつ新規モードまたはコピーモードの場合のみ実行
-    if (
-      (currentMode === 'new' || currentMode === 'copy') &&
-      type === 'events'
-    ) {
-      setupRelatedDate(currentMode);
-    }
+    setupRelatedDate();
   });
 
   $('#clear-button').on('click', async () => {
