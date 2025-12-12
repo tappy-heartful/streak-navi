@@ -6,17 +6,17 @@ $(document).ready(async function () {
   try {
     // 💡 modeは常に 'base' として扱う
     const mode = 'base';
-    const noticeId = null; // 固定通知では使用しない
+    const noticeId = null; // 固定通知設定では使用しない
     await utils.initDisplay();
 
-    // 💡 パンくずリストを固定通知用に固定
+    // 💡 パンくずリストを固定通知設定用に固定
     utils.renderBreadcrumb([
       { title: '通知設定一覧', url: '../notice-list/notice-list.html' },
       {
-        title: '固定通知確認',
+        title: '固定通知設定確認',
         url: '../notice-pinned-confirm/notice-pinned-confirm.html',
       },
-      { title: '固定通知編集' },
+      { title: '固定通知設定編集' },
     ]);
 
     await setupPage(); // mode, noticeId の引数を削除
@@ -24,8 +24,8 @@ $(document).ready(async function () {
     setupEventHandlers();
   } catch (e) {
     await utils.writeLog({
-      dataId: 'noticeBase', // 固定通知のIDに固定
-      action: '固定通知編集',
+      dataId: 'noticeBase', // 固定通知設定のIDに固定
+      action: '固定通知設定編集',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
     });
@@ -36,11 +36,11 @@ $(document).ready(async function () {
 
 async function setupPage() {
   // 💡 HTML側で hidden を削除したので、ここでは loadBaseConfig のみ実行
-  $('#page-title').text('固定通知編集');
+  $('#page-title').text('固定通知設定編集');
   await loadBaseConfig();
 }
 
-// データ読み込み（固定通知）
+// データ読み込み（固定通知設定）
 async function loadBaseConfig() {
   const docSnap = await utils.getWrapDoc(
     utils.doc(utils.db, 'configs', 'noticeBase')
@@ -87,7 +87,7 @@ function setupEventHandlers() {
   });
 
   $('#save-button').on('click', async () => {
-    // 💡 固定通知は常にバリデーションOK
+    // 💡 固定通知設定は常にバリデーションOK
     if (!validateData()) return;
 
     const confirm = await utils.showDialog('設定を保存しますか？');
@@ -95,7 +95,7 @@ function setupEventHandlers() {
 
     utils.showSpinner();
     try {
-      // 💡 固定通知のみの保存ロジックに固定
+      // 💡 固定通知設定のみの保存ロジックに固定
       const data = collectBaseData();
       await utils.setDoc(utils.doc(utils.db, 'configs', 'noticeBase'), data);
 
@@ -148,7 +148,7 @@ function collectBaseData() {
 
 function validateData() {
   utils.clearErrors();
-  // 固定通知は任意なので常に true を返す
+  // 固定通知設定は任意なので常に true を返す
   return true;
 }
 

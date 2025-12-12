@@ -38,7 +38,7 @@ $(document).ready(async function () {
   } catch (e) {
     await utils.writeLog({
       dataId: 'custom',
-      action: 'カスタム通知設定編集',
+      action: 'カスタム通知編集',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
     });
