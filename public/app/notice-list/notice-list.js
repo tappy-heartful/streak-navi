@@ -85,7 +85,7 @@ function makeNoticeItem(noticeId, data) {
 
   return $(`
     <li>
-      <a href="../notice-confirm/notice-confirm.html?noticeId=${noticeId}" class="notice-link">
+      <a href="../notice-custom-confirm/notice-custom-confirm.html?noticeId=${noticeId}" class="notice-link">
         <div class="notice-info">
           <span class="notice-date">${subInfo}</span>
           <span class="notice-title">${data.title}</span>

@@ -27,10 +27,10 @@ async function setUpPage() {
   // base-config-sectionのhiddenクラスを削除する必要はない（HTMLで削除済み）
   await loadBaseConfig();
 
-  // 編集ボタンの遷移先設定 (mode=base 固定)
+  // 編集ボタンの遷移先設定
   $('#edit-button').on('click', () => {
-    // 💡 編集画面へ遷移。mode=baseを明示的に渡す
-    window.location.href = '../notice-edit/notice-edit.html?mode=base';
+    // 💡 編集画面へ遷移。
+    window.location.href = '../notice-config-edit/notice-config-edit.html';
   });
 }
 
