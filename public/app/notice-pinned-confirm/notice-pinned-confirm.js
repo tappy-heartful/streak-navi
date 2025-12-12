@@ -30,7 +30,7 @@ async function setUpPage() {
   // 編集ボタンの遷移先設定
   $('#edit-button').on('click', () => {
     // 💡 編集画面へ遷移。
-    window.location.href = '../notice-config-edit/notice-config-edit.html';
+    window.location.href = '../notice-pinned-edit/notice-pinned-edit.html';
   });
 }
 

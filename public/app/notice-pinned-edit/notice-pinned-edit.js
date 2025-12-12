@@ -14,7 +14,7 @@ $(document).ready(async function () {
       { title: '通知設定一覧', url: '../notice-list/notice-list.html' },
       {
         title: '通知基本設定確認',
-        url: '../notice-config-confirm/notice-config-confirm.html',
+        url: '../notice-pinned-confirm/notice-pinned-confirm.html',
       },
       { title: '通知基本設定編集' },
     ]);
@@ -100,8 +100,8 @@ function setupEventHandlers() {
       await utils.setDoc(utils.doc(utils.db, 'configs', 'noticeBase'), data);
 
       await utils.showDialog('保存しました', true);
-      // 💡 確認画面へ遷移 (notice-config-confirm.html)
-      window.location.href = `../notice-config-confirm/notice-config-confirm.html`;
+      // 💡 確認画面へ遷移 (notice-pinned-confirm.html)
+      window.location.href = `../notice-pinned-confirm/notice-pinned-confirm.html`;
     } catch (e) {
       utils.hideSpinner();
       await utils.showDialog('エラーが発生しました');
@@ -112,9 +112,9 @@ function setupEventHandlers() {
     'click',
     '.back-link',
     () =>
-      // 💡 確認画面へ遷移 (notice-config-confirm.html)
+      // 💡 確認画面へ遷移 (notice-pinned-confirm.html)
       (window.location.href =
-        '../notice-config-confirm/notice-config-confirm.html')
+        '../notice-pinned-confirm/notice-pinned-confirm.html')
   );
 }
 
