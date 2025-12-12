@@ -13,7 +13,7 @@ $(document).ready(async function () {
       { title: '通知設定一覧', url: '../notice-list/notice-list.html' },
     ];
 
-    if (mode === 'new' || mode === 'copy') {
+    if (mode === 'new') {
       // 💡 'copy' モードを追加
       breadcrumb.push({ title: 'カスタム通知新規作成' });
     } else {
@@ -29,13 +29,8 @@ $(document).ready(async function () {
 
     await setupPage(mode, noticeId);
 
-    // noticeIdは編集元のIDとして使用し、保存時は新規扱いとするため、ここでnoticeIdをnullにする
-    if (mode === 'copy') {
-      noticeId = null;
-    }
-
-    captureInitialState(mode, noticeId);
-    setupEventHandlers(mode, noticeId);
+    captureInitialState();
+    setupEventHandlers(mode);
   } catch (e) {
     await utils.writeLog({
       dataId: 'custom',
@@ -276,7 +271,7 @@ function updateRemoveButtons($container) {
   $container.find('.remove-time-button').toggle(count > 1);
 }
 
-function setupEventHandlers(mode, noticeId) {
+function setupEventHandlers(mode) {
   // 日付セクションの追加
   $('#add-date-button').on('click', () => addDateSection());
 
