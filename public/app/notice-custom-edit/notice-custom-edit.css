@@ -56,11 +56,11 @@
   color: #333;
 }
 
-/* 💡 【修正点】日付入力と削除ボタンのコンテナ (date-control) をFlexで横並びにする */
+/* 日付入力と削除ボタンのコンテナ */
 .date-control {
     display: flex;
     align-items: center;
-    gap: 5px; /* 要素間のスペース */
+    gap: 5px; 
 }
 
 /* 通知時刻とメッセージの繰り返しグループ */
@@ -70,12 +70,16 @@
   margin-bottom: 15px;
 }
 
+/* 💡 【修正】時間入力と削除ボタンを格納する新しいFlexコンテナ */
+.time-input-control {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* 💡 【修正】時間/メッセージのヘッダーはメッセージグループの上部で使うため、空にする */
 .time-message-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
-  padding-top: 5px;
+  display: none; /* JSで時間とボタンを time-input-control に移動したため非表示 */
 }
 
 .form-group-time-msg {
@@ -85,6 +89,7 @@
 .form-sub-time {
   flex-grow: 0;
   width: 100%;
+  /* 💡 タイトルを削除したため、inputの上マージンを減らすか調整 */
   margin-bottom: 10px; 
 }
 
@@ -123,7 +128,7 @@ textarea {
 .remove-button {
   background-color: #f44336;
   color: white;
-  padding: 8px; /* アイコンボタンとして使いやすいよう調整 */
+  padding: 8px; 
 }
 .remove-button:hover {
   background-color: #d32f2f;

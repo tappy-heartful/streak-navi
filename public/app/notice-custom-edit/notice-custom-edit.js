@@ -59,7 +59,8 @@ async function loadCustomNotice(id) {
     const d = docSnap.data();
 
     // 紐づけ対象の復元
-    if (d.relatedType && d.relatedType !== 'none') {
+    if (d.relatedType) {
+      // relatedTypeがセットされていれば、それがnoneであってもloadRelatedOptionsを呼ぶ
       await loadRelatedOptions(d.relatedType, d.relatedId);
     }
     $('#related-type').val(d.relatedType || 'none');
@@ -84,7 +85,15 @@ async function loadRelatedOptions(type, selectedId) {
 
   $typeSelect.val(type);
 
+  if (type === 'none') {
+    // 💡 【修正】紐づけなしの場合、DBアクセスをスキップし、プルダウンを空にして隠す
+    $idSelect.addClass('hidden').empty();
+    return;
+  }
+
   utils.showSpinner();
+
+  // typeが'events', 'votes', 'calls'のいずれかであることを期待
   const snap = await utils.getWrapDocs(utils.collection(utils.db, type));
 
   let docs = snap.docs.map((doc) => ({ id: doc.id, data: doc.data() }));
@@ -164,21 +173,18 @@ function addTimeMessageGroup(
   const timeId = utils.generateUniqueId();
   const $group = $(`
     <div class="time-message-group" data-time-id="${timeId}">
-      <div class="time-message-header">
-        <label class="label-title">時間 / メッセージ <span class="required">*</span></label>
-        <button type="button" class="remove-time-button remove-button" title="この通知を削除">
-          <i class="fas fa-minus-circle"></i>
-        </button>
-      </div>
       <div class="form-group-time-msg">
         <div class="form-sub form-sub-time">
-          <label class="label-title">時間</label>
-          <input type="time" class="schedule-time-input" value="${
-            notification.scheduledTime || '09:00'
-          }" />
+          <div class="time-input-control">
+            <input type="time" class="schedule-time-input" value="${
+              notification.scheduledTime || '09:00'
+            }" />
+            <button type="button" class="remove-time-button remove-button" title="この通知を削除">
+              <i class="fas fa-minus-circle"></i>
+            </button>
+          </div>
         </div>
         <div class="form-sub form-sub-msg">
-          <label class="label-title">メッセージ</label>
           <textarea class="schedule-message-input" rows="3" placeholder="通知メッセージ...">${
             notification.message || ''
           }</textarea>
@@ -194,6 +200,7 @@ function addTimeMessageGroup(
 
 function updateRemoveButtons($container) {
   const count = $container.children('.time-message-group').length;
+  // 💡 【修正】 time-input-control 内の削除ボタンを操作
   $container.find('.remove-time-button').toggle(count > 1);
 }
 
