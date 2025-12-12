@@ -1,4 +1,7 @@
+/* notice-custom-edit.css */
+
 .notify-card {
+  /* 💡 カスタム設定では単一のコンテナとして使うため、基本設定カードのスタイルは保持しないか、汎用的にする */
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -11,15 +14,17 @@
   color: #333;
 }
 
-.indent {
+/* 💡 基本設定のインデントはカスタム設定では使用しない */
+/* .indent {
   margin-left: 20px;
   margin-top: 10px;
-}
+} */
 
-.switch-label {
+/* 💡 スイッチラベルは基本設定のみで使用 */
+/* .switch-label {
   font-weight: normal;
   font-size: 14px;
-}
+} */
 
 .form-group-dates {
   display: flex;
@@ -60,17 +65,19 @@ textarea {
   margin-bottom: 5px;
 }
 
-.days-input-group {
+/* 💡 日数入力グループは基本設定のみで使用 */
+/* .days-input-group {
   display: flex;
   align-items: center;
   gap: 5px;
   font-size: 1em;
-}
+} */
 
-.small-input {
-  width: 50px; /* 日数入力は小さく */
+/* 💡 日数入力は基本設定のみで使用 */
+/* .small-input {
+  width: 50px;
   padding: 4px;
   text-align: center;
   border: 1px solid #ccc;
   border-radius: 4px;
-}
+} */

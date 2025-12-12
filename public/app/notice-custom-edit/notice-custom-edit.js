@@ -4,7 +4,8 @@ let initialState = {};
 
 $(document).ready(async function () {
   try {
-    const mode = utils.globalGetParamMode;
+    // 💡 mode は 'new' または 'edit' に限定される
+    const mode = utils.globalGetParamMode || 'new'; // modeがない場合は新規作成とみなす
     const noticeId = utils.globalGetparams.get('noticeId');
     await utils.initDisplay();
 
@@ -12,16 +13,18 @@ $(document).ready(async function () {
     let breadcrumb = [
       { title: '通知設定一覧', url: '../notice-list/notice-list.html' },
     ];
-    if (['new'].includes(mode)) {
-      breadcrumb.push({ title: '通知設定編集' });
+
+    // 💡 カスタム通知専用のパンくずロジック
+    if (mode === 'new') {
+      breadcrumb.push({ title: 'カスタム通知新規作成' });
     } else {
+      // 💡 確認画面のパスを notice-custom-confirm に変更
       breadcrumb.push(
         {
-          title: '通知設定確認',
-          url: `../notice-confirm/notice-confirm.html?mode=${mode}
-        ${mode === 'base' ? '' : `&noticeId=${noticeId}`}`,
+          title: 'カスタム通知確認',
+          url: `../notice-custom-confirm/notice-custom-confirm.html?noticeId=${noticeId}`,
         },
-        { title: mode === 'new' ? '通知設定新規作成' : '通知設定編集' }
+        { title: 'カスタム通知編集' }
       );
     }
     utils.renderBreadcrumb(breadcrumb);
@@ -31,8 +34,8 @@ $(document).ready(async function () {
     setupEventHandlers(mode, noticeId);
   } catch (e) {
     await utils.writeLog({
-      dataId: 'none',
-      action: '通知設定編集',
+      dataId: 'custom',
+      action: 'カスタム通知設定編集',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
     });
@@ -42,55 +45,15 @@ $(document).ready(async function () {
 });
 
 async function setupPage(mode, noticeId) {
-  if (mode === 'base') {
-    $('#page-title').text('通知設定編集');
-    $('#base-config-section').removeClass('hidden');
-    await loadBaseConfig();
-  } else {
-    $('#page-title').text('通知設定' + (noticeId ? '編集' : '新規作成'));
-    $('#custom-config-section').removeClass('hidden');
-    if (noticeId) await loadCustomNotice(noticeId);
-  }
-}
-
-// notice-edit.js (一部抜粋)
-
-// データ読み込み（基本設定）
-async function loadBaseConfig() {
-  const docSnap = await utils.getWrapDoc(
-    utils.doc(utils.db, 'configs', 'noticeBase')
+  // 💡 カスタム通知専用
+  $('#page-title').text(
+    mode === 'new' ? 'カスタム通知新規作成' : 'カスタム通知編集'
   );
-  if (docSnap.exists()) {
-    const d = docSnap.data();
-
-    // イベント通知
-    $('#base-event-notify').prop('checked', d.eventNotify);
-    $('#base-event-days').val(d.eventDaysBefore);
-    $('#base-event-time').val(d.eventTime || '09:00'); // 💡 時刻を読み込む
-    $('#base-event-msg').val(d.eventMessage);
-
-    // 投票通知
-    $('#base-vote-notify').prop('checked', d.voteNotify);
-    $('#base-vote-days').val(d.voteDaysBefore);
-    $('#base-vote-time').val(d.voteTime || '09:00'); // 💡 時刻を読み込む
-    $('#base-vote-msg').val(d.voteMessage);
-
-    // 曲募集通知
-    $('#base-call-notify').prop('checked', d.callNotify);
-    $('#base-call-days').val(d.callDaysBefore);
-    $('#base-call-time').val(d.callTime || '09:00'); // 💡 時刻を読み込む
-    $('#base-call-msg').val(d.callMessage);
-  } else {
-    // データがない場合の初期値設定
-    $('#base-event-time').val('09:00');
-    $('#base-vote-time').val('09:00');
-    $('#base-call-time').val('09:00');
-
-    $('#base-event-days').val('1');
-    $('#base-vote-days').val('1');
-    $('#base-call-days').val('1');
-  }
+  // 💡 hiddenクラスはHTMLで削除済み
+  if (noticeId) await loadCustomNotice(noticeId);
 }
+
+// 💡 loadBaseConfig 関数は削除
 
 // データ読み込み（カスタム通知）
 async function loadCustomNotice(id) {
@@ -123,6 +86,7 @@ function setupEventHandlers(mode, noticeId) {
     }
 
     utils.showSpinner();
+    // 💡 コレクション名は 'events', 'votes', 'calls'
     const snap = await utils.getWrapDocs(utils.collection(utils.db, type));
     $idSelect
       .empty()
@@ -149,27 +113,31 @@ function setupEventHandlers(mode, noticeId) {
   });
 
   $('#save-button').on('click', async () => {
-    if (!validateData(mode)) return;
+    // 💡 カスタム設定のバリデーションのみ実行
+    if (!validateData()) return;
     const confirm = await utils.showDialog('設定を保存しますか？');
     if (!confirm) return;
 
     utils.showSpinner();
     try {
       const noticeId = utils.globalGetparams.get('noticeId');
-      if (mode === 'base') {
-        const data = collectBaseData();
-        await utils.setDoc(utils.doc(utils.db, 'configs', 'noticeBase'), data);
+      const data = collectCustomData();
+
+      if (noticeId) {
+        // 編集
+        await utils.updateDoc(utils.doc(utils.db, 'notices', noticeId), data);
       } else {
-        const data = collectCustomData();
-        if (noticeId) {
-          await utils.updateDoc(utils.doc(utils.db, 'notices', noticeId), data);
-        } else {
-          await utils.addDoc(utils.collection(utils.db, 'notices'), data);
-        }
+        // 新規作成
+        const docRef = await utils.addDoc(
+          utils.collection(utils.db, 'notices'),
+          data
+        );
+        noticeId = docRef.id; // 新しく作成されたIDを取得
       }
+
       await utils.showDialog('保存しました', true);
-      window.location.href = `../notice-confirm/notice-confirm.html?mode=${mode}
-        ${mode === 'base' ? '' : `&noticeId=${noticeId}`}`;
+      // 💡 カスタム通知確認画面へ遷移
+      window.location.href = `../notice-custom-confirm/notice-custom-confirm.html?noticeId=${noticeId}`;
     } catch (e) {
       utils.hideSpinner();
       await utils.showDialog('エラーが発生しました');
@@ -180,36 +148,15 @@ function setupEventHandlers(mode, noticeId) {
     'click',
     '.back-link',
     () =>
-      (window.location.href = ['new'].includes(mode)
-        ? '../notice-list/notice-list.html'
-        : `../notice-confirm/notice-confirm.html?mode=${mode}
-        ${mode === 'base' ? '' : `&noticeId=${noticeId}`}`)
+      // 💡 戻るボタンの遷移ロジックをカスタム通知専用に調整
+      (window.location.href =
+        mode === 'new'
+          ? '../notice-list/notice-list.html' // 新規作成時は一覧へ
+          : `../notice-custom-confirm/notice-custom-confirm.html?noticeId=${noticeId}`) // 編集時は確認画面へ
   );
 }
 
-function collectBaseData() {
-  return {
-    // イベント
-    eventNotify: $('#base-event-notify').prop('checked'),
-    eventDaysBefore: parseInt($('#base-event-days').val()) || 0,
-    eventTime: $('#base-event-time').val(), // 💡 時刻を収集
-    eventMessage: $('#base-event-msg').val(),
-
-    // 投票
-    voteNotify: $('#base-vote-notify').prop('checked'),
-    voteDaysBefore: parseInt($('#base-vote-days').val()) || 0,
-    voteTime: $('#base-vote-time').val(), // 💡 時刻を収集
-    voteMessage: $('#base-vote-msg').val(),
-
-    // 曲募集
-    callNotify: $('#base-call-notify').prop('checked'),
-    callDaysBefore: parseInt($('#base-call-days').val()) || 0,
-    callTime: $('#base-call-time').val(), // 💡 時刻を収集
-    callMessage: $('#base-call-msg').val(),
-
-    updatedAt: utils.serverTimestamp(),
-  };
-}
+// 💡 collectBaseData 関数は削除
 
 function collectCustomData() {
   const relId = $('#related-id').val();
@@ -226,11 +173,10 @@ function collectCustomData() {
   };
 }
 
-function validateData(mode) {
+function validateData() {
   utils.clearErrors();
-  if (mode === 'base') return true; // 基本設定は任意
-
   let isValid = true;
+
   if (!$('#custom-title').val()) {
     utils.markError($('#custom-title'), '必須');
     isValid = false;
@@ -247,12 +193,13 @@ function validateData(mode) {
     utils.markError($('#custom-message'), '必須');
     isValid = false;
   }
+  // 💡 基本設定はここではチェックしないため、modeの引数を削除
   return isValid;
 }
 
-function captureInitialState(mode, noticeId) {
+function captureInitialState() {
   /* 復元ロジック（省略可、reloadで代用） */
 }
-function restoreInitialState(mode) {
+function restoreInitialState() {
   location.reload();
 }
