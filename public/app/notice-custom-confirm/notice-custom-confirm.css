@@ -1,34 +1,44 @@
 /* notice-custom-confirm.css */
-
-/* 💡 基本通知用のスタイルは削除 */
-
-.pre-wrap {
-  white-space: pre-wrap;
-  min-height: 40px;
+/* スケジュール表示用のコンテナ */
+#schedule-container {
+  margin-top: 15px;
 }
 
-.menu-title {
-  border-left: 5px solid #4caf50;
-  padding-left: 10px;
-  margin-bottom: 10px;
-}
-
-/* フォームグループの基本スタイル（common.cssに依存しない部分） */
-.form-group {
+/* 通知日ごとのグループ */
+.date-display-group {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 10px;
   margin-bottom: 15px;
+  background-color: #ffffff;
 }
 
-.label-title {
-  color: #666;
-  font-size: 0.9em;
-  margin-bottom: 3px;
-  display: block;
+.date-display-group .date-header {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+  border-bottom: 1px dashed #eee;
+  padding-bottom: 5px;
 }
 
-.label-value {
-  padding: 8px 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  background-color: #f9f9f9;
-  font-size: 1em;
+/* 時間とメッセージの組み合わせ */
+.time-message-display {
+  display: flex;
+  margin-bottom: 8px;
+  padding-left: 5px;
+  border-left: 3px solid #66bb6a; /* 目を引く色 */
+}
+
+.time-message-display .time {
+  font-weight: bold;
+  color: #00796b;
+  width: 70px; /* 時刻の幅を固定 */
+  flex-shrink: 0;
+  margin-right: 10px;
+}
+
+.time-message-display .message-preview {
+  flex-grow: 1;
+  color: #444;
+  white-space: pre-wrap;
 }

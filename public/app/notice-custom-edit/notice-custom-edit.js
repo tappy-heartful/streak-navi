@@ -179,7 +179,10 @@ function addDateSection(
       <div class="date-header">
         <h4>通知日 <span class="required">*</span></h4>
         <div class="date-control">
-          <input type="date" class="schedule-date-input" value="${schedule.scheduledDate}" />
+          <input type="date" class="schedule-date-input" value="${schedule.scheduledDate.replace(
+            /\./g,
+            '-'
+          )}" />
           <button type="button" class="remove-date-button remove-button" title="通知日を削除">
             <i class="fas fa-trash-alt"></i>
           </button>
