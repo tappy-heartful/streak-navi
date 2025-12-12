@@ -60,6 +60,14 @@ textarea {
   margin-bottom: 5px;
 }
 
+.time-input {
+  width: 120px; /* 時刻入力専用幅 */
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
 .days-input-group {
   display: flex;
   align-items: center;

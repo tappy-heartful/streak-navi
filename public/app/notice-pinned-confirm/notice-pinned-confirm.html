@@ -5,19 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="../../images/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="../../images/favicon.png" />
-    <title>通知設定確認</title>
+    <title>固定通知設定確認</title>
     <link rel="stylesheet" href="../common/common.css" />
-    <link rel="stylesheet" href="notice-confirm.css" />
+    <link rel="stylesheet" href="notice-pinned-confirm.css" />
   </head>
   <body>
     <div id="header-placeholder"></div>
 
     <div class="page-header">
-      <h1 id="page-title">通知設定確認</h1>
+      <h1 id="page-title">固定通知設定確認</h1>
     </div>
 
     <main class="container">
-      <div id="base-config-section" class="hidden">
+      <div id="base-config-section">
         <h3 class="menu-title">📅 イベント通知</h3>
         <div class="form-group base-notify-box">
           <label class="label-title">通知タイミング</label>
@@ -43,30 +43,8 @@
         </div>
       </div>
 
-      <div id="custom-config-section" class="hidden">
-        <div class="form-group">
-          <label class="label-title">通知タイトル</label>
-          <div class="label-value" id="custom-title"></div>
-        </div>
-        <div class="form-group">
-          <label class="label-title">通知予定日時</label>
-          <div class="label-value" id="custom-date"></div>
-        </div>
-        <div class="form-group">
-          <label class="label-title">紐づけ対象</label>
-          <div class="label-value" id="custom-related"></div>
-        </div>
-        <div class="form-group">
-          <label class="label-title">通知メッセージ</label>
-          <div class="label-value pre-wrap" id="custom-message"></div>
-        </div>
-      </div>
-
       <div class="confirm-buttons">
         <button id="edit-button" class="edit-button">編集する</button>
-        <button id="delete-button" class="delete-button hidden">
-          削除する
-        </button>
       </div>
     </main>
 
@@ -86,6 +64,6 @@
     />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="module" src="../common/functions.js"></script>
-    <script type="module" src="notice-confirm.js"></script>
+    <script type="module" src="notice-pinned-confirm.js"></script>
   </body>
 </html>

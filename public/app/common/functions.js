@@ -405,9 +405,56 @@ export function format(dateOrTimestamp, formatString = 'yyyy.MM.dd') {
   }
 
   // その他のフォーマット（例: yyyy/MM/dd HH:mm）に対応する場合は、ここにロジックを追加
-  // if (formatString === '...') { ... }
 
   return ''; // 対応しないフォーマットの場合は空文字列を返す
+}
+
+/**
+ * 'yyyy.MM.dd' 形式の文字列を Date オブジェクトに変換します。
+ * * @param {string} dateString - 'yyyy.MM.dd' 形式の日付文字列
+ * @returns {Date | null} 変換された Date オブジェクト。形式が不正な場合は null
+ */
+export function parseDate(dateString) {
+  if (!dateString || typeof dateString !== 'string') {
+    return null;
+  }
+
+  // yyyy.MM.dd 形式を想定して、. で分割し、数値に変換
+  const parts = dateString.split('.');
+  if (parts.length !== 3) {
+    return null;
+  }
+
+  const year = parseInt(parts[0], 10);
+  const month = parseInt(parts[1], 10);
+  const day = parseInt(parts[2], 10);
+
+  // 数値として有効か、範囲が適切かを確認
+  if (
+    isNaN(year) ||
+    isNaN(month) ||
+    isNaN(day) ||
+    month < 1 ||
+    month > 12 ||
+    day < 1 ||
+    day > 31
+  ) {
+    return null;
+  }
+
+  // monthは0から始まるため、-1する
+  const date = new Date(year, month - 1, day);
+
+  // Dateオブジェクトが有効な日付を表しているか、および入力と一致するか確認
+  if (
+    date.getFullYear() !== year ||
+    date.getMonth() + 1 !== month ||
+    date.getDate() !== day
+  ) {
+    return null; // 例えば 2月30日などの不正な日付
+  }
+
+  return date;
 }
 
 // ログ

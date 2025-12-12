@@ -29,10 +29,10 @@ async function setUpPage() {
 
   // Firestoreからカスタム通知（notices）を取得
   const noticesRef = utils.collection(utils.db, 'notices');
-  const qNotice = utils.query(
-    noticesRef,
-    utils.orderBy('scheduledDate', 'asc')
-  );
+
+  // 修正: ソート条件を削除し、全件取得を試みる
+  const qNotice = utils.query(noticesRef);
+
   const noticeSnap = await utils.getWrapDocs(qNotice);
 
   const futureItems = [];
@@ -44,13 +44,25 @@ async function setUpPage() {
   for (const noticeDoc of noticeSnap.docs) {
     const data = noticeDoc.data();
     const noticeId = noticeDoc.id;
-    const scheduledDate = data.scheduledDate; // yyyy.MM.dd形式を想定
+
+    // クエリ用のscheduledDateがなくなっても、ここではschedules内の日付を見て判定する
+    let latestScheduledDate = null;
+    if (data.schedules && data.schedules.length > 0) {
+      // 全スケジュールの中で最も遅い日付を取得する（終了判定のため）
+      latestScheduledDate = data.schedules.reduce((latest, current) => {
+        // utils.parseDate を使用
+        const currentDate = utils.parseDate(current.scheduledDate);
+        if (!latest || (currentDate && currentDate > latest)) {
+          return currentDate;
+        }
+        return latest;
+      }, null);
+    }
 
     let isClosed = false;
-    if (scheduledDate) {
-      const [year, month, day] = scheduledDate.split('.').map(Number);
-      const dateObj = new Date(year, month - 1, day);
-      if (dateObj < todayOnly) isClosed = true;
+    if (latestScheduledDate) {
+      // 最新の日付が今日より前かどうかで判定
+      if (latestScheduledDate < todayOnly) isClosed = true;
     }
 
     const item = makeNoticeItem(noticeId, data);
@@ -64,7 +76,18 @@ async function setUpPage() {
 
   // リストの描画
   if (futureItems.length > 0) {
-    futureItems.forEach((item) => $futureList.append(item));
+    // 💡 修正: ソート処理はコメントアウトし、forEachでDOMに追加する処理に戻す
+    /*
+    futureItems.sort((a, b) => {
+      // aとbはDOM要素なので、比較には元のデータが必要。
+      // ただし、ここではDOM要素をソートするよりも、元のデータ配列 (noticeSnap.docs) を利用してソートし直す方が望ましいが、
+      // 簡易対応としてここではDOM挿入順をそのまま維持し、ソートは省略します。
+      // Firestoreからソート順が保障されないため、リストの順序は保障されません。
+      // 正確にソートしたい場合は、loadCustomNoticeのロジックを見直す必要があります。
+      $futureList.append(a); // ★ この行が問題でした
+    });
+    */
+    futureItems.forEach((item) => $futureList.append(item)); // 💡 DOMへの追加処理を元に戻す
   } else {
     showEmptyMessage($futureList);
   }
@@ -78,17 +101,32 @@ async function setUpPage() {
 }
 
 function makeNoticeItem(noticeId, data) {
-  // 紐づいているイベント等の情報を表示（events.date または 受付期間）
-  const subInfo = data.relatedPeriod
-    ? `(${data.relatedPeriod})`
-    : data.scheduledDate || '';
+  // 💡 【修正】サブ情報 (notice-date): schedules内の日付をカンマ区切りで抽出
+  let allDates = [];
+  if (data.schedules && Array.isArray(data.schedules)) {
+    allDates = data.schedules
+      .map((s) => s.scheduledDate)
+      .filter((date) => date); // 空の日付を除外
+  }
+  const dateDisplay = allDates.length > 0 ? allDates.join(', ') : '日付未設定';
+
+  // 💡 【修正】タイトル (notice-title): 紐づけ対象名またはカスタム通知名
+  let title;
+  if (data.relatedId && data.relatedType !== 'none') {
+    // 紐づけあり: 紐づけ対象のタイトルを表示
+    title =
+      data.relatedTitle || `[${data.relatedType}] 紐づけ対象が見つかりません`;
+  } else {
+    // 紐づけなし: カンマ区切りにした日付のカスタム通知
+    title = `[${dateDisplay}] のカスタム通知`;
+  }
 
   return $(`
     <li>
-      <a href="../notice-confirm/notice-confirm.html?noticeId=${noticeId}" class="notice-link">
+      <a href="../notice-custom-confirm/notice-custom-confirm.html?noticeId=${noticeId}" class="notice-link">
         <div class="notice-info">
-          <span class="notice-date">${subInfo}</span>
-          <span class="notice-title">${data.title}</span>
+          <span class="notice-date">${dateDisplay}</span>
+          <span class="notice-title">${title}</span>
         </div>
         <i class="fa fa-chevron-right icon-arrow"></i>
       </a>

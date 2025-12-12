@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="../../images/favicon.png" />
+    <title>カスタム通知確認</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="./notice-custom-confirm.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <div class="page-header">
+      <h1 id="page-title">カスタム通知確認</h1>
+    </div>
+
+    <main class="container">
+      <div id="custom-config-section">
+        <div class="form-group">
+          <label class="label-title">紐づけ対象</label>
+          <div class="label-value" id="custom-related"></div>
+        </div>
+
+        <label class="label-title">通知スケジュール</label>
+        <div id="schedule-container">
+          <p id="no-schedule-message" class="error-message hidden">
+            通知スケジュールが設定されていません。
+          </p>
+        </div>
+      </div>
+
+      <div class="confirm-buttons">
+        <button id="copy-button" class="edit-button">コピー</button>
+        <button id="edit-button" class="edit-button">編集する</button>
+        <button id="delete-button" class="delete-button">削除する</button>
+      </div>
+    </main>
+
+    <div class="page-footer">
+      <a href="../notice-list/notice-list.html" class="back-link"
+        >← 通知設定一覧に戻る</a
+      >
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="./notice-custom-confirm.js"></script>
+  </body>
+</html>

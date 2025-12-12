@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="title">カスタム通知編集/新規作成</title>
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="../../images/favicon.png" />
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="./notice-custom-edit.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <div class="page-header">
+      <h1 id="page-title">カスタム通知編集/新規作成</h1>
+    </div>
+
+    <main class="container">
+      <div id="custom-config-section">
+        <h3 class="menu-title">カスタム通知</h3>
+        <p class="form-help">
+          指定した日時の組み合わせで、カスタムメッセージを送信します。
+        </p>
+
+        <div class="form-group notify-card">
+          <h4 class="label-title">
+            紐づけ対象<br />(通知時にリンクを表示します)
+          </h4>
+          <div class="related-group">
+            <select id="related-type">
+              <option value="none">紐づけなし</option>
+              <option value="events">イベント</option>
+              <option value="votes">投票</option>
+              <option value="calls">曲募集</option>
+            </select>
+            <select id="related-id" class="hidden"></select>
+          </div>
+        </div>
+
+        <h3 class="menu-title">
+          通知スケジュール設定 <span class="required">*</span>
+        </h3>
+        <div id="schedule-container"></div>
+
+        <button id="add-date-button" class="add-date-button">
+          + 通知日を追加
+        </button>
+      </div>
+
+      <div id="confirm-buttons" class="confirm-buttons">
+        <button id="clear-button" class="clear-button">クリア</button>
+        <button id="save-button" class="save-button">保存する</button>
+      </div>
+    </main>
+
+    <div class="page-footer">
+      <a class="back-link">← 前の画面に戻る</a>
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="./notice-custom-edit.js"></script>
+  </body>
+</html>
