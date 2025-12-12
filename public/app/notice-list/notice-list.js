@@ -28,12 +28,11 @@ async function setUpPage() {
   const $closedList = $('#custom-closed-list').empty();
 
   // Firestoreからカスタム通知（notices）を取得
-  // 💡 scheduledDateは、schedules内の日付を代表する最も早い日付が設定されていることを期待
   const noticesRef = utils.collection(utils.db, 'notices');
-  const qNotice = utils.query(
-    noticesRef,
-    utils.orderBy('scheduledDate', 'asc')
-  );
+
+  // 修正: ソート条件を削除し、全件取得を試みる
+  const qNotice = utils.query(noticesRef);
+
   const noticeSnap = await utils.getWrapDocs(qNotice);
 
   const futureItems = [];
@@ -45,15 +44,25 @@ async function setUpPage() {
   for (const noticeDoc of noticeSnap.docs) {
     const data = noticeDoc.data();
     const noticeId = noticeDoc.id;
-    // 💡 クエリ用の日付を使用。実際にはschedulesの全ての日付を見るのが理想だが、ここではソートキーとして利用
-    const scheduledDate = data.scheduledDate;
+
+    // クエリ用のscheduledDateがなくなっても、ここではschedules内の日付を見て判定する
+    let latestScheduledDate = null;
+    if (data.schedules && data.schedules.length > 0) {
+      // 全スケジュールの中で最も遅い日付を取得する（終了判定のため）
+      latestScheduledDate = data.schedules.reduce((latest, current) => {
+        // utils.parseDate を使用
+        const currentDate = utils.parseDate(current.scheduledDate);
+        if (!latest || (currentDate && currentDate > latest)) {
+          return currentDate;
+        }
+        return latest;
+      }, null);
+    }
 
     let isClosed = false;
-    if (scheduledDate) {
-      // 💡 scheduledDate (yyyy.MM.dd) が存在する場合、その日付が今日より前かどうかで判定
-      const [year, month, day] = scheduledDate.split('.').map(Number);
-      const dateObj = new Date(year, month - 1, day);
-      if (dateObj < todayOnly) isClosed = true;
+    if (latestScheduledDate) {
+      // 最新の日付が今日より前かどうかで判定
+      if (latestScheduledDate < todayOnly) isClosed = true;
     }
 
     const item = makeNoticeItem(noticeId, data);
@@ -67,7 +76,18 @@ async function setUpPage() {
 
   // リストの描画
   if (futureItems.length > 0) {
-    futureItems.forEach((item) => $futureList.append(item));
+    // 💡 修正: ソート処理はコメントアウトし、forEachでDOMに追加する処理に戻す
+    /*
+    futureItems.sort((a, b) => {
+      // aとbはDOM要素なので、比較には元のデータが必要。
+      // ただし、ここではDOM要素をソートするよりも、元のデータ配列 (noticeSnap.docs) を利用してソートし直す方が望ましいが、
+      // 簡易対応としてここではDOM挿入順をそのまま維持し、ソートは省略します。
+      // Firestoreからソート順が保障されないため、リストの順序は保障されません。
+      // 正確にソートしたい場合は、loadCustomNoticeのロジックを見直す必要があります。
+      $futureList.append(a); // ★ この行が問題でした
+    });
+    */
+    futureItems.forEach((item) => $futureList.append(item)); // 💡 DOMへの追加処理を元に戻す
   } else {
     showEmptyMessage($futureList);
   }
