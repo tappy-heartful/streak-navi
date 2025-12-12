@@ -33,8 +33,8 @@ $(document).ready(async function () {
 
     await setupPage(mode, noticeId);
 
-    captureInitialState();
-    setupEventHandlers(mode);
+    captureInitialState(mode, noticeId);
+    setupEventHandlers(mode, noticeId);
   } catch (e) {
     await utils.writeLog({
       dataId: 'custom',
@@ -151,12 +151,6 @@ async function loadRelatedOptions(type, selectedId) {
 
   $idSelect.val(selectedId).removeClass('hidden');
   utils.hideSpinner();
-
-  // 💡 【修正】新規モードまたはコピーモードでイベントが選択されている場合、日付を自動設定
-  const mode = utils.globalGetParamMode || 'new';
-  if ((mode === 'new' || mode === 'copy') && type === 'events' && selectedId) {
-    setupRelatedDate();
-  }
 }
 // 紐づけられたイベントの日付を最初の通知スケジュールに設定する関数
 async function setupRelatedDate() {
@@ -275,7 +269,7 @@ function updateRemoveButtons($container) {
   $container.find('.remove-time-button').toggle(count > 1);
 }
 
-function setupEventHandlers(mode) {
+function setupEventHandlers(mode, noticeId) {
   // 日付セクションの追加
   $('#add-date-button').on('click', () => addDateSection());
 
@@ -318,9 +312,7 @@ function setupEventHandlers(mode) {
   $('#clear-button').on('click', async () => {
     if (
       await utils.showDialog(
-        mode === 'new' || mode === 'copy'
-          ? '入力内容をクリアしますか？'
-          : '編集前に戻しますか？'
+        mode === 'new' ? '入力内容をクリアしますか？' : '編集前に戻しますか？'
       )
     )
       restoreInitialState();
@@ -372,8 +364,8 @@ function setupEventHandlers(mode) {
 
   $(document).on('click', '.back-link', () => {
     const currentMode = utils.globalGetParamMode || 'new';
-    // 💡 copy/newモードの場合は一覧へ戻る
-    if (currentMode === 'new' || currentMode === 'copy') {
+    // 💡 newモードの場合は一覧へ戻る
+    if (currentMode === 'new') {
       window.location.href = '../notice-list/notice-list.html';
     } else {
       window.location.href = `../notice-custom-confirm/notice-custom-confirm.html?noticeId=${noticeId}`;
