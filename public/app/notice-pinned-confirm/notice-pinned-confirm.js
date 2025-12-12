@@ -22,7 +22,7 @@ $(document).ready(async function () {
 
 async function setUpPage() {
   // ページタイトルを再設定
-  $('#page-title').text('固定通知の確認');
+  $('#page-title').text('固定通知確認');
 
   // base-config-sectionのhiddenクラスを削除する必要はない（HTMLで削除済み）
   await loadBaseConfig();

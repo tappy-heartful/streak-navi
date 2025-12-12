@@ -30,7 +30,7 @@ async function setUpPage() {
     return;
   }
 
-  $('#page-title').text('カスタム通知の確認');
+  $('#page-title').text('カスタム通知確認');
   await loadCustomNotice(noticeId);
 
   $('#edit-button').on('click', () => {
