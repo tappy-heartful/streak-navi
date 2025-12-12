@@ -185,7 +185,7 @@ function addTimeMessageGroup(
           </div>
         </div>
         <div class="form-sub form-sub-msg">
-          <textarea class="schedule-message-input" rows="3" placeholder="通知メッセージ...">${
+          <textarea class="schedule-message-input" rows="4" placeholder="通知メッセージ...">${
             notification.message || ''
           }</textarea>
         </div>
