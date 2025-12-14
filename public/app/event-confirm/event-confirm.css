@@ -301,6 +301,5 @@
 }
 
 .setlist-songs {
-  white-space: pre-wrap; /* 曲名リストを改行表示 */
   padding-left: 10px; /* 曲名リストを少しインデント */
 }

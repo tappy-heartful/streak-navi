@@ -35,6 +35,7 @@ import {
   collection,
   serverTimestamp,
   limit,
+  writeBatch,
 } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';
 const db = getFirestore();
 export {
@@ -52,6 +53,7 @@ export {
   collection,
   serverTimestamp,
   limit,
+  writeBatch,
 };
 
 // ダイアログ関連
@@ -860,4 +862,57 @@ export async function getWrapDoc(ref) {
     exists: docSnap.exists,
     ref: docSnap.ref,
   };
+}
+
+/**
+ * 指定されたドキュメントをarchiveコレクションに退避させ、元のドキュメントを削除します。
+ * この操作はバッチ処理（アトミック）で実行されます。
+ *
+ * @param {string} collectionName - 削除対象のドキュメントが存在するコレクション名（例: 'calls', 'callAnswers'）。
+ * @param {string} docId - 削除対象のドキュメントID（例: 'xxx', 'xxx_user123'）。
+ * @returns {Promise<void>}
+ */
+export async function archiveAndDeleteDoc(collectionName, docId) {
+  // 1. 削除対象ドキュメント参照の構築
+  const docRef = doc(db, collectionName, docId);
+  // const docRef = utils.doc(utils.db, collectionName, docId); // utilsがFirestore関数をラップしている場合
+
+  // 2. バッチ処理の開始
+  const batch = writeBatch(db); // utils.writeBatchではなく、直接FirestoreのwriteBatchを使用すると仮定
+
+  // 3. 元ドキュメントのデータを取得
+  const docSnap = await getDoc(docRef); // utils.getDocではなく、直接getDocを使用すると仮定
+
+  if (!docSnap.exists()) {
+    console.warn(
+      `Document not found in ${collectionName}/${docId}. Skipping archive and delete.`
+    );
+    return;
+  }
+
+  const data = docSnap.data();
+
+  // 4. アーカイブ用ドキュメントIDの作成: [コレクション名]_[元のドキュメントID]
+  const archiveId = `${collectionName}_${docId}`;
+
+  // 5. archiveコレクションへの参照を作成
+  const archiveRef = doc(db, 'archives', archiveId);
+
+  // 6. アーカイブデータを作成 (元のデータ + 履歴情報)
+  const archiveData = {
+    ...data,
+    _archivedAt: serverTimestamp(), // 退避日時
+    _originalCollection: collectionName,
+    _originalDocId: docId,
+    _archivedByUid: getSession('uid') || 'unknown', // 実行ユーザーID
+  };
+
+  // 7. バッチにアーカイブ操作（set）を追加
+  batch.set(archiveRef, archiveData);
+
+  // 8. バッチに削除操作（delete）を追加
+  batch.delete(docRef);
+
+  // 9. バッチの実行
+  await batch.commit();
 }

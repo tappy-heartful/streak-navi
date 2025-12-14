@@ -177,8 +177,7 @@ function setupEventHandlers(uid) {
       utils.showSpinner();
 
       // Firestoreの該当ユーザを削除
-      const userRef = utils.doc(utils.db, 'users', uid);
-      await utils.deleteDoc(userRef);
+      await utils.archiveAndDeleteDoc('users', uid);
 
       // ログ登録
       await utils.writeLog({

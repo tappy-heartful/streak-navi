@@ -351,9 +351,7 @@ function setupEventHandlers(voteId, isAdmin, isActive, uid) {
 
       try {
         utils.showSpinner();
-        await utils.deleteDoc(
-          utils.doc(utils.db, 'voteAnswers', `${voteId}_${uid}`)
-        );
+        await utils.archiveAndDeleteDoc('voteAnswers', `${voteId}_${uid}`);
 
         await utils.writeLog({
           dataId: voteId,
@@ -390,14 +388,14 @@ function setupEventHandlers(voteId, isAdmin, isActive, uid) {
 
       try {
         utils.showSpinner();
-        await utils.deleteDoc(utils.doc(utils.db, 'votes', voteId));
+        await utils.archiveAndDeleteDoc('votes', voteId);
 
         const answersSnap = await utils.getWrapDocs(
           utils.collection(utils.db, 'voteAnswers')
         );
         for (const doc of answersSnap.docs) {
           if (doc.id.startsWith(voteId + '_')) {
-            await utils.deleteDoc(utils.doc(utils.db, 'voteAnswers', doc.id));
+            await utils.archiveAndDeleteDoc('voteAnswers', doc.id);
           }
         }
 

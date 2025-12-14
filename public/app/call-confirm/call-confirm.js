@@ -239,9 +239,7 @@ function setupEventHandlers(callId, isAdmin, isActive, uid) {
 
       try {
         utils.showSpinner();
-        await utils.deleteDoc(
-          utils.doc(utils.db, 'callAnswers', `${callId}_${uid}`)
-        );
+        await utils.archiveAndDeleteDoc('callAnswers', `${callId}_${uid}`);
         await utils.writeLog({
           dataId: callId,
           action: '回答削除',
@@ -276,7 +274,7 @@ function setupEventHandlers(callId, isAdmin, isActive, uid) {
 
       try {
         utils.showSpinner();
-        await utils.deleteDoc(utils.doc(utils.db, 'calls', callId));
+        await utils.archiveAndDeleteDoc('calls', callId);
 
         // 回答も削除
         const answersSnap = await utils.getWrapDocs(
@@ -284,7 +282,7 @@ function setupEventHandlers(callId, isAdmin, isActive, uid) {
         );
         for (const doc of answersSnap.docs) {
           if (doc.id.startsWith(callId + '_')) {
-            await utils.deleteDoc(utils.doc(utils.db, 'callAnswers', doc.id));
+            await utils.archiveAndDeleteDoc('callAnswers', doc.id);
           }
         }
 

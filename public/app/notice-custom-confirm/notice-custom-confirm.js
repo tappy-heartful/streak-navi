@@ -50,7 +50,7 @@ async function setUpPage() {
 
     utils.showSpinner();
     try {
-      await utils.deleteDoc(utils.doc(utils.db, 'notices', noticeId));
+      await utils.archiveAndDeleteDoc('notices', noticeId);
       await utils.showDialog('削除しました', true);
       window.location.href = '../notice-list/notice-list.html';
     } catch (e) {

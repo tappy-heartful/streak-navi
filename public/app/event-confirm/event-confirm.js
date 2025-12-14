@@ -458,6 +458,7 @@ async function renderEvent() {
   } else {
     $('#event-google-map').text('');
   }
+  // ... renderEvent 関数の途中 ...
 
   // やる曲
   // ------------------------------------------------------------------
@@ -469,6 +470,9 @@ async function renderEvent() {
     // songsDataは、編集画面から保存されたJSON文字列を想定
     const setlistGroups = eventData.setlist;
     let songsHtml = '';
+
+    // 【新規追加】YouTubeプレイリスト用のIDリストを保持する配列
+    let allWatchIds = [];
 
     if (Array.isArray(setlistGroups) && setlistGroups.length > 0) {
       setlistGroups.forEach((group) => {
@@ -482,9 +486,35 @@ async function renderEvent() {
             .map((songId) => {
               // 💡 allScores からデータを取得し、titleフィールドを参照
               const scoreData = allScores[songId];
-              return scoreData
-                ? scoreData.title // 💡 scoreData.title を参照
-                : '曲名が見つかりません';
+
+              if (scoreData) {
+                // 1. 譜面情報への参照リンクの作成
+                let songNameHtml = scoreData.title;
+                const scoreUrl = scoreData.scoreUrl; // 譜面URLフィールドを仮定
+
+                if (scoreUrl) {
+                  songNameHtml = `
+                    ${scoreData.title}
+                    <a href="${scoreUrl}" target="_blank" rel="noopener noreferrer" class="score-link">
+                      <i class="fas fa-arrow-up-right-from-square"></i>
+                    </a>
+                  `;
+                }
+
+                // 2. YouTubeプレイリスト用のIDを収集
+                if (scoreData.referenceTrack) {
+                  const videoId = utils.extractYouTubeId(
+                    scoreData.referenceTrack
+                  );
+                  if (videoId) {
+                    allWatchIds.push(videoId);
+                  }
+                }
+
+                return songNameHtml;
+              } else {
+                return '曲名が見つかりません';
+              }
             })
             .join('<br>'); // 曲名を改行で連結
         }
@@ -503,10 +533,30 @@ async function renderEvent() {
         }
       });
 
-      $('#event-songs').html(songsHtml || '設定されていません');
+      // 3. #event-songs にHTMLを設定
+      $('#event-songs').html(songsHtml);
+
+      // 4. YouTubeプレイリストリンクの処理
+      if (allWatchIds.length > 0) {
+        // 重複を削除してユニークなIDリストにする
+        const uniqueWatchIds = [...new Set(allWatchIds)];
+        const videoIdsString = uniqueWatchIds.join(',');
+
+        $('#playlist-link')
+          .attr(
+            'href',
+            `https://www.youtube.com/watch_videos?video_ids=${videoIdsString}`
+          )
+          .show();
+      } else {
+        // やる曲はあるが、YouTube URLがない場合は非表示
+        $('#playlist-link').hide();
+      }
     } else {
       // JSONとしてパースできなかった場合、または空の場合
       $('#event-songs').text('設定されていません');
+      // やる曲がないため非表示
+      $('#playlist-link').hide();
     }
   } catch (e) {
     // JSONパースエラーが発生した場合（旧データ形式の可能性など）
@@ -515,6 +565,8 @@ async function renderEvent() {
     $('#event-songs').html(
       eventData.songs?.replace(/\n/g, '<br>') || '設定されていません'
     );
+    // エラーが発生した場合も非表示
+    $('#playlist-link').hide();
   }
 
   // タイムスケジュール
@@ -690,8 +742,9 @@ function setupEventHandlers(eventId, uid, isSchedule) {
       try {
         utils.showSpinner();
         // 削除対象のコレクションを answerCollectionName に切り替え
-        await utils.deleteDoc(
-          utils.doc(utils.db, answerCollectionName, `${eventId}_${uid}`)
+        await utils.archiveAndDeleteDoc(
+          answerCollectionName,
+          `${eventId}_${uid}`
         );
 
         await utils.writeLog({
@@ -729,7 +782,7 @@ function setupEventHandlers(eventId, uid, isSchedule) {
 
       try {
         utils.showSpinner();
-        await utils.deleteDoc(utils.doc(utils.db, 'events', eventId));
+        await utils.archiveAndDeleteDoc('events', eventId);
 
         // eventAttendanceAnswers (出欠確認) の回答を削除
         const answersSnap = await utils.getWrapDocs(
@@ -737,9 +790,7 @@ function setupEventHandlers(eventId, uid, isSchedule) {
         );
         for (const doc of answersSnap.docs) {
           if (doc.id.startsWith(eventId + '_')) {
-            await utils.deleteDoc(
-              utils.doc(utils.db, 'eventAttendanceAnswers', doc.id)
-            );
+            await utils.archiveAndDeleteDoc('eventAttendanceAnswers', doc.id);
           }
         }
 
@@ -749,9 +800,7 @@ function setupEventHandlers(eventId, uid, isSchedule) {
         );
         for (const doc of adjustAnswersSnap.docs) {
           if (doc.id.startsWith(eventId + '_')) {
-            await utils.deleteDoc(
-              utils.doc(utils.db, 'eventAdjustAnswers', doc.id)
-            );
+            await utils.archiveAndDeleteDoc('eventAdjustAnswers', doc.id);
           }
         }
 
@@ -1088,7 +1137,7 @@ async function deleteRecordingLink(eventId, recordingId, currentUid) {
 
   utils.showSpinner();
   try {
-    await utils.deleteDoc(utils.doc(utils.db, 'eventRecordings', recordingId));
+    await utils.archiveAndDeleteDoc('eventRecordings', recordingId);
 
     await utils.writeLog({
       dataId: eventId,
