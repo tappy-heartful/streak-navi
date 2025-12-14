@@ -496,8 +496,8 @@ async function saveAssigns(eventId) {
         // setDocで上書きまたは新規作成
         await utils.setDoc(assignRef, item.data, { merge: true });
       } else if (item.type === 'delete') {
-        // deleteDocで削除
-        await utils.deleteDoc(assignRef);
+        // archiveAndDeleteDocで削除
+        await utils.archiveAndDeleteDoc('assigns', assignId);
       }
       successCount++;
     } catch (e) {

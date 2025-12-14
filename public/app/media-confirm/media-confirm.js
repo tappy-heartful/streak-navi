@@ -104,7 +104,7 @@ function setupEventHandlers(mediaId) {
 
     try {
       utils.showSpinner();
-      await utils.deleteDoc(utils.doc(utils.db, 'medias', mediaId));
+      await utils.archiveAndDeleteDoc('medias', mediaId);
       await utils.writeLog({ dataId: mediaId, action: 'メディア削除' });
       utils.hideSpinner();
       await utils.showDialog('削除しました', true);

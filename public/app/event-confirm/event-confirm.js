@@ -690,8 +690,9 @@ function setupEventHandlers(eventId, uid, isSchedule) {
       try {
         utils.showSpinner();
         // 削除対象のコレクションを answerCollectionName に切り替え
-        await utils.deleteDoc(
-          utils.doc(utils.db, answerCollectionName, `${eventId}_${uid}`)
+        await utils.archiveAndDeleteDoc(
+          answerCollectionName,
+          `${eventId}_${uid}`
         );
 
         await utils.writeLog({
@@ -729,7 +730,7 @@ function setupEventHandlers(eventId, uid, isSchedule) {
 
       try {
         utils.showSpinner();
-        await utils.deleteDoc(utils.doc(utils.db, 'events', eventId));
+        await utils.archiveAndDeleteDoc('events', eventId);
 
         // eventAttendanceAnswers (出欠確認) の回答を削除
         const answersSnap = await utils.getWrapDocs(
@@ -737,9 +738,7 @@ function setupEventHandlers(eventId, uid, isSchedule) {
         );
         for (const doc of answersSnap.docs) {
           if (doc.id.startsWith(eventId + '_')) {
-            await utils.deleteDoc(
-              utils.doc(utils.db, 'eventAttendanceAnswers', doc.id)
-            );
+            await utils.archiveAndDeleteDoc('eventAttendanceAnswers', doc.id);
           }
         }
 
@@ -749,9 +748,7 @@ function setupEventHandlers(eventId, uid, isSchedule) {
         );
         for (const doc of adjustAnswersSnap.docs) {
           if (doc.id.startsWith(eventId + '_')) {
-            await utils.deleteDoc(
-              utils.doc(utils.db, 'eventAdjustAnswers', doc.id)
-            );
+            await utils.archiveAndDeleteDoc('eventAdjustAnswers', doc.id);
           }
         }
 
@@ -1088,7 +1085,7 @@ async function deleteRecordingLink(eventId, recordingId, currentUid) {
 
   utils.showSpinner();
   try {
-    await utils.deleteDoc(utils.doc(utils.db, 'eventRecordings', recordingId));
+    await utils.archiveAndDeleteDoc('eventRecordings', recordingId);
 
     await utils.writeLog({
       dataId: eventId,

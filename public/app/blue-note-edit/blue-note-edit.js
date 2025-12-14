@@ -509,7 +509,7 @@ function setupEventHandlers() {
 
     utils.showSpinner();
     try {
-      await utils.deleteDoc(utils.doc(utils.db, 'blueNotes', dateId));
+      await utils.archiveAndDeleteDoc('blueNotes', dateId);
       await utils.writeLog({ dataId: dateId, action: '削除' });
       utils.hideSpinner();
 

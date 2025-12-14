@@ -112,7 +112,7 @@ function setupEventHandlers(scoreId) {
 
     try {
       utils.showSpinner();
-      await utils.deleteDoc(utils.doc(utils.db, 'scores', scoreId));
+      await utils.archiveAndDeleteDoc('scores', scoreId);
       await utils.writeLog({ dataId: scoreId, action: '譜面削除' });
       utils.hideSpinner();
       await utils.showDialog('削除しました', true);
