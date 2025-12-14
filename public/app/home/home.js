@@ -106,7 +106,7 @@ async function loadPendingAnnouncements() {
   }
 
   // --------------------------------------------------
-  // 2. イベントセクション (大幅変更)
+  // 2. イベントセクション (大幅変更なし、イベントデータ収集)
   // --------------------------------------------------
 
   const eventsRef = utils.collection(utils.db, 'events');
@@ -212,7 +212,7 @@ async function loadPendingAnnouncements() {
 
   const messages = {}; // {messageKey: [{event}, {event}, ...]}
 
-  // 3.1. 回答受付中 (日程調整・出欠確認)
+  // 3.1. 回答受付中 (日程調整・出欠確認) - 優先度 1
   const pendingAnswers = allEventChecks.filter((r) => r.isAnswerPending);
   if (pendingAnswers.length > 0) {
     // メッセージの種類が異なる可能性を考慮し、回答種別でグルーピング
@@ -232,19 +232,32 @@ async function loadPendingAnnouncements() {
     });
   }
 
-  // 3.2. もうすぐイベント (30日以内)
-  const imminent = allEventChecks.filter(
-    (r) => r.isImminent && !r.isAnswerPending
-  ); // 未回答イベントと重複しないように除外
+  // 3.2. 次のイベント (30日以内、または直近の1件) - 優先度 2 【変更箇所】
+
+  // 1. 未回答ではない全ての未来のイベントを抽出 (allEventChecksは日付順にソート済み)
+  const futureEventsNotPending = allEventChecks.filter(
+    (r) => !r.isAnswerPending
+  );
+
+  // 2. 30日以内のイベントを抽出
+  let imminent = futureEventsNotPending.filter((r) => r.isImminent);
+
+  // 3. フォールバックロジック: 30日以内のイベントがない場合、直近の1件を抽出
+  if (imminent.length === 0 && futureEventsNotPending.length > 0) {
+    imminent = [futureEventsNotPending[0]];
+  }
+
+  // 4. メッセージオブジェクトの構築とヘッダーの変更
   if (imminent.length > 0) {
     messages['imminent'] = {
-      header: '📌もうすぐイベントです！',
+      // ★ メッセージを「次のイベントです！」に変更
+      header: '📌次のイベントです！',
       events: imminent,
       order: 2,
     };
   }
 
-  // 3.3. 譜割り受付中
+  // 3.3. 譜割り受付中 - 優先度 3
   const assign = allEventChecks.filter((r) => r.isAssignPending);
   if (assign.length > 0) {
     messages['assign'] = {
@@ -277,6 +290,10 @@ async function loadPendingAnnouncements() {
       if (key === 'assign') {
         url = event.assignUrl;
         display = `🎵${event.date}`;
+      }
+      // 「次のイベントです」の場合、未回答ではないイベントの表示形式を維持（例: 📅2025.12.31）
+      if (key === 'imminent') {
+        display = event.display;
       }
 
       $announcementList.append(`
