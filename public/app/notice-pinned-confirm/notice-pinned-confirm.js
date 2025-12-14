@@ -5,13 +5,13 @@ $(document).ready(async function () {
     await utils.initDisplay();
     utils.renderBreadcrumb([
       { title: '通知設定一覧', url: '../notice-list/notice-list.html' },
-      { title: '固定通知設定確認' }, // 💡 パンくずリストも変更
+      { title: '自動通知設定確認' }, // 💡 パンくずリストも変更
     ]);
     await setUpPage();
   } catch (e) {
     await utils.writeLog({
-      dataId: 'noticeBase', // 固定通知設定はIDを固定
-      action: '固定通知設定確認初期表示',
+      dataId: 'noticeBase', // 自動通知設定はIDを固定
+      action: '自動通知設定確認初期表示',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
     });
@@ -22,7 +22,7 @@ $(document).ready(async function () {
 
 async function setUpPage() {
   // ページタイトルを再設定
-  $('#page-title').text('固定通知設定確認');
+  $('#page-title').text('自動通知設定確認');
 
   // base-config-sectionのhiddenクラスを削除する必要はない（HTMLで削除済み）
   await loadBaseConfig();
@@ -34,7 +34,7 @@ async function setUpPage() {
   });
 }
 
-// 固定通知設定の読み込み (元のロジックを流用)
+// 自動通知設定の読み込み (元のロジックを流用)
 async function loadBaseConfig() {
   const docRef = utils.doc(utils.db, 'configs', 'noticeBase');
   const docSnap = await utils.getWrapDoc(docRef);
