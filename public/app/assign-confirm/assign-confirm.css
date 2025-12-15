@@ -122,12 +122,21 @@
     border: 1px solid #eee;
     /* paddingを狭くする */
     padding: 6px 5px;
-    text-align: center;
+    /* ★修正: 列ヘッダーを除く中身のセルは左揃え */
+    text-align: left;
     font-size: 14px;
     white-space: nowrap;
     /* heightも狭くする */
     height: 32px;
 }
+/* ★追加: assign-cell は基本的に左揃え（上記tbody tdで定義）だが、必要なら個別に調整可 */
+.assign-table .assign-cell {
+    color: #333;
+    line-height: 1.4; 
+    /* ★修正: パートのセルは中央揃えに戻す (担当者が1人の場合は見やすい) */
+    text-align: center;
+}
+
 
 /* 曲のグループタイトル行 (setlist.title) */
 .group-title-row td {
@@ -148,6 +157,7 @@
     background-color: #f1f8e9;
     border-right: 2px solid #aed581;
     color: #333;
+    /* ★注意: text-align: left; は tbody td で上書きされているため、ここでは不要 */
 
     position: sticky;
     left: 0;
@@ -158,12 +168,31 @@
     height: 32px;
 }
 
-/* 譜割りの中身 (担当者名/記号など) */
-.assign-table .assign-cell {
-    color: #333;
-    /* 控えメンバー表示時の「、」区切りで折り返しやすくする */
-    line-height: 1.4; 
+
+/* ---------------------------------- */
+/* ★ 新規追加: 控え or 未設定 列のスタイル */
+/* ---------------------------------- */
+
+/* 控え or 未設定 列ヘッダーのスタイル */
+.assign-table .rehearsal-header {
+    background-color: #f5f5f5; /* 薄い灰色 */
+    color: #888; /* 暗い文字色 */
+    font-weight: normal;
+    font-size: 12px;
+    text-align: center; /* ヘッダーは中央揃え */
+    border-left: 2px solid #ddd; /* パート列との境を強調 */
 }
+
+/* 控え or 未設定 セルのスタイル */
+.assign-table .unassigned-cell {
+    background-color: #fafafa; /* さらに薄い灰色 */
+    color: #888; /* 暗い文字色 */
+    font-size: 12px;
+    line-height: 1.4;
+    text-align: left; /* 左揃え */
+    border-left: 2px solid #ddd; /* パート列との境を強調 */
+}
+
 
 /* ---------------------------------- */
 /* 小計表示エリアのスタイル (追加) */

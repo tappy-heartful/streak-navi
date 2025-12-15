@@ -525,7 +525,7 @@ function renderTableHeaders(index, partNamesForTab) {
   $headerRow.append(htmlParts);
 
   // ★ 追加: 控え or 未設定 メンバーのヘッダーを追加
-  $headerRow.append('<th class="rehearsal-header">控え or 未設定</th>');
+  $headerRow.append('<th class="rehearsal-header">未設定</th>');
 }
 
 /**
