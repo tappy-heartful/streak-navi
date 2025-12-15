@@ -293,17 +293,7 @@ function setupEventHandlers(mode, noticeId) {
     const $lastTimeInput = $container.find('.schedule-time-input:last');
     if ($lastTimeInput.length > 0) {
       const lastTime = $lastTimeInput.val(); // 例: "10:30"
-
-      // 時刻をパースして1時間加算
-      const parts = lastTime.split(':');
-      let hour = parseInt(parts[0], 10);
-      const minute = parts[1];
-
-      hour = (hour + 1) % 24; // 1時間加算し、24を超えたら0に戻す
-
-      // ゼロ埋めして "HH:MM" 形式に戻す
-      const newHourStr = String(hour).padStart(2, '0');
-      newScheduledTime = `${newHourStr}:${minute}`;
+      newScheduledTime = lastTime;
     }
 
     // 1時間加算した時刻で新しい時間/メッセージグループを追加
