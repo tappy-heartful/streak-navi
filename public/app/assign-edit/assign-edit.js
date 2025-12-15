@@ -87,7 +87,12 @@ async function setupPage(eventId) {
   $('#event-date').text(
     utils.getDayOfWeek(globalEventData.date_decoded) || '日付未定'
   );
-  $('#event-title').text(globalEventData.title_decoded || 'タイトル未定');
+
+  $('#event-title').html(
+    `<a href="../event-confirm/event-confirm.html?eventId=${eventId}" target="_blank" rel="noopener noreferrer">
+        ${globalEventData.title}
+      </a>`
+  );
 
   // テーブルの描画
   renderAssignTable();
