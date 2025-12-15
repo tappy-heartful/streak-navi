@@ -104,6 +104,17 @@
     border-top-color: #f1f8e9;
     border-bottom-color: #e0e0e0; /* ボディとの境 */
 }
+/* ★追加: 曲名リンクのスタイル (song-header内のaタグ) */
+.assign-table .song-header a {
+    color: #4CAF50; /* メインカラー */
+    text-decoration: none;
+    font-weight: bold;
+    display: block;
+}
+.assign-table .song-header a:hover {
+    text-decoration: underline;
+}
+
 
 /* 横軸パート名（partName） */
 .assign-table .part-header-cell {
@@ -156,6 +167,8 @@
 /* 譜割りの中身 (担当者名/記号など) */
 .assign-table .assign-cell {
     color: #333;
+    /* 控えメンバー表示時の「、」区切りで折り返しやすくする */
+    line-height: 1.4; 
 }
 
 /* ---------------------------------- */
@@ -196,12 +209,11 @@
 
 .summary-list {
     display: flex;
-    /* flex-wrap: wrap; を削除またはコメントアウト */
+    /* 項目を縦に並べるためにflex-direction: column; に変更、または各項目を100%幅にする */
+    flex-direction: column; 
     list-style: none;
     padding: 0;
     margin: 0;
-    /* 項目を縦に並べるためにflex-direction: column; に変更、または各項目を100%幅にする */
-    flex-direction: column; 
 }
 
 .summary-item {
@@ -209,7 +221,6 @@
     margin-bottom: 5px; /* 各項目の下に少しスペースを開ける */
     font-size: 15px;
     color: #333;
-    /* width: 100%; は不要、flex-direction: column; で縦並びになる */
 }
 
 .summary-item strong {
@@ -222,6 +233,35 @@
 /* ---------------------------------- */
 /* ボタンセクション */
 /* ---------------------------------- */
+
+/* ★修正: メンバー表示トグルを削除し、参考音源リンクと編集ボタンのコンテナとして残す */
+.top-controls {
+    display: flex;
+    justify-content: flex-end; /* 参考音源リンクを右寄せに */
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 0 5px;
+}
+
+/* ★追加: 参考音源リンクのスタイル */
+#reference-track-link {
+    font-size: 14px;
+    text-align: right;
+    white-space: nowrap;
+    margin-left: auto; /* 右端に寄せる */
+}
+
+#reference-track-link a {
+    color: #4CAF50;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+#reference-track-link a:hover {
+    text-decoration: underline;
+}
+
+/* ★削除: トグルボタン関連のスタイルをすべて削除 */
 
 .confirm-buttons {
     margin-top: 30px;

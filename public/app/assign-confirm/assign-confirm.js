@@ -2,19 +2,20 @@ import * as utils from '../common/functions.js';
 
 // 譜面（scores）とセクション（sections）のキャッシュ
 let scoresCache = {};
-// allPartNames はタブ表示のため廃止し、sectionGroupsに集約
 // ★ 修正: sectionIdも保持する構造に変更 { sectionId: { sectionName: '...', partNames: ['part1', 'part2', ...] } }
 let sectionGroups = {};
-// sectionIdsは不要になるため削除
 
 // グローバル変数として譜割りデータを保持
-// ★ 変更: partNameに対応するのは assignValue（担当者の名前）ではなく、users.doc.id（userId）とする
-let globalAssignsData = {}; // { songId: { partName: userId } }
+// { songId: { partName: [{ userId: '...', assignValue: '...' }, { userId: '...', assignValue: '...' }, ...] } }
+let globalAssignsData = {};
 let globalEventData = {};
 let sectionsCache = {}; // セクション名取得用として残す
 
 // ★ 追加: ユーザーIDと略称のマッピングキャッシュ
 let usersAbbreviationCache = {}; // { userId: abbreviation }
+
+// ★ 削除: 控えメンバー表示モードのフラグを削除
+// let isRehearsalMode = false;
 
 $(document).ready(async function () {
   try {
@@ -25,6 +26,8 @@ $(document).ready(async function () {
       { title: '譜割り確認' },
     ]);
     await renderAssignConfirm();
+
+    // ★ 削除: トグルボタンのイベントリスナーを削除
   } catch (e) {
     // ログ登録
     await utils.writeLog({
@@ -42,6 +45,11 @@ $(document).ready(async function () {
     utils.hideSpinner();
   }
 });
+
+/**
+ * ★ 削除: 演奏メンバー/控えメンバーのトグル切り替え時の処理を削除
+ */
+// function handleMemberToggle() { /* ... */ }
 
 //////////////////////////////////
 // 1. データの事前取得とキャッシュ
@@ -62,7 +70,7 @@ async function prefetchData(eventData) {
     group.songIds.forEach((id) => scoreIdsToFetch.add(id));
   });
 
-  // 2. scoresデータをキャッシュ (曲名取得のため)
+  // 2. scoresデータをキャッシュ (曲名、譜面ID、参考音源取得のため)
   if (scoreIdsToFetch.size > 0) {
     const scorePromises = Array.from(scoreIdsToFetch).map(async (scoreId) => {
       const docRef = utils.doc(utils.db, 'scores', scoreId);
@@ -155,11 +163,6 @@ async function prefetchUsers(assignsDocs) {
       const userData = snap.data();
       usersAbbreviationCache[userId] =
         userData.abbreviation_decoded || userData.name_decoded || userId;
-    } else {
-      // users が見つからない場合は assignValue を表示するために、assignValue_decoded をキャッシュする
-      // ★ 注: 後の処理で assignValue_decoded は assignsSnap.docs から取得する必要があるため、
-      // ここでは users が見つからなかったというフラグとして userId をそのまま保持する (後の処理で上書きされる可能性あり)
-      // ただし、今回は globalAssignsData の構築時に assignValue も保持するため、ここではキャッシュしない。
     }
   });
   await Promise.all(userPromises);
@@ -215,8 +218,9 @@ async function renderAssignConfirm() {
   const rawAssignsData = assignsSnap.docs.map((doc) => doc.data());
   await prefetchUsers(rawAssignsData);
 
-  // ★ 変更: globalAssignsData には assignValue_decoded ではなく、userId と assignValue_decoded の両方を保持する
-  const assignsData = {}; // { songId: { partName: { userId: '...', assignValue: '...' } } }
+  // ★ 変更: globalAssignsData には partName ごとに assigns ドキュメントのデータを配列で保持する
+  // { songId: { partName: [{ userId: '...', assignValue: '...' }, { userId: '...', assignValue: '...' }, ...] } }
+  const assignsData = {};
 
   assignsSnap.docs.forEach((docSnap) => {
     const data = docSnap.data();
@@ -225,34 +229,92 @@ async function renderAssignConfirm() {
     // userId がない場合は null、assignValue がない場合は 'ー'
     const userId = data.userId || null;
     const assignValue = data.assignValue_decoded || 'ー';
+    const isRehearsal = data.isRehearsal || false; // 控えメンバーフラグ
 
     if (!assignsData[songId]) {
       assignsData[songId] = {};
     }
-    // ★ 変更: ユーザーIDと元の assignValue の両方を保存
-    assignsData[songId][partName] = {
+    if (!assignsData[songId][partName]) {
+      assignsData[songId][partName] = [];
+    }
+    // ★ 変更: partName ごとに配列で保存
+    assignsData[songId][partName].push({
       userId: userId,
       assignValue: assignValue,
-    };
+      isRehearsal: isRehearsal,
+    });
   });
+
+  // isRehearsalがfalse（演奏メンバー）を優先するためにソート (isRehearsal: false が前に来るように)
+  Object.keys(assignsData).forEach((songId) => {
+    Object.keys(assignsData[songId]).forEach((partName) => {
+      assignsData[songId][partName].sort((a, b) =>
+        a.isRehearsal === b.isRehearsal ? 0 : a.isRehearsal ? 1 : -1
+      );
+    });
+  });
+
   globalAssignsData = assignsData;
+
+  // ★ 修正: 参考音源リンクの描画
+  renderReferenceTrackLink();
 
   // 6. タブとコンテンツ、小計の生成
   renderTabsAndContent();
 }
 
 /**
+ * 参考音源のプレイリストリンクを表示する
+ */
+function renderReferenceTrackLink() {
+  const referenceTrackIds = new Set();
+
+  // 全曲のreferenceTrackを収集
+  globalEventData.setlist.forEach((group) => {
+    group.songIds.forEach((songId) => {
+      const score = scoresCache[songId];
+      if (score && score.referenceTrack) {
+        // referenceTrackからYouTube IDを抽出
+        const youtubeId = utils.extractYouTubeId(score.referenceTrack);
+        if (youtubeId) {
+          referenceTrackIds.add(youtubeId);
+        }
+      }
+    });
+  });
+
+  if (referenceTrackIds.size === 0) {
+    $('#reference-track-link').html('参考音源の登録がありません');
+    return;
+  }
+
+  // watchIdsを連結
+  const watchIdsParam = Array.from(referenceTrackIds).join(',');
+
+  // ★ 修正: YouTubeの連続再生URLを構築
+  const finalUrl = `https://www.youtube.com/watch_videos?video_ids=${watchIdsParam}`;
+
+  const linkHtml = `<a href="${finalUrl}" target="_blank" rel="noopener noreferrer">
+                        <i class="fa-brands fa-youtube" aria-hidden="true"></i> 参考音源プレイリスト
+                      </a>`;
+
+  $('#reference-track-link').html(linkHtml);
+}
+
+/**
  * 譜割り値（ユーザー略称または元の値）を取得するヘルパー関数
- * @param {Object} assignData - { userId: string | null, assignValue: string }
+ * @param {Object} assignEntry - { userId: string | null, assignValue: string }
  * @returns {string} 表示する略称または元の assignValue
  */
-function getDisplayAssignValue(assignData) {
-  if (assignData.userId) {
+function getDisplayAssignValue(assignEntry) {
+  if (assignEntry.userId) {
     // userId があり、かつ usersAbbreviationCache に存在する場合
-    return usersAbbreviationCache[assignData.userId] || assignData.assignValue;
+    return (
+      usersAbbreviationCache[assignEntry.userId] || assignEntry.assignValue
+    );
   }
   // userId がない、または見つからない場合は assignValue をそのまま表示 ('ー'を含む)
-  return assignData.assignValue;
+  return assignEntry.assignValue;
 }
 
 //////////////////////////////////
@@ -311,18 +373,19 @@ function renderTabsAndContent() {
                         <tbody>
                         </tbody>
                     </table>
-            </div>
+                </div>
             </div>
         `);
   });
 
   $wrapper.append($tabButtons).append($tabContents);
 
-  // 各タブのテーブルを個別に描画
+  // 各タブのテーブルを個別に描画 (ヘッダーとボディ)
   sectionIds.forEach((sectionId, index) => {
     const sectionName = sectionGroups[sectionId].sectionName;
     const partNamesForTab = sectionGroups[sectionId].partNames;
-    renderTableHeadersAndBody(index, sectionName, partNamesForTab);
+    renderTableHeaders(index, partNamesForTab);
+    renderTableBody(index, sectionName, partNamesForTab);
   });
 
   // ★ ここからタブスクロール処理の追加 ★
@@ -397,15 +460,13 @@ function renderTabsAndContent() {
 }
 
 /**
- * 個別のタブ（テーブル）のヘッダーとボディを描画する
+ * 個別のタブ（テーブル）のヘッダーを描画する（パート名のみ）
  * @param {number} index - タブのインデックス
- * @param {string} sectionName - セクション名
  * @param {string[]} partNamesForTab - このタブで表示するパート名リスト
  */
-function renderTableHeadersAndBody(index, sectionName, partNamesForTab) {
+function renderTableHeaders(index, partNamesForTab) {
   const $table = $(`#assign-table-${index}`);
   const $headerRow = $table.find('.table-header-parts');
-  const $tbody = $table.find('tbody');
 
   // ヘッダー描画 (パート名のみ)
   let htmlParts = '';
@@ -415,6 +476,17 @@ function renderTableHeadersAndBody(index, sectionName, partNamesForTab) {
   });
   // 最初の曲名ヘッダーの後にパートヘッダーを挿入
   $headerRow.append(htmlParts);
+}
+
+/**
+ * 個別のタブ（テーブル）のボディを描画する
+ * @param {number} index - タブのインデックス
+ * @param {string} sectionName - セクション名
+ * @param {string[]} partNamesForTab - このタブで表示するパート名リスト
+ */
+function renderTableBody(index, sectionName, partNamesForTab) {
+  const $table = $(`#assign-table-${index}`);
+  const $tbody = $table.find('tbody');
 
   // ボディ描画 (縦軸と中身)
   globalEventData.setlist.forEach((group) => {
@@ -436,20 +508,31 @@ function renderTableHeadersAndBody(index, sectionName, partNamesForTab) {
       const songAbbreviation =
         score.abbreviation_decoded || score.title_decoded || '曲名不明';
 
-      let rowHtml = `<tr><td class="song-header">${songAbbreviation}</td>`; // 曲名 (scores.abbreviation)
+      // ★ 修正: 曲名を譜面リンクにする
+      const songLinkUrl = score.scoreUrl;
+      const songLinkHtml = `<a target="_blank" href="${songLinkUrl}">${songAbbreviation}</a>`;
+
+      let rowHtml = `<tr><td class="song-header">${songLinkHtml}</td>`; // 曲名 (scores.abbreviation)
 
       // 中身のセル
       partNamesForTab.forEach((partName) => {
-        // assignsDataはpartNameをキーに持っているので、そのまま参照
-        const assignEntry = globalAssignsData[songId]
-          ? globalAssignsData[songId][partName]
-          : null;
+        // assignsDataはpartNameをキーに持っているので、その配列を参照
+        // ★ 修正: assignEntriesがundefinedになる可能性に対応
+        const assignEntries = globalAssignsData[songId]
+          ? globalAssignsData[songId][partName] || []
+          : [];
 
         let displayValue = 'ー';
 
-        if (assignEntry) {
-          // ★ 修正: userIdを使って略称を取得し、なければ元のassignValueを使用
-          displayValue = getDisplayAssignValue(assignEntry);
+        if (assignEntries.length > 0) {
+          // ★ 修正: 控えメンバー表示モードのロジックを削除し、演奏メンバー（isRehearsal=false）のみを対象とする
+          // 配列は isRehearsal: false が先頭に来るようにソートされていると仮定し、先頭のエントリーが演奏メンバーかチェック
+          const performanceEntry = assignEntries[0];
+
+          if (!performanceEntry.isRehearsal) {
+            // 演奏メンバー（isRehearsal=false）の担当者のみを表示
+            displayValue = getDisplayAssignValue(performanceEntry);
+          }
         }
 
         rowHtml += `<td class="assign-cell">${displayValue}</td>`;
@@ -466,14 +549,14 @@ function renderTableHeadersAndBody(index, sectionName, partNamesForTab) {
 //////////////////////////////////
 
 /**
- * 譜割りデータを集計し、セクションごとのassignValue（担当者）別カウントを生成する
+ * 譜割りデータを集計し、セクションごとのassignValue（担当者）別カウントを生成する (演奏メンバーのみ)
  * @returns {Object} { sectionName: { assignValue: count, ... }, ... }
  */
 function calculateAssignSummary() {
   const summary = {};
+  // ★ 修正: countModeの切り替えは廃止し、演奏メンバーのみを集計する
 
   // 全セクションをループ
-  // ★ 修正: sectionGroupsはsectionIdをキーに持っているが、sectionNameで集計するためにループ
   Object.keys(sectionGroups).forEach((sectionId) => {
     const groupData = sectionGroups[sectionId];
     const sectionName = groupData.sectionName;
@@ -482,23 +565,30 @@ function calculateAssignSummary() {
 
     // 全曲をループ
     Object.keys(globalAssignsData).forEach((songId) => {
-      const songAssigns = globalAssignsData[songId];
+      const songAssigns = globalAssignsData[songId] || {};
 
       // そのセクションの全パートをループ
       partNames.forEach((partName) => {
-        // 割り当て値を取得
-        const assignEntry = songAssigns ? songAssigns[partName] : null;
+        // 割り当て値の配列を取得 (undefined対応)
+        const assignEntries = songAssigns[partName] || [];
 
-        let displayValue = 'ー';
+        // 演奏メンバーのみをカウント (isRehearsal=false)
+        // isRehearsal=falseの担当者は配列の先頭にいることが保証されているため、先頭のエントリーのみをチェック
+        if (assignEntries.length > 0) {
+          const entry = assignEntries[0];
 
-        if (assignEntry) {
-          // ★ 修正: userIdを使って略称を取得し、なければ元のassignValueを使用
-          displayValue = getDisplayAssignValue(assignEntry);
-        }
+          // entry自体がundefinedになる可能性は低いはずだが、念のためガード
+          if (!entry) return;
 
-        // カウントをインクリメント
-        if (displayValue !== 'ー') {
-          assignCounts[displayValue] = (assignCounts[displayValue] || 0) + 1;
+          // 演奏メンバー（isRehearsal=false）の場合のみカウント
+          if (!entry.isRehearsal) {
+            const displayValue = getDisplayAssignValue(entry);
+            if (displayValue !== 'ー') {
+              // 同じ演奏メンバーが同じ曲の別パートにいる場合は重複カウントされる（仕様通り）
+              assignCounts[displayValue] =
+                (assignCounts[displayValue] || 0) + 1;
+            }
+          }
         }
       });
     });
@@ -525,6 +615,7 @@ function renderAssignSummary(activeSectionName) {
   const $summaryWrapper = $('#assign-summary-wrapper');
   $summaryWrapper.find('.summary-content').remove(); // 既存のコンテンツをクリア
 
+  // ★ 修正: 小計計算関数を呼び出し
   const summaryData = calculateAssignSummary();
   const summaryForActiveSection = summaryData[activeSectionName];
 
@@ -540,6 +631,7 @@ function renderAssignSummary(activeSectionName) {
   $summaryWrapper.removeClass('hidden');
 
   let html = `<div class="summary-content">`;
+  // ★ 修正: モード名表示を削除
   html += `<div class="summary-section">`;
   html += `<h3>${activeSectionName}</h3>`;
   // ここではul/liの構造を維持し、CSSで制御できるようにする
