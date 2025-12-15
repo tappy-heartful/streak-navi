@@ -92,7 +92,7 @@ async function setupPage(eventId) {
   // テーブルの描画
   renderAssignTable();
 
-  // ★ 追加: 小計の初期表示
+  // 小計の初期表示
   renderAssignSummary();
 
   // 初期状態を保存
@@ -219,6 +219,44 @@ function buildSectionGroups(instrumentConfig) {
 //===========================
 function renderAssignTable() {
   const $wrapper = $('#assign-table-wrapper').empty();
+
+  // ★ 修正: プレイリストリンクの表示を、scores.referenceTrackから動画IDを抽出して生成するように変更
+  const $referenceTrackLink = $('#reference-track-link').empty();
+
+  // 1. scoresCacheからすべての曲のYouTube動画IDを抽出し、プレイリストURLを生成
+  const videoIds = [];
+  globalEventData.setlist.forEach((group) => {
+    group.songIds.forEach((songId) => {
+      const score = scoresCache[songId];
+      // scores.referenceTrackが存在する場合、utils.extractYouTubeIdを用いて動画IDを抽出
+      if (score && score.referenceTrack) {
+        const youtubeId = utils.extractYouTubeId(score.referenceTrack);
+        if (youtubeId) {
+          videoIds.push(youtubeId);
+        }
+      }
+    });
+  });
+
+  let playlistUrl = '';
+  if (videoIds.length > 0) {
+    // 全曲を再生するプレイリストのリンクを作成
+    playlistUrl = `https://www.youtube.com/watch_videos?video_ids=${videoIds.join(
+      ','
+    )}`;
+  }
+
+  if (playlistUrl) {
+    $referenceTrackLink.removeClass('hidden').append(`
+              <a href="${playlistUrl}" target="_blank" rel="noopener noreferrer">
+                <i class="fa-brands fa-youtube" aria-hidden="true"></i> 参考音源プレイリスト
+              </a>
+              `);
+  } else {
+    $referenceTrackLink.addClass('hidden');
+  }
+  // ★ ここまで修正
+
   const $table = $(
     `<table class="assign-edit-table"><thead><tr></tr></thead><tbody></tbody></table>`
   );
@@ -268,10 +306,10 @@ function renderAssignTable() {
 
     // グループタイトル行
     $tbody.append(`
-            <tr class="group-title-row">
-                <td colspan="${colspan}">${groupTitle}</td>
-            </tr>
-        `);
+      <tr class="group-title-row">
+        <td colspan="${colspan}">${groupTitle}</td>
+      </tr>
+    `);
 
     // 曲の行
     group.songIds.forEach((songId) => {
@@ -280,9 +318,19 @@ function renderAssignTable() {
 
       const songAbbreviation =
         score.abbreviation_decoded || score.title_decoded || '曲名不明';
+
+      // ★ 修正: scores.scoreUrl があればリンクにする
+      let songCellContent;
+      if (score.scoreUrl) {
+        // 新しいウィンドウで開く
+        songCellContent = `<a href="${score.scoreUrl}" target="_blank">${songAbbreviation}</a>`;
+      } else {
+        songCellContent = songAbbreviation;
+      }
+
       // song-cellはCSSで左寄せに設定済み
       let rowHtml = `<tr data-song-id="${songId}">
-                <td class="song-cell">${songAbbreviation}</td>`; // 曲名は左寄せ
+        <td class="song-cell">${songCellContent}</td>`; // 曲名は左寄せ
 
       // 各パートのセル (プルダウン)
       sectionNames.forEach((sectionName) => {
@@ -354,7 +402,7 @@ function setupEventHandlers(eventId) {
     }
     currentAssigns[songId][partName] = newUserId; // currentAssignsにユーザーIDを格納
 
-    // ★ 追加: 小計を更新
+    // 小計を更新
     renderAssignSummary();
   });
 
@@ -362,7 +410,7 @@ function setupEventHandlers(eventId) {
   $('#clear-button').on('click', async () => {
     if (await utils.showDialog('編集前に戻しますか？')) {
       restoreInitialState();
-      // ★ 追加: 小計を更新
+      // 小計を更新
       renderAssignSummary();
     }
   });

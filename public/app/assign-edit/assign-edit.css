@@ -11,6 +11,28 @@
     box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.05);
 }
 
+/* ★ 追加: プレイリストリンクのラッパー */
+
+/* ★修正: メンバー表示トグルを削除し、参考音源リンクと編集ボタンのコンテナとして残す */
+.top-controls {
+    display: flex;
+    justify-content: flex-end; /* 参考音源リンクを右寄せに */
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 0 5px;
+}
+
+/* ★追加: 参考音源リンクのスタイル */
+#reference-track-link {
+    font-size: 14px;
+    text-align: right;
+    white-space: nowrap;
+    margin-left: auto; /* 右端に寄せる */
+    font-weight: bold;
+}
+
+/* ★ ここまで追加 */
+
 .assign-edit-table {
     width: 100%;
     border-collapse: collapse;
@@ -96,6 +118,12 @@
     z-index: 5;
 }
 
+/* ★ 追加: 曲名セルのリンクスタイル */
+.song-cell a {
+    font-weight: bold;
+}
+/* ★ ここまで追加 */
+
 /* 譜割りセル */
 .assign-cell {
     /* 修正: プルダウンの幅を広げるため最小幅を50pxに増やす */
@@ -132,7 +160,7 @@
     background-color: #f9f9f9;
     border: 1px solid #eee;
     border-radius: 10px;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05); 
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
 }
 
 .summary-title {

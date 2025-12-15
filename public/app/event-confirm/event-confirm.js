@@ -494,9 +494,8 @@ async function renderEvent() {
 
                 if (scoreUrl) {
                   songNameHtml = `
-                    ${scoreData.title}
                     <a href="${scoreUrl}" target="_blank" rel="noopener noreferrer" class="score-link">
-                      <i class="fas fa-arrow-up-right-from-square"></i>
+                      ${scoreData.title}
                     </a>
                   `;
                 }

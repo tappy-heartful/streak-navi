@@ -4,7 +4,7 @@
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 15px;
+  padding: 0px 15px;
   margin-bottom: 20px;
 }
 
@@ -145,8 +145,6 @@ textarea {
   background-color: #2196f3; 
   color: white;
   display: block;
-  width: 100%;
-  margin-top: 20px;
 }
 #add-date-button:hover {
   background-color: #0b7dda; 
