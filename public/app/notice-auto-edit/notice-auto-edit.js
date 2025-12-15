@@ -44,13 +44,15 @@ async function setupPage() {
  * @returns {string} 生成されたHTML文字列
  */
 function createNotificationBlockHtml(type, data = {}) {
-  const days = data.days || 1;
+  // 💡 修正: days の値が 0 の場合に '1' に上書きされないよう修正
+  // nullish coalescing (??) を使用するか、明示的な undefined チェックを行う
+  const days = data.days === undefined ? 1 : data.days;
+
   const beforeAfter = data.beforeAfter || 'before'; // before:前, after:後
   const time = data.time || '09:00';
   const message = data.message || '';
   const blockLabel = type === 'event' ? 'イベント' : '締切';
 
-  // 💡 修正: timing-group内を縦並びに変更し、時刻入力を日数入力の直下に配置
   return `
     <div class="notification-block" data-type="${type}">
       <button type="button" class="remove-notify-button" title="削除">
