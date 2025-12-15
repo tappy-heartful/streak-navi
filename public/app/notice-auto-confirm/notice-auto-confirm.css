@@ -6,23 +6,62 @@
   background-color: #ffffff;
 }
 
+/* 複数の通知ブロックを格納するコンテナ */
+.notifications-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* 通知設定ブロック間の隙間 */
+}
+
+/* 個々の通知設定を表示するブロック */
+.notification-display-block {
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 10px;
+  background-color: #f9f9f9;
+}
+
 .base-notify-box .label-title {
   margin-top: 10px;
   color: #666;
   font-size: 0.9em;
+  display: block; /* ラベルをブロック要素にする */
 }
 
 .base-notify-box .label-title:first-child {
   margin-top: 0;
 }
 
+.label-value {
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 10px;
+}
+
 .pre-wrap {
   white-space: pre-wrap;
   min-height: 40px;
+  font-weight: normal; /* メッセージは太字にしない */
+  color: #555;
 }
 
 .menu-title {
   border-left: 5px solid #4caf50;
   padding-left: 10px;
   margin-bottom: 10px;
+}
+
+/* 通知メッセージがない場合の表示 */
+.no-setting {
+  color: #999;
+  font-style: italic;
+  font-weight: normal;
+}
+
+/* タイムスタンプ表示 (時刻 + [前/後] + 日数) */
+.timing-value {
+    font-weight: bold;
+    color: #4caf50; /* 青色などで強調 */
+    display: block; /* 1つのタイミングを1行で表示 */
+    margin-bottom: 5px;
 }
