@@ -300,7 +300,7 @@ function setupEventHandlers(voteId, isAdmin, isActive, uid) {
           // 退会済みユーザ
           voters.push({
             name: '退会済みユーザ',
-            pictureUrl: utils.globalBandLogoImage,
+            pictureUrl: utils.globalLineDefaultImage,
           });
         }
       }

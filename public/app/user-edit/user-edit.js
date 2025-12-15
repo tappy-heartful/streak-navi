@@ -86,7 +86,7 @@ async function setUpPage(uid) {
   $('#user-name').text(userData.displayName_decoded || '名無し');
   $('.user-icon').attr(
     'src',
-    userData.pictureUrl_decoded || utils.globalBandLogoImage
+    userData.pictureUrl_decoded || utils.globalLineDefaultImage
   );
   $('.user-icon').attr(
     'onerror',

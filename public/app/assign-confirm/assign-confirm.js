@@ -11,6 +11,10 @@ let globalAssignsData = {};
 let globalEventData = {};
 let sectionsCache = {}; // セクション名取得用として残す
 
+// ★ 追加: 全ユーザーのセクション所属情報と略称を保持
+// { sectionId: [{ userId: '...', abbreviation: '...', sectionId: '...' }, ...] }
+let globalUsersBySection = {};
+
 // ★ 追加: ユーザーIDと略称のマッピングキャッシュ
 let usersAbbreviationCache = {}; // { userId: abbreviation }
 
@@ -131,6 +135,43 @@ async function prefetchData(eventData) {
   // ⚠️ パート名のソートは行わない (instrumentConfigの配列順を維持するため)
 }
 
+/**
+ * ★ 新規追加: 全ユーザーのデータを取得し、セクションIDでグループ化してキャッシュする
+ * users.abbreviation_decodedとusers.sectionIdを収集する
+ * @returns {Promise<void>}
+ */
+async function prefetchAllSectionUsers() {
+  // usersコレクションの全ドキュメントを取得
+  const usersSnap = await utils.getWrapDocs(
+    utils.collection(utils.db, 'users')
+  );
+
+  usersSnap.docs.forEach((docSnap) => {
+    const userData = docSnap.data();
+    const userId = docSnap.id;
+    const sectionId = userData.sectionId; // sectionsコレクションのdoc.id
+
+    // sectionIdがあり、abbreviationまたはnameがあるユーザーのみを対象とする
+    if (sectionId) {
+      // 略称を取得（abbreviation > name > userIdの優先順位）
+      const abbreviation =
+        userData.abbreviation_decoded || userData.name_decoded || userId;
+      usersAbbreviationCache[userId] = abbreviation; // 既存の略称キャッシュも更新/構築
+
+      if (!globalUsersBySection[sectionId]) {
+        globalUsersBySection[sectionId] = [];
+      }
+
+      // sectionIdとabbreviationを保持
+      globalUsersBySection[sectionId].push({
+        userId: userId,
+        abbreviation: abbreviation,
+        sectionId: sectionId,
+      });
+    }
+  });
+}
+
 //////////////////////////////////
 // 2. メインレンダリング処理
 //////////////////////////////////
@@ -155,7 +196,11 @@ async function prefetchUsers(assignsDocs) {
     return;
   }
 
+  // prefetchAllSectionUsersで大半の略称はキャッシュされるが、
+  // 念のためassignsにいるユーザーの略称キャッシュを保証
   const userPromises = Array.from(userIdsToFetch).map(async (userId) => {
+    if (usersAbbreviationCache[userId]) return; // 既にキャッシュ済みの場合はスキップ
+
     const docRef = utils.doc(utils.db, 'users', userId);
     const snap = await utils.getWrapDoc(docRef);
     if (snap.exists()) {
@@ -199,6 +244,8 @@ async function renderAssignConfirm() {
   }
 
   await prefetchData(globalEventData);
+  // ★ 追加: 全ユーザーデータを取得し、セクションごとにキャッシュ
+  await prefetchAllSectionUsers();
 
   if (Object.keys(sectionGroups).length === 0) {
     $('#no-assign-message')
@@ -382,10 +429,10 @@ function renderTabsAndContent() {
 
   // 各タブのテーブルを個別に描画 (ヘッダーとボディ)
   sectionIds.forEach((sectionId, index) => {
-    const sectionName = sectionGroups[sectionId].sectionName;
     const partNamesForTab = sectionGroups[sectionId].partNames;
     renderTableHeaders(index, partNamesForTab);
-    renderTableBody(index, sectionName, partNamesForTab);
+    // ★ 修正: renderTableBodyにsectionIdを渡す
+    renderTableBody(index, sectionId, partNamesForTab);
   });
 
   // ★ ここからタブスクロール処理の追加 ★
@@ -476,23 +523,30 @@ function renderTableHeaders(index, partNamesForTab) {
   });
   // 最初の曲名ヘッダーの後にパートヘッダーを挿入
   $headerRow.append(htmlParts);
+
+  // ★ 追加: 控え or 未設定 メンバーのヘッダーを追加
+  $headerRow.append('<th class="rehearsal-header">未設定</th>');
 }
 
 /**
  * 個別のタブ（テーブル）のボディを描画する
  * @param {number} index - タブのインデックス
- * @param {string} sectionName - セクション名
+ * @param {string} sectionId - 現在表示中のセクションID
  * @param {string[]} partNamesForTab - このタブで表示するパート名リスト
  */
-function renderTableBody(index, sectionName, partNamesForTab) {
+function renderTableBody(index, sectionId, partNamesForTab) {
   const $table = $(`#assign-table-${index}`);
   const $tbody = $table.find('tbody');
+
+  // ★ 追加: このセクションに所属する全メンバーのリストを取得
+  const allSectionUsers = globalUsersBySection[sectionId] || [];
 
   // ボディ描画 (縦軸と中身)
   globalEventData.setlist.forEach((group) => {
     // グループタイトル行 (縦軸ラベルのグループ名)
     const groupTitle = group.title_decoded || 'No Group Title';
-    const colspan = partNamesForTab.length + 1; // 1は曲名列
+    // ★ 修正: colspanを+2 (曲名列 + 控え列) に変更
+    const colspan = partNamesForTab.length + 2;
 
     $tbody.append(`
             <tr class="group-title-row">
@@ -514,6 +568,10 @@ function renderTableBody(index, sectionName, partNamesForTab) {
 
       let rowHtml = `<tr><td class="song-header">${songLinkHtml}</td>`; // 曲名 (scores.abbreviation)
 
+      // ★ 追加: この曲・このセクションにアサインされているメンバーIDを収集
+      // 演奏、控え問わず、何らかの形で割り当てられているメンバーを「assign済み」と見なす
+      const assignedUserIds = new Set();
+
       // 中身のセル
       partNamesForTab.forEach((partName) => {
         // assignsDataはpartNameをキーに持っているので、その配列を参照
@@ -533,10 +591,35 @@ function renderTableBody(index, sectionName, partNamesForTab) {
             // 演奏メンバー（isRehearsal=false）の担当者のみを表示
             displayValue = getDisplayAssignValue(performanceEntry);
           }
+
+          // ★ 追加: 割り当てられているメンバーIDを収集 (演奏・控え問わず)
+          assignEntries.forEach((entry) => {
+            if (entry.userId) {
+              assignedUserIds.add(entry.userId);
+            }
+          });
         }
 
         rowHtml += `<td class="assign-cell">${displayValue}</td>`;
       });
+
+      // ★ 新規追加: 控え or 未設定 メンバーのセル
+
+      // 1. セクションメンバーから、assignedUserIdsに含まれないメンバーを抽出
+      const unassignedMembers = allSectionUsers.filter(
+        (user) => !assignedUserIds.has(user.userId)
+      );
+
+      let rehearsalDisplay = 'ー';
+      if (unassignedMembers.length > 0) {
+        // 2. 略称をソートし、「、」区切りで表示
+        rehearsalDisplay = unassignedMembers
+          .map((user) => user.abbreviation)
+          .sort()
+          .join('、');
+      }
+
+      rowHtml += `<td class="unassigned-cell">${rehearsalDisplay}</td>`;
 
       rowHtml += `</tr>`;
       $tbody.append(rowHtml);

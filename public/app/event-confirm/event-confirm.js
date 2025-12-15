@@ -979,7 +979,7 @@ async function buildUsersModalBody(uids) {
       // 退会済みユーザのデータ
       userData = {
         displayName: '退会済みユーザ',
-        pictureUrl: utils.globalBandLogoImage,
+        pictureUrl: utils.globalLineDefaultImage,
         sectionId: 'retired', // 仮のセクションID
       };
     }

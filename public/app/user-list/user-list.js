@@ -78,9 +78,9 @@ $(document).ready(async function () {
           <li class="user-item" onclick="window.location.href = '../user-confirm/user-confirm.html?uid=${
             user.uid || ''
           }'">
-            <img src="${user.pictureUrl || utils.globalBandLogoImage}" alt="${
-          user.displayName || '名無し'
-        }のアイコン"
+            <img src="${
+              user.pictureUrl || utils.globalLineDefaultImage
+            }" alt="${user.displayName || '名無し'}のアイコン"
              onerror="this.onerror=null; this.src='${
                utils.globalLineDefaultImage
              }';">
