@@ -220,22 +220,42 @@ function buildSectionGroups(instrumentConfig) {
 function renderAssignTable() {
   const $wrapper = $('#assign-table-wrapper').empty();
 
-  // ★ 追加: プレイリストリンクの表示
-  const $playlistWrapper = $('#playlist-link-wrapper').empty();
-  const playlistUrl = globalEventData.playlistUrl;
-  if (playlistUrl) {
-    $playlistWrapper.removeClass('hidden').append(`
-      <p>
-        <i class="fas fa-list-music"></i>
-        <a href="${playlistUrl}" target="_blank" class="playlist-link">
-          プレイリストを表示
-        </a>
-      </p>
-    `);
-  } else {
-    $playlistWrapper.addClass('hidden');
+  // ★ 修正: プレイリストリンクの表示を、scores.referenceTrackから動画IDを抽出して生成するように変更
+  const $referenceTrackLink = $('#reference-track-link').empty();
+
+  // 1. scoresCacheからすべての曲のYouTube動画IDを抽出し、プレイリストURLを生成
+  const videoIds = [];
+  globalEventData.setlist.forEach((group) => {
+    group.songIds.forEach((songId) => {
+      const score = scoresCache[songId];
+      // scores.referenceTrackが存在する場合、utils.extractYouTubeIdを用いて動画IDを抽出
+      if (score && score.referenceTrack) {
+        const youtubeId = utils.extractYouTubeId(score.referenceTrack);
+        if (youtubeId) {
+          videoIds.push(youtubeId);
+        }
+      }
+    });
+  });
+
+  let playlistUrl = '';
+  if (videoIds.length > 0) {
+    // 全曲を再生するプレイリストのリンクを作成
+    playlistUrl = `https://www.youtube.com/watch_videos?video_ids=${videoIds.join(
+      ','
+    )}`;
   }
-  // ★ ここまで追加
+
+  if (playlistUrl) {
+    $referenceTrackLink.removeClass('hidden').append(`
+              <a href="${playlistUrl}" target="_blank" rel="noopener noreferrer">
+                <i class="fa-brands fa-youtube" aria-hidden="true"></i> 参考音源プレイリスト
+              </a>
+              `);
+  } else {
+    $referenceTrackLink.addClass('hidden');
+  }
+  // ★ ここまで修正
 
   const $table = $(
     `<table class="assign-edit-table"><thead><tr></tr></thead><tbody></tbody></table>`
