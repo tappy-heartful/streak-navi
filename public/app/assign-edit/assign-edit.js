@@ -92,7 +92,7 @@ async function setupPage(eventId) {
   // テーブルの描画
   renderAssignTable();
 
-  // ★ 追加: 小計の初期表示
+  // 小計の初期表示
   renderAssignSummary();
 
   // 初期状態を保存
@@ -219,6 +219,24 @@ function buildSectionGroups(instrumentConfig) {
 //===========================
 function renderAssignTable() {
   const $wrapper = $('#assign-table-wrapper').empty();
+
+  // ★ 追加: プレイリストリンクの表示
+  const $playlistWrapper = $('#playlist-link-wrapper').empty();
+  const playlistUrl = globalEventData.playlistUrl;
+  if (playlistUrl) {
+    $playlistWrapper.removeClass('hidden').append(`
+      <p>
+        <i class="fas fa-list-music"></i>
+        <a href="${playlistUrl}" target="_blank" class="playlist-link">
+          プレイリストを表示
+        </a>
+      </p>
+    `);
+  } else {
+    $playlistWrapper.addClass('hidden');
+  }
+  // ★ ここまで追加
+
   const $table = $(
     `<table class="assign-edit-table"><thead><tr></tr></thead><tbody></tbody></table>`
   );
@@ -268,10 +286,10 @@ function renderAssignTable() {
 
     // グループタイトル行
     $tbody.append(`
-            <tr class="group-title-row">
-                <td colspan="${colspan}">${groupTitle}</td>
-            </tr>
-        `);
+      <tr class="group-title-row">
+        <td colspan="${colspan}">${groupTitle}</td>
+      </tr>
+    `);
 
     // 曲の行
     group.songIds.forEach((songId) => {
@@ -280,9 +298,19 @@ function renderAssignTable() {
 
       const songAbbreviation =
         score.abbreviation_decoded || score.title_decoded || '曲名不明';
+
+      // ★ 修正: scores.scoreUrl があればリンクにする
+      let songCellContent;
+      if (score.scoreUrl) {
+        // 新しいウィンドウで開く
+        songCellContent = `<a href="${score.scoreUrl}" target="_blank">${songAbbreviation}</a>`;
+      } else {
+        songCellContent = songAbbreviation;
+      }
+
       // song-cellはCSSで左寄せに設定済み
       let rowHtml = `<tr data-song-id="${songId}">
-                <td class="song-cell">${songAbbreviation}</td>`; // 曲名は左寄せ
+        <td class="song-cell">${songCellContent}</td>`; // 曲名は左寄せ
 
       // 各パートのセル (プルダウン)
       sectionNames.forEach((sectionName) => {
@@ -354,7 +382,7 @@ function setupEventHandlers(eventId) {
     }
     currentAssigns[songId][partName] = newUserId; // currentAssignsにユーザーIDを格納
 
-    // ★ 追加: 小計を更新
+    // 小計を更新
     renderAssignSummary();
   });
 
@@ -362,7 +390,7 @@ function setupEventHandlers(eventId) {
   $('#clear-button').on('click', async () => {
     if (await utils.showDialog('編集前に戻しますか？')) {
       restoreInitialState();
-      // ★ 追加: 小計を更新
+      // 小計を更新
       renderAssignSummary();
     }
   });

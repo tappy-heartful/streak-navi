@@ -25,17 +25,20 @@
     </div>
 
     <main class="container">
-        <div class="form-group">
-          <label class="label-title">日付</label>
-          <div class="label-value" id="event-date"></div>
-        </div>
-
-        <div class="form-group">
-          <label class="label-title">イベント名</label>
-          <div class="label-value" id="event-title"></div>
-        </div>
+      <div class="form-group">
+        <label class="label-title">日付</label>
+        <div class="label-value" id="event-date"></div>
       </div>
 
+      <div class="form-group">
+        <label class="label-title">イベント名</label>
+        <div class="label-value" id="event-title"></div>
+      </div>
+
+      <div
+        id="playlist-link-wrapper"
+        class="playlist-link-wrapper hidden"
+      ></div>
       <div id="assign-table-wrapper" class="table-responsive">
         <p id="no-assign-message" class="error-message hidden">
           イベントデータが不完全です。
@@ -44,7 +47,7 @@
 
       <div id="assign-summary-wrapper" class="summary-wrapper hidden">
         <h2 class="summary-title">担当曲数 小計</h2>
-        </div>
+      </div>
       <div id="confirm-buttons" class="confirm-buttons">
         <button id="clear-button" class="clear-button">編集前に戻す</button>
         <button id="save-button" class="save-button">更新</button>
