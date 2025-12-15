@@ -4,14 +4,16 @@ import * as utils from '../common/functions.js';
 let scoresCache = {};
 // ★ 修正: sectionIdも保持する構造に変更 { sectionId: { sectionName: '...', partNames: ['part1', 'part2', ...] } }
 let sectionGroups = {};
-// ★ 追加: セクションごとの所属メンバーIDキャッシュ { sectionId: Set<userId> }
-let sectionMemberIdsCache = {};
 
 // グローバル変数として譜割りデータを保持
 // { songId: { partName: [{ userId: '...', assignValue: '...' }, { userId: '...', assignValue: '...' }, ...] } }
 let globalAssignsData = {};
 let globalEventData = {};
 let sectionsCache = {}; // セクション名取得用として残す
+
+// ★ 追加: 全ユーザーのセクション所属情報と略称を保持
+// { sectionId: [{ userId: '...', abbreviation: '...', sectionId: '...' }, ...] }
+let globalUsersBySection = {};
 
 // ★ 追加: ユーザーIDと略称のマッピングキャッシュ
 let usersAbbreviationCache = {}; // { userId: abbreviation }
@@ -58,7 +60,7 @@ $(document).ready(async function () {
 //////////////////////////////////
 
 /**
- * イベントの全曲に必要なscoresとsectionsのデータを事前にキャッシュし、sectionGroupsとsectionMemberIdsCacheを構築する
+ * イベントの全曲に必要なscoresとsectionsのデータを事前にキャッシュし、sectionGroupsを構築する
  * scoresのinstrumentConfigではなく、イベントのinstrumentConfigからパート名を構築する
  * @param {Object} eventData - イベントデータ
  * @returns {Promise<void>}
@@ -106,27 +108,18 @@ async function prefetchData(eventData) {
     await Promise.all(sectionPromises);
   }
 
-  // 5. sectionGroupsとsectionMemberIdsCacheを構築
+  // 5. sectionGroupsを構築
   if (eventData.instrumentConfig) {
-    // ★ 修正: sectionIdをキーとしてsectionGroupsとsectionMemberIdsCacheを構築
+    // ★ 修正: sectionIdをキーとしてsectionGroupsを構築
     Object.keys(eventData.instrumentConfig).forEach((sectionId) => {
       const sectionData = sectionsCache[sectionId];
       if (!sectionData) return;
 
       const sectionName = sectionData.name_decoded;
-      const currentSectionMembers = new Set(); // このセクションの全メンバー
 
       // instrumentConfig[sectionId]はパート設定の配列。配列の順番を維持してpartNameを取得する
       const partNames = eventData.instrumentConfig[sectionId]
-        .map((config) => {
-          // ★ 追加: メンバーをSetに追加
-          if (config.members) {
-            config.members.forEach((userId) =>
-              currentSectionMembers.add(userId)
-            );
-          }
-          return config.partName_decoded;
-        })
+        .map((config) => config.partName_decoded)
         .filter((partName) => partName); // partNameが空でないもののみをフィルタリング
 
       // セクションIDをキーとして、セクション名とパート名リストを保存
@@ -135,8 +128,6 @@ async function prefetchData(eventData) {
           sectionName: sectionName,
           partNames: partNames,
         };
-        // ★ 追加: メンバーIDのSetをキャッシュ
-        sectionMemberIdsCache[sectionId] = currentSectionMembers;
       }
     });
   }
@@ -144,21 +135,72 @@ async function prefetchData(eventData) {
   // ⚠️ パート名のソートは行わない (instrumentConfigの配列順を維持するため)
 }
 
+/**
+ * ★ 新規追加: 全ユーザーのデータを取得し、セクションIDでグループ化してキャッシュする
+ * users.abbreviation_decodedとusers.sectionIdを収集する
+ * @returns {Promise<void>}
+ */
+async function prefetchAllSectionUsers() {
+  // usersコレクションの全ドキュメントを取得
+  const usersSnap = await utils.getWrapDocs(
+    utils.collection(utils.db, 'users')
+  );
+
+  usersSnap.docs.forEach((docSnap) => {
+    const userData = docSnap.data();
+    const userId = docSnap.id;
+    const sectionId = userData.sectionId; // sectionsコレクションのdoc.id
+
+    // sectionIdがあり、abbreviationまたはnameがあるユーザーのみを対象とする
+    if (sectionId) {
+      // 略称を取得（abbreviation > name > userIdの優先順位）
+      const abbreviation =
+        userData.abbreviation_decoded || userData.name_decoded || userId;
+      usersAbbreviationCache[userId] = abbreviation; // 既存の略称キャッシュも更新/構築
+
+      if (!globalUsersBySection[sectionId]) {
+        globalUsersBySection[sectionId] = [];
+      }
+
+      // sectionIdとabbreviationを保持
+      globalUsersBySection[sectionId].push({
+        userId: userId,
+        abbreviation: abbreviation,
+        sectionId: sectionId,
+      });
+    }
+  });
+}
+
 //////////////////////////////////
 // 2. メインレンダリング処理
 //////////////////////////////////
 
 /**
- * 収集したuserIdに基づいてusersデータをキャッシュする
- * @param {Array<string>} userIdsToFetch - usersコレクションから取得するuserIdの配列
+ * assignsデータから収集したuserIdに基づいてusersデータをキャッシュする
+ * @param {Array<Object>} assignsDocs - assignsコレクションのドキュメントデータ配列
  * @returns {Promise<void>}
  */
-async function prefetchUsers(userIdsToFetch) {
-  if (userIdsToFetch.length === 0) {
+async function prefetchUsers(assignsDocs) {
+  const userIdsToFetch = new Set();
+
+  // assignValue が userId であると想定して収集
+  assignsDocs.forEach((data) => {
+    if (data.userId) {
+      // userIdがセットされている場合のみ
+      userIdsToFetch.add(data.userId);
+    }
+  });
+
+  if (userIdsToFetch.size === 0) {
     return;
   }
 
-  const userPromises = userIdsToFetch.map(async (userId) => {
+  // prefetchAllSectionUsersで大半の略称はキャッシュされるが、
+  // 念のためassignsにいるユーザーの略称キャッシュを保証
+  const userPromises = Array.from(userIdsToFetch).map(async (userId) => {
+    if (usersAbbreviationCache[userId]) return; // 既にキャッシュ済みの場合はスキップ
+
     const docRef = utils.doc(utils.db, 'users', userId);
     const snap = await utils.getWrapDoc(docRef);
     if (snap.exists()) {
@@ -202,6 +244,8 @@ async function renderAssignConfirm() {
   }
 
   await prefetchData(globalEventData);
+  // ★ 追加: 全ユーザーデータを取得し、セクションごとにキャッシュ
+  await prefetchAllSectionUsers();
 
   if (Object.keys(sectionGroups).length === 0) {
     $('#no-assign-message')
@@ -217,28 +261,9 @@ async function renderAssignConfirm() {
     )
   );
 
-  // assignsデータから userId を収集
+  // assignsデータから userId を取得し、users データを事前キャッシュ
   const rawAssignsData = assignsSnap.docs.map((doc) => doc.data());
-  const assignedUserIds = new Set();
-  rawAssignsData.forEach((data) => {
-    if (data.userId) {
-      assignedUserIds.add(data.userId);
-    }
-  });
-
-  // ★ 追加: instrumentConfigからセクションメンバー全員の userId を収集
-  const allSectionUserIds = new Set();
-  Object.keys(sectionMemberIdsCache).forEach((sectionId) => {
-    sectionMemberIdsCache[sectionId].forEach((userId) =>
-      allSectionUserIds.add(userId)
-    );
-  });
-
-  // ★ 修正: prefetchUsersを呼び出す前に、両方のセットを統合して略称取得
-  const userIdsToFetch = Array.from(
-    new Set([...assignedUserIds, ...allSectionUserIds])
-  );
-  await prefetchUsers(userIdsToFetch);
+  await prefetchUsers(rawAssignsData);
 
   // ★ 変更: globalAssignsData には partName ごとに assigns ドキュメントのデータを配列で保持する
   // { songId: { partName: [{ userId: '...', assignValue: '...' }, { userId: '...', assignValue: '...' }, ...] } }
@@ -404,10 +429,9 @@ function renderTabsAndContent() {
 
   // 各タブのテーブルを個別に描画 (ヘッダーとボディ)
   sectionIds.forEach((sectionId, index) => {
-    const sectionName = sectionGroups[sectionId].sectionName;
     const partNamesForTab = sectionGroups[sectionId].partNames;
     renderTableHeaders(index, partNamesForTab);
-    // ★ 修正: renderTableBody に sectionId を渡す
+    // ★ 修正: renderTableBodyにsectionIdを渡す
     renderTableBody(index, sectionId, partNamesForTab);
   });
 
@@ -483,7 +507,7 @@ function renderTabsAndContent() {
 }
 
 /**
- * 個別のタブ（テーブル）のヘッダーを描画する（パート名と新規列）
+ * 個別のタブ（テーブル）のヘッダーを描画する（パート名のみ）
  * @param {number} index - タブのインデックス
  * @param {string[]} partNamesForTab - このタブで表示するパート名リスト
  */
@@ -491,7 +515,7 @@ function renderTableHeaders(index, partNamesForTab) {
   const $table = $(`#assign-table-${index}`);
   const $headerRow = $table.find('.table-header-parts');
 
-  // ヘッダー描画 (パート名)
+  // ヘッダー描画 (パート名のみ)
   let htmlParts = '';
   // partNamesForTab は既にinstrumentConfigの配列順に並んでいる
   partNamesForTab.forEach((partName) => {
@@ -499,26 +523,30 @@ function renderTableHeaders(index, partNamesForTab) {
   });
   // 最初の曲名ヘッダーの後にパートヘッダーを挿入
   $headerRow.append(htmlParts);
-  // ★ 追加: 控え or 未設定列ヘッダーを追加
+
+  // ★ 追加: 控え or 未設定 メンバーのヘッダーを追加
   $headerRow.append('<th class="rehearsal-header">控え or 未設定</th>');
 }
 
 /**
  * 個別のタブ（テーブル）のボディを描画する
  * @param {number} index - タブのインデックス
- * @param {string} sectionId - セクションID (★ sectionNameからsectionIdに変更)
+ * @param {string} sectionId - 現在表示中のセクションID
  * @param {string[]} partNamesForTab - このタブで表示するパート名リスト
  */
 function renderTableBody(index, sectionId, partNamesForTab) {
   const $table = $(`#assign-table-${index}`);
   const $tbody = $table.find('tbody');
 
+  // ★ 追加: このセクションに所属する全メンバーのリストを取得
+  const allSectionUsers = globalUsersBySection[sectionId] || [];
+
   // ボディ描画 (縦軸と中身)
   globalEventData.setlist.forEach((group) => {
     // グループタイトル行 (縦軸ラベルのグループ名)
-    // ★ 修正: colspanの計算に新列を含める
     const groupTitle = group.title_decoded || 'No Group Title';
-    const colspan = partNamesForTab.length + 2; // 1は曲名列, 1は控え/未設定列
+    // ★ 修正: colspanを+2 (曲名列 + 控え列) に変更
+    const colspan = partNamesForTab.length + 2;
 
     $tbody.append(`
             <tr class="group-title-row">
@@ -540,12 +568,14 @@ function renderTableBody(index, sectionId, partNamesForTab) {
 
       let rowHtml = `<tr><td class="song-header">${songLinkHtml}</td>`; // 曲名 (scores.abbreviation)
 
-      // (A) 演奏メンバーのセルを生成しつつ、演奏メンバーのIDを収集
-      const performanceMemberIds = new Set();
+      // ★ 追加: この曲・このセクションにアサインされているメンバーIDを収集
+      // 演奏、控え問わず、何らかの形で割り当てられているメンバーを「assign済み」と見なす
+      const assignedUserIds = new Set();
 
       // 中身のセル
       partNamesForTab.forEach((partName) => {
         // assignsDataはpartNameをキーに持っているので、その配列を参照
+        // ★ 修正: assignEntriesがundefinedになる可能性に対応
         const assignEntries = globalAssignsData[songId]
           ? globalAssignsData[songId][partName] || []
           : [];
@@ -553,41 +583,43 @@ function renderTableBody(index, sectionId, partNamesForTab) {
         let displayValue = 'ー';
 
         if (assignEntries.length > 0) {
-          // 配列は isRehearsal: false が先頭に来るようにソートされていると仮定
+          // ★ 修正: 控えメンバー表示モードのロジックを削除し、演奏メンバー（isRehearsal=false）のみを対象とする
+          // 配列は isRehearsal: false が先頭に来るようにソートされていると仮定し、先頭のエントリーが演奏メンバーかチェック
           const performanceEntry = assignEntries[0];
 
           if (!performanceEntry.isRehearsal) {
             // 演奏メンバー（isRehearsal=false）の担当者のみを表示
             displayValue = getDisplayAssignValue(performanceEntry);
-
-            // ★ 追加: 演奏メンバーのIDを収集
-            if (performanceEntry.userId) {
-              performanceMemberIds.add(performanceEntry.userId);
-            }
           }
+
+          // ★ 追加: 割り当てられているメンバーIDを収集 (演奏・控え問わず)
+          assignEntries.forEach((entry) => {
+            if (entry.userId) {
+              assignedUserIds.add(entry.userId);
+            }
+          });
         }
 
         rowHtml += `<td class="assign-cell">${displayValue}</td>`;
       });
 
-      // (B) 控え or 未設定メンバーの列を計算
-      const allSectionMemberIds = sectionMemberIdsCache[sectionId] || new Set();
+      // ★ 新規追加: 控え or 未設定 メンバーのセル
 
-      const unassignedMemberAbbrs = [];
-      allSectionMemberIds.forEach((userId) => {
-        // 演奏メンバーとして割り当てられていない場合
-        if (!performanceMemberIds.has(userId)) {
-          // 略称を取得（なければuserId）
-          const abbr = usersAbbreviationCache[userId] || userId;
-          unassignedMemberAbbrs.push(abbr);
-        }
-      });
+      // 1. セクションメンバーから、assignedUserIdsに含まれないメンバーを抽出
+      const unassignedMembers = allSectionUsers.filter(
+        (user) => !assignedUserIds.has(user.userId)
+      );
 
-      // 略称をソートして「、」区切りで表示
-      const unassignedDisplay = unassignedMemberAbbrs.sort().join('、');
+      let rehearsalDisplay = 'ー';
+      if (unassignedMembers.length > 0) {
+        // 2. 略称をソートし、「、」区切りで表示
+        rehearsalDisplay = unassignedMembers
+          .map((user) => user.abbreviation)
+          .sort()
+          .join('、');
+      }
 
-      // ★ 新しい列を追加
-      rowHtml += `<td class="unassigned-cell">${unassignedDisplay}</td>`;
+      rowHtml += `<td class="unassigned-cell">${rehearsalDisplay}</td>`;
 
       rowHtml += `</tr>`;
       $tbody.append(rowHtml);
