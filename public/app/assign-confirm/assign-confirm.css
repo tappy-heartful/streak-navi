@@ -243,6 +243,7 @@
     text-align: right;
     white-space: nowrap;
     margin-left: auto; /* 右端に寄せる */
+    font-weight: bold;
 }
 
 /* ★削除: トグルボタン関連のスタイルをすべて削除 */
