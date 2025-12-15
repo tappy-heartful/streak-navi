@@ -24,124 +24,34 @@
       <div id="base-config-section">
         <h3 class="menu-title">自動通知設定</h3>
         <p class="form-help">
-          各項目の**何日前の何時**に自動通知するか設定します。
+          各項目につき、**イベント基準日の何日【前/後】の何時**に自動通知するかを複数設定できます。
         </p>
 
-        <div class="notify-card">
+        <div class="notify-card" id="event-notify-card">
           <h4>📅 イベント通知</h4>
-          <label class="switch-label">
-            <input type="checkbox" id="base-event-notify" /> 有効にする
-          </label>
-
-          <div class="form-group indent">
-            <label class="label-title">通知時刻</label>
-            <input
-              type="time"
-              id="base-event-time"
-              value="09:00"
-              class="time-input"
-            />
-          </div>
-
-          <div class="form-group indent">
-            <label class="label-title">通知タイミング</label>
-            <div class="days-input-group">
-              イベントの
-              <input
-                type="number"
-                id="base-event-days"
-                min="0"
-                value="1"
-                class="small-input"
-              />
-              日前
-            </div>
-          </div>
-          <div class="form-group indent">
-            <textarea
-              id="base-event-msg"
-              rows="4"
-              placeholder="通知メッセージ..."
-            ></textarea>
-          </div>
+          <div
+            class="notify-settings-wrapper"
+            id="event-settings-wrapper"
+          ></div>
+          <button type="button" class="add-notify-button" data-type="event">
+            <i class="fas fa-plus-circle"></i> 通知設定を追加
+          </button>
         </div>
 
-        <div class="notify-card">
+        <div class="notify-card" id="vote-notify-card">
           <h4>🗳️ 投票通知</h4>
-          <label class="switch-label">
-            <input type="checkbox" id="base-vote-notify" /> 有効にする
-          </label>
-
-          <div class="form-group indent">
-            <label class="label-title">通知時刻</label>
-            <input
-              type="time"
-              id="base-vote-time"
-              value="09:00"
-              class="time-input"
-            />
-          </div>
-
-          <div class="form-group indent">
-            <label class="label-title">通知タイミング</label>
-            <div class="days-input-group">
-              締切の
-              <input
-                type="number"
-                id="base-vote-days"
-                min="0"
-                value="1"
-                class="small-input"
-              />
-              日前
-            </div>
-          </div>
-          <div class="form-group indent">
-            <textarea
-              id="base-vote-msg"
-              rows="4"
-              placeholder="通知メッセージ..."
-            ></textarea>
-          </div>
+          <div class="notify-settings-wrapper" id="vote-settings-wrapper"></div>
+          <button type="button" class="add-notify-button" data-type="vote">
+            <i class="fas fa-plus-circle"></i> 通知設定を追加
+          </button>
         </div>
 
-        <div class="notify-card">
+        <div class="notify-card" id="call-notify-card">
           <h4>🎶 曲募集通知</h4>
-          <label class="switch-label">
-            <input type="checkbox" id="base-call-notify" /> 有効にする
-          </label>
-
-          <div class="form-group indent">
-            <label class="label-title">通知時刻</label>
-            <input
-              type="time"
-              id="base-call-time"
-              value="09:00"
-              class="time-input"
-            />
-          </div>
-
-          <div class="form-group indent">
-            <label class="label-title">通知タイミング</label>
-            <div class="days-input-group">
-              締切の
-              <input
-                type="number"
-                id="base-call-days"
-                min="0"
-                value="1"
-                class="small-input"
-              />
-              日前
-            </div>
-          </div>
-          <div class="form-group indent">
-            <textarea
-              id="base-call-msg"
-              rows="4"
-              placeholder="通知メッセージ..."
-            ></textarea>
-          </div>
+          <div class="notify-settings-wrapper" id="call-settings-wrapper"></div>
+          <button type="button" class="add-notify-button" data-type="call">
+            <i class="fas fa-plus-circle"></i> 通知設定を追加
+          </button>
         </div>
       </div>
 

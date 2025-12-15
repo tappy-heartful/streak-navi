@@ -4,12 +4,9 @@ let initialState = {};
 
 $(document).ready(async function () {
   try {
-    // 💡 modeは常に 'base' として扱う
     const mode = 'base';
-    const noticeId = null; // 自動通知設定では使用しない
     await utils.initDisplay();
 
-    // 💡 パンくずリストを自動通知設定用に固定
     utils.renderBreadcrumb([
       { title: '通知設定一覧', url: '../notice-list/notice-list.html' },
       {
@@ -19,12 +16,13 @@ $(document).ready(async function () {
       { title: '自動通知設定編集' },
     ]);
 
-    await setupPage(); // mode, noticeId の引数を削除
+    await setupPage();
+    // 💡 初期状態のキャプチャは、DOMの操作が完了した後に行う
     captureInitialState();
     setupEventHandlers();
   } catch (e) {
     await utils.writeLog({
-      dataId: 'noticeBase', // 自動通知設定のIDに固定
+      dataId: 'noticeBase',
       action: '自動通知設定編集',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
@@ -35,9 +33,69 @@ $(document).ready(async function () {
 });
 
 async function setupPage() {
-  // 💡 HTML側で hidden を削除したので、ここでは loadBaseConfig のみ実行
   $('#page-title').text('自動通知設定編集');
   await loadBaseConfig();
+}
+
+/**
+ * 通知設定ブロックのHTMLテンプレートを生成する
+ * @param {string} type - 通知タイプ ('event', 'vote', 'call')
+ * @param {object} [data={}] - 初期値データ
+ * @returns {string} 生成されたHTML文字列
+ */
+function createNotificationBlockHtml(type, data = {}) {
+  const days = data.days || 1;
+  const beforeAfter = data.beforeAfter || 'before'; // before:前, after:後
+  const time = data.time || '09:00';
+  const message = data.message || '';
+  const blockLabel = type === 'event' ? 'イベント' : '締切';
+
+  // 💡 修正: timing-group内を縦並びに変更し、時刻入力を日数入力の直下に配置
+  return `
+    <div class="notification-block" data-type="${type}">
+      <button type="button" class="remove-notify-button" title="削除">
+        <i class="fas fa-trash-alt"></i>
+      </button>
+
+      <div class="timing-group">
+        <label class="label-title">通知タイミング</label>
+        
+        <div class="days-input-group">
+          ${blockLabel}の
+          <input
+            type="number"
+            min="0"
+            value="${days}"
+            class="small-input days-input"
+          />
+          日
+          <select class="before-after-select">
+            <option value="before" ${
+              beforeAfter === 'before' ? 'selected' : ''
+            }>前</option>
+            <option value="after" ${
+              beforeAfter === 'after' ? 'selected' : ''
+            }>後</option>
+          </select>
+        </div>
+
+        <input
+          type="time"
+          value="${time}"
+          class="time-input-field"
+        />
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">通知メッセージ</label>
+        <textarea
+          rows="4"
+          placeholder="通知メッセージ..."
+          class="msg-textarea"
+        >${message}</textarea>
+      </div>
+    </div>
+  `;
 }
 
 // データ読み込み（自動通知設定）
@@ -48,39 +106,81 @@ async function loadBaseConfig() {
   if (docSnap.exists()) {
     const d = docSnap.data();
 
-    // イベント通知
-    $('#base-event-notify').prop('checked', d.eventNotify);
-    $('#base-event-days').val(d.eventDaysBefore);
-    $('#base-event-time').val(d.eventTime || '09:00');
-    $('#base-event-msg').val(d.eventMessage);
-
-    // 投票通知
-    $('#base-vote-notify').prop('checked', d.voteNotify);
-    $('#base-vote-days').val(d.voteDaysBefore);
-    $('#base-vote-time').val(d.voteTime || '09:00');
-    $('#base-vote-msg').val(d.voteMessage);
-
-    // 曲募集通知
-    $('#base-call-notify').prop('checked', d.callNotify);
-    $('#base-call-days').val(d.callDaysBefore);
-    $('#base-call-time').val(d.callTime || '09:00');
-    $('#base-call-msg').val(d.callMessage);
+    // 通知設定の配列を読み込み、DOMを構築する
+    renderNotifications('event', d.eventNotifications || []);
+    renderNotifications('vote', d.voteNotifications || []);
+    renderNotifications('call', d.callNotifications || []);
   } else {
-    // データがない場合の初期値設定
-    $('#base-event-time').val('09:00');
-    $('#base-vote-time').val('09:00');
-    $('#base-call-time').val('09:00');
-
-    $('#base-event-days').val('1');
-    $('#base-vote-days').val('1');
-    $('#base-call-days').val('1');
+    // データがない場合、各項目にデフォルトの空設定を1つずつ追加
+    renderNotifications('event', [
+      { days: 1, beforeAfter: 'before', time: '09:00', message: '' },
+    ]);
+    renderNotifications('vote', [
+      { days: 1, beforeAfter: 'before', time: '09:00', message: '' },
+    ]);
+    renderNotifications('call', [
+      { days: 1, beforeAfter: 'before', time: '09:00', message: '' },
+    ]);
   }
 }
 
-// 💡 loadCustomNotice 関数は削除
+/**
+ * データベースから読み込んだ通知設定をDOMに反映する
+ * @param {string} type - 通知タイプ ('event', 'vote', 'call')
+ * @param {Array<object>} notifications - 通知設定の配列
+ */
+function renderNotifications(type, notifications) {
+  const wrapper = $(`#${type}-settings-wrapper`);
+  wrapper.empty();
+
+  if (notifications.length === 0) {
+    // 設定が0の場合も、最低1つ空のブロックを追加する
+    notifications.push({
+      days: 1,
+      beforeAfter: 'before',
+      time: '09:00',
+      message: '',
+    });
+  }
+
+  notifications.forEach((data) => {
+    const html = createNotificationBlockHtml(type, data);
+    wrapper.append(html);
+  });
+}
 
 function setupEventHandlers() {
-  // 💡 カスタム通知：紐づけ対象の動的切り替えロジックは削除
+  // 通知設定追加ボタンのハンドラ
+  $(document).on('click', '.add-notify-button', function () {
+    const type = $(this).data('type');
+    const wrapper = $(`#${type}-settings-wrapper`);
+    const defaultData = {
+      days: 1,
+      beforeAfter: 'before',
+      time: '09:00',
+      message: '',
+    };
+    const html = createNotificationBlockHtml(type, defaultData);
+    wrapper.append(html);
+  });
+
+  // 通知設定削除ボタンのハンドラ
+  $(document).on('click', '.remove-notify-button', function () {
+    const wrapper = $(this).closest('.notify-settings-wrapper');
+
+    // 最後の1つは削除させない（設定なし＝通知なしと見なす）
+    if (wrapper.find('.notification-block').length > 1) {
+      $(this).closest('.notification-block').remove();
+    } else {
+      // 最後の1つを削除しようとした場合、中身をクリアする
+      const block = $(this).closest('.notification-block');
+      block.find('.days-input').val('1');
+      block.find('.before-after-select').val('before');
+      block.find('.time-input-field').val('09:00');
+      block.find('.msg-textarea').val('');
+      utils.showDialog('最後の設定のため、中身をクリアしました。');
+    }
+  });
 
   $('#clear-button').on('click', async () => {
     if (await utils.showDialog('編集前に戻しますか？')) restoreInitialState();
@@ -112,38 +212,51 @@ function setupEventHandlers() {
     'click',
     '.back-link',
     () =>
-      // 💡 確認画面へ遷移 (notice-auto-confirm.html)
       (window.location.href = '../notice-auto-confirm/notice-auto-confirm.html')
   );
 }
 
+/**
+ * 画面上の設定をコレクションする
+ */
 function collectBaseData() {
   return {
-    // イベント
-    eventNotify: $('#base-event-notify').prop('checked'),
-    eventDaysBefore: parseInt($('#base-event-days').val()) || 0,
-    eventTime: $('#base-event-time').val(),
-
-    // 💡 メッセージは空文字列の場合Firestoreに登録しないという運用がない限り、空文字列で送信
-    eventMessage: $('#base-event-msg').val(),
-
-    // 投票
-    voteNotify: $('#base-vote-notify').prop('checked'),
-    voteDaysBefore: parseInt($('#base-vote-days').val()) || 0,
-    voteTime: $('#base-vote-time').val(),
-    voteMessage: $('#base-vote-msg').val(),
-
-    // 曲募集
-    callNotify: $('#base-call-notify').prop('checked'),
-    callDaysBefore: parseInt($('#base-call-days').val()) || 0,
-    callTime: $('#base-call-time').val(),
-    callMessage: $('#base-call-msg').val(),
+    // 💡 event, vote, call のそれぞれに通知設定の配列を格納
+    eventNotifications: collectNotifications('event'),
+    voteNotifications: collectNotifications('vote'),
+    callNotifications: collectNotifications('call'),
 
     updatedAt: utils.serverTimestamp(),
   };
 }
 
-// 💡 collectCustomData 関数は削除
+/**
+ * 特定のタイプの通知設定をDOMから抽出して配列にする
+ * @param {string} type - 通知タイプ ('event', 'vote', 'call')
+ * @returns {Array<object>} 抽出された通知設定の配列
+ */
+function collectNotifications(type) {
+  const notifications = [];
+  $(`#${type}-settings-wrapper .notification-block`).each(function () {
+    const block = $(this);
+    const days = parseInt(block.find('.days-input').val()) || 0;
+    const beforeAfter = block.find('.before-after-select').val();
+    const time = block.find('.time-input-field').val();
+    const message = block.find('.msg-textarea').val().trim();
+
+    // 💡 日数と時刻が空でない場合のみ有効な設定として登録
+    // ただし、0日も有効
+    if (days >= 0 && time) {
+      notifications.push({
+        days: days,
+        beforeAfter: beforeAfter,
+        time: time,
+        message: message,
+      });
+    }
+  });
+  return notifications;
+}
 
 function validateData() {
   utils.clearErrors();
@@ -152,7 +265,7 @@ function validateData() {
 }
 
 function captureInitialState() {
-  /* 復元ロジック（省略可、reloadで代用） */
+  /* 復元ロジック（リロードで代用） */
 }
 function restoreInitialState() {
   location.reload();
