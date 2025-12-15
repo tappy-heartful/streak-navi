@@ -106,15 +106,9 @@
 }
 /* ★追加: 曲名リンクのスタイル (song-header内のaタグ) */
 .assign-table .song-header a {
-    color: #4CAF50; /* メインカラー */
-    text-decoration: none;
     font-weight: bold;
     display: block;
 }
-.assign-table .song-header a:hover {
-    text-decoration: underline;
-}
-
 
 /* 横軸パート名（partName） */
 .assign-table .part-header-cell {
@@ -249,16 +243,6 @@
     text-align: right;
     white-space: nowrap;
     margin-left: auto; /* 右端に寄せる */
-}
-
-#reference-track-link a {
-    color: #4CAF50;
-    text-decoration: none;
-    font-weight: bold;
-}
-
-#reference-track-link a:hover {
-    text-decoration: underline;
 }
 
 /* ★削除: トグルボタン関連のスタイルをすべて削除 */

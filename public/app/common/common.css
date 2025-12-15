@@ -462,7 +462,12 @@ button {
 /* リンクの色指定 */
 a {
   color: #4caf50;
-  text-decoration:underline;
+  text-decoration:none;
+  font-weight: bold;
+}
+
+a:hover {
+    text-decoration: underline;
 }
 
 /* スピナー表示 */
