@@ -7,7 +7,7 @@
     <link rel="apple-touch-icon" href="../../images/favicon.png" />
     <title>自動通知設定確認</title>
     <link rel="stylesheet" href="../common/common.css" />
-    <link rel="stylesheet" href="notice-pinned-confirm.css" />
+    <link rel="stylesheet" href="notice-auto-confirm.css" />
   </head>
   <body>
     <div id="header-placeholder"></div>
@@ -20,26 +20,26 @@
       <div id="base-config-section">
         <h3 class="menu-title">📅 イベント通知</h3>
         <div class="form-group base-notify-box">
-          <label class="label-title">通知タイミング</label>
-          <div class="label-value" id="base-event-timing"></div>
-          <label class="label-title">通知メッセージ</label>
-          <div class="label-value pre-wrap" id="base-event-msg"></div>
+          <div
+            class="notifications-container"
+            id="event-notifications-container"
+          ></div>
         </div>
 
         <h3 class="menu-title">🗳️ 投票通知</h3>
         <div class="form-group base-notify-box">
-          <label class="label-title">通知タイミング</label>
-          <div class="label-value" id="base-vote-timing"></div>
-          <label class="label-title">通知メッセージ</label>
-          <div class="label-value pre-wrap" id="base-vote-msg"></div>
+          <div
+            class="notifications-container"
+            id="vote-notifications-container"
+          ></div>
         </div>
 
         <h3 class="menu-title">🎶 曲募集通知</h3>
         <div class="form-group base-notify-box">
-          <label class="label-title">通知タイミング</label>
-          <div class="label-value" id="base-call-timing"></div>
-          <label class="label-title">通知メッセージ</label>
-          <div class="label-value pre-wrap" id="base-call-msg"></div>
+          <div
+            class="notifications-container"
+            id="call-notifications-container"
+          ></div>
         </div>
       </div>
 
@@ -64,6 +64,6 @@
     />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script type="module" src="../common/functions.js"></script>
-    <script type="module" src="notice-pinned-confirm.js"></script>
+    <script type="module" src="notice-auto-confirm.js"></script>
   </body>
 </html>

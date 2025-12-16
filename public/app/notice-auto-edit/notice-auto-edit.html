@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="title">自動通知設定編集</title>
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="../../images/favicon.png" />
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="notice-auto-edit.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <div class="page-header">
+      <h1 id="page-title">自動通知設定編集</h1>
+    </div>
+
+    <main class="container">
+      <div id="base-config-section">
+        <h3 class="menu-title">自動通知設定</h3>
+        <p class="form-help">
+          各項目につき、**イベント基準日の何日【前/後】の何時**に自動通知するかを複数設定できます。
+        </p>
+
+        <div class="notify-card" id="event-notify-card">
+          <h4>📅 イベント通知</h4>
+          <div
+            class="notify-settings-wrapper"
+            id="event-settings-wrapper"
+          ></div>
+          <button type="button" class="add-notify-button" data-type="event">
+            <i class="fas fa-plus-circle"></i> 通知設定を追加
+          </button>
+        </div>
+
+        <div class="notify-card" id="vote-notify-card">
+          <h4>🗳️ 投票通知</h4>
+          <div class="notify-settings-wrapper" id="vote-settings-wrapper"></div>
+          <button type="button" class="add-notify-button" data-type="vote">
+            <i class="fas fa-plus-circle"></i> 通知設定を追加
+          </button>
+        </div>
+
+        <div class="notify-card" id="call-notify-card">
+          <h4>🎶 曲募集通知</h4>
+          <div class="notify-settings-wrapper" id="call-settings-wrapper"></div>
+          <button type="button" class="add-notify-button" data-type="call">
+            <i class="fas fa-plus-circle"></i> 通知設定を追加
+          </button>
+        </div>
+      </div>
+
+      <div id="confirm-buttons" class="confirm-buttons">
+        <button id="clear-button" class="clear-button">クリア</button>
+        <button id="save-button" class="save-button">保存する</button>
+      </div>
+    </main>
+
+    <div class="page-footer">
+      <a class="back-link">← 前の画面に戻る</a>
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="notice-auto-edit.js"></script>
+  </body>
+</html>

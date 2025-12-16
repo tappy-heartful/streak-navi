@@ -1,0 +1,153 @@
+.notify-card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+}
+
+.notify-card h4 {
+  margin: 0 0 10px 0;
+  color: #333;
+}
+
+/* フォームブロックのラッパー */
+.notify-settings-wrapper {
+  /* 複数設定ブロックの間に隙間 */
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* 個々の通知設定ブロック */
+.notification-block {
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  padding: 10px;
+  background-color: #f9f9f9;
+  position: relative; /* 削除ボタン配置用 */
+  margin-left: 20px; /* notify-cardからのインデント */
+}
+
+/* 💡修正: timing-groupのflexを削除し、縦積みにする */
+.timing-group {
+  /* display: block; (デフォルト) */
+  margin-bottom: 10px;
+}
+
+/* 日数・前後の入力グループ */
+.days-input-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 1em;
+  /* 💡修正: イベントの/締切の の行と日数入力の行を揃える */
+  flex-wrap: wrap; 
+  margin-bottom: 5px; /* 時刻入力との間隔 */
+}
+
+/* 日数入力欄 */
+.small-input {
+  width: 50px; /* 日数入力は小さく */
+  padding: 4px;
+  text-align: center;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* 前後セレクトボックス */
+select.before-after-select {
+  width: 50px; /* 日数入力は小さく */
+  padding: 4px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+
+/* 時刻入力欄 */
+.time-input-field {
+  width: 120px; /* 時刻入力専用幅 */
+  box-sizing: border-box;
+  padding: 8px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  /* 💡修正: タイミング入力の直下、左揃えに */
+  display: block; 
+}
+
+.label-title {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+/* メッセージ入力欄 */
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  margin-top: 5px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  padding: 8px;
+}
+
+.form-help {
+  font-size: 12px;
+  color: #888;
+  margin-top: -10px;
+  margin-bottom: 20px;
+}
+
+/* 複数登録用のボタン */
+.add-notify-button {
+  margin-top: 10px;
+  font-size: 14px;
+  padding: 6px 10px;
+  border: 1px solid #4CAF50;
+  color: #4CAF50;
+  background-color: #e8f5e9;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.add-notify-button:hover {
+  background-color: #dcedc8;
+}
+
+/* 削除ボタン */
+.remove-notify-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: none;
+  border: none;
+  color: #d32f2f;
+  cursor: pointer;
+  font-size: 1.2em;
+  padding: 5px;
+  line-height: 1;
+  opacity: 0.7;
+  z-index: 10;
+}
+
+.remove-notify-button:hover {
+  opacity: 1;
+}
+
+/* 以下は既存スタイルを維持 */
+
+.form-group-dates {
+  display: flex;
+  gap: 15px;
+}
+
+.form-sub {
+  flex: 1;
+}
+
+.related-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
