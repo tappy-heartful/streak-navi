@@ -48,9 +48,9 @@
 
 /* 日数入力欄 */
 .small-input {
-  width: 50px; /* 日数入力は小さく */
+  width: 22.4px;
+  height: 22.4px;
   padding: 4px;
-  text-align: center;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
