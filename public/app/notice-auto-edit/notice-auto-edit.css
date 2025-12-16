@@ -48,9 +48,9 @@
 
 /* 日数入力欄 */
 .small-input {
-  width: 50px; /* 日数入力は小さく */
+  width: 22.4px;
+  height: 22.4px;
   padding: 4px;
-  text-align: center;
   border: 1px solid #ccc;
   border-radius: 4px;
 }
@@ -61,18 +61,6 @@ select.before-after-select {
   padding: 4px;
   border: 1px solid #ccc;
   border-radius: 4px;
-}
-
-
-/* 時刻入力欄 */
-.time-input-field {
-  width: 120px; /* 時刻入力専用幅 */
-  box-sizing: border-box;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  /* 💡修正: タイミング入力の直下、左揃えに */
-  display: block; 
 }
 
 .label-title {

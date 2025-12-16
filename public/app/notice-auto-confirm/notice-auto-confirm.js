@@ -42,7 +42,7 @@ async function setUpPage() {
 function createNotificationDisplayBlock(typeLabel, notification) {
   const days = notification.days || 0;
   const beforeAfter = notification.beforeAfter === 'after' ? '後' : '前';
-  const time = notification.time || '00:00';
+  const time = '9:00';
   const message =
     notification.message_decoded || '通知メッセージが設定されていません。';
 

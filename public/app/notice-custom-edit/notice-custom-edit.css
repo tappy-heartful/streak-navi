@@ -4,7 +4,7 @@
   background: #fff;
   border: 1px solid #ddd;
   border-radius: 8px;
-  padding: 0px 15px;
+  padding: 15px; /* 上下パディングを調整 */
   margin-bottom: 20px;
 }
 
@@ -35,7 +35,7 @@
   margin-bottom: 20px;
 }
 
-/* 繰り返し通知項目全体 (日付グループ) */
+/* 通知項目全体 (日付グループ) */
 .date-section {
   border: 1px solid #e0e0e0;
   border-radius: 6px;
@@ -56,11 +56,10 @@
   color: #333;
 }
 
-/* 日付入力と削除ボタンのコンテナ */
 .date-control {
-    display: flex;
-    align-items: center;
-    gap: 5px; 
+  display: flex;
+  align-items: center;
+  gap: 5px; 
 }
 
 /* 通知時刻とメッセージの繰り返しグループ */
@@ -68,24 +67,21 @@
   border-left: 3px solid #ccc;
   padding-left: 10px;
   margin-bottom: 15px;
+  position: relative;
 }
 
-/* 💡 【修正】時間入力と削除ボタンを格納する新しいFlexコンテナ */
 .time-input-control {
-    display: flex;
-    align-items: center;
-    gap: 5px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
 }
 
-/* iOSにて未入力だと入力欄が小さすぎる問題 */
-.schedule-date-input{
-  min-width:100px;
+.schedule-date-input {
+  min-width: 150px;
   min-height: 37px;
-}
-
-/* 💡 【修正】時間/メッセージのヘッダーはメッセージグループの上部で使うため、空にする */
-.time-message-header {
-  display: none; /* JSで時間とボタンを time-input-control に移動したため非表示 */
+  padding: 5px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
 }
 
 .form-group-time-msg {
@@ -93,9 +89,7 @@
 }
 
 .form-sub-time {
-  flex-grow: 0;
   width: 100%;
-  /* 💡 タイトルを削除したため、inputの上マージンを減らすか調整 */
   margin-bottom: 10px; 
 }
 
@@ -113,8 +107,7 @@ textarea {
   min-height: 80px;
 }
 
-/* ボタンのスタイル */
-.add-button, .remove-button, .add-date-button {
+.add-button, .remove-button {
   padding: 8px 12px;
   border: none;
   border-radius: 4px;
@@ -126,7 +119,10 @@ textarea {
 .add-button {
   background-color: #2196f3;
   color: white;
+  width: 100%; /* メッセージ追加ボタンを横いっぱいに */
+  margin-top: 10px;
 }
+
 .add-button:hover {
   background-color: #0b7dda;
 }
@@ -136,21 +132,11 @@ textarea {
   color: white;
   padding: 8px; 
 }
+
 .remove-button:hover {
   background-color: #d32f2f;
 }
 
-/* 通知日を追加ボタンの色 */
-#add-date-button {
-  background-color: #2196f3; 
-  color: white;
-  display: block;
-}
-#add-date-button:hover {
-  background-color: #0b7dda; 
-}
-
-/* 必須マーク */
 .required {
   color: red;
 }
