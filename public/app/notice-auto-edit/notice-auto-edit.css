@@ -63,18 +63,6 @@ select.before-after-select {
   border-radius: 4px;
 }
 
-
-/* 時刻入力欄 */
-.time-input-field {
-  width: 120px; /* 時刻入力専用幅 */
-  box-sizing: border-box;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  /* 💡修正: タイミング入力の直下、左揃えに */
-  display: block; 
-}
-
 .label-title {
   display: block;
   font-weight: bold;
