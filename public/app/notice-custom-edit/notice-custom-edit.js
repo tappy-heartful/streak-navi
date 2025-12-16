@@ -99,6 +99,8 @@ async function loadCustomNotice(id, mode) {
     } else {
       addDateSection();
     }
+
+    // 💡 activeDatesの復元は不要（編集画面では入力項目がないため）
   } else {
     addDateSection();
   }
@@ -388,16 +390,19 @@ function setupEventHandlers(mode, noticeId) {
   });
 }
 
+/**
+ * 💡 collectCustomData 関数を修正し、activeDatesを追加
+ */
 function collectCustomData() {
-  // ... (変更なし)
   const relId = $('#related-id').val();
   const relTitle = $('#related-id option:selected').text();
 
   const schedules = [];
+  const activeDates = []; // 💡 追加: 通知日の配列
 
   $('.date-section').each(function () {
     const $dateSection = $(this);
-    const scheduledDate = $dateSection.find('.schedule-date-input').val();
+    const scheduledDateYMD = $dateSection.find('.schedule-date-input').val(); // YYYY-MM-DD 形式
 
     const notifications = [];
     $dateSection.find('.time-message-group').each(function () {
@@ -408,11 +413,16 @@ function collectCustomData() {
       });
     });
 
-    if (scheduledDate && notifications.length > 0) {
+    if (scheduledDateYMD && notifications.length > 0) {
+      const scheduledDateDot = utils.formatDateToYMDDot(scheduledDateYMD); // YYYY.MM.DD 形式に変換
+
       schedules.push({
-        scheduledDate: utils.formatDateToYMDDot(scheduledDate),
+        scheduledDate: scheduledDateDot,
         notifications: notifications,
       });
+
+      // 💡 activeDatesに追加
+      activeDates.push(scheduledDateDot);
     }
   });
 
@@ -421,6 +431,7 @@ function collectCustomData() {
     relatedId: relId || '',
     relatedTitle: relId ? relTitle : '',
     schedules: schedules,
+    activeDates: activeDates, // 💡 追加: 登録する日付の配列
     createdAt: utils.serverTimestamp(),
   };
 }
