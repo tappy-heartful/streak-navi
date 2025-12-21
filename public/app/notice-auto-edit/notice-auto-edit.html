@@ -24,16 +24,27 @@
       <div id="base-config-section">
         <h3 class="menu-title">自動通知設定</h3>
         <p class="form-help">
-          各項目につき、イベント基準日の何日【前/後】に自動通知するかを複数設定できます(通知時間は9:00固定)。
+          各項目につき、基準日の何日【前/後】に自動通知するかを複数設定できます(通知時間は9:00ごろ固定)。
         </p>
 
         <div class="notify-card" id="event-notify-card">
-          <h4>📅 イベント通知</h4>
+          <h4>📅 イベント通知（出欠）</h4>
           <div
             class="notify-settings-wrapper"
             id="event-settings-wrapper"
           ></div>
           <button type="button" class="add-notify-button" data-type="event">
+            <i class="fas fa-plus-circle"></i> 通知設定を追加
+          </button>
+        </div>
+
+        <div class="notify-card" id="eventAdj-notify-card">
+          <h4>🗓️ イベント通知（日程調整）</h4>
+          <div
+            class="notify-settings-wrapper"
+            id="eventAdj-settings-wrapper"
+          ></div>
+          <button type="button" class="add-notify-button" data-type="eventAdj">
             <i class="fas fa-plus-circle"></i> 通知設定を追加
           </button>
         </div>

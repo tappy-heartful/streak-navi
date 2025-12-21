@@ -97,6 +97,11 @@ async function renderEvent() {
     ? 'eventAdjustAnswers'
     : 'eventAttendanceAnswers';
 
+  // 受付中かどうかを判定(出欠回答は無条件OK)
+  const isInTerm =
+    !isSchedule ||
+    utils.isInTerm(eventData.acceptStartDate, eventData.acceptEndDate);
+
   // 自分の回答の存在チェック
   const myAnswerData = await utils.getWrapDoc(
     utils.doc(utils.db, answerCollectionName, `${eventId}_${uid}`)
@@ -141,8 +146,8 @@ async function renderEvent() {
     // 終了
     statusClass = 'closed';
     statusText = '終了';
-  } else if (!isAcceptingResponses) {
-    // 回答受付なし
+  } else if (!isAcceptingResponses || !isInTerm) {
+    // 回答受付なし(受け付けてない、または日程調整期間外)
     statusClass = 'closed';
     statusText = '回答を受け付けてません';
   } else if (myAnswerExists) {
@@ -185,6 +190,19 @@ async function renderEvent() {
   $attendanceContainer.empty();
 
   if (isSchedule) {
+    // 受付期間
+    $('#event-acceept-term').text(
+      `${
+        eventData.acceptStartDate
+          ? utils.getDayOfWeek(eventData.acceptStartDate_decoded)
+          : ''
+      } ～
+        ${
+          eventData.acceptEndDate
+            ? utils.getDayOfWeek(eventData.acceptEndDate_decoded)
+            : ''
+        }`
+    );
     // 日程調整受付中
     $attendanceTitle.text('日程調整');
     // 回答人数と未回答人数を新しいクラスと文言で表示
@@ -305,6 +323,8 @@ async function renderEvent() {
 
     $attendanceContainer.append($table);
   } else if (attendanceType === 'attendance') {
+    // 日程調整受付期間は非表示
+    $('#event-acceept-term-group').hide();
     // 出欠受付中
     $attendanceTitle.text('出欠');
     // 回答人数と未回答人数を新しいクラスと文言で表示
@@ -600,7 +620,7 @@ async function renderEvent() {
   // ------------------------------------------------------------------
   // 5. 回答メニュー制御
   // ------------------------------------------------------------------
-  if (!isAcceptingResponses || isPast) {
+  if (!isAcceptingResponses || isPast || !isInTerm) {
     $('#answer-menu').hide();
   } else {
     // 回答済みかどうかの判定を myAnswerExists に変更

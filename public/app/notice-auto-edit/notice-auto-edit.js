@@ -43,6 +43,8 @@ function createNotificationBlockHtml(type, data = {}) {
   const days = data.days === undefined ? 1 : data.days;
   const beforeAfter = data.beforeAfter || 'before';
   const message = data.message || '';
+
+  // event 以外（eventAdj, vote, call）はすべて「締切の」にする
   const blockLabel = type === 'event' ? 'イベント' : '締切';
 
   return `
@@ -72,7 +74,7 @@ function createNotificationBlockHtml(type, data = {}) {
             }>後</option>
           </select>
         </div>
-        </div>
+      </div>
 
       <div class="form-group">
         <label class="label-title">通知メッセージ</label>
@@ -92,30 +94,30 @@ async function loadBaseConfig() {
   );
   if (docSnap.exists()) {
     const d = docSnap.data();
+    // 4つのセクションを読み込む（データがなければ空配列を渡す）
     renderNotifications('event', d.eventNotifications || []);
+    renderNotifications('eventAdj', d.eventAdjNotifications || []);
     renderNotifications('vote', d.voteNotifications || []);
     renderNotifications('call', d.callNotifications || []);
   } else {
-    // デフォルト値から time を削除
-    renderNotifications('event', [
-      { days: 1, beforeAfter: 'before', message: '' },
-    ]);
-    renderNotifications('vote', [
-      { days: 1, beforeAfter: 'before', message: '' },
-    ]);
-    renderNotifications('call', [
-      { days: 1, beforeAfter: 'before', message: '' },
-    ]);
+    // 完全に新規の場合のみ、入力のヒントとして1つずつ表示させる（任意）
+    const defaultVal = [{ days: 1, beforeAfter: 'before', message: '' }];
+    renderNotifications('event', defaultVal);
+    renderNotifications('eventAdj', defaultVal);
+    renderNotifications('vote', defaultVal);
+    renderNotifications('call', defaultVal);
   }
 }
 
+/**
+ * 読み込んだデータをDOMに反映。データが0件なら空のままにする。
+ */
 function renderNotifications(type, notifications) {
   const wrapper = $(`#${type}-settings-wrapper`);
   wrapper.empty();
 
-  if (notifications.length === 0) {
-    notifications.push({ days: 1, beforeAfter: 'before', message: '' });
-  }
+  // 💡 修正: notifications.length === 0 の時の push 処理を削除
+  // これにより、Firestore上の配列が空なら画面上も何も表示されない（通知なし状態）になります。
 
   notifications.forEach((data) => {
     const html = createNotificationBlockHtml(type, data);
@@ -124,6 +126,7 @@ function renderNotifications(type, notifications) {
 }
 
 function setupEventHandlers() {
+  // 通知設定追加ボタン
   $(document).on('click', '.add-notify-button', function () {
     const type = $(this).data('type');
     const wrapper = $(`#${type}-settings-wrapper`);
@@ -132,17 +135,9 @@ function setupEventHandlers() {
     wrapper.append(html);
   });
 
+  // 💡 修正: 通知設定削除ボタン（最後の1つでも削除可能にする）
   $(document).on('click', '.remove-notify-button', function () {
-    const wrapper = $(this).closest('.notify-settings-wrapper');
-    if (wrapper.find('.notification-block').length > 1) {
-      $(this).closest('.notification-block').remove();
-    } else {
-      const block = $(this).closest('.notification-block');
-      block.find('.days-input').val('1');
-      block.find('.before-after-select').val('before');
-      block.find('.msg-textarea').val(''); // time-input-field のクリア処理を削除
-      utils.showDialog('最後の設定のため、中身をクリアしました。');
-    }
+    $(this).closest('.notification-block').remove();
   });
 
   $('#clear-button').on('click', async () => {
@@ -174,12 +169,17 @@ function setupEventHandlers() {
 function collectBaseData() {
   return {
     eventNotifications: collectNotifications('event'),
+    eventAdjNotifications: collectNotifications('eventAdj'),
     voteNotifications: collectNotifications('vote'),
     callNotifications: collectNotifications('call'),
     updatedAt: utils.serverTimestamp(),
   };
 }
 
+/**
+ * 特定のタイプの通知設定をDOMから抽出
+ * 0件の場合は空配列 [] が返る
+ */
 function collectNotifications(type) {
   const notifications = [];
   $(`#${type}-settings-wrapper .notification-block`).each(function () {
@@ -188,7 +188,6 @@ function collectNotifications(type) {
     const beforeAfter = block.find('.before-after-select').val();
     const message = block.find('.msg-textarea').val().trim();
 
-    // 💡 time の収集と保存用オブジェクトへの追加を削除
     if (!isNaN(days)) {
       notifications.push({
         days: days,
