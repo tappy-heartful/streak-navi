@@ -106,13 +106,19 @@ async function setUpPage() {
       const answerId = `${eventId}_${uid}`;
       const answerDocRef = utils.doc(utils.db, 'eventAdjustAnswers', answerId);
 
+      // 受付中かどうかを判定
+      const isInTerm = utils.isInTerm(
+        eventData.acceptStartDate,
+        eventData.acceptEndDate
+      );
+
       displayDate = '';
       dateIcon = '';
 
       const answerSnap = await utils.getWrapDoc(answerDocRef);
 
       // 【修正】回答受付中であるかどうかにかかわらず、日程調整イベントは日程調整コンテナに表示
-      if (!isAcceptingResponses) {
+      if (!isAcceptingResponses || !isInTerm) {
         status = '';
         statusClass = '';
       } else if (answerSnap.exists()) {

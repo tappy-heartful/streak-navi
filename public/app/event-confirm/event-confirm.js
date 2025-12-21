@@ -97,9 +97,9 @@ async function renderEvent() {
     ? 'eventAdjustAnswers'
     : 'eventAttendanceAnswers';
 
-  // 日程調整の場合、受付中かどうかを判定
+  // 受付中かどうかを判定(出欠回答は無条件OK)
   const isInTerm =
-    isSchedule &&
+    !isSchedule ||
     utils.isInTerm(eventData.acceptStartDate, eventData.acceptEndDate);
 
   // 自分の回答の存在チェック
@@ -147,7 +147,7 @@ async function renderEvent() {
     statusClass = 'closed';
     statusText = '終了';
   } else if (!isAcceptingResponses || !isInTerm) {
-    // 回答受付なし
+    // 回答受付なし(受け付けてない、または日程調整期間外)
     statusClass = 'closed';
     statusText = '回答を受け付けてません';
   } else if (myAnswerExists) {
