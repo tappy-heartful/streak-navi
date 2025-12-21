@@ -43,6 +43,8 @@ function createNotificationBlockHtml(type, data = {}) {
   const days = data.days === undefined ? 1 : data.days;
   const beforeAfter = data.beforeAfter || 'before';
   const message = data.message || '';
+
+  // 💡 修正: event 以外（eventAdj, vote, call）はすべて「締切の」にする
   const blockLabel = type === 'event' ? 'イベント' : '締切';
 
   return `
@@ -72,7 +74,7 @@ function createNotificationBlockHtml(type, data = {}) {
             }>後</option>
           </select>
         </div>
-        </div>
+      </div>
 
       <div class="form-group">
         <label class="label-title">通知メッセージ</label>
@@ -92,20 +94,18 @@ async function loadBaseConfig() {
   );
   if (docSnap.exists()) {
     const d = docSnap.data();
+    // 💡 4つのセクションを読み込む
     renderNotifications('event', d.eventNotifications || []);
+    renderNotifications('eventAdj', d.eventAdjNotifications || []);
     renderNotifications('vote', d.voteNotifications || []);
     renderNotifications('call', d.callNotifications || []);
   } else {
-    // デフォルト値から time を削除
-    renderNotifications('event', [
-      { days: 1, beforeAfter: 'before', message: '' },
-    ]);
-    renderNotifications('vote', [
-      { days: 1, beforeAfter: 'before', message: '' },
-    ]);
-    renderNotifications('call', [
-      { days: 1, beforeAfter: 'before', message: '' },
-    ]);
+    // デフォルト値
+    const defaultVal = [{ days: 1, beforeAfter: 'before', message: '' }];
+    renderNotifications('event', defaultVal);
+    renderNotifications('eventAdj', defaultVal);
+    renderNotifications('vote', defaultVal);
+    renderNotifications('call', defaultVal);
   }
 }
 
@@ -140,7 +140,7 @@ function setupEventHandlers() {
       const block = $(this).closest('.notification-block');
       block.find('.days-input').val('1');
       block.find('.before-after-select').val('before');
-      block.find('.msg-textarea').val(''); // time-input-field のクリア処理を削除
+      block.find('.msg-textarea').val('');
       utils.showDialog('最後の設定のため、中身をクリアしました。');
     }
   });
@@ -173,7 +173,9 @@ function setupEventHandlers() {
 
 function collectBaseData() {
   return {
+    // 💡 4つの配列を収集
     eventNotifications: collectNotifications('event'),
+    eventAdjNotifications: collectNotifications('eventAdj'),
     voteNotifications: collectNotifications('vote'),
     callNotifications: collectNotifications('call'),
     updatedAt: utils.serverTimestamp(),
@@ -188,7 +190,6 @@ function collectNotifications(type) {
     const beforeAfter = block.find('.before-after-select').val();
     const message = block.find('.msg-textarea').val().trim();
 
-    // 💡 time の収集と保存用オブジェクトへの追加を削除
     if (!isNaN(days)) {
       notifications.push({
         days: days,
