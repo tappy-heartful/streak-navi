@@ -554,11 +554,11 @@ async function collectEventData(mode) {
     // 'schedule'であれば候補日配列と期限を保存
     candidateDates: candidateDates,
     acceptStartDate:
-      attendanceType !== 'schedule'
+      attendanceType === 'schedule'
         ? utils.formatDateToYMDDot($('#accept-start-date').val())
         : '',
     acceptEndDate:
-      attendanceType !== 'schedule'
+      attendanceType === 'schedule'
         ? utils.formatDateToYMDDot($('#accept-end-date').val())
         : '',
 
