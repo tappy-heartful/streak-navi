@@ -230,6 +230,10 @@
   content: '🎵';
 }
 
+.menu-button.studio::after {
+  content: '📍';
+}
+
 .menu-button.vote::after {
   content: '📊';
 }
