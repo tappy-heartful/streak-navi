@@ -63,7 +63,7 @@ async function renderStudio() {
     if (url) {
       // 共通関数に外部リンクターゲット付きのHTML生成があればそれを利用
       $el.html(
-        `<a href="${url}" target="_blank" rel="noopener noreferrer">${url} <i class="fas fa-external-link-alt"></i></a>`
+        `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
       );
     } else {
       $el.text('未設定');
