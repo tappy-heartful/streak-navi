@@ -6,8 +6,8 @@ $(document).ready(async function () {
 
     // パンくずリストのセット
     utils.renderBreadcrumb([
-      { title: '練習場所一覧', url: '../studio-list/studio-list.html' },
-      { title: '練習場所確認' },
+      { title: 'スタジオ一覧', url: '../studio-list/studio-list.html' },
+      { title: 'スタジオ確認' },
     ]);
 
     await renderStudio();
@@ -37,7 +37,7 @@ async function renderStudio() {
     utils.doc(utils.db, 'studios', studioId)
   );
   if (!studioSnap.exists()) {
-    throw new Error('練習場所が見つかりません：' + studioId);
+    throw new Error('スタジオが見つかりません：' + studioId);
   }
   const data = studioSnap.data();
 
@@ -108,7 +108,7 @@ function setupEventHandlers(studioId) {
   // 削除
   $('#studio-delete-button').on('click', async () => {
     const confirmed = await utils.showDialog(
-      'この練習場所を削除しますか？\nこの操作は元に戻せません。'
+      'このスタジオを削除しますか？\nこの操作は元に戻せません。'
     );
     if (!confirmed) return;
 
@@ -116,7 +116,7 @@ function setupEventHandlers(studioId) {
       utils.showSpinner();
       // アーカイブ保存後に削除する共通処理
       await utils.archiveAndDeleteDoc('studios', studioId);
-      await utils.writeLog({ dataId: studioId, action: '練習場所削除' });
+      await utils.writeLog({ dataId: studioId, action: 'スタジオ削除' });
 
       utils.hideSpinner();
       await utils.showDialog('削除しました', true);
@@ -125,7 +125,7 @@ function setupEventHandlers(studioId) {
       console.error(e);
       await utils.writeLog({
         dataId: studioId,
-        action: '練習場所削除',
+        action: 'スタジオ削除',
         status: 'error',
         errorDetail: { message: e.message, stack: e.stack },
       });

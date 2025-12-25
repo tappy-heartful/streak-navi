@@ -12,18 +12,18 @@ $(document).ready(async function () {
     let breadcrumb = [];
     if (mode === 'new') {
       breadcrumb.push(
-        { title: '練習場所一覧', url: '../studio-list/studio-list.html' },
-        { title: '練習場所新規作成' }
+        { title: 'スタジオ一覧', url: '../studio-list/studio-list.html' },
+        { title: 'スタジオ新規作成' }
       );
     } else if (['edit', 'copy'].includes(mode)) {
       breadcrumb.push(
-        { title: '練習場所一覧', url: '../studio-list/studio-list.html' },
+        { title: 'スタジオ一覧', url: '../studio-list/studio-list.html' },
         {
-          title: '練習場所確認',
+          title: 'スタジオ確認',
           url: '../studio-confirm/studio-confirm.html?studioId=' + studioId,
         },
         {
-          title: mode === 'edit' ? '練習場所編集' : '練習場所新規作成(コピー)',
+          title: mode === 'edit' ? 'スタジオ編集' : 'スタジオ新規作成(コピー)',
         }
       );
     }

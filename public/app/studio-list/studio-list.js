@@ -4,7 +4,7 @@ $(document).ready(async function () {
   try {
     await utils.initDisplay();
     // 画面ごとのパンくずをセット
-    utils.renderBreadcrumb([{ title: '練習場所一覧' }]);
+    utils.renderBreadcrumb([{ title: 'スタジオ一覧' }]);
     await setUpPage();
   } catch (e) {
     // ログ登録
