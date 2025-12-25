@@ -5,7 +5,7 @@ let initialState;
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
-    const mode = utils.globalGetParamMode; // 'new' or 'edit'
+    const mode = utils.globalGetParamMode; // 'new' or 'edit' or copy
     const studioId = utils.globalGetParamStudioId;
 
     // パンくずリスト
@@ -65,6 +65,10 @@ async function setupPage(mode, studioId) {
   if (mode === 'edit' && studioId) {
     $('#page-title, #title').text('スタジオ編集');
     $('#save-button').text('更新');
+    await loadStudioData(studioId);
+  } else if (mode === 'copy' && studioId) {
+    $('#page-title, #title').text('スタジオ新規作成(コピー)');
+    $('#save-button').text('登録');
     await loadStudioData(studioId);
   } else {
     $('#page-title, #title').text('スタジオ新規作成');
@@ -190,8 +194,9 @@ function setupEventHandlers(mode, studioId) {
 
   // クリアボタン：保存された初期状態を復元
   $('#clear-button').on('click', async () => {
-    const message =
-      mode === 'edit' ? '編集前に戻しますか？' : '入力内容をクリアしますか？';
+    const message = ['edit', 'edit'].includes(mode)
+      ? '編集前に戻しますか？'
+      : '入力内容をクリアしますか？';
     if (await utils.showDialog(message)) {
       restoreInitialState();
     }
