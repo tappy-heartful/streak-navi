@@ -54,7 +54,6 @@ async function renderStudio() {
   // 基本テキスト項目
   $('#studio-name').text(data.name || '');
   $('#studio-tel').text(data.tel || '未設定');
-  $('#studio-reserve').text(data.reserve || '');
   $('#studio-note').text(data.note || '');
 
   // URL項目（リンク化）
@@ -75,6 +74,7 @@ async function renderStudio() {
   renderLink('#studio-availability', data.availabilityInfo);
   renderLink('#studio-fee', data.fee);
   renderLink('#studio-rooms-url', data.roomsUrl);
+  renderLink('#studio-reserve', data.reserve);
 
   // 部屋一覧（配列をカンマ区切りで表示）
   if (data.rooms && data.rooms.length > 0) {

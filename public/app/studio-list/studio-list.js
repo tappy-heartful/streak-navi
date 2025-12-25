@@ -147,7 +147,12 @@ function makePrefectureSection(prefName, studios) {
               : '-'
           }
         </td>
-        <td>${studio.reserve || '-'}</td>
+        <td>
+          ${
+            studio.reserve
+              ? `<a href="${studio.reserve}" target="_blank" title="予約方法"><i class="far fa-calendar-check"></i> 予約</a>`
+              : '-'
+          }</td>
         <td style="white-space: pre-wrap;">${studio.note || '-'}</td>
       </tr>
     `;
