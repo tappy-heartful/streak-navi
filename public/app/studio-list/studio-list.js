@@ -46,7 +46,7 @@ async function setUpPage() {
   const studiosByPref = {};
   studioSnap.docs.forEach((doc) => {
     const data = doc.data();
-    const prefId = data.prefecture; // 紐付けキー
+    const prefId = data.prefecture;
     if (!studiosByPref[prefId]) studiosByPref[prefId] = [];
     studiosByPref[prefId].push({ id: doc.id, ...data });
   });
@@ -95,7 +95,7 @@ function makePrefectureSection(prefName, studios) {
   const $tbody = $section.find('tbody');
 
   studios.forEach((studio) => {
-    // rooms配列をaタグの列に変換
+    // rooms配列をリンクのリストに変換
     const roomsHtml = (studio.rooms || [])
       .map((roomName) => {
         return `<a href="${
@@ -148,7 +148,7 @@ function makePrefectureSection(prefName, studios) {
           }
         </td>
         <td>${studio.reserve || '-'}</td>
-        <td class="pre-wrap">${studio.note || '-'}</td>
+        <td style="white-space: pre-wrap;">${studio.note || '-'}</td>
       </tr>
     `;
     $tbody.append(row);
