@@ -76,7 +76,7 @@ function makePrefectureSection(prefName, studios) {
           <thead>
             <tr>
               <th>スタジオ名</th>
-              <th>HP</th>
+              <th>公式サイト</th>
               <th>地図</th>
               <th>空き情報</th>
               <th>利用料</th>
