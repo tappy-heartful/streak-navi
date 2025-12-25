@@ -3,11 +3,9 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
-    // 画面ごとのパンくずをセット
     utils.renderBreadcrumb([{ title: '練習場所一覧' }]);
     await setUpPage();
   } catch (e) {
-    // ログ登録
     await utils.writeLog({
       dataId: 'none',
       action: 'スタジオ一覧表示',
@@ -15,7 +13,6 @@ $(document).ready(async function () {
       errorDetail: { message: e.message, stack: e.stack },
     });
   } finally {
-    // スピナー非表示
     utils.hideSpinner();
   }
 });
@@ -57,7 +54,6 @@ async function setUpPage() {
     const prefId = prefDoc.id;
     const prefStudios = studiosByPref[prefId] || [];
 
-    // スタジオがある場合のみ表示
     if (prefStudios.length > 0) {
       $container.append(makePrefectureSection(prefData.name, prefStudios));
     }
@@ -76,12 +72,12 @@ function makePrefectureSection(prefName, studios) {
           <thead>
             <tr>
               <th>スタジオ名</th>
-              <th>HP</th>
+              <th>公式サイト</th>
               <th>地図</th>
-              <th>空き情報</th>
-              <th>利用料</th>
               <th>部屋一覧</th>
               <th>電話番号</th>
+              <th>空き情報</th>
+              <th>利用料</th>
               <th>予約方法</th>
               <th>備考</th>
             </tr>
@@ -125,20 +121,6 @@ function makePrefectureSection(prefName, studios) {
               : '-'
           }
         </td>
-        <td class="text-center">
-          ${
-            studio.availabilityInfo
-              ? `<a href="${studio.availabilityInfo}" target="_blank" title="空き情報"><i class="fas fa-calendar-alt"></i> 空き</a>`
-              : '-'
-          }
-        </td>
-        <td class="text-center">
-          ${
-            studio.fee
-              ? `<a href="${studio.fee}" target="_blank" title="料金表"><i class="fas fa-yen-sign"></i> 料金</a>`
-              : '-'
-          }
-        </td>
         <td>${roomsHtml || '-'}</td>
         <td>
           ${
@@ -147,6 +129,8 @@ function makePrefectureSection(prefName, studios) {
               : '-'
           }
         </td>
+        <td>${studio.availabilityInfo || '-'}</td>
+        <td>${studio.fee || '-'}</td>
         <td>${studio.reserve || '-'}</td>
         <td class="pre-wrap">${studio.note || '-'}</td>
       </tr>
