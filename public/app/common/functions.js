@@ -93,6 +93,7 @@ export const globalGetParamEventId = globalGetparams.get('eventId');
 export const globalGetParamVoteId = globalGetparams.get('voteId');
 export const globalGetParamMediaId = globalGetparams.get('mediaId');
 export const globalGetParamCallId = globalGetparams.get('callId');
+export const globalGetParamStudioId = globalGetparams.get('studioId');
 export const globalGetParamMonth = globalGetparams.get('month');
 export const globalGetParamType = globalGetparams.get('type');
 

@@ -6,10 +6,28 @@ $(document).ready(async function () {
   try {
     await utils.initDisplay();
     const mode = utils.globalGetParamMode; // 'new' or 'edit'
-    const studioId = new URLSearchParams(window.location.search).get(
-      'studioId'
-    );
+    const studioId = utils.globalGetParamStudioId;
 
+    // パンくずリスト
+    let breadcrumb = [];
+    if (mode === 'new') {
+      breadcrumb.push(
+        { title: '練習場所一覧', url: '../studio-list/studio-list.html' },
+        { title: '練習場所新規作成' }
+      );
+    } else if (['edit', 'copy'].includes(mode)) {
+      breadcrumb.push(
+        { title: '練習場所一覧', url: '../studio-list/studio-list.html' },
+        {
+          title: '練習場所確認',
+          url: '../studio-confirm/studio-confirm.html?studioId=' + studioId,
+        },
+        {
+          title: mode === 'edit' ? '練習場所編集' : '練習場所新規作成(コピー)',
+        }
+      );
+    }
+    utils.renderBreadcrumb(breadcrumb);
     // 1. 都道府県プルダウンの準備
     await setupPrefectureSelect();
 
