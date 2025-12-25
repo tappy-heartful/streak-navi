@@ -223,6 +223,7 @@ select:disabled {
   background: #f4f4f4;
   border-radius: 6px;
   font-size: 16px;
+  word-break: break-all; /* 長い名前が来ても枠内で折り返す */
 }
 
 input[type="text"], textarea {
