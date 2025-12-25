@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="../../images/favicon.png" />
+    <title id="title">スタジオ管理</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="studio-edit.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <div class="page-header">
+      <h1 id="page-title">スタジオ管理</h1>
+    </div>
+
+    <main class="container">
+      <div class="form-group">
+        <label for="studio-prefecture"
+          >都道府県 <span class="required">*</span></label
+        >
+        <select id="studio-prefecture">
+          <option value="">選択してください</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="studio-name">場所名 <span class="required">*</span></label>
+        <input type="text" id="studio-name" placeholder="スタジオ名を入力..." />
+      </div>
+
+      <div class="form-group">
+        <label for="studio-hp">公式サイト URL</label>
+        <input type="text" id="studio-hp" placeholder="https://..." />
+      </div>
+
+      <div class="form-group">
+        <label for="studio-map">Google Map リンク</label>
+        <input
+          type="text"
+          id="studio-map"
+          placeholder="https://goo.gl/maps/..."
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="studio-availability">空き情報 URL</label>
+        <input
+          type="text"
+          id="studio-availability"
+          placeholder="予約状況ページのURL..."
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="studio-fee">利用料 URL</label>
+        <input type="text" id="studio-fee" placeholder="料金表ページのURL..." />
+      </div>
+
+      <div class="form-group">
+        <label>部屋名一覧</label>
+        <div id="rooms-container"></div>
+        <button type="button" id="add-room-button" class="add-sub-button">
+          <i class="fas fa-plus"></i> 部屋を追加
+        </button>
+      </div>
+
+      <div class="form-group">
+        <label for="studio-rooms-url">部屋詳細リンク URL</label>
+        <input
+          type="text"
+          id="studio-rooms-url"
+          placeholder="各部屋の詳細URL..."
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="studio-tel">電話番号</label>
+        <input type="text" id="studio-tel" placeholder="03-xxxx-xxxx" />
+      </div>
+
+      <div class="form-group">
+        <label for="studio-reserve">予約方法</label>
+        <textarea
+          id="studio-reserve"
+          rows="4"
+          placeholder="予約の手順など..."
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="studio-note">備考</label>
+        <textarea
+          id="studio-note"
+          rows="4"
+          placeholder="その他特記事項..."
+        ></textarea>
+      </div>
+
+      <div id="confirm-buttons" class="confirm-buttons">
+        <button id="clear-button" class="clear-button">クリア</button>
+        <button id="save-button" class="save-button">登録 / 更新</button>
+      </div>
+    </main>
+
+    <div class="page-footer">
+      <a href="../studio-list/studio-list.html" class="back-link"
+        >← スタジオ一覧に戻る</a
+      >
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="studio-edit.js"></script>
+  </body>
+</html>
