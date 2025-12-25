@@ -248,7 +248,15 @@ export async function initDisplay(isShowSpinner = true) {
   const path = window.location.pathname;
 
   // 権限チェックが必要なモジュール名のリスト
-  const modules = ['call', 'event', 'media', 'notice', 'score', 'vote'];
+  const modules = [
+    'call',
+    'event',
+    'media',
+    'notice',
+    'score',
+    'studio',
+    'vote',
+  ];
 
   for (const moduleName of modules) {
     // 編集画面初期表示時にチェック

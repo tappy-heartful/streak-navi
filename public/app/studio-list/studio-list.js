@@ -111,28 +111,28 @@ function makePrefectureSection(prefName, studios) {
             studio.id
           }">${studio.name}</a>
         </td>
-        <td class="text-center">
+        <td>
           ${
             studio.hp
               ? `<a href="${studio.hp}" target="_blank"><i class="fas fa-external-link-alt"></i> HP</a>`
               : '-'
           }
         </td>
-        <td class="text-center">
+        <td>
           ${
             studio.map
               ? `<a href="${studio.map}" target="_blank"><i class="fas fa-map-marker-alt"></i> Map</a>`
               : '-'
           }
         </td>
-        <td class="text-center">
+        <td>
           ${
             studio.availabilityInfo
               ? `<a href="${studio.availabilityInfo}" target="_blank" title="空き情報"><i class="fas fa-calendar-alt"></i> 空き</a>`
               : '-'
           }
         </td>
-        <td class="text-center">
+        <td>
           ${
             studio.fee
               ? `<a href="${studio.fee}" target="_blank" title="料金表"><i class="fas fa-yen-sign"></i> 料金</a>`
@@ -147,7 +147,12 @@ function makePrefectureSection(prefName, studios) {
               : '-'
           }
         </td>
-        <td>${studio.reserve || '-'}</td>
+        <td>
+          ${
+            studio.reserve
+              ? `<a href="${studio.reserve}" target="_blank" title="予約方法"><i class="far fa-calendar-check"></i> 予約</a>`
+              : '-'
+          }</td>
         <td style="white-space: pre-wrap;">${studio.note || '-'}</td>
       </tr>
     `;
