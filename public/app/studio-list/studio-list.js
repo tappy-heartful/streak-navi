@@ -54,7 +54,6 @@ async function setUpPage() {
     const prefId = prefDoc.id;
     const prefStudios = studiosByPref[prefId] || [];
 
-    // スタジオがある場合のみ表示（空でも表示したい場合はifを外す）
     if (prefStudios.length > 0) {
       $container.append(makePrefectureSection(prefData.name, prefStudios));
     }
@@ -77,6 +76,10 @@ function makePrefectureSection(prefName, studios) {
               <th>地図</th>
               <th>部屋一覧</th>
               <th>電話番号</th>
+              <th>空き情報</th>
+              <th>利用料</th>
+              <th>予約方法</th>
+              <th>備考</th>
             </tr>
           </thead>
           <tbody></tbody>
@@ -104,14 +107,14 @@ function makePrefectureSection(prefName, studios) {
             studio.id
           }">${studio.name}</a>
         </td>
-        <td>
+        <td class="text-center">
           ${
             studio.hp
               ? `<a href="${studio.hp}" target="_blank"><i class="fas fa-external-link-alt"></i> HP</a>`
               : '-'
           }
         </td>
-        <td>
+        <td class="text-center">
           ${
             studio.map
               ? `<a href="${studio.map}" target="_blank"><i class="fas fa-map-marker-alt"></i> Map</a>`
@@ -126,6 +129,10 @@ function makePrefectureSection(prefName, studios) {
               : '-'
           }
         </td>
+        <td>${studio.availabilityInfo || '-'}</td>
+        <td>${studio.fee || '-'}</td>
+        <td>${studio.reserve || '-'}</td>
+        <td class="pre-wrap">${studio.note || '-'}</td>
       </tr>
     `;
     $tbody.append(row);
