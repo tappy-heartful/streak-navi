@@ -89,10 +89,6 @@
   line-height: 1.6;
 }
 
-/* 中央揃え用クラス */
-.text-center {
-  text-align: center !important;
-}
 
 /* 追加ボタン */
 .add-button {
