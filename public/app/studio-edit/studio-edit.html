@@ -4,241 +4,102 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="../../images/favicon.png" type="image/png" />
-    <link
-      rel="apple-touch-icon"
-      href="../../images/favicon.png"
-      type="image/png"
-    />
-    <title id="title">イベント管理</title>
+    <link rel="apple-touch-icon" href="../../images/favicon.png" />
+    <title id="title">スタジオ管理</title>
     <link rel="stylesheet" href="../common/common.css" />
-    <link rel="stylesheet" href="event-edit.css" />
+    <link rel="stylesheet" href="studio-edit.css" />
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/themes/base/jquery-ui.min.css"
     />
   </head>
   <body>
     <div id="header-placeholder"></div>
 
-    <!-- ページタイトル -->
     <div class="page-header">
-      <h1 id="page-title">イベント管理</h1>
+      <h1 id="page-title">スタジオ管理</h1>
     </div>
 
     <main class="container">
       <div class="form-group">
-        <label>日程調整 / 出欠確認 <span class="required">*</span></label>
-        <div class="radio-group" id="attendance-type-group">
-          <label>
-            <input
-              type="radio"
-              name="attendance-type"
-              id="type-schedule"
-              value="schedule"
-              checked
-            />
-            日程調整をする
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="attendance-type"
-              id="type-attendance"
-              value="attendance"
-            />
-            出欠確認をする
-          </label>
-        </div>
+        <label for="studio-prefecture"
+          >都道府県 <span class="required">*</span></label
+        >
+        <select id="studio-prefecture">
+          <option value="">選択してください</option>
+        </select>
       </div>
 
       <div class="form-group">
-        <label>回答の受付</label>
-        <div class="radio-group" id="attendance-status-group">
-          <label>
-            <input
-              type="radio"
-              name="attendance-status"
-              id="status-on"
-              value="on"
-              checked
-            />
-            回答を受け付ける
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="attendance-status"
-              id="status-off"
-              value="off"
-            />
-            受け付けない
-          </label>
-        </div>
+        <label for="studio-name">場所名 <span class="required">*</span></label>
+        <input type="text" id="studio-name" placeholder="スタジオ名を入力..." />
       </div>
 
-      <div id="date-candidates-group" class="form-group" style="display: none">
-        <label>日程候補日 <span class="required">*</span></label>
-        <div id="candidate-dates-container"></div>
-        <button
-          type="button"
-          id="add-candidate-date-button"
-          style="margin-top: 5px"
-        >
-          候補日を追加
+      <div class="form-group">
+        <label for="studio-hp">公式サイト URL</label>
+        <input type="text" id="studio-hp" placeholder="https://..." />
+      </div>
+
+      <div class="form-group">
+        <label for="studio-map">Google Map リンク</label>
+        <input
+          type="text"
+          id="studio-map"
+          placeholder="https://goo.gl/maps/..."
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="studio-availability">空き情報 URL</label>
+        <input
+          type="text"
+          id="studio-availability"
+          placeholder="予約状況ページのURL..."
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="studio-fee">利用料 URL</label>
+        <input type="text" id="studio-fee" placeholder="料金表ページのURL..." />
+      </div>
+
+      <div class="form-group">
+        <label>部屋名一覧</label>
+        <div id="rooms-container"></div>
+        <button type="button" id="add-room-button" class="add-sub-button">
+          <i class="fas fa-plus"></i> 部屋を追加
         </button>
       </div>
 
-      <!-- 受付期間 -->
-      <div class="form-group" id="accept-date-group">
-        <label>日程調整受付期間 <span class="required">*</span></label>
-        <div class="form-group-dates" id="accept-date">
-          <input type="date" id="accept-start-date" />
-          ～
-          <input type="date" id="accept-end-date" />
-        </div>
-      </div>
-
-      <!-- 日付（必須） -->
-      <div id="date-single-group" class="form-group">
-        <label for="event-date">日付 <span class="required">*</span></label>
-        <input type="date" id="event-date" />
-      </div>
-
-      <!-- タイトル（必須） -->
       <div class="form-group">
-        <label for="event-title"
-          >タイトル <span class="required">*</span></label
-        >
-        <input type="text" id="event-title" placeholder="イベント名を入力..." />
-      </div>
-
-      <!-- 場所名 -->
-      <div class="form-group">
-        <label for="event-place-name">場所名</label>
+        <label for="studio-rooms-url">部屋詳細リンク URL</label>
         <input
           type="text"
-          id="event-place-name"
-          placeholder="場所名を入力..."
+          id="studio-rooms-url"
+          placeholder="各部屋の詳細URL..."
         />
       </div>
 
-      <!-- 公式サイト -->
       <div class="form-group">
-        <label for="event-website">公式サイトなど</label>
-        <input
-          type="text"
-          id="event-website"
-          placeholder="公式サイトなどのURLを入力..."
-        />
+        <label for="studio-tel">電話番号</label>
+        <input type="text" id="studio-tel" placeholder="03-xxxx-xxxx" />
       </div>
 
-      <!-- 交通アクセス・駐車場情報 -->
       <div class="form-group">
-        <label for="event-access">交通アクセス・駐車場情報</label>
+        <label for="studio-reserve">予約方法</label>
         <textarea
-          id="event-access"
-          rows="3"
-          placeholder="交通アクセス・駐車場情報を入力(テキスト or URL)..."
-        ></textarea>
-      </div>
-
-      <!-- Google Map -->
-      <div class="form-group">
-        <label for="event-google-map">Google Map</label>
-        <input
-          type="text"
-          id="event-google-map"
-          placeholder="Google Mapの共有リンクを入力..."
-        />
-      </div>
-
-      <!-- タイムスケジュール -->
-      <div class="form-group">
-        <label for="event-schedule">タイムスケジュール</label>
-        <textarea
-          id="event-schedule"
+          id="studio-reserve"
           rows="4"
-          placeholder="スケジュールを入力..."
-        ></textarea>
-      </div>
-
-      <!-- やる曲 -->
-      <div class="form-group" id="event-songs-group">
-        <label>やる曲</label>
-        <div id="setlist-groups-container"></div>
-
-        <button type="button" id="add-group-button" class="clear-button">
-          <i class="fas fa-plus"></i> グループを追加
-        </button>
-      </div>
-
-      <!-- 服装 -->
-      <div class="form-group">
-        <label for="event-dress">服装</label>
-        <input type="text" id="event-dress" placeholder="服装を入力..." />
-      </div>
-
-      <!-- 個人で持ってくるもの -->
-      <div class="form-group">
-        <label for="event-bring">個人で持ってくるもの</label>
-        <textarea
-          id="event-bring"
-          rows="3"
-          placeholder="個人で持ってくるものを入力..."
-        ></textarea>
-      </div>
-
-      <!-- 施設に借りるもの -->
-      <div class="form-group">
-        <label for="event-rent">施設に借りるもの</label>
-        <textarea
-          id="event-rent"
-          rows="3"
-          placeholder="施設に借りるものを入力..."
+          placeholder="予約の手順など..."
         ></textarea>
       </div>
 
       <div class="form-group">
-        <label>譜割の登録</label>
-        <div class="radio-group">
-          <label>
-            <input
-              type="radio"
-              name="allow-assign"
-              id="assign-on"
-              value="on"
-              checked
-            />
-            受け付ける (本番など)
-          </label>
-          <label>
-            <input
-              type="radio"
-              name="allow-assign"
-              id="assign-off"
-              value="off"
-            />
-            受け付けない (練習など)
-          </label>
-        </div>
-      </div>
-
-      <div class="form-group" id="instrument-config-container">
-        <label>楽器構成(譜割り用) <span class="required">*</span></label>
-        <div id="instrument-config-group"></div>
-      </div>
-
-      <!-- その他 -->
-      <div class="form-group">
-        <label for="event-other">その他</label>
+        <label for="studio-note">備考</label>
         <textarea
-          id="event-other"
-          rows="3"
-          placeholder="その他情報を入力..."
+          id="studio-note"
+          rows="4"
+          placeholder="その他特記事項..."
         ></textarea>
       </div>
 
@@ -248,9 +109,10 @@
       </div>
     </main>
 
-    <!-- フッター -->
     <div class="page-footer">
-      <a class="back-link">← イベント一覧に戻る</a>
+      <a href="../studio-list/studio-list.html" class="back-link"
+        >← スタジオ一覧に戻る</a
+      >
     </div>
 
     <div id="footer-placeholder"></div>
@@ -258,10 +120,7 @@
     <div id="modal-placeholder"></div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.13.2/jquery-ui.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jqueryui-touch-punch/0.2.3/jquery.ui.touch-punch.min.js"></script>
-    <script src="https://unpkg.com/dompurify@2.4.4/dist/purify.min.js"></script>
     <script type="module" src="../common/functions.js"></script>
-    <script type="module" src="event-edit.js"></script>
+    <script type="module" src="studio-edit.js"></script>
   </body>
 </html>
