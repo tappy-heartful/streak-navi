@@ -5,28 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="icon" href="../../images/favicon.png" type="image/png" />
     <link rel="apple-touch-icon" href="../../images/favicon.png" />
-    <title>メディア一覧</title>
+    <title>練習場所一覧</title>
     <link rel="stylesheet" href="../common/common.css" />
-    <link rel="stylesheet" href="media-list.css" />
+    <link rel="stylesheet" href="studio-list.css" />
   </head>
   <body>
     <div id="header-placeholder"></div>
 
     <main>
       <div class="page-header">
-        <h1>メディア一覧</h1>
+        <h1>練習場所一覧</h1>
       </div>
 
       <div class="container">
-        <section class="media-list">
-          <ul class="media-list" id="media-list"></ul>
-        </section>
+        <div id="studio-content-area"></div>
+
         <button
           id="add-button"
           class="add-button"
-          onclick="window.location.href = '../media-edit/media-edit.html?mode=new'"
+          style="display: none"
+          onclick="window.location.href = '../studio-edit/studio-edit.html?mode=new'"
         >
-          ＋ 新規作成
+          <i class="fas fa-plus-circle"></i> スタジオを追加
         </button>
       </div>
 
@@ -44,8 +44,7 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://unpkg.com/dompurify@2.4.4/dist/purify.min.js"></script>
     <script type="module" src="../common/functions.js"></script>
-    <script type="module" src="media-list.js"></script>
+    <script type="module" src="studio-list.js"></script>
   </body>
 </html>
