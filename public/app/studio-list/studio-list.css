@@ -47,9 +47,7 @@
   border-right: 2px solid #ddd;
   
   /* --- 幅の制御を追加 --- */
-  width: 90px;      /* 「スタジオ名」＋余白に最適な幅 */
-  min-width: 90px;
-  max-width: 90px;
+  width: 70px;      /* 「スタジオ名」＋余白に最適な幅 */
   word-break: break-all; /* 長い名前が来ても枠内で折り返す */
 }
 
