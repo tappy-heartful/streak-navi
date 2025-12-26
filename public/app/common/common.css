@@ -120,11 +120,12 @@ h3 {
 }
 
 .list-table {
-  width: 100%;
+  /* 余計な余白を生まないよう、中身に合わせる設定に変更 */
+  width: max-content;
+  min-width: 100%;
   border-collapse: separate;
   border-spacing: 0;
   background-color: #fff;
-  min-width: 900px;
 }
 
 .list-table th, .list-table td {
@@ -135,7 +136,7 @@ h3 {
   font-size: 14px;
 }
 
-/* 1列目（スタジオ名）の固定 & 幅指定 */
+/* 1列目（スタジオ名/譜面名など）の固定 & 幅指定 */
 .list-table th:first-child,
 .list-table td:first-child {
   position: -webkit-sticky;
@@ -144,9 +145,11 @@ h3 {
   z-index: 2;
   border-right: 2px solid #ddd;
   
-  /* --- 幅の制御を追加 --- */
-  width: 70px;      /* 「スタジオ名」＋余白に最適な幅 */
-  word-break: break-all; /* 長い名前が来ても枠内で折り返す */
+  /* 幅を70pxに厳密に固定 */
+  width: 70px;
+  min-width: 70px;
+  max-width: 70px;
+  word-break: break-all; /* 長い名前でも70pxを維持して折り返す */
 }
 
 .list-table th:first-child {

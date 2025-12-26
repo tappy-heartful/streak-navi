@@ -230,7 +230,7 @@ function makeScoreRow(s) {
       <td class="text-center">
         ${
           refUrl
-            ? `<a href="${refUrl}" target="_blank" title="参考音源を聴く"><i class="fab fa-youtube fa-lg"></i> 参考音源</a>`
+            ? `<a href="${refUrl}" target="_blank" title="参考音源を聴く"><i class="fab fa-youtube fa-lg"></i> 音源</a>`
             : '-'
         }
       </td>
