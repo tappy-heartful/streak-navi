@@ -120,7 +120,7 @@ h3 {
 }
 
 .list-table {
-  /* 余計な余白を生まないよう、中身に合わせる設定に変更 */
+  /* 余計な余白を生まないよう、中身に合わせる設定 */
   width: max-content;
   min-width: 100%;
   border-collapse: separate;
@@ -145,11 +145,12 @@ h3 {
   z-index: 2;
   border-right: 2px solid #ddd;
   
-  /* 幅を70pxに厳密に固定 */
+  /* 幅を70pxに固定し、改行ルールを適用 */
   width: 70px;
   min-width: 70px;
   max-width: 70px;
-  word-break: break-all; /* 長い名前でも70pxを維持して折り返す */
+  white-space: normal;   /* 改行を許可 */
+  word-break: break-all; /* スペースがない場合でも適当なところで改行 */
 }
 
 .list-table th:first-child {
@@ -165,23 +166,18 @@ h3 {
   background-color: #f4f4f4;
   font-weight: bold;
   color: #555;
-  white-space: nowrap; /* ヘッダー文字は折り返さない */
+  white-space: nowrap; /* 基本は1行表示（1列目以外） */
+}
+
+/* 1列目のヘッダのみwhite-spaceを上書きして改行を許可 */
+.list-table th:first-child {
+  white-space: normal;
 }
 
 /* スタジオ名セルのテキストスタイル */
 .list-table-row-header {
   font-weight: bold;
   color: #2c3e50;
-}
-
-/* 各種リンク */
-.list-table a {
-  color: #1a73e8;
-  text-decoration: none;
-}
-
-.list-table a:hover {
-  text-decoration: underline;
 }
 
 /* 必須項目 */
