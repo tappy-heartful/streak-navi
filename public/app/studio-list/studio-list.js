@@ -72,7 +72,7 @@ function makePrefectureSection(prefName, studios) {
     <section class="prefecture-section">
       <h3 class="prefecture-title">${prefName}</h3>
       <div class="table-wrapper">
-        <table class="studio-table">
+        <table class="list-table">
           <thead>
             <tr>
               <th>スタジオ名</th>
@@ -106,7 +106,7 @@ function makePrefectureSection(prefName, studios) {
 
     const row = `
       <tr>
-        <td class="studio-name">
+        <td class="list-table-row-header">
           <a href="../studio-confirm/studio-confirm.html?studioId=${
             studio.id
           }">${studio.name}</a>
