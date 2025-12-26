@@ -180,6 +180,16 @@ h3 {
   color: #2c3e50;
 }
 
+/* 各種リンク */
+.list-table a {
+  color: #1a73e8;
+  text-decoration: none;
+}
+
+.list-table a:hover {
+  text-decoration: underline;
+}
+
 /* 必須項目 */
 .required {
   color: red;
