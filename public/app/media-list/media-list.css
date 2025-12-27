@@ -1,49 +1,38 @@
-
-.media-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.media-list li {
-  margin-bottom: 15px;
-}
-
-.media-link {
-  display: flex;
-  flex-direction: column;
-  padding: 14px 18px;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  font-size: 16px;
-  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.05);
-  transition: background-color 0.3s ease;
-}
-
-.media-link:hover {
-  background-color: #e0f5e9;
-}
-
-.media-date {
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 5px;
-}
-
-.media-title {
-  font-size: 18px;
-  font-weight: bold;
-}
-
-.media-link.empty {
+/* データがない時のスタイル */
+.empty-row {
   text-align: center;
+  padding: 20px !important;
   color: #777;
-  background-color: #f0f0f0;
-  box-shadow: none;
-  font-size: 14px;
 }
 
-/* 追加ボタン（カード内） */
+/* 日付列 */
+.media-date {
+  white-space: nowrap;
+  color: #666;
+  font-size: 13px;
+}
+
+/* SNSアイコン個別カラー */
+.sns-icon {
+  transition: opacity 0.2s;
+}
+.sns-icon:hover {
+  opacity: 0.7;
+}
+.sns-icon.instagram { color: #E1306C; }
+.sns-icon.youtube   { color: #FF0000; }
+.sns-icon.drive     { color: #34A853; }
+
+/* Top表示列 */
+.media-top-status {
+  text-align: center;
+  font-size: 14px;
+}
+.media-top-status .check-on {
+  color: #4CAF50;
+}
+
+/* 新規作成ボタン */
 .add-button {
   display: block;
   margin: 30px auto 0 auto;
@@ -51,14 +40,15 @@
   color: #fff;
   border: none;
   border-radius: 25px;
-  padding: 12px 24px;
-  font-size: 18px;
+  padding: 12px 30px;
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s ease;
+  transition: all 0.3s ease;
 }
 
 .add-button:hover {
   background-color: #45a049;
+  transform: translateY(-1px);
 }
