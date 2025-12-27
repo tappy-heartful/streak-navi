@@ -46,6 +46,7 @@ async function renderMedia() {
     $('#media-instagram').html(
       utils.buildInstagramHtml(mediaData.instagramUrl)
     );
+    $('#media-instagram').removeClass('label-value');
   } else {
     $('#media-instagram').text('未設定');
   }
@@ -53,6 +54,7 @@ async function renderMedia() {
   // YouTubeリンク
   if (mediaData.youtubeUrl) {
     $('#media-youtube').html(utils.buildYouTubeHtml(mediaData.youtubeUrl));
+    $('#media-youtube').removeClass('label-value');
   } else {
     $('#media-youtube').text('未設定');
   }
@@ -60,6 +62,7 @@ async function renderMedia() {
   // GoogleDriveリンク
   if (mediaData.driveUrl) {
     $('#media-drive').html(utils.buildGoogleDriveHtml(mediaData.driveUrl));
+    $('#media-drive').removeClass('label-value');
   } else {
     $('#media-drive').text('未設定');
   }
