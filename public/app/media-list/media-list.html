@@ -18,13 +18,25 @@
       </div>
 
       <div class="container">
-        <section class="media-list">
-          <ul class="media-list" id="media-list"></ul>
-        </section>
+        <div class="table-wrapper">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>タイトル</th>
+                <th>日付</th>
+                <th>メディア</th>
+                <th>Top表示</th>
+              </tr>
+            </thead>
+            <tbody id="media-list-body"></tbody>
+          </table>
+        </div>
+
         <button
           id="add-button"
           class="add-button"
           onclick="window.location.href = '../media-edit/media-edit.html?mode=new'"
+          style="display: none"
         >
           ＋ 新規作成
         </button>
