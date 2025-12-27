@@ -12,14 +12,6 @@
   font-size: 13px;
 }
 
-/* SNS/リンク列 */
-.media-links {
-  white-space: nowrap;
-  align-items: center;
-  min-height: 45px;
-  border-right: none !important; /* 共通CSSの線を消す場合 */
-}
-
 /* SNSアイコン個別カラー */
 .sns-icon {
   transition: opacity 0.2s;
