@@ -6,7 +6,6 @@ $(document).ready(async function () {
     utils.renderBreadcrumb([{ title: '曲募集一覧' }]);
     await setUpPage();
   } catch (e) {
-    // ログ登録
     await utils.writeLog({
       dataId: 'none',
       action: '初期表示',
@@ -14,113 +13,110 @@ $(document).ready(async function () {
       errorDetail: { message: e.message, stack: e.stack },
     });
   } finally {
-    // スピナー非表示
     utils.hideSpinner();
   }
 });
 
 async function setUpPage() {
-  // 管理者ボタンは「受付中」コンテナの直下にあるため、ロジックは変更なし
   utils.isAdmin('Call') ? $('#add-button').show() : $('#add-button').hide();
 
-  // 修正点: リストの参照を新しいIDに変更
-  const $activeList = $('#active-list').empty(); // 受付中
-  const $closedList = $('#closed-list').empty(); // 期間外
+  const $activeBody = $('#active-list-body').empty();
+  const $closedBody = $('#closed-list-body').empty();
 
   const callsRef = utils.collection(utils.db, 'calls');
   const qCalls = utils.query(callsRef, utils.orderBy('createdAt', 'desc'));
   const callsSnap = await utils.getWrapDocs(qCalls);
 
-  // 各ステータスごとの配列に振り分け
-  const activeItems = []; // 受付中 (未回答/回答済を含む)
-  const closedItems = []; // 期間外
+  // 回答数を集計
+  const allAnswersSnap = await utils.getWrapDocs(
+    utils.collection(utils.db, 'callAnswers')
+  );
+  const answerCountMap = {};
+  allAnswersSnap.forEach((doc) => {
+    const callId = doc.id.split('_')[0];
+    answerCountMap[callId] = (answerCountMap[callId] || 0) + 1;
+  });
 
   const uid = utils.getSession('uid');
+  let activeCount = 0;
+  let closedCount = 0;
 
   for (const callDoc of callsSnap.docs) {
-    const callData = callDoc.data();
-    const callId = callDoc.id;
+    const data = callDoc.data();
+    const id = callDoc.id;
 
-    // 回答状況による制御
-    let status = '';
-    let statusClass = '';
+    const isActive = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
+    const participantCount = answerCountMap[id] || 0;
 
-    const isActive = utils.isInTerm(
-      callData.acceptStartDate,
-      callData.acceptEndDate
-    );
+    // 募集項目(曲名/パート等)をリスト化
+    const itemNames = (data.items || [])
+      .map((item) => `・${item}`)
+      .join('<br>');
 
-    if (isActive === false) {
-      // 期間外
-      status = '期間外';
-      statusClass = 'closed';
-      closedItems.push(
-        makeCallItem(callId, callData.title, status, statusClass)
+    if (isActive) {
+      const answerId = `${id}_${uid}`;
+      const answerSnap = await utils.getWrapDoc(
+        utils.doc(utils.db, 'callAnswers', answerId)
       );
+
+      const statusText = answerSnap.exists() ? '回答済' : '未回答';
+      const statusClass = answerSnap.exists() ? 'answered' : 'pending';
+
+      const row = makeCallRow(
+        id,
+        data.title_decoded || data.title,
+        statusText,
+        statusClass,
+        participantCount,
+        itemNames
+      );
+      // 未回答を上に表示
+      statusClass === 'pending'
+        ? $activeBody.prepend(row)
+        : $activeBody.append(row);
+      activeCount++;
     } else {
-      // 受付中
-      const answerId = `${callId}_${uid}`;
-      const answerDocRef = utils.doc(utils.db, 'callAnswers', answerId);
-      const answerSnap = await utils.getWrapDoc(answerDocRef);
-
-      if (answerSnap.exists()) {
-        status = '回答済';
-        statusClass = 'answered';
-      } else {
-        status = '未回答';
-        statusClass = 'pending';
-      }
-
-      // 受付中のリストに追加 (回答済、未回答の順序を考慮するため、pendingを先に、answeredを後にpushする必要がある)
-      if (statusClass === 'pending') {
-        activeItems.unshift(
-          makeCallItem(callId, callData.title, status, statusClass)
-        );
-      } else {
-        activeItems.push(
-          makeCallItem(callId, callData.title, status, statusClass)
-        );
-      }
+      $closedBody.append(
+        makeCallRow(
+          id,
+          data.title_decoded || data.title,
+          '期間外',
+          'closed',
+          participantCount,
+          itemNames
+        )
+      );
+      closedCount++;
     }
   }
 
-  // 1. 受付中の募集を表示 (未回答 → 回答済 の順で表示)
-  if (activeItems.length > 0) {
-    // activeItemsは既に未回答が先頭に来るように処理済み
-    activeItems.forEach((item) => $activeList.append(item));
-    $('#active-container').show();
-  } else {
-    showEmptyMessage($activeList);
-    // アイテムがなければ新規作成ボタンを隠す（管理者のisAdmin判定はそのまま）
-  }
-
-  // 2. 期間外の募集を表示
-  if (closedItems.length > 0) {
-    closedItems.forEach((item) => $closedList.append(item));
-    $('#closed-container').show();
-  } else {
-    showEmptyMessage($closedList);
-    // $('#closed-container').hide(); // コンテナごと非表示にする場合
-  }
+  if (activeCount === 0) showEmptyRow($activeBody);
+  if (closedCount === 0) $('#closed-container').hide();
 }
 
-function makeCallItem(callId, name, status, statusClass) {
+function makeCallRow(id, title, status, statusClass, count, itemsHtml) {
   return $(`
-    <li>
-      <a href="../call-confirm/call-confirm.html?callId=${callId}" class="call-link">
-      🎶 ${name}
+    <tr>
+      <td class="list-table-row-header">
+        <a href="../call-confirm/call-confirm.html?callId=${id}">
+          ${title}
+        </a>
+      </td>
+      <td>
         <span class="answer-status ${statusClass}">${status}</span>
-      </a>
-    </li>
+      </td>
+      <td class="count-col">
+        ${count}人
+      </td>
+      <td class="items-col">
+        ${itemsHtml || '-'}
+      </td>
+    </tr>
   `);
 }
 
-function showEmptyMessage($list) {
-  $list.append(`
-    <li class="empty-message">
-      <div class="call-link empty">
-        該当の曲募集はありません🍀
-      </div>
-    </li>
-  `);
+function showEmptyRow($tbody) {
+  $tbody.append(
+    '<tr><td colspan="4" class="empty-text">該当する曲募集はありません🍀</td></tr>'
+  );
 }

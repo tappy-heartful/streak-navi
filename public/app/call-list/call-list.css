@@ -1,62 +1,53 @@
 
-.call-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-}
-
-.call-list li {
-  margin-bottom: 15px;
-}
-
-.call-link {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 14px 18px;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  font-size: 16px;
-  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.05);
-  transition: background-color 0.3s ease;
-}
-
-.call-link:hover {
-  background-color: #e0f5e9;
-}
-
-.call-link.empty {
+/* データなしの表示 */
+.empty-text {
   text-align: center;
-  color: #777;
-  background-color: #f0f0f0;
-  box-shadow: none;
+  padding: 30px !important;
+  color: #999;
   font-size: 14px;
+  background-color: #fdfdfd;
 }
 
-/* 追加ボタン（カード内） */
+/* 新規作成ボタン（募集一覧用調整） */
 .add-button {
   display: block;
-  margin: 30px auto 0 auto;
+  margin: 25px auto 5px auto;
   background-color: #4CAF50;
   color: #fff;
   border: none;
   border-radius: 25px;
-  padding: 12px 24px;
-  font-size: 18px;
+  padding: 12px 30px;
+  font-size: 16px;
   font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s ease;
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+  transition: all 0.3s ease;
 }
 
 .add-button:hover {
   background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
 }
 
-.empty-message .call-link {
-  background-color: #f0f0f0;
-  color: #777;
-  font-size: 14px;
-  text-align: center;
-  box-shadow: none;
+/* スマホでのスクロールを促す影（オプション） */
+.table-wrapper::after {
+  content: "→";
+  position: absolute;
+  right: 5px;
+  top: 50%;
+  color: #ccc;
+  font-size: 12px;
+  animation: scrollHint 2s infinite;
+  display: none;
+}
+
+@media (max-width: 600px) {
+  .table-wrapper::after { display: block; }
+}
+
+@keyframes scrollHint {
+  0% { opacity: 0; transform: translateX(0); }
+  50% { opacity: 1; transform: translateX(5px); }
+  100% { opacity: 0; transform: translateX(0); }
 }
