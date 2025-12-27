@@ -27,7 +27,6 @@ async function setUpPage() {
   const qVotes = utils.query(votesRef, utils.orderBy('createdAt', 'desc'));
   const votesSnap = await utils.getWrapDocs(qVotes);
 
-  // 全回答を取得して投票ごとの回答数を集計
   const allAnswersSnap = await utils.getWrapDocs(
     utils.collection(utils.db, 'voteAnswers')
   );
@@ -48,8 +47,12 @@ async function setUpPage() {
     const isActive = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
     const participantCount = answerCountMap[id] || 0;
 
+    // 投票項目（items[N].name）を改行区切りで結合
+    const itemNames = (data.items || [])
+      .map((item) => `・${item.name}`)
+      .join('<br>');
+
     if (isActive) {
-      // 受付中の処理（自分の回答状況を確認）
       const answerId = `${id}_${uid}`;
       const answerSnap = await utils.getWrapDoc(
         utils.doc(utils.db, 'voteAnswers', answerId)
@@ -65,12 +68,11 @@ async function setUpPage() {
           statusText,
           statusClass,
           participantCount,
-          data.createdBy_decoded || '不明'
+          itemNames
         )
       );
       activeCount++;
     } else {
-      // 期間外の処理
       $closedBody.append(
         makeVoteRow(
           id,
@@ -78,7 +80,7 @@ async function setUpPage() {
           '期間外',
           'closed',
           participantCount,
-          data.createdBy_decoded || '不明'
+          itemNames
         )
       );
       closedCount++;
@@ -91,7 +93,7 @@ async function setUpPage() {
   }
 }
 
-function makeVoteRow(id, name, status, statusClass, count, creator) {
+function makeVoteRow(id, name, status, statusClass, count, itemNamesHtml) {
   return $(`
     <tr>
       <td class="list-table-row-header">
@@ -105,8 +107,8 @@ function makeVoteRow(id, name, status, statusClass, count, creator) {
       <td class="count-col">
         ${count}人
       </td>
-      <td class="creator-col">
-        ${creator}
+      <td class="items-col">
+        ${itemNamesHtml || '-'}
       </td>
     </tr>
   `);
