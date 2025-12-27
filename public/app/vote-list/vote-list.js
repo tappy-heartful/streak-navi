@@ -47,7 +47,8 @@ async function setUpPage() {
     const isActive = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
     const participantCount = answerCountMap[id] || 0;
 
-    // 投票項目（items[N].name）を改行区切りで結合
+    const termText = `${data.acceptStartDate} ～ <br> ${data.acceptEndDate}`;
+
     const itemNames = (data.items || [])
       .map((item) => `・${item.name}`)
       .join('<br>');
@@ -68,6 +69,7 @@ async function setUpPage() {
           statusText,
           statusClass,
           participantCount,
+          termText,
           itemNames
         )
       );
@@ -80,6 +82,7 @@ async function setUpPage() {
           '期間外',
           'closed',
           participantCount,
+          termText,
           itemNames
         )
       );
@@ -93,7 +96,15 @@ async function setUpPage() {
   }
 }
 
-function makeVoteRow(id, name, status, statusClass, count, itemNamesHtml) {
+function makeVoteRow(
+  id,
+  name,
+  status,
+  statusClass,
+  count,
+  term,
+  itemNamesHtml
+) {
   return $(`
     <tr>
       <td class="list-table-row-header">
@@ -107,6 +118,9 @@ function makeVoteRow(id, name, status, statusClass, count, itemNamesHtml) {
       <td class="count-col">
         ${count}人
       </td>
+      <td class="term-col">
+        ${term}
+      </td>
       <td class="items-col">
         ${itemNamesHtml || '-'}
       </td>
@@ -116,6 +130,6 @@ function makeVoteRow(id, name, status, statusClass, count, itemNamesHtml) {
 
 function showEmptyRow($tbody) {
   $tbody.append(
-    '<tr><td colspan="4" class="empty-text">該当する投票はありません🍀</td></tr>'
+    '<tr><td colspan="5" class="empty-text">該当する投票はありません🍀</td></tr>'
   );
 }

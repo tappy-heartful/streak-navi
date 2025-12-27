@@ -47,15 +47,7 @@ async function setUpPage() {
     const isActive = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
     const participantCount = answerCountMap[id] || 0;
 
-    // 日付の整形 (2025-12-25 -> 12/25)
-    const formatDate = (dateStr) => {
-      if (!dateStr) return '-';
-      const parts = dateStr.split('-');
-      return parts.length >= 3 ? `${parts[1]}/${parts[2]}` : dateStr;
-    };
-    const termText = `${formatDate(data.acceptStartDate)} ～ <br>${formatDate(
-      data.acceptEndDate
-    )}`;
+    const termText = `${data.acceptStartDate} ～ <br>${data.acceptEndDate}`;
 
     const itemNames = (data.items || [])
       .map((item) => `・${item}`)
