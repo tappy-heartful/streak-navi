@@ -27,7 +27,6 @@ async function setUpPage() {
   const qCalls = utils.query(callsRef, utils.orderBy('createdAt', 'desc'));
   const callsSnap = await utils.getWrapDocs(qCalls);
 
-  // 回答数を集計
   const allAnswersSnap = await utils.getWrapDocs(
     utils.collection(utils.db, 'callAnswers')
   );
@@ -48,7 +47,16 @@ async function setUpPage() {
     const isActive = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
     const participantCount = answerCountMap[id] || 0;
 
-    // 募集項目(曲名/パート等)をリスト化
+    // 日付の整形 (2025-12-25 -> 12/25)
+    const formatDate = (dateStr) => {
+      if (!dateStr) return '-';
+      const parts = dateStr.split('-');
+      return parts.length >= 3 ? `${parts[1]}/${parts[2]}` : dateStr;
+    };
+    const termText = `${formatDate(data.acceptStartDate)} ～ <br>${formatDate(
+      data.acceptEndDate
+    )}`;
+
     const itemNames = (data.items || [])
       .map((item) => `・${item}`)
       .join('<br>');
@@ -58,7 +66,6 @@ async function setUpPage() {
       const answerSnap = await utils.getWrapDoc(
         utils.doc(utils.db, 'callAnswers', answerId)
       );
-
       const statusText = answerSnap.exists() ? '回答済' : '未回答';
       const statusClass = answerSnap.exists() ? 'answered' : 'pending';
 
@@ -68,9 +75,9 @@ async function setUpPage() {
         statusText,
         statusClass,
         participantCount,
+        termText,
         itemNames
       );
-      // 未回答を上に表示
       statusClass === 'pending'
         ? $activeBody.prepend(row)
         : $activeBody.append(row);
@@ -83,6 +90,7 @@ async function setUpPage() {
           '期間外',
           'closed',
           participantCount,
+          termText,
           itemNames
         )
       );
@@ -94,7 +102,7 @@ async function setUpPage() {
   if (closedCount === 0) $('#closed-container').hide();
 }
 
-function makeCallRow(id, title, status, statusClass, count, itemsHtml) {
+function makeCallRow(id, title, status, statusClass, count, term, itemsHtml) {
   return $(`
     <tr>
       <td class="list-table-row-header">
@@ -108,6 +116,9 @@ function makeCallRow(id, title, status, statusClass, count, itemsHtml) {
       <td class="count-col">
         ${count}人
       </td>
+      <td class="term-col">
+        ${term}
+      </td>
       <td class="items-col">
         ${itemsHtml || '-'}
       </td>
@@ -117,6 +128,6 @@ function makeCallRow(id, title, status, statusClass, count, itemsHtml) {
 
 function showEmptyRow($tbody) {
   $tbody.append(
-    '<tr><td colspan="4" class="empty-text">該当する曲募集はありません🍀</td></tr>'
+    '<tr><td colspan="5" class="empty-text">該当する曲募集はありません🍀</td></tr>'
   );
 }
