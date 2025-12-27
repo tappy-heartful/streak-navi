@@ -8,14 +8,6 @@ main {
   margin-top: 10px;
 }
 
-/* 空メッセージのスタイル */
-.empty-text {
-  text-align: center;
-  padding: 20px !important;
-  color: #999;
-  font-size: 14px;
-}
-
 /* 回答数列 */
 .count-col {
   white-space: nowrap;
@@ -31,24 +23,4 @@ main {
   line-height: 1.4;
   min-width: 120px;
   padding: 8px !important;
-}
-
-/* 新規作成ボタン */
-.add-button {
-  display: block;
-  margin: 30px auto 0 auto;
-  background-color: #4CAF50;
-  color: #fff;
-  border: none;
-  border-radius: 25px;
-  padding: 12px 24px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: background-color 0.3s ease;
-}
-
-.add-button:hover {
-  background-color: #45a049;
 }

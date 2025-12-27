@@ -189,6 +189,36 @@ h3 {
 .list-table a:hover {
   text-decoration: underline;
 }
+/* データなしの表示 */
+.empty-text {
+  text-align: center;
+  padding: 30px !important;
+  color: #999;
+  font-size: 14px;
+  background-color: #fdfdfd;
+}
+
+/* 新規作成ボタン（一覧用調整） */
+.list-add-button {
+  display: block;
+  margin: 25px auto 5px auto;
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+  transition: all 0.3s ease;
+}
+
+.list-add-button:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+}
 
 /* 必須項目 */
 .required {
