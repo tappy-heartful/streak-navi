@@ -80,7 +80,9 @@ $(document).ready(async function () {
                 <img src="${user.pictureUrl || utils.globalLineDefaultImage}" 
                      class="user-thumb"
                      onerror="this.src='${utils.globalLineDefaultImage}';">
-                ${user.displayName || '名無し'}
+                <span class="user-name-text">${
+                  user.displayName || '名無し'
+                }</span>
               </a>
             </td>
             <td>${user.abbreviation || '-'}</td>

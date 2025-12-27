@@ -20,22 +20,39 @@ main {
   align-items: center;
 }
 
+/* 1列目：氏名セルのリンクスタイル */
+.list-table-row-header a {
+  display: flex;
+  align-items: center;
+  gap: 4px; /* アイコンと文字の間の最小余白 */
+  width: 100%;
+}
+
 /* ユーザーアイコン（サムネイル） */
 .user-thumb {
   width: 24px;
   height: 24px;
+  min-width: 24px; /* 圧縮防止 */
   border-radius: 50%;
-  vertical-align: middle;
-  margin-right: 6px;
   object-fit: cover;
   border: 1px solid #eee;
+}
+
+/* 氏名テキスト：小さくして5文字程度収まるように調整 */
+.user-name-text {
+  font-size: 13px;
+  line-height: 1.2;
+  font-weight: bold;
+  /* 1列目70pxからアイコン24pxと余白を引いた残りにフィットさせる */
+  display: inline-block;
+  word-break: break-all;
 }
 
 /* テーブル内の微調整用 */
 .text-small {
   font-size: 12px;
   line-height: 1.4;
-  white-space: pre-wrap; /* 改行を有効にする */
+  white-space: pre-wrap;
 }
 
 /* ページ下部リンク */
