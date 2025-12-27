@@ -53,16 +53,19 @@ async function renderStudio() {
 
   // 基本テキスト項目
   $('#studio-name').text(data.name || '');
-  $('#studio-tel').text(data.tel || '未設定');
   $('#studio-note').text(data.note || '');
 
-  // URL項目（リンク化）
-  const renderLink = (id, url) => {
+  // URL項目（リンク化 電話番号対応も）
+  const renderLink = (id, url, isTel = false) => {
     const $el = $(id);
     if (url) {
       // 共通関数に外部リンクターゲット付きのHTML生成があればそれを利用
       $el.html(
-        `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+        `${
+          isTel
+            ? `<a href="tel:${url}">${url}</a>`
+            : `<a href="${url}" target="_blank" rel="noopener noreferrer">${url}</a>`
+        }`
       );
     } else {
       $el.text('未設定');
@@ -75,6 +78,7 @@ async function renderStudio() {
   renderLink('#studio-fee', data.fee);
   renderLink('#studio-rooms-url', data.roomsUrl);
   renderLink('#studio-reserve', data.reserve);
+  renderLink('#studio-tel', data.tel, true);
 
   // 部屋一覧（配列をカンマ区切りで表示）
   if (data.rooms && data.rooms.length > 0) {

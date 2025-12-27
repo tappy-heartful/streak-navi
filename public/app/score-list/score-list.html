@@ -46,7 +46,6 @@
       </div>
 
       <div class="container">
-        <!-- 見出しとプレイリストリンクを同じ行にする -->
         <div class="score-header">
           <h3>譜面</h3>
           <a
@@ -60,15 +59,29 @@
           </a>
         </div>
 
-        <section class="score-list">
-          <ul class="score-list" id="score-list"></ul>
+        <section class="score-list-section">
+          <div class="table-wrapper">
+            <table class="list-table" id="score-table">
+              <thead>
+                <tr>
+                  <th>タイトル</th>
+                  <th>譜面</th>
+                  <th>参考音源</th>
+                  <th>ジャンル</th>
+                </tr>
+              </thead>
+              <tbody id="score-table-body"></tbody>
+            </table>
+          </div>
         </section>
+
         <button
           id="add-button"
           class="add-button"
+          style="display: none"
           onclick="window.location.href = '../score-edit/score-edit.html?mode=new'"
         >
-          ＋ 新規作成
+          <i class="fas fa-plus-circle"></i> 新規作成
         </button>
       </div>
 
