@@ -15,8 +15,6 @@
 /* SNS/リンク列 */
 .media-links {
   white-space: nowrap;
-  gap: 12px;
-  display: flex;
   align-items: center;
   min-height: 45px;
   border-right: none !important; /* 共通CSSの線を消す場合 */

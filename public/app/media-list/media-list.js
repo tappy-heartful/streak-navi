@@ -63,7 +63,7 @@ async function setUpPage() {
           ${utils.getDayOfWeek(data.date_decoded || data.date)}
         </td>
         <td class="media-links">
-          ${links.length > 0 ? links.join('') : '-'}
+          ${links.length > 0 ? links.join(' ') : '-'}
         </td>
         <td class="media-top-status">
           ${
