@@ -31,24 +31,3 @@
 .media-top-status .check-on {
   color: #4CAF50;
 }
-
-/* 新規作成ボタン */
-.add-button {
-  display: block;
-  margin: 30px auto 0 auto;
-  background-color: #4CAF50;
-  color: #fff;
-  border: none;
-  border-radius: 25px;
-  padding: 12px 30px;
-  font-size: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  transition: all 0.3s ease;
-}
-
-.add-button:hover {
-  background-color: #45a049;
-  transform: translateY(-1px);
-}

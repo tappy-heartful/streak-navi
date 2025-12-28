@@ -19,13 +19,25 @@
 
       <div class="container" id="active-container">
         <h3>📢 受付中</h3>
-        <section class="call-list">
-          <ul class="call-list" id="active-list"></ul>
-        </section>
+        <div class="table-wrapper">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>募集名</th>
+                <th>状況</th>
+                <th>回答数</th>
+                <th>受付期間</th>
+                <th>募集項目</th>
+              </tr>
+            </thead>
+            <tbody id="active-list-body"></tbody>
+          </table>
+        </div>
         <button
           id="add-button"
-          class="add-button"
+          class="list-add-button"
           onclick="window.location.href = '../call-edit/call-edit.html?mode=new'"
+          style="display: none"
         >
           ＋ 新規作成
         </button>
@@ -33,9 +45,20 @@
 
       <div class="container" id="closed-container">
         <h3>🏁 期間外</h3>
-        <section class="call-list">
-          <ul class="call-list" id="closed-list"></ul>
-        </section>
+        <div class="table-wrapper">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>募集名</th>
+                <th>結果</th>
+                <th>回答数</th>
+                <th>受付期間</th>
+                <th>募集項目</th>
+              </tr>
+            </thead>
+            <tbody id="closed-list-body"></tbody>
+          </table>
+        </div>
       </div>
 
       <div class="page-footer">

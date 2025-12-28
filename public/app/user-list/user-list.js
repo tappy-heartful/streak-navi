@@ -40,6 +40,14 @@ $(document).ready(async function () {
     for (const [sectionId, users] of Object.entries(usersBySection)) {
       const sectionName = sectionMap[sectionId]?.name || '未分類';
 
+      // --- 追加: roleId の昇順でソート ---
+      users.sort((a, b) => {
+        const roleA = a.roleId || '';
+        const roleB = b.roleId || '';
+        return roleA.localeCompare(roleB, undefined, { numeric: true });
+      });
+      // -------------------------------
+
       const $sectionGroup = $(`
         <div class="section-group">
           <h2 class="section-title">${sectionName}</h2>
