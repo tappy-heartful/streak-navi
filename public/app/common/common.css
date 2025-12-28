@@ -151,6 +151,7 @@ h3 {
   max-width: 70px;
   white-space: normal;   /* 改行を許可 */
   word-break: break-all; /* スペースがない場合でも適当なところで改行 */
+  font-weight: bold;
 }
 
 .list-table th:first-child {

@@ -88,7 +88,7 @@ async function getAnswerStatus(eventId, uid, collectionName, eventData) {
       : true;
 
   if (!eventData.isAcceptingResponses || !isInTerm) {
-    return { text: '停止中', class: 'closed' };
+    return { text: '期間外', class: 'closed' };
   }
 
   const answerRef = utils.doc(utils.db, collectionName, `${eventId}_${uid}`);
@@ -124,20 +124,20 @@ function makeEventRow(eventId, data, type, statusInfo = null) {
       }</a></td>`
     : `<td>${data.placeName || '-'}</td>`;
 
-  // アクセス
+  // アクセス (アイコン: fa-train)
   const accessHtml =
     data.access && data.access.startsWith('http')
-      ? `<td><a href="${data.access}" target="_blank" rel="noopener noreferrer">アクセス</a></td>`
+      ? `<td><a href="${data.access}" target="_blank" rel="noopener noreferrer"><i class="fas fa-train fa-fw"></i>アクセス</a></td>`
       : `<td>-</td>`;
 
-  // Map
+  // Map (アイコン: fa-map-marker-alt)
   const mapHtml = data.googleMap
-    ? `<td><a href="${data.googleMap}" target="_blank" rel="noopener noreferrer">マップ</a></td>`
+    ? `<td><a href="${data.googleMap}" target="_blank" rel="noopener noreferrer"><i class="fas fa-map-marker-alt fa-fw"></i>Map</a></td>`
     : `<td>-</td>`;
 
-  // 譜割り
+  // 譜割り (アイコン: fa-file-alt)
   const assignHtml = data.allowAssign
-    ? `<td><a href="../assign-confirm/assign-confirm.html?eventId=${eventId}">譜割り</a></td>`
+    ? `<td><a href="../assign-confirm/assign-confirm.html?eventId=${eventId}"><i class="fas fa-file-alt fa-fw"></i>譜割り</a></td>`
     : `<td>-</td>`;
 
   if (type === 'schedule') {
