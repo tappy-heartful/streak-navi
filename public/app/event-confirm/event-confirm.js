@@ -699,7 +699,7 @@ async function renderInstrumentConfig(configData) {
   // セクションデータをIDでルックアップできるように整形（IDが99のものを除外）
   const sectionsMap = new Map();
   sectionSnap.docs
-    .filter((doc) => doc.id !== '99')
+    .filter((doc) => doc.id !== utils.globalStrUnset)
     .forEach((doc) => {
       sectionsMap.set(doc.id, doc.data().name_decoded || doc.data().name);
     });
