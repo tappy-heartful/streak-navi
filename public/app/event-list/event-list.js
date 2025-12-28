@@ -21,15 +21,12 @@ async function setUpPage() {
   const isAdmin = utils.isAdmin('Event');
   const uid = utils.getSession('uid');
 
-  // ボタン制御
   $('.list-add-button').toggle(isAdmin);
 
-  // 各テーブルボディをクリア
   const $scheduleTbody = $('#schedule-tbody').empty();
   const $futureTbody = $('#future-tbody').empty();
   const $closedTbody = $('#closed-tbody').empty();
 
-  // イベント取得
   const eventsRef = utils.collection(utils.db, 'events');
   const qEvent = utils.query(eventsRef, utils.orderBy('date', 'asc'));
   const eventSnap = await utils.getWrapDocs(qEvent);
@@ -40,10 +37,8 @@ async function setUpPage() {
   for (const eventDoc of eventSnap.docs) {
     const eventData = eventDoc.data();
     const eventId = eventDoc.id;
-    const eventTitle = eventData.title;
-    const eventDate = eventData.date; // yyyy.MM.dd
+    const eventDate = eventData.date;
     const attendanceType = eventData.attendanceType || 'attendance';
-    const isAcceptingResponses = eventData.isAcceptingResponses;
 
     let isClosed = false;
     if (eventDate) {
@@ -53,10 +48,8 @@ async function setUpPage() {
     }
 
     if (isClosed) {
-      // --- 終了したイベント ---
       $closedTbody.append(makeEventRow(eventId, eventData, 'closed'));
     } else if (attendanceType === 'schedule') {
-      // --- 日程調整中 ---
       const statusInfo = await getAnswerStatus(
         eventId,
         uid,
@@ -67,7 +60,6 @@ async function setUpPage() {
         makeEventRow(eventId, eventData, 'schedule', statusInfo)
       );
     } else {
-      // --- 今後の予定 (出欠確認) ---
       const statusInfo = await getAnswerStatus(
         eventId,
         uid,
@@ -80,9 +72,8 @@ async function setUpPage() {
     }
   }
 
-  // 0件判定
-  checkEmpty($scheduleTbody, 2);
-  checkEmpty($futureTbody, 3);
+  checkEmpty($scheduleTbody, 7);
+  checkEmpty($futureTbody, 7);
   if ($closedTbody.children().length === 0) {
     $('#closed-container').hide();
   } else {
@@ -90,11 +81,7 @@ async function setUpPage() {
   }
 }
 
-/**
- * 回答状況の取得
- */
 async function getAnswerStatus(eventId, uid, collectionName, eventData) {
-  // 受付期間外または受付停止中か
   const isInTerm =
     collectionName === 'eventAdjustAnswers'
       ? utils.isInTerm(eventData.acceptStartDate, eventData.acceptEndDate)
@@ -107,52 +94,86 @@ async function getAnswerStatus(eventId, uid, collectionName, eventData) {
   const answerRef = utils.doc(utils.db, collectionName, `${eventId}_${uid}`);
   const answerSnap = await utils.getWrapDoc(answerRef);
 
-  if (answerSnap.exists()) {
-    return { text: '回答済', class: 'answered' };
-  } else {
-    return { text: '未回答', class: 'pending' };
-  }
+  return answerSnap.exists()
+    ? { text: '回答済', class: 'answered' }
+    : { text: '未回答', class: 'pending' };
 }
 
-/**
- * テーブル行の生成
- */
 function makeEventRow(eventId, data, type, statusInfo = null) {
   const url = `../event-confirm/event-confirm.html?eventId=${eventId}`;
+
+  // 日付・期間
   const dateDisplay = data.date
     ? `${data.date}(${utils.getDayOfWeek(data.date, true)})`
     : '-';
+  const termDisplay = `${data.acceptStartDate || ''} ～ <br> ${
+    data.acceptEndDate || ''
+  }`;
+
+  // ステータス
   const statusHtml = statusInfo
     ? `<td><span class="answer-status ${statusInfo.class}">${statusInfo.text}</span></td>`
     : '';
 
+  // 場所 (websiteがある場合はリンク)
+  const placeHtml = data.website
+    ? `<td><a href="${
+        data.website
+      }" target="_blank" rel="noopener noreferrer">${
+        data.placeName || 'リンク'
+      }</a></td>`
+    : `<td>${data.placeName || '-'}</td>`;
+
+  // アクセス
+  const accessHtml =
+    data.access && data.access.startsWith('http')
+      ? `<td><a href="${data.access}" target="_blank" rel="noopener noreferrer">アクセス</a></td>`
+      : `<td>-</td>`;
+
+  // Map
+  const mapHtml = data.googleMap
+    ? `<td><a href="${data.googleMap}" target="_blank" rel="noopener noreferrer">マップ</a></td>`
+    : `<td>-</td>`;
+
+  // 譜割り
+  const assignHtml = data.allowAssign
+    ? `<td><a href="../assign-confirm/assign-confirm.html?eventId=${eventId}">譜割り</a></td>`
+    : `<td>-</td>`;
+
   if (type === 'schedule') {
-    // 日程調整は日付列なし
     return `
       <tr>
         <td><a href="${url}" class="table-link">${data.title}</a></td>
+        <td class="text-small">${termDisplay}</td>
         ${statusHtml}
+        ${placeHtml}
+        ${accessHtml}
+        ${mapHtml}
+        ${assignHtml}
       </tr>`;
   } else if (type === 'future') {
     return `
       <tr>
-        <td class="text-small">${dateDisplay}</td>
         <td><a href="${url}" class="table-link">${data.title}</a></td>
+        <td class="text-small">${dateDisplay}</td>
         ${statusHtml}
+        ${placeHtml}
+        ${accessHtml}
+        ${mapHtml}
+        ${assignHtml}
       </tr>`;
   } else {
-    // 終了
+    // 終了分 (状況、アクセス、マップは表示しない)
     return `
       <tr>
-        <td class="text-small">${dateDisplay}</td>
         <td><a href="${url}" class="table-link">${data.title}</a></td>
+        <td class="text-small">${dateDisplay}</td>
+        ${placeHtml}
+        ${assignHtml}
       </tr>`;
   }
 }
 
-/**
- * 空メッセージの表示
- */
 function checkEmpty($tbody, colspan) {
   if ($tbody.children().length === 0) {
     $tbody.append(
