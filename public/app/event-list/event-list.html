@@ -19,9 +19,17 @@
 
       <div class="container" id="schedule-container">
         <h3>🗓️ 日程調整中</h3>
-        <section class="event-list">
-          <ul class="event-list" id="schedule-list"></ul>
-        </section>
+        <div class="table-wrapper">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>イベント名</th>
+                <th>状況</th>
+              </tr>
+            </thead>
+            <tbody id="schedule-tbody"></tbody>
+          </table>
+        </div>
         <button
           id="schedule-add-button"
           class="list-add-button"
@@ -33,9 +41,18 @@
 
       <div class="container" id="future-container">
         <h3>✅ 今後の予定</h3>
-        <section class="event-list">
-          <ul class="event-list" id="future-list"></ul>
-        </section>
+        <div class="table-wrapper">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>日付</th>
+                <th>イベント名</th>
+                <th>状況</th>
+              </tr>
+            </thead>
+            <tbody id="future-tbody"></tbody>
+          </table>
+        </div>
         <button
           id="attendance-add-button"
           class="list-add-button"
@@ -47,9 +64,17 @@
 
       <div class="container" id="closed-container">
         <h3>🔚 終了</h3>
-        <section class="event-list">
-          <ul class="event-list" id="closed-list"></ul>
-        </section>
+        <div class="table-wrapper">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>日付</th>
+                <th>イベント名</th>
+              </tr>
+            </thead>
+            <tbody id="closed-tbody"></tbody>
+          </table>
+        </div>
       </div>
 
       <div class="page-footer">
