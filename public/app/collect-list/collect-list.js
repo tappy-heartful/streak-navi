@@ -3,7 +3,7 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
-    utils.renderBreadcrumb([{ title: '集集一覧' }]);
+    utils.renderBreadcrumb([{ title: '集金一覧' }]);
     await setUpPage();
   } catch (e) {
     console.error(e);
