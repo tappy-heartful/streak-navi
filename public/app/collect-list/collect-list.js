@@ -3,123 +3,95 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
-    utils.renderBreadcrumb([{ title: '曲募集一覧' }]);
+    utils.renderBreadcrumb([{ title: '集集一覧' }]);
     await setUpPage();
   } catch (e) {
-    await utils.writeLog({
-      dataId: 'none',
-      action: '初期表示',
-      status: 'error',
-      errorDetail: { message: e.message, stack: e.stack },
-    });
+    console.error(e);
   } finally {
     utils.hideSpinner();
   }
 });
 
 async function setUpPage() {
-  utils.isAdmin('Call') ? $('#add-button').show() : $('#add-button').hide();
+  // 管理者権限チェック（既存の仕組みを流用）
+  utils.isAdmin('Collect') ? $('#add-button').show() : $('#add-button').hide();
 
   const $activeBody = $('#active-list-body').empty();
   const $closedBody = $('#closed-list-body').empty();
 
-  const callsRef = utils.collection(utils.db, 'calls');
-  const qCalls = utils.query(callsRef, utils.orderBy('createdAt', 'desc'));
-  const callsSnap = await utils.getWrapDocs(qCalls);
-
-  const allAnswersSnap = await utils.getWrapDocs(
-    utils.collection(utils.db, 'callAnswers')
+  const collectRef = utils.collection(utils.db, 'collects');
+  const qCollects = utils.query(
+    collectRef,
+    utils.orderBy('targetDate', 'desc')
   );
-  const answerCountMap = {};
-  allAnswersSnap.forEach((doc) => {
-    const callId = doc.id.split('_')[0];
-    answerCountMap[callId] = (answerCountMap[callId] || 0) + 1;
-  });
+  const snap = await utils.getWrapDocs(qCollects);
 
-  const uid = utils.getSession('uid');
   let activeCount = 0;
   let closedCount = 0;
 
-  for (const callDoc of callsSnap.docs) {
-    const data = callDoc.data();
-    const id = callDoc.id;
+  snap.forEach((doc) => {
+    const data = doc.data();
+    const id = doc.id;
 
+    // 状況判定（受付期間内かどうか）
     const isActive = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
-    const participantCount = answerCountMap[id] || 0;
 
-    const termText = `${data.acceptStartDate} ～ <br>${data.acceptEndDate}`;
+    // 金額のカンマ区切り整形
+    const amountText = data.amountPerPerson
+      ? `¥${Number(data.amountPerPerson).toLocaleString()}`
+      : '未定';
 
-    const itemNames = (data.items || [])
-      .map((item) => `・${item}`)
-      .join('<br>');
+    // 担当者と建替者の表示用HTML
+    const staffHtml = `
+      <div class="staff-info">
+        <span><i class="fas fa-user-tie"></i> ${
+          data.managerName || '-'
+        }</span><br>
+        <span class="payer-label"><i class="fas fa-hand-holding-usd"></i> ${
+          data.upfrontPayer || '-'
+        }</span>
+      </div>
+    `;
+
+    const row = makeCollectRow(id, data, isActive, amountText, staffHtml);
 
     if (isActive) {
-      const answerId = `${id}_${uid}`;
-      const answerSnap = await utils.getWrapDoc(
-        utils.doc(utils.db, 'callAnswers', answerId)
-      );
-      const statusText = answerSnap.exists() ? '回答済' : '未回答';
-      const statusClass = answerSnap.exists() ? 'answered' : 'pending';
-
-      const row = makeCallRow(
-        id,
-        data.title_decoded || data.title,
-        statusText,
-        statusClass,
-        participantCount,
-        termText,
-        itemNames
-      );
-      statusClass === 'pending'
-        ? $activeBody.prepend(row)
-        : $activeBody.append(row);
+      $activeBody.append(row);
       activeCount++;
     } else {
-      $closedBody.append(
-        makeCallRow(
-          id,
-          data.title_decoded || data.title,
-          '期間外',
-          'closed',
-          participantCount,
-          termText,
-          itemNames
-        )
-      );
+      $closedBody.append(row);
       closedCount++;
     }
-  }
+  });
 
   if (activeCount === 0) showEmptyRow($activeBody);
   if (closedCount === 0) $('#closed-container').hide();
 }
 
-function makeCallRow(id, title, status, statusClass, count, term, itemsHtml) {
+function makeCollectRow(id, data, isActive, amountText, staffHtml) {
+  const statusClass = isActive ? 'status-active' : 'status-closed';
+  const statusText = isActive ? '受付中' : '期間外';
+
   return $(`
     <tr>
       <td class="list-table-row-header">
-        <a href="../call-confirm/call-confirm.html?callId=${id}">
-          ${title}
+        <a href="../collect-confirm/collect-confirm.html?collectId=${id}">
+          ${data.title}
         </a>
+        <div class="remarks-sub">${data.remarks || ''}</div>
       </td>
       <td>
-        <span class="answer-status ${statusClass}">${status}</span>
+        <span class="collect-status ${statusClass}">${statusText}</span>
       </td>
-      <td class="count-col">
-        ${count}人
-      </td>
-      <td class="term-col">
-        ${term}
-      </td>
-      <td class="items-col">
-        ${itemsHtml || '-'}
-      </td>
+      <td class="amount-col">${amountText}</td>
+      <td class="date-col">${data.targetDate || '-'}</td>
+      <td class="staff-col">${staffHtml}</td>
     </tr>
   `);
 }
 
 function showEmptyRow($tbody) {
   $tbody.append(
-    '<tr><td colspan="5" class="empty-text">該当する曲募集はありません🍀</td></tr>'
+    '<tr><td colspan="5" class="empty-text">現在、受付中の集金はありません。</td></tr>'
   );
 }
