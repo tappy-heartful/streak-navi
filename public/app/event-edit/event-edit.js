@@ -267,6 +267,7 @@ function setupEventHandlers(mode) {
   $('#select-place-button').on('click', async () => {
     utils.showSpinner();
     try {
+      // 1. Firestoreからスタジオ一覧を取得
       const studioSnap = await utils.getWrapDocs(
         utils.collection(utils.db, 'studios')
       );
@@ -275,39 +276,38 @@ function setupEventHandlers(mode) {
         ...doc.data(),
       }));
 
+      // 🔽 prefectureの昇順でソート（都道府県が未定義なら後ろに）
       studios.sort((a, b) => {
-        const prefA = a.prefecture || '';
-        const prefB = b.prefecture || '';
+        const prefA = a.prefecture || 'ZZZ';
+        const prefB = b.prefecture || 'ZZZ';
         if (prefA !== prefB) return prefA.localeCompare(prefB, 'ja');
         return (a.name || '').localeCompare(b.name || '', 'ja');
       });
 
       utils.hideSpinner();
 
-      let modalBody =
-        '<div class="studio-select-container" style="max-height: 400px; overflow-y: auto;">';
+      // 2. モーダルの中身（HTML）を生成
+      let modalBody = '<div class="studio-select-container">';
 
       studios.forEach((studio, sIndex) => {
         modalBody += `
-          <div class="studio-group" style="margin-bottom: 15px; border: 1px solid #ddd; padding: 10px; border-radius: 8px;">
-            <div style="font-weight: bold; margin-bottom: 8px; border-bottom: 2px solid #eee; font-size: 0.9em; color: #666;">
-              <i class="fas fa-map-marker-alt"></i>${studio.name}
+          <div class="studio-group">
+            <div class="studio-group-title">
+              <span><i class="fas fa-music"></i> ${studio.name}</span>
+              <span style="font-weight: normal; font-size: 0.8em;">${
+                studio.prefecture || ''
+              }</span>
             </div>
-            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            <div class="room-list">
         `;
 
         if (studio.rooms && studio.rooms.length > 0) {
           studio.rooms.forEach((room, rIndex) => {
-            // 💡 IDを必ず付与する（showModalの戻り値に含まれるようにするため）
-            const radioId = `room_selection_${sIndex}_${rIndex}`;
+            // IDにインデックスを埋め込むことで、どのスタジオのどの部屋か特定可能にする
+            const radioId = `idx_${sIndex}_${rIndex}`;
             modalBody += `
-              <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; background: #f9f9f9; padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc;">
-                <input type="radio" name="room-option" id="${radioId}" 
-                       value="${room}" 
-                       data-studio-name="${studio.name}"
-                       data-studio-hp="${studio.hp || ''}"
-                       data-studio-access="${studio.access || ''}"
-                       data-studio-map="${studio.map || ''}">
+              <label class="room-item">
+                <input type="radio" name="room-option" id="${radioId}" value="${room}">
                 ${room}
               </label>
             `;
@@ -320,6 +320,7 @@ function setupEventHandlers(mode) {
       });
       modalBody += '</div>';
 
+      // 3. モーダルを表示
       const result = await utils.showModal(
         '場所を選択',
         modalBody,
@@ -327,39 +328,28 @@ function setupEventHandlers(mode) {
         'キャンセル'
       );
 
-      // 💡 決定ボタン押下時の処理
+      // 4. 決定ボタンが押された時の処理
       if (result && result.success) {
-        // showModalは ID: 値 のオブジェクトを返す。
-        // ラジオボタンの場合、チェックされた要素のIDだけが data に含まれる
-        const selectedId = Object.keys(result.data).find((key) =>
-          key.startsWith('room_selection_')
+        // showModalは { id: value } を返すため、選択されたID（idx_X_Y）を探す
+        const selectedKey = Object.keys(result.data).find((key) =>
+          key.startsWith('idx_')
         );
 
-        if (selectedId) {
-          // ⚠️ showModal内でcleanup()が走るとDOMが消えるため、
-          // cleanup前のモーダル内から情報を取得しておく仕組みが必要です。
-          // ただし、今のshowModalはcleanup後にresolve(data)を返しているので、
-          // 直前のDOMから値を抜き出すために、一工夫加えます。
-
-          // モーダルが閉じる直前のDOMから取得するか、dataから情報を特定します。
-          // ここでは、HTML生成時に仕込んだ data-属性を直接参照したいため、
-          // showModalの挙動に合わせて、IDから元のstudiosデータを特定するのが最も安全です。
-
-          const parts = selectedId.split('_'); // [room, selection, sIndex, rIndex]
-          const sIdx = parseInt(parts[2]);
-          const rIdx = parseInt(parts[3]);
+        if (selectedKey) {
+          const parts = selectedKey.split('_');
+          const sIdx = parseInt(parts[1]);
+          const rIdx = parseInt(parts[2]);
 
           const studio = studios[sIdx];
           const roomName = studio.rooms[rIdx];
 
-          const fullPlaceName = `${studio.name} ${roomName}`;
-
-          $('#event-place-name').val(fullPlaceName);
+          // 反映処理
+          $('#event-place-name').val(`${studio.name} ${roomName}`);
           $('#event-website').val(studio.hp || '');
           $('#event-access').val(studio.access || '');
           $('#event-google-map').val(studio.map || '');
 
-          // 変更通知
+          // 変更通知をトリガー
           $(
             '#event-place-name, #event-website, #event-access, #event-google-map'
           ).trigger('change');
