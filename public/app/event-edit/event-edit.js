@@ -444,15 +444,17 @@ function toggleDateFields() {
   const selectedType = $('input[name="attendance-type"]:checked').val();
 
   if (selectedType === 'schedule') {
-    // 日程調整からする: 候補日入力表示、通常の日付入力非表示
+    // 日程調整からする: 候補日入力、表示、通常の日付入力回答受付選択非表示
     $('#date-candidates-group').show();
     $('#date-single-group').hide();
     $('#accept-date-group').show();
+    $('#attendance-status-group').hide();
   } else {
-    // 出欠確認からする: 通常の日付入力表示、候補日入力非表示
+    // 出欠確認からする: 通常の日付入力回答受付選択表示、候補日入力非表示
     $('#date-candidates-group').hide();
     $('#date-single-group').show();
     $('#accept-date-group').hide();
+    $('#attendance-status-group').show();
   }
 }
 
@@ -546,8 +548,9 @@ async function collectEventData(mode) {
 
     // 【修正・新規追加】日程/出欠関連のデータ
     attendanceType: attendanceType,
-    // 【新規追加】回答を受け付けるかどうかのフラグ
-    isAcceptingResponses: attendanceStatus === 'on',
+    // 【新規追加】回答を受け付けるかどうかのフラグ(日程調整の場合にのみ判定)
+    isAcceptingResponses:
+      attendanceType === 'schedule' ? attendanceStatus === 'on' : true,
     // 'schedule'でなければ通常の日付を保存
     date: attendanceType !== 'schedule' ? formatDateForSave(rawDate) : '',
 
