@@ -34,12 +34,10 @@ async function setUpPage() {
 
     const isActive = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
 
-    // 金額整形用ヘルパー
     const formatYen = (num) => (num ? `¥${Number(num).toLocaleString()}` : '-');
-
     const amountText = formatYen(data.amountPerPerson);
     const upfrontText = formatYen(data.upfrontAmount);
-    const termText = `${data.acceptStartDate} ～ ${data.acceptEndDate}`;
+    const termText = `${data.acceptStartDate}～<br>${data.acceptEndDate}`;
 
     const row = makeCollectRow(
       id,
@@ -70,20 +68,21 @@ function makeCollectRow(id, data, isActive, amountText, upfrontText, termText) {
   return $(`
     <tr>
       <td class="list-table-row-header">
+        <div class="target-date-label">${data.targetDate || '-'}</div>
         <div class="collect-title">
           <a href="../collect-confirm/collect-confirm.html?collectId=${id}">${
     data.title
   }</a>
         </div>
-        <div class="term-sub"><i class="far fa-calendar-alt"></i> 受付: ${termText}</div>
-        <div class="remarks-sub">${data.remarks || ''}</div>
       </td>
       <td>
         <span class="collect-status ${statusClass}">${statusText}</span>
       </td>
+      <td class="term-col">
+        <div class="term-text">${termText}</div>
+      </td>
       <td class="amount-col">
         <div class="main-amount">${amountText}</div>
-        <div class="date-label">${data.targetDate || '-'} 対象</div>
       </td>
       <td class="info-col">
         <div class="info-item">建替: ${upfrontText}</div>
@@ -99,12 +98,15 @@ function makeCollectRow(id, data, isActive, amountText, upfrontText, termText) {
           }</span>
         </div>
       </td>
+      <td class="remarks-col">
+        <div class="remarks-text">${data.remarks || '-'}</div>
+      </td>
     </tr>
   `);
 }
 
 function showEmptyRow($tbody) {
   $tbody.append(
-    '<tr><td colspan="5" class="empty-text">現在、受付中の集金はありません。</td></tr>'
+    '<tr><td colspan="7" class="empty-text">現在、受付中の集金はありません。</td></tr>'
   );
 }
