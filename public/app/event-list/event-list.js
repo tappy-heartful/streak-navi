@@ -28,11 +28,15 @@ async function setUpPage() {
   const $closedTbody = $('#closed-tbody').empty();
 
   const eventsRef = utils.collection(utils.db, 'events');
+  // 今後の予定が見やすいよう、基本は日付昇順で取得
   const qEvent = utils.query(eventsRef, utils.orderBy('date', 'asc'));
   const eventSnap = await utils.getWrapDocs(qEvent);
 
   const now = new Date();
   const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+  // 終了イベントを一時保存する配列
+  const closedEvents = [];
 
   for (const eventDoc of eventSnap.docs) {
     const eventData = eventDoc.data();
@@ -48,11 +52,8 @@ async function setUpPage() {
     }
 
     if (isClosed) {
-      // 終了イベントには固定で「終了」ステータスを渡す
-      const statusInfo = { text: '終了', class: 'closed' };
-      $closedTbody.append(
-        makeEventRow(eventId, eventData, 'closed', statusInfo)
-      );
+      // 終了分は後でソートするためにデータを配列に入れる
+      closedEvents.push({ id: eventId, data: eventData });
     } else if (attendanceType === 'schedule') {
       const statusInfo = await getAnswerStatus(
         eventId,
@@ -76,9 +77,23 @@ async function setUpPage() {
     }
   }
 
+  // --- 終了イベントの描画 (日付の降順にソート) ---
+  closedEvents.sort((a, b) => {
+    const dateA = a.data.date || '';
+    const dateB = b.data.date || '';
+    return dateB.localeCompare(dateA); // 文字列比較で降順
+  });
+
+  const closedStatus = { text: '終了', class: 'closed' };
+  closedEvents.forEach((item) => {
+    $closedTbody.append(
+      makeEventRow(item.id, item.data, 'closed', closedStatus)
+    );
+  });
+
+  // 0件判定
   checkEmpty($scheduleTbody, 7);
   checkEmpty($futureTbody, 7);
-  // 終了テーブルの空チェック（列数は5列）
   if ($closedTbody.children().length === 0) {
     $('#closed-container').hide();
   } else {
@@ -107,7 +122,6 @@ async function getAnswerStatus(eventId, uid, collectionName, eventData) {
 function makeEventRow(eventId, data, type, statusInfo = null) {
   const url = `../event-confirm/event-confirm.html?eventId=${eventId}`;
 
-  // 日付・期間
   const dateDisplay = data.date
     ? `${data.date}(${utils.getDayOfWeek(data.date, true)})`
     : '-';
@@ -115,12 +129,10 @@ function makeEventRow(eventId, data, type, statusInfo = null) {
     data.acceptEndDate || ''
   }`;
 
-  // ステータス
   const statusHtml = statusInfo
     ? `<td><span class="answer-status ${statusInfo.class}">${statusInfo.text}</span></td>`
     : '';
 
-  // 場所 (websiteがある場合はリンク)
   const placeHtml = data.website
     ? `<td><a href="${
         data.website
@@ -129,18 +141,15 @@ function makeEventRow(eventId, data, type, statusInfo = null) {
       }</a></td>`
     : `<td>${data.placeName || '-'}</td>`;
 
-  // アクセス (アイコン: fa-train)
   const accessHtml =
     data.access && data.access.startsWith('http')
       ? `<td><a href="${data.access}" target="_blank" rel="noopener noreferrer"><i class="fas fa-train fa-fw"></i>アクセス</a></td>`
       : `<td>-</td>`;
 
-  // Map (アイコン: fa-map-marker-alt)
   const mapHtml = data.googleMap
     ? `<td><a href="${data.googleMap}" target="_blank" rel="noopener noreferrer"><i class="fas fa-map-marker-alt fa-fw"></i>Map</a></td>`
     : `<td>-</td>`;
 
-  // 譜割り (アイコン: fa-file-alt)
   const assignHtml = data.allowAssign
     ? `<td><a href="../assign-confirm/assign-confirm.html?eventId=${eventId}"><i class="fas fa-file-alt fa-fw"></i>譜割り</a></td>`
     : `<td>-</td>`;
@@ -168,7 +177,7 @@ function makeEventRow(eventId, data, type, statusInfo = null) {
         ${assignHtml}
       </tr>`;
   } else {
-    // 終了分 (状況を追加。アクセス、マップは表示しない設定を維持)
+    // 終了分
     return `
       <tr>
         <td><a href="${url}" class="table-link">${data.title}</a></td>
