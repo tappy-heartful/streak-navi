@@ -48,7 +48,11 @@ async function setUpPage() {
     }
 
     if (isClosed) {
-      $closedTbody.append(makeEventRow(eventId, eventData, 'closed'));
+      // 終了イベントには固定で「終了」ステータスを渡す
+      const statusInfo = { text: '終了', class: 'closed' };
+      $closedTbody.append(
+        makeEventRow(eventId, eventData, 'closed', statusInfo)
+      );
     } else if (attendanceType === 'schedule') {
       const statusInfo = await getAnswerStatus(
         eventId,
@@ -74,6 +78,7 @@ async function setUpPage() {
 
   checkEmpty($scheduleTbody, 7);
   checkEmpty($futureTbody, 7);
+  // 終了テーブルの空チェック（列数は5列）
   if ($closedTbody.children().length === 0) {
     $('#closed-container').hide();
   } else {
@@ -163,11 +168,12 @@ function makeEventRow(eventId, data, type, statusInfo = null) {
         ${assignHtml}
       </tr>`;
   } else {
-    // 終了分 (状況、アクセス、マップは表示しない)
+    // 終了分 (状況を追加。アクセス、マップは表示しない設定を維持)
     return `
       <tr>
         <td><a href="${url}" class="table-link">${data.title}</a></td>
         <td class="text-small">${dateDisplay}</td>
+        ${statusHtml}
         ${placeHtml}
         ${assignHtml}
       </tr>`;
