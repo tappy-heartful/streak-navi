@@ -83,7 +83,7 @@ function makePrefectureSection(prefName, studios) {
               <th>部屋一覧</th>
               <th>電話番号</th>
               <th>予約方法</th>
-              <th>交通アクセス・駐車場情報</th>
+              <th>アクセス</th>
               <th>備考</th>
             </tr>
           </thead>
@@ -157,7 +157,7 @@ function makePrefectureSection(prefName, studios) {
         <td>
           ${
             studio.access
-              ? `<a href="${studio.access}" target="_blank" title="交通アクセス・駐車場情報"><i class="fas fa-car"></i> アクセス</a>`
+              ? `<a href="${studio.access}" target="_blank" title="アクセス"><i class="fas fa-car"></i> アクセス</a>`
               : '-'
           }</td>
         <td style="white-space: pre-wrap;">${studio.note || '-'}</td>
