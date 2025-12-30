@@ -64,6 +64,15 @@ async function setUpPage() {
 function makeCollectRow(id, data, isActive, amountText, upfrontText, termText) {
   const statusClass = isActive ? 'status-active' : 'status-closed';
   const statusText = isActive ? '受付中' : '期間外';
+  const isInTerm = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
+
+  // 支払いリンクボタンの生成
+  const payBtnHtml =
+    isInTerm && data.paymentUrl
+      ? `<a href="${data.paymentUrl}" target="_blank" title="支払いリンクを開く">
+         <i class="fas fa-external-link-alt"></i> 支払う
+       </a>`
+      : `<span>-</span>`;
 
   return $(`
     <tr>
@@ -83,6 +92,9 @@ function makeCollectRow(id, data, isActive, amountText, upfrontText, termText) {
       </td>
       <td class="amount-col">
         <div class="main-amount">${amountText}</div>
+      </td>
+      <td class="pay-col">
+        ${payBtnHtml}
       </td>
       <td class="info-col">
         <div class="info-item">建替: ${upfrontText}</div>
@@ -107,6 +119,6 @@ function makeCollectRow(id, data, isActive, amountText, upfrontText, termText) {
 
 function showEmptyRow($tbody) {
   $tbody.append(
-    '<tr><td colspan="7" class="empty-text">現在、受付中の集金はありません。</td></tr>'
+    '<tr><td colspan="8" class="empty-text">現在、受付中の集金はありません。</td></tr>'
   );
 }
