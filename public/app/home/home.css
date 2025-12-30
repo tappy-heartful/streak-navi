@@ -238,6 +238,10 @@
   content: '📊';
 }
 
+.menu-button.collect::after {
+  content: '💰';
+}
+
 .menu-button.user::after {
   content: '👥';
 }

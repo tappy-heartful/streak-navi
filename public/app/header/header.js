@@ -70,6 +70,10 @@ $(document).ready(async function () {
     'click',
     () => (location.href = '../vote-list/vote-list.html')
   );
+  $('#menu-collect-list').on(
+    'click',
+    () => (location.href = '../collect-list/collect-list.html')
+  );
   $('#menu-user-list').on(
     'click',
     () => (location.href = '../user-list/user-list.html')
