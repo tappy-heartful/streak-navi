@@ -55,9 +55,9 @@
         </div>
       </div>
 
-      <div class="form-group">
-        <label>回答の受付</label>
-        <div class="radio-group" id="attendance-status-group">
+      <div class="form-group" id="attendance-status-group">
+        <label>出欠の受付</label>
+        <div class="radio-group">
           <label>
             <input
               type="radio"
@@ -66,7 +66,7 @@
               value="on"
               checked
             />
-            回答を受け付ける
+            出欠を受け付ける
           </label>
           <label>
             <input
@@ -116,9 +116,17 @@
         <input type="text" id="event-title" placeholder="イベント名を入力..." />
       </div>
 
-      <!-- 場所名 -->
       <div class="form-group">
-        <label for="event-place-name">場所名</label>
+        <div class="form-label-row">
+          <label for="event-place-name">場所名</label>
+          <button
+            type="button"
+            id="select-place-button"
+            class="btn-select-place"
+          >
+            <i class="fas fa-search-location"></i> 場所を選択
+          </button>
+        </div>
         <input
           type="text"
           id="event-place-name"

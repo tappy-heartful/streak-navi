@@ -98,6 +98,7 @@ async function loadStudioData(studioId) {
   $('#studio-rooms-url').val(data.roomsUrl || '');
   $('#studio-tel').val(data.tel || '');
   $('#studio-reserve').val(data.reserve || '');
+  $('#studio-access').val(data.access || '');
   $('#studio-note').val(data.note || '');
 
   renderRooms(data.rooms || ['']);
@@ -145,6 +146,7 @@ function restoreInitialState() {
   $('#studio-rooms-url').val(initialState.roomsUrl || '');
   $('#studio-tel').val(initialState.tel || '');
   $('#studio-reserve').val(initialState.reserve || '');
+  $('#studio-access').val(initialState.access || '');
   $('#studio-note').val(initialState.note || '');
 
   // 部屋一覧の再描画
@@ -175,6 +177,7 @@ function collectFormData() {
     roomsUrl: $('#studio-rooms-url').val().trim(),
     tel: $('#studio-tel').val().trim(),
     reserve: $('#studio-reserve').val().trim(),
+    access: $('#studio-access').val().trim(),
     note: $('#studio-note').val().trim(),
   };
 }

@@ -263,6 +263,105 @@ function restoreInitialState() {
 // イベントハンドラ登録
 //==================================
 function setupEventHandlers(mode) {
+  // 💡 【修正】場所選択ボタンのクリックイベント
+  $('#select-place-button').on('click', async () => {
+    utils.showSpinner();
+    try {
+      // 1. Firestoreからスタジオ一覧を取得
+      const studioSnap = await utils.getWrapDocs(
+        utils.collection(utils.db, 'studios')
+      );
+      const studios = studioSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      // 🔽 prefectureの昇順でソート（都道府県が未定義なら後ろに）
+      studios.sort((a, b) => {
+        const prefA = a.prefecture || 'ZZZ';
+        const prefB = b.prefecture || 'ZZZ';
+        if (prefA !== prefB) return prefA.localeCompare(prefB, 'ja');
+        return (a.name || '').localeCompare(b.name || '', 'ja');
+      });
+
+      utils.hideSpinner();
+
+      // 2. モーダルの中身（HTML）を生成
+      let modalBody = '<div class="studio-select-container">';
+
+      studios.forEach((studio, sIndex) => {
+        modalBody += `
+          <div class="studio-group">
+            <div class="studio-group-title">
+              <span><i class="fas fa-music"></i> ${studio.name}</span>
+              <span style="font-weight: normal; font-size: 0.8em;">${
+                studio.prefecture || ''
+              }</span>
+            </div>
+            <div class="room-list">
+        `;
+
+        if (studio.rooms && studio.rooms.length > 0) {
+          studio.rooms.forEach((room, rIndex) => {
+            // IDにインデックスを埋め込むことで、どのスタジオのどの部屋か特定可能にする
+            const radioId = `idx_${sIndex}_${rIndex}`;
+            modalBody += `
+              <label class="room-item">
+                <input type="radio" name="room-option" id="${radioId}" value="${room}">
+                ${room}
+              </label>
+            `;
+          });
+        } else {
+          modalBody +=
+            '<span style="color: #999; font-size: 0.85em;">ルーム情報なし</span>';
+        }
+        modalBody += `</div></div>`;
+      });
+      modalBody += '</div>';
+
+      // 3. モーダルを表示
+      const result = await utils.showModal(
+        '場所を選択',
+        modalBody,
+        '決定',
+        'キャンセル'
+      );
+
+      // 4. 決定ボタンが押された時の処理
+      if (result && result.success) {
+        // showModalは { id: value } を返すため、選択されたID（idx_X_Y）を探す
+        const selectedKey = Object.keys(result.data).find((key) =>
+          key.startsWith('idx_')
+        );
+
+        if (selectedKey) {
+          const parts = selectedKey.split('_');
+          const sIdx = parseInt(parts[1]);
+          const rIdx = parseInt(parts[2]);
+
+          const studio = studios[sIdx];
+          const roomName = studio.rooms[rIdx];
+
+          // 反映処理
+          $('#event-place-name').val(`${studio.name} ${roomName}`);
+          $('#event-website').val(studio.hp || '');
+          $('#event-access').val(studio.access || '');
+          $('#event-google-map').val(studio.map || '');
+
+          // 変更通知をトリガー
+          $(
+            '#event-place-name, #event-website, #event-access, #event-google-map'
+          ).trigger('change');
+        }
+      }
+    } catch (e) {
+      utils.hideSpinner();
+      console.error(e);
+      utils.showDialog('データ取得に失敗しました', true);
+    }
+  });
+
   // 💡 【新規追加】allow-assign ラジオボタンの変更時イベント
   $('input[name="allow-assign"]').on('change', toggleInstrumentConfig);
 
@@ -444,15 +543,17 @@ function toggleDateFields() {
   const selectedType = $('input[name="attendance-type"]:checked').val();
 
   if (selectedType === 'schedule') {
-    // 日程調整からする: 候補日入力表示、通常の日付入力非表示
+    // 日程調整からする: 候補日入力、表示、通常の日付入力回答受付選択非表示
     $('#date-candidates-group').show();
     $('#date-single-group').hide();
     $('#accept-date-group').show();
+    $('#attendance-status-group').hide();
   } else {
-    // 出欠確認からする: 通常の日付入力表示、候補日入力非表示
+    // 出欠確認からする: 通常の日付入力回答受付選択表示、候補日入力非表示
     $('#date-candidates-group').hide();
     $('#date-single-group').show();
     $('#accept-date-group').hide();
+    $('#attendance-status-group').show();
   }
 }
 
@@ -546,8 +647,9 @@ async function collectEventData(mode) {
 
     // 【修正・新規追加】日程/出欠関連のデータ
     attendanceType: attendanceType,
-    // 【新規追加】回答を受け付けるかどうかのフラグ
-    isAcceptingResponses: attendanceStatus === 'on',
+    // 【新規追加】回答を受け付けるかどうかのフラグ(日程調整の場合にのみ判定)
+    isAcceptingResponses:
+      attendanceType === 'schedule' ? attendanceStatus === 'on' : true,
     // 'schedule'でなければ通常の日付を保存
     date: attendanceType !== 'schedule' ? formatDateForSave(rawDate) : '',
 

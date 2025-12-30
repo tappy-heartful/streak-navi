@@ -83,6 +83,7 @@ function makePrefectureSection(prefName, studios) {
               <th>部屋一覧</th>
               <th>電話番号</th>
               <th>予約方法</th>
+              <th>アクセス</th>
               <th>備考</th>
             </tr>
           </thead>
@@ -151,6 +152,12 @@ function makePrefectureSection(prefName, studios) {
           ${
             studio.reserve
               ? `<a href="${studio.reserve}" target="_blank" title="予約方法"><i class="far fa-calendar-check"></i> 予約</a>`
+              : '-'
+          }</td>
+        <td>
+          ${
+            studio.access
+              ? `<a href="${studio.access}" target="_blank" title="アクセス"><i class="fas fa-car"></i> アクセス</a>`
               : '-'
           }</td>
         <td style="white-space: pre-wrap;">${studio.note || '-'}</td>

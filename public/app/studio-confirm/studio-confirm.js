@@ -79,6 +79,7 @@ async function renderStudio() {
   renderLink('#studio-rooms-url', data.roomsUrl);
   renderLink('#studio-reserve', data.reserve);
   renderLink('#studio-tel', data.tel, true);
+  renderLink('#studio-access', data.access);
 
   // 部屋一覧（配列をカンマ区切りで表示）
   if (data.rooms && data.rooms.length > 0) {
