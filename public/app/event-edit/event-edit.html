@@ -116,24 +116,22 @@
         <input type="text" id="event-title" placeholder="イベント名を入力..." />
       </div>
 
-      <!-- 場所名 -->
       <div class="form-group">
-        <label for="event-place-name">場所名</label>
-        <div style="display: flex; gap: 8px">
-          <input
-            type="text"
-            id="event-place-name"
-            placeholder="場所名を入力..."
-            style="flex-grow: 1"
-          />
+        <div class="form-label-row">
+          <label for="event-place-name">場所名</label>
           <button
             type="button"
             id="select-place-button"
-            style="white-space: nowrap; padding: 0 10px"
+            class="btn-select-place"
           >
-            場所を選択
+            <i class="fas fa-search-location"></i> 場所を選択
           </button>
         </div>
+        <input
+          type="text"
+          id="event-place-name"
+          placeholder="場所名を入力..."
+        />
       </div>
 
       <!-- 公式サイト -->

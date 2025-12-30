@@ -267,7 +267,6 @@ function setupEventHandlers(mode) {
   $('#select-place-button').on('click', async () => {
     utils.showSpinner();
     try {
-      // 1. Firestoreからスタジオ一覧を取得
       const studioSnap = await utils.getWrapDocs(
         utils.collection(utils.db, 'studios')
       );
@@ -276,7 +275,6 @@ function setupEventHandlers(mode) {
         ...doc.data(),
       }));
 
-      // 🔽 【修正】prefectureの昇順でソート（同じ場合はname順）
       studios.sort((a, b) => {
         const prefA = a.prefecture || '';
         const prefB = b.prefecture || '';
@@ -286,7 +284,6 @@ function setupEventHandlers(mode) {
 
       utils.hideSpinner();
 
-      // 2. モーダルの中身（HTML）を生成
       let modalBody =
         '<div class="studio-select-container" style="max-height: 400px; overflow-y: auto;">';
 
@@ -294,15 +291,15 @@ function setupEventHandlers(mode) {
         modalBody += `
           <div class="studio-group" style="margin-bottom: 15px; border: 1px solid #ddd; padding: 10px; border-radius: 8px;">
             <div style="font-weight: bold; margin-bottom: 8px; border-bottom: 2px solid #eee; font-size: 0.9em; color: #666;">
-              <i class="fas fa-map-marker-alt"></i> ${studio.name}
+              <i class="fas fa-map-marker-alt"></i>${studio.name}
             </div>
             <div style="display: flex; flex-wrap: wrap; gap: 10px;">
         `;
 
-        // 🔽 【修正】チェックボックスからラジオボタンに変更
         if (studio.rooms && studio.rooms.length > 0) {
           studio.rooms.forEach((room, rIndex) => {
-            const radioId = `studio-${sIndex}-room-${rIndex}`;
+            // 💡 IDを必ず付与する（showModalの戻り値に含まれるようにするため）
+            const radioId = `room_selection_${sIndex}_${rIndex}`;
             modalBody += `
               <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; background: #f9f9f9; padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc;">
                 <input type="radio" name="room-option" id="${radioId}" 
@@ -319,15 +316,10 @@ function setupEventHandlers(mode) {
           modalBody +=
             '<span style="color: #999; font-size: 0.85em;">ルーム情報なし</span>';
         }
-
-        modalBody += `
-            </div>
-          </div>
-        `;
+        modalBody += `</div></div>`;
       });
       modalBody += '</div>';
 
-      // 3. モーダルを表示
       const result = await utils.showModal(
         '場所を選択',
         modalBody,
@@ -335,27 +327,37 @@ function setupEventHandlers(mode) {
         'キャンセル'
       );
 
-      // 4. 決定ボタンが押された時の処理
+      // 💡 決定ボタン押下時の処理
       if (result && result.success) {
-        // 🔽 【修正】ラジオボタンで選択された1つを取得
-        const $selected = $(
-          '.studio-select-container input[name="room-option"]:checked'
+        // showModalは ID: 値 のオブジェクトを返す。
+        // ラジオボタンの場合、チェックされた要素のIDだけが data に含まれる
+        const selectedId = Object.keys(result.data).find((key) =>
+          key.startsWith('room_selection_')
         );
 
-        if ($selected.length > 0) {
-          const roomName = $selected.val();
-          const studioName = $selected.data('studio-name');
-          const hp = $selected.data('studio-hp');
-          const access = $selected.data('studio-access');
-          const map = $selected.data('studio-map');
+        if (selectedId) {
+          // ⚠️ showModal内でcleanup()が走るとDOMが消えるため、
+          // cleanup前のモーダル内から情報を取得しておく仕組みが必要です。
+          // ただし、今のshowModalはcleanup後にresolve(data)を返しているので、
+          // 直前のDOMから値を抜き出すために、一工夫加えます。
 
-          // 🔽 【修正】「スタジオ名 ルーム名」の形式でセット
-          const fullPlaceName = `${studioName} ${roomName}`;
+          // モーダルが閉じる直前のDOMから取得するか、dataから情報を特定します。
+          // ここでは、HTML生成時に仕込んだ data-属性を直接参照したいため、
+          // showModalの挙動に合わせて、IDから元のstudiosデータを特定するのが最も安全です。
+
+          const parts = selectedId.split('_'); // [room, selection, sIndex, rIndex]
+          const sIdx = parseInt(parts[2]);
+          const rIdx = parseInt(parts[3]);
+
+          const studio = studios[sIdx];
+          const roomName = studio.rooms[rIdx];
+
+          const fullPlaceName = `${studio.name} ${roomName}`;
 
           $('#event-place-name').val(fullPlaceName);
-          $('#event-website').val(hp);
-          $('#event-access').val(access);
-          $('#event-google-map').val(map);
+          $('#event-website').val(studio.hp || '');
+          $('#event-access').val(studio.access || '');
+          $('#event-google-map').val(studio.map || '');
 
           // 変更通知
           $(
