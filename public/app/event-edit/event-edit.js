@@ -263,6 +263,113 @@ function restoreInitialState() {
 // イベントハンドラ登録
 //==================================
 function setupEventHandlers(mode) {
+  // 💡 【修正】場所選択ボタンのクリックイベント
+  $('#select-place-button').on('click', async () => {
+    utils.showSpinner();
+    try {
+      // 1. Firestoreからスタジオ一覧を取得
+      const studioSnap = await utils.getWrapDocs(
+        utils.collection(utils.db, 'studios')
+      );
+      const studios = studioSnap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
+
+      // 🔽 【修正】prefectureの昇順でソート（同じ場合はname順）
+      studios.sort((a, b) => {
+        const prefA = a.prefecture || '';
+        const prefB = b.prefecture || '';
+        if (prefA !== prefB) return prefA.localeCompare(prefB, 'ja');
+        return (a.name || '').localeCompare(b.name || '', 'ja');
+      });
+
+      utils.hideSpinner();
+
+      // 2. モーダルの中身（HTML）を生成
+      let modalBody =
+        '<div class="studio-select-container" style="max-height: 400px; overflow-y: auto;">';
+
+      studios.forEach((studio, sIndex) => {
+        modalBody += `
+          <div class="studio-group" style="margin-bottom: 15px; border: 1px solid #ddd; padding: 10px; border-radius: 8px;">
+            <div style="font-weight: bold; margin-bottom: 8px; border-bottom: 2px solid #eee; font-size: 0.9em; color: #666;">
+              <i class="fas fa-map-marker-alt"></i> ${studio.name}
+            </div>
+            <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+        `;
+
+        // 🔽 【修正】チェックボックスからラジオボタンに変更
+        if (studio.rooms && studio.rooms.length > 0) {
+          studio.rooms.forEach((room, rIndex) => {
+            const radioId = `studio-${sIndex}-room-${rIndex}`;
+            modalBody += `
+              <label style="display: flex; align-items: center; gap: 5px; cursor: pointer; background: #f9f9f9; padding: 5px 10px; border-radius: 4px; border: 1px solid #ccc;">
+                <input type="radio" name="room-option" id="${radioId}" 
+                       value="${room}" 
+                       data-studio-name="${studio.name}"
+                       data-studio-hp="${studio.hp || ''}"
+                       data-studio-access="${studio.access || ''}"
+                       data-studio-map="${studio.map || ''}">
+                ${room}
+              </label>
+            `;
+          });
+        } else {
+          modalBody +=
+            '<span style="color: #999; font-size: 0.85em;">ルーム情報なし</span>';
+        }
+
+        modalBody += `
+            </div>
+          </div>
+        `;
+      });
+      modalBody += '</div>';
+
+      // 3. モーダルを表示
+      const result = await utils.showModal(
+        '場所を選択',
+        modalBody,
+        '決定',
+        'キャンセル'
+      );
+
+      // 4. 決定ボタンが押された時の処理
+      if (result && result.success) {
+        // 🔽 【修正】ラジオボタンで選択された1つを取得
+        const $selected = $(
+          '.studio-select-container input[name="room-option"]:checked'
+        );
+
+        if ($selected.length > 0) {
+          const roomName = $selected.val();
+          const studioName = $selected.data('studio-name');
+          const hp = $selected.data('studio-hp');
+          const access = $selected.data('studio-access');
+          const map = $selected.data('studio-map');
+
+          // 🔽 【修正】「スタジオ名 ルーム名」の形式でセット
+          const fullPlaceName = `${studioName} ${roomName}`;
+
+          $('#event-place-name').val(fullPlaceName);
+          $('#event-website').val(hp);
+          $('#event-access').val(access);
+          $('#event-google-map').val(map);
+
+          // 変更通知
+          $(
+            '#event-place-name, #event-website, #event-access, #event-google-map'
+          ).trigger('change');
+        }
+      }
+    } catch (e) {
+      utils.hideSpinner();
+      console.error(e);
+      utils.showDialog('データ取得に失敗しました', true);
+    }
+  });
+
   // 💡 【新規追加】allow-assign ラジオボタンの変更時イベント
   $('input[name="allow-assign"]').on('change', toggleInstrumentConfig);
 
