@@ -2,93 +2,71 @@ import * as utils from '../common/functions.js';
 
 let initialState = {};
 
-//===========================
-// 初期化
-//===========================
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
 
-    // 画面ごとのパンくずをセット
+    const mode = utils.globalGetParamMode; // new / edit / copy
+    const collectId = utils.globalGetParamCollectId;
+
+    // パンくず設定
     let breadcrumb = [
-      { title: '曲募集一覧', url: '../call-list/call-list.html' },
+      { title: '集金一覧', url: '../collect-list/collect-list.html' },
     ];
-    if (['new'].includes(utils.globalGetParamMode)) {
-      breadcrumb.push({ title: '曲募集新規作成' });
-    } else if (['edit', 'copy'].includes(utils.globalGetParamMode)) {
+    if (mode === 'new') {
+      breadcrumb.push({ title: '集金新規作成' });
+    } else {
       breadcrumb.push(
         {
-          title: '曲募集確認',
-          url:
-            '../call-confirm/call-confirm.html?callId=' +
-            utils.globalGetParamCallId,
+          title: '集金確認',
+          url: `../collect-confirm/collect-confirm.html?collectId=${collectId}`,
         },
-        {
-          title:
-            utils.globalGetParamMode === 'edit'
-              ? '曲募集編集'
-              : '曲募集新規作成(コピー)',
-        }
+        { title: mode === 'edit' ? '集金編集' : '集金新規作成(コピー)' }
       );
     }
     utils.renderBreadcrumb(breadcrumb);
 
-    const mode = utils.globalGetParamMode; // new / edit / copy
-    await setupPage(mode);
+    await setupPage(mode, collectId);
     captureInitialState();
-    setupEventHandlers(mode);
+    setupEventHandlers(mode, collectId);
   } catch (e) {
-    await utils.writeLog({
-      dataId: utils.globalGetParamCallId,
-      action: '初期表示',
-      status: 'error',
-      errorDetail: { message: e.message, stack: e.stack },
-    });
+    console.error(e);
   } finally {
     utils.hideSpinner();
   }
 });
 
-//===========================
-// ページ設定
-//===========================
-async function setupPage(mode) {
-  const pageTitle = $('#page-title');
-  const title = $('#title');
-  const submitButton = $('#save-button');
-  const backLink = $('.back-link');
-
+async function setupPage(mode, collectId) {
   if (mode === 'new') {
-    pageTitle.text('曲募集新規作成');
-    title.text('曲募集新規作成');
-    submitButton.text('登録');
-    backLink.text('← 曲募集一覧に戻る');
-    // 初期表示で投票項目一つ表示
-    $('#call-items-container').append(addItemToForm());
-    // 回答を受け付けにチェック
-    $('#is-active').prop('checked', true);
-  } else if (mode === 'edit' || mode === 'copy') {
-    pageTitle.text(mode === 'edit' ? '曲募集編集' : '曲募集新規作成(コピー)');
-    title.text(mode === 'edit' ? '曲募集編集' : '曲募集新規作成(コピー)');
-    submitButton.text(mode === 'edit' ? '更新' : '登録');
-    backLink.text('← 曲募集確認に戻る');
-    await loadCallData(utils.globalGetParamCallId, mode);
+    $('#page-title, #title').text('集金新規作成');
+    $('.back-link')
+      .text('← 集金一覧に戻る')
+      .attr('href', '../collect-list/collect-list.html');
   } else {
-    throw new Error('モード不正です');
+    $('#page-title, #title').text(
+      mode === 'edit' ? '集金編集' : '集金新規作成(コピー)'
+    );
+    $('.back-link')
+      .text('← 集金確認に戻る')
+      .attr(
+        'href',
+        `../collect-confirm/collect-confirm.html?collectId=${collectId}`
+      );
+    await loadCollectData(collectId, mode);
   }
 }
 
-//===========================
-// データ読み込み
-//===========================
-async function loadCallData(docId, mode) {
-  const docSnap = await utils.getWrapDoc(utils.doc(utils.db, 'calls', docId));
-  if (!docSnap.exists()) throw new Error('募集が見つかりません');
-
+async function loadCollectData(docId, mode) {
+  const docSnap = await utils.getWrapDoc(
+    utils.doc(utils.db, 'collects', docId)
+  );
+  if (!docSnap.exists()) throw new Error('データが見つかりません');
   const data = docSnap.data();
 
-  $('#call-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
-  $('#call-description').val(data.description || '');
+  $('#target-date').val(
+    data.targetDate ? utils.formatDateToYMDHyphen(data.targetDate) : ''
+  );
+  $('#collect-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
   $('#accept-start-date').val(
     data.acceptStartDate
       ? utils.formatDateToYMDHyphen(data.acceptStartDate)
@@ -97,225 +75,118 @@ async function loadCallData(docId, mode) {
   $('#accept-end-date').val(
     data.acceptEndDate ? utils.formatDateToYMDHyphen(data.acceptEndDate) : ''
   );
-  $('#is-anonymous').prop('checked', data.isAnonymous || false);
-
-  // 募集ジャンルを復元
-  if (data.items && Array.isArray(data.items)) {
-    data.items.forEach((item) => addItemToForm(item));
-  }
+  $('#amount-per-person').val(data.amountPerPerson || '');
+  $('#payment-url').val(data.paymentUrl || '');
+  $('#upfront-amount').val(data.upfrontAmount || '');
+  $('#upfront-payer').val(data.upfrontPayer || '');
+  $('#participant-count').val(data.participantCount || '');
+  $('#manager-name').val(data.managerName || '');
+  $('#collect-remarks').val(data.remarks || '');
 }
 
-//===========================
-// イベント登録
-//===========================
-function setupEventHandlers(mode) {
-  $('#add-item').on('click', () => addItemToForm(''));
-
-  $('#clear-button').on('click', async () => {
-    if (
-      await utils.showDialog(
-        mode === 'new' ? '入力内容をクリアしますか？' : '編集前に戻しますか？'
-      )
-    )
-      restoreInitialState();
-  });
-
+function setupEventHandlers(mode, collectId) {
   $('#save-button').on('click', async () => {
-    if (!validateData()) {
-      utils.showDialog('入力内容を確認してください', true);
-      return;
-    }
+    if (!validateData()) return;
 
-    if (
-      !(await utils.showDialog(
-        (['new', 'copy'].includes(mode) ? '登録' : '更新') + 'しますか？'
-      ))
-    )
-      return;
+    const actionText = mode === 'edit' ? '更新' : '登録';
+    if (!(await utils.showDialog(`${actionText}しますか？`))) return;
 
     utils.showSpinner();
     try {
-      const callData = collectData(mode);
-
-      if (['new', 'copy'].includes(mode)) {
-        const docRef = await utils.addDoc(
-          utils.collection(utils.db, 'calls'),
-          callData
+      const collectData = gatherData();
+      if (mode === 'edit') {
+        collectData.updatedAt = utils.serverTimestamp();
+        await utils.updateDoc(
+          utils.doc(utils.db, 'collects', collectId),
+          collectData
         );
-        await utils.writeLog({ dataId: docRef.id, action: '登録' });
-        utils.hideSpinner();
-        await utils.showDialog('登録しました', true);
-        window.location.href = `../call-confirm/call-confirm.html?callId=${docRef.id}`;
       } else {
-        const callRef = utils.doc(
-          utils.db,
-          'calls',
-          utils.globalGetParamCallId
+        collectData.createdAt = utils.serverTimestamp();
+        const docRef = await utils.addDoc(
+          utils.collection(utils.db, 'collects'),
+          collectData
         );
-        callData.updatedAt = utils.serverTimestamp();
-        await utils.updateDoc(callRef, callData);
-        await utils.writeLog({
-          dataId: utils.globalGetParamCallId,
-          action: '更新',
-        });
-        utils.hideSpinner();
-        await utils.showDialog('更新しました', true);
-        window.location.href = `../call-confirm/call-confirm.html?callId=${utils.globalGetParamCallId}`;
+        collectId = docRef.id;
       }
+
+      await utils.writeLog({ dataId: collectId, action: actionText });
+      await utils.showDialog(`${actionText}しました`, true);
+      window.location.href = `../collect-confirm/collect-confirm.html?collectId=${collectId}`;
     } catch (e) {
-      await utils.writeLog({
-        dataId: utils.globalGetParamCallId,
-        action: ['new', 'copy'].includes(mode) ? '登録' : '更新',
-        status: 'error',
-        errorDetail: { message: e.message, stack: e.stack },
-      });
+      console.error(e);
     } finally {
       utils.hideSpinner();
     }
   });
 
-  $(document).on(
-    'click',
-    '.back-link',
-    () =>
-      (window.location.href = ['edit', 'copy'].includes(mode)
-        ? `../call-confirm/call-confirm.html?callId=${utils.globalGetParamCallId}`
-        : '../call-list/call-list.html')
-  );
+  $('#clear-button').on('click', async () => {
+    if (await utils.showDialog('入力をリセットしますか？'))
+      restoreInitialState();
+  });
 }
 
-//===========================
-// データ収集
-//===========================
-function collectData(mode) {
-  const items = [];
-  $('#call-items-container .call-item-input').each(function () {
-    const val = $(this).val().trim();
-    if (val) items.push(val);
-  });
-
-  const data = {
-    title: $('#call-title').val().trim(),
-    description: $('#call-description').val().trim(),
+function gatherData() {
+  return {
+    targetDate: utils.formatDateToYMDDot($('#target-date').val()),
+    title: $('#collect-title').val().trim(),
     acceptStartDate: utils.formatDateToYMDDot($('#accept-start-date').val()),
     acceptEndDate: utils.formatDateToYMDDot($('#accept-end-date').val()),
-    items,
-    isAnonymous: $('#is-anonymous').prop('checked'),
-    createdAt: utils.serverTimestamp(),
+    amountPerPerson: Number($('#amount-per-person').val()),
+    paymentUrl: $('#payment-url').val().trim(),
+    upfrontAmount: Number($('#upfront-amount').val()),
+    upfrontPayer: $('#upfront-payer').val().trim(),
+    participantCount: Number($('#participant-count').val()),
+    managerName: $('#manager-name').val().trim(),
+    remarks: $('#collect-remarks').val().trim(),
   };
-  if (['new', 'copy'].includes(mode))
-    data.createdBy = utils.getSession('displayName');
-  return data;
 }
 
-//===========================
-// 入力チェック
-//===========================
 function validateData() {
-  let isValid = true;
   utils.clearErrors();
+  let isValid = true;
 
-  const title = $('#call-title').val().trim();
-  if (!title) {
-    utils.markError($('#call-title'), '必須項目です');
+  if (!$('#target-date').val()) {
+    utils.markError($('#target-date'), '必須');
     isValid = false;
   }
-
-  const description = $('#call-description').val().trim();
-  if (!description) {
-    utils.markError($('#call-description'), '必須項目です');
+  if (!$('#collect-title').val().trim()) {
+    utils.markError($('#collect-title'), '必須');
     isValid = false;
   }
-
-  const acceptStartDate = $('#accept-start-date').val().trim();
-  const acceptEndDate = $('#accept-end-date').val().trim();
-  // 開始日付必須
-  if (!acceptStartDate) {
-    utils.markError($('#accept-date'), '必須項目です');
+  if (!$('#accept-start-date').val()) {
+    utils.markError($('#accept-start-date'), '必須');
     isValid = false;
   }
-  // 終了日付必須
-  else if (!acceptEndDate) {
-    utils.markError($('#accept-date'), '必須項目です');
+  if (!$('#accept-end-date').val()) {
+    utils.markError($('#accept-end-date'), '必須');
     isValid = false;
   }
-  // ✅ 開始日 > 終了日のチェック（両方入力されている場合に判定）
-  if (acceptStartDate && acceptEndDate) {
-    const start = new Date(acceptStartDate + 'T00:00:00');
-    const end = new Date(acceptEndDate + 'T23:59:59');
-
-    if (start.getTime() > end.getTime()) {
-      utils.markError($('#accept-date'), '終了日は開始日以降にしてください');
-      isValid = false;
-    }
-  }
-
-  const items = [];
-  $('#call-items-container .call-item-input').each(function () {
-    const val = $(this).val().trim();
-    if (val) items.push(val);
-  });
-  if (items.length === 0) {
-    utils.markError(
-      $('#call-items-container'),
-      '募集ジャンルを1つ以上入力してください'
-    );
+  if (!$('#amount-per-person').val()) {
+    utils.markError($('#amount-per-person'), '必須');
     isValid = false;
-  } else {
-    // 重複チェック
-    const uniqueItems = new Set(items);
-    if (uniqueItems.size !== items.length) {
-      utils.markError(
-        $('#call-items-container'),
-        '募集ジャンルが重複しています'
-      );
-      isValid = false;
-    }
   }
 
   return isValid;
 }
 
-//===========================
-// 募集ジャンルの追加
-//===========================
-function addItemToForm(value = '') {
-  const $container = $('#call-items-container');
-  const $item = $(`
-    <div class="call-item">
-      <input type="text" class="call-item-input" value="${value}" placeholder="募集ジャンルを入力..." />
-      <button type="button" class="remove-item">× 項目を削除</button>
-    </div>
-  `);
-  $item.find('.remove-item').on('click', () => $item.remove());
-  $container.append($item);
-}
-
-//===========================
-// 初期状態保存／復元
-//===========================
 function captureInitialState() {
-  initialState = {
-    title: $('#call-title').val(),
-    description: $('#call-description').val(),
-    acceptStartDate: $('#accept-start-date').val(),
-    acceptEndDate: $('#accept-end-date').val(),
-    items: $('#call-items-container .call-item-input')
-      .map(function () {
-        return $(this).val();
-      })
-      .get(),
-    isAnonymous: $('#is-anonymous').prop('checked'),
-  };
+  initialState = gatherData();
 }
 
 function restoreInitialState() {
-  $('#call-title').val(initialState.title);
-  $('#call-description').val(initialState.description);
-  $('#accept-start-date').val(initialStateHtml.acceptStartDate || ''); // ← yyyy-MM-dd形式
-  $('#accept-end-date').val(initialStateHtml.acceptEndDate || ''); // ← yyyy-MM-dd形式
-  $('#call-items-container').empty();
-  initialState.items.forEach((item) => addItemToForm(item));
-  $('#is-anonymous').prop('checked', initialState.isAnonymous);
-  utils.clearErrors();
+  $('#target-date').val(utils.formatDateToYMDHyphen(initialState.targetDate));
+  $('#collect-title').val(initialState.title);
+  $('#accept-start-date').val(
+    utils.formatDateToYMDHyphen(initialState.acceptStartDate)
+  );
+  $('#accept-end-date').val(
+    utils.formatDateToYMDHyphen(initialState.acceptEndDate)
+  );
+  $('#amount-per-person').val(initialState.amountPerPerson);
+  $('#payment-url').val(initialState.paymentUrl);
+  $('#upfront-amount').val(initialState.upfrontAmount);
+  $('#upfront-payer').val(initialState.upfrontPayer);
+  $('#participant-count').val(initialState.participantCount);
+  $('#manager-name').val(initialState.managerName);
+  $('#collect-remarks').val(initialState.remarks);
 }

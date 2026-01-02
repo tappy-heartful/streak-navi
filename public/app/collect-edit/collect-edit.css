@@ -1,57 +1,22 @@
-.call-item {
-  margin-bottom: 20px;
+.detail-edit-box {
+  background-color: #f8f9fa;
   padding: 15px;
-  border: 1px solid #ddd;
   border-radius: 8px;
-  background: #f9f9f9;
+  border: 1px solid #e9ecef;
 }
 
-.call-item-title {
-  margin-bottom: 10px;
+.sub-form-group {
+  margin-bottom: 12px;
 }
 
-.call-choices input {
-  margin-bottom: 8px;
-}
-
-.add-choice, .remove-item, #add-item, #add-link {
-  margin-top: 10px;
-  background-color: #eee;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.choice-wrapper {
-  display: flex;
-  gap: 10px;
-  margin-bottom: 8px;
-  align-items: center;
-}
-
-.choice-wrapper input {
-  flex: 1;
-}
-
-.remove-choice {
-  background-color: #f44336;
-  color: white;
-  border: none;
-  border-radius: 6px;
-  padding: 6px 10px;
-  cursor: pointer;
-}
-
-/* remove-itemボタン右寄せ */
-.remove-item {
+.sub-form-group label {
+  font-size: 0.85rem;
+  color: #6c757d;
   display: block;
-  margin-left: auto;
-  margin-top: 10px;
-  background-color: #f44336;
-  color: white;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
+  margin-bottom: 4px;
+}
+
+.sub-form-group input {
+  padding: 8px;
+  font-size: 0.95rem;
 }
