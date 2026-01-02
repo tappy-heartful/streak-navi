@@ -41,7 +41,6 @@
   background: #e8f0fe;
 }
 
-/* 補足メッセージ用 */
 .form-help-text {
   font-size: 0.8rem;
   color: #d32f2f;
@@ -62,10 +61,18 @@
   background: #f5f5f5 !important;
   border: 1px solid #cfd8dc !important;
   color: #555;
+  padding: 8px;
+  border-radius: 4px;
+}
+
+.highlight-text {
+  color: #d32f2f !important;
+  font-weight: bold;
 }
 
 .w-full {
   width: 100% !important;
+  box-sizing: border-box;
 }
 
 .detail-edit-box {
@@ -83,20 +90,4 @@
   margin-bottom: 15px;
   border-bottom: 2px solid #d1d9e6;
   padding-bottom: 5px;
-}
-
-.highlight-group {
-  background: #fff9c4;
-  padding: 15px;
-  border-radius: 8px;
-  border: 1px solid #fbc02d;
-}
-
-.readonly-input {
-  background-color: #f5f5f5 !important;
-  color: #d32f2f;
-  font-weight: bold;
-  font-size: 1.2rem;
-  border: none !important;
-  pointer-events: none;
 }

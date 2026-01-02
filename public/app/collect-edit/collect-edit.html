@@ -57,10 +57,14 @@
         <label class="section-label"
           ><i class="fas fa-calculator"></i> 管理・建替詳細</label
         >
+
         <div class="sub-form-group">
-          <label for="upfront-amount">建替総額 (円)</label>
+          <label for="upfront-amount"
+            >建替総額 (円) <span class="required">*</span></label
+          >
           <input type="number" id="upfront-amount" placeholder="30000" />
         </div>
+
         <div class="sub-form-group">
           <label for="participant-count-display">対象人数 (自動カウント)</label>
           <input
@@ -70,18 +74,17 @@
             class="readonly-input-small"
           />
         </div>
+
         <div class="sub-form-group">
-          <label for="upfront-payer">建替担当者</label>
-          <select id="upfront-payer">
-            <option value="">選択してください</option>
-          </select>
+          <label for="amount-per-person">1人あたりの金額 (円)</label>
+          <input
+            type="number"
+            id="amount-per-person"
+            class="readonly-input-small w-full highlight-text"
+            readonly
+          />
         </div>
-        <div class="sub-form-group">
-          <label for="manager-name">集金担当者 (管理担当)</label>
-          <select id="manager-name">
-            <option value="">選択してください</option>
-          </select>
-        </div>
+
         <div class="sub-form-group">
           <label for="remittance-amount">集金者 → 建替者への送金額 (円)</label>
           <input
@@ -92,18 +95,24 @@
             placeholder="自動計算されます"
           />
         </div>
-      </div>
 
-      <div class="form-group highlight-group">
-        <label for="amount-per-person"
-          >1人あたりの金額 (円) <span class="required">*</span></label
-        >
-        <input
-          type="number"
-          id="amount-per-person"
-          class="readonly-input"
-          readonly
-        />
+        <div class="sub-form-group">
+          <label for="upfront-payer"
+            >建替担当者 <span class="required">*</span></label
+          >
+          <select id="upfront-payer">
+            <option value="">選択してください</option>
+          </select>
+        </div>
+
+        <div class="sub-form-group">
+          <label for="manager-name"
+            >集金担当者 (管理担当) <span class="required">*</span></label
+          >
+          <select id="manager-name">
+            <option value="">選択してください</option>
+          </select>
+        </div>
       </div>
 
       <div class="form-group">

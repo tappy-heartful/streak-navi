@@ -266,8 +266,21 @@ function validateData(mode) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  // 必須項目チェック (備考以外)
   if (!$('#target-date').val()) {
     utils.markError($('#target-date'), '必須');
+    isValid = false;
+  }
+  if (!$('#collect-title').val().trim()) {
+    utils.markError($('#collect-title'), '必須');
+    isValid = false;
+  }
+  if (!$('#accept-end-date').val()) {
+    utils.markError($('#accept-end-date'), '必須');
+    isValid = false;
+  }
+  if (!$('#upfront-amount').val()) {
+    utils.markError($('#upfront-amount'), '必須');
     isValid = false;
   }
   if (!$('#upfront-payer').val()) {
@@ -279,6 +292,7 @@ function validateData(mode) {
     isValid = false;
   }
 
+  // 日付バリデーション
   if (startStr && endStr) {
     const start = new Date(startStr);
     const end = new Date(endStr);
@@ -298,6 +312,7 @@ function validateData(mode) {
     }
   }
 
+  // 対象者選択
   if ($('.user-chk:checked').length === 0) {
     utils.markError(
       $('#participant-selection-container'),
@@ -305,10 +320,16 @@ function validateData(mode) {
     );
     isValid = false;
   }
+
+  // 計算結果
   if (!$('#amount-per-person').val()) {
-    utils.markError($('#amount-per-person'), '金額が計算されていません');
+    utils.markError(
+      $('#upfront-amount'),
+      '金額と対象者を正しく入力してください'
+    );
     isValid = false;
   }
+
   return isValid;
 }
 
