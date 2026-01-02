@@ -37,11 +37,16 @@ $(document).ready(async function () {
 });
 
 async function setupPage(mode, collectId) {
+  const saveBtn = $('#save-button'); // 保存ボタンの取得
+
   if (mode === 'new') {
     $('#page-title, #title').text('集金新規作成');
     $('.back-link')
       .text('← 集金一覧に戻る')
       .attr('href', '../collect-list/collect-list.html');
+
+    // 文言を「登録」に
+    saveBtn.text('登録');
   } else {
     $('#page-title, #title').text(
       mode === 'edit' ? '集金編集' : '集金新規作成(コピー)'
@@ -52,6 +57,14 @@ async function setupPage(mode, collectId) {
         'href',
         `../collect-confirm/collect-confirm.html?collectId=${collectId}`
       );
+
+    // モードによってボタン文言を切り替え
+    if (mode === 'edit') {
+      saveBtn.text('更新');
+    } else if (mode === 'copy') {
+      saveBtn.text('登録');
+    }
+
     await loadCollectData(collectId, mode);
   }
 }
