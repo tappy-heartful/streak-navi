@@ -69,7 +69,6 @@ async function loadInitialMasterData() {
 function renderParticipantSelector() {
   const $container = $('#participant-selection-container').empty();
 
-  // 部署ごとにグループ化
   const grouped = {};
   allUsers.forEach((u) => {
     if (!grouped[u.sectionId]) grouped[u.sectionId] = [];
@@ -88,7 +87,7 @@ function renderParticipantSelector() {
     grouped[sId].forEach((u) => {
       const $userItem = $(`
         <label class="user-checkbox-item">
-          <input type="checkbox" class="user-chk" value="${u.displayName}" data-id="${u.id}">
+          <input type="checkbox" class="user-chk" value="${u.id}">
           <span>${u.displayName}</span>
         </label>
       `);
@@ -100,9 +99,10 @@ function renderParticipantSelector() {
 
 function initDropdowns() {
   allUsers.forEach((u) => {
-    $('#upfront-payer').append(new Option(u.displayName, u.displayName));
+    // valueにユーザーID、textに名前を表示
+    $('#upfront-payer').append(new Option(u.displayName, u.id));
     if (u.sectionId === '1') {
-      $('#manager-name').append(new Option(u.displayName, u.displayName));
+      $('#manager-name').append(new Option(u.displayName, u.id));
     }
   });
 }
@@ -127,7 +127,6 @@ async function setupPage(mode, collectId) {
   } else {
     $('#page-title, #title').text('集金編集');
     saveBtn.text('更新');
-    // 編集時は開始日を非活性化
     $('#accept-start-date').hide();
     $('#accept-start-text').show();
     await loadCollectData(collectId, mode);
@@ -135,17 +134,17 @@ async function setupPage(mode, collectId) {
 }
 
 /**
- * 自動計算
+ * 自動計算 (IDベースで判定)
  */
 function runCalculations() {
   const total = Number($('#upfront-amount').val()) || 0;
-  const selectedPayer = $('#upfront-payer').val();
-  const selectedUsers = $('.user-chk:checked')
+  const payerId = $('#upfront-payer').val(); // 選択された建替者のID
+  const selectedParticipantIds = $('.user-chk:checked')
     .map(function () {
-      return $(this).val();
+      return $(this).val(); // 各チェックボックスのvalue(ID)を取得
     })
     .get();
-  const count = selectedUsers.length;
+  const count = selectedParticipantIds.length;
 
   $('#participant-count-display').val(count);
 
@@ -153,8 +152,8 @@ function runCalculations() {
     const perPerson = Math.ceil(total / count);
     $('#amount-per-person').val(perPerson);
 
-    // 送金額計算: 建替者が対象に含まれていれば「総額 - 1人分」
-    const isPayerIncluded = selectedUsers.includes(selectedPayer);
+    // 建替者(ID)が対象者リスト(ID配列)に含まれているか
+    const isPayerIncluded = selectedParticipantIds.includes(payerId);
     const remittance = isPayerIncluded
       ? perPerson * (count - 1)
       : perPerson * count;
@@ -208,9 +207,9 @@ function setupEventHandlers(mode, collectId) {
 }
 
 function gatherData() {
-  const participants = $('.user-chk:checked')
+  const participantIds = $('.user-chk:checked')
     .map(function () {
-      return $(this).val();
+      return $(this).val(); // IDの配列を生成
     })
     .get();
   return {
@@ -223,10 +222,10 @@ function gatherData() {
     amountPerPerson: Number($('#amount-per-person').val()),
     paymentUrl: $('#payment-url').val().trim(),
     upfrontAmount: Number($('#upfront-amount').val()),
-    upfrontPayer: $('#upfront-payer').val(),
-    participantCount: participants.length,
-    participants: participants,
-    managerName: $('#manager-name').val(),
+    upfrontPayer: $('#upfront-payer').val(), // 建替者のID
+    participantCount: participantIds.length,
+    participants: participantIds, // 対象者IDの配列
+    managerName: $('#manager-name').val(), // 管理担当者のID
     remittanceAmount: Number($('#remittance-amount').val()),
     remarks: $('#collect-remarks').val().trim(),
   };
@@ -243,18 +242,19 @@ async function loadCollectData(docId, mode) {
 
   const startYMD = utils.formatDateToYMDHyphen(data.acceptStartDate);
   $('#accept-start-date').val(startYMD);
-  $('#accept-start-text').text(data.acceptStartDate); // yyyy.mm.dd
+  $('#accept-start-text').text(data.acceptStartDate);
 
   $('#accept-end-date').val(utils.formatDateToYMDHyphen(data.acceptEndDate));
   $('#upfront-amount').val(data.upfrontAmount || '');
-  $('#upfront-payer').val(data.upfrontPayer || '');
-  $('#manager-name').val(data.managerName || '');
+  $('#upfront-payer').val(data.upfrontPayer || ''); // IDでセット
+  $('#manager-name').val(data.managerName || ''); // IDでセット
   $('#payment-url').val(data.paymentUrl || '');
   $('#collect-remarks').val(data.remarks || '');
 
   if (data.participants) {
-    data.participants.forEach((name) => {
-      $(`.user-chk[value="${name}"]`).prop('checked', true);
+    // IDの配列を元にチェックボックスを復元
+    data.participants.forEach((id) => {
+      $(`.user-chk[value="${id}"]`).prop('checked', true);
     });
   }
   runCalculations();
@@ -272,13 +272,20 @@ function validateData(mode) {
     utils.markError($('#target-date'), '必須');
     isValid = false;
   }
+  if (!$('#upfront-payer').val()) {
+    utils.markError($('#upfront-payer'), '必須');
+    isValid = false;
+  }
+  if (!$('#manager-name').val()) {
+    utils.markError($('#manager-name'), '必須');
+    isValid = false;
+  }
 
   // 日付バリデーション
   if (startStr && endStr) {
     const start = new Date(startStr);
     const end = new Date(endStr);
 
-    // 新規・コピー時のみ今日との比較
     if (mode !== 'edit' && start <= today) {
       utils.markError(
         $('#accept-start-date'),
