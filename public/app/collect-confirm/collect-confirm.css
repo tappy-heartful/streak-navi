@@ -1,22 +1,30 @@
 /* 金額の強調 */
 .highlight-amount {
-    font-size: 24px !important;
+    font-size: 26px !important;
     color: #2e7d32;
     font-weight: bold;
+    margin-top: 4px;
 }
 
 /* 外部支払いボタン */
 .pay-external-btn {
-    display: inline-block;
-    padding: 12px 20px;
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    padding: 14px 24px;
     background-color: #ff3b30;
     color: white !important;
     text-decoration: none;
-    border-radius: 8px;
+    border-radius: 12px;
     font-weight: bold;
     box-shadow: 0 4px 0 #c42a22;
-    margin-top: 5px;
+    transition: all 0.1s;
 }
+
+.pay-external-btn:hover {
+    background-color: #ff4d43;
+}
+
 .pay-external-btn:active {
     transform: translateY(2px);
     box-shadow: 0 2px 0 #c42a22;
@@ -24,25 +32,29 @@
 
 /* 詳細ボックス */
 .detail-box {
-    background: #f8f9fa;
-    padding: 15px;
-    border-radius: 8px;
-    border: 1px solid #dee2e6;
+    background: #fdfdfd;
+    padding: 16px;
+    border-radius: 10px;
+    border: 1px solid #e0e0e0;
 }
 .detail-item {
     font-size: 14px;
-    margin-bottom: 8px;
-    color: #495057;
+    margin-bottom: 10px;
+    color: #555;
+    display: flex;
+    justify-content: flex-start;
 }
+.detail-item:last-child { margin-bottom: 0; }
 .detail-item span {
     font-weight: bold;
-    color: #212529;
+    color: #333;
+    margin-left: 8px;
 }
 
 /* 2カラム表示（PC用） */
 .form-row {
     display: flex;
-    gap: 20px;
+    gap: 24px;
 }
 .form-row .form-group {
     flex: 1;
@@ -55,5 +67,9 @@
 .info-msg {
     color: #d32f2f;
     font-weight: bold;
-    text-align: center;
+    font-size: 14px;
+    padding: 10px;
+    background: #fff5f5;
+    border-radius: 6px;
+    display: inline-block;
 }
