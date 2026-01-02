@@ -37,8 +37,20 @@
         <label>受付期間 <span class="required">*</span></label>
         <div class="form-group-dates" id="accept-date">
           <input type="date" id="accept-start-date" />
+          <span
+            id="accept-start-text"
+            class="readonly-text"
+            style="display: none"
+          ></span>
           ～
           <input type="date" id="accept-end-date" />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>集金対象者リスト <span class="required">*</span></label>
+        <div id="participant-selection-container" class="participant-selector">
+          <div class="loading-msg">ユーザーリストを読み込み中...</div>
         </div>
       </div>
 
@@ -51,8 +63,13 @@
           <input type="number" id="upfront-amount" placeholder="30000" />
         </div>
         <div class="sub-form-group">
-          <label for="participant-count">対象人数 (名)</label>
-          <input type="number" id="participant-count" placeholder="10" />
+          <label for="participant-count-display">対象人数 (自動カウント)</label>
+          <input
+            type="number"
+            id="participant-count-display"
+            readonly
+            class="readonly-input-small"
+          />
         </div>
         <div class="sub-form-group">
           <label for="upfront-payer">建替担当者</label>
@@ -71,7 +88,7 @@
           <input
             type="number"
             id="remittance-amount"
-            placeholder="自動計算または入力"
+            placeholder="自動計算されます"
           />
         </div>
       </div>
@@ -85,7 +102,6 @@
           id="amount-per-person"
           class="readonly-input"
           readonly
-          placeholder="自動計算されます"
         />
       </div>
 

@@ -1,6 +1,8 @@
 import * as utils from '../common/functions.js';
 
 let initialState = {};
+let allUsers = [];
+let sectionsMap = {};
 
 $(document).ready(async function () {
   try {
@@ -9,8 +11,8 @@ $(document).ready(async function () {
     const mode = utils.globalGetParamMode;
     const collectId = utils.globalGetParamCollectId;
 
-    // ユーザーリストを取得してセレクトボックスを初期化
-    await initUserSelects();
+    // データの初期ロード
+    await loadInitialMasterData();
 
     // パンくず設定
     let breadcrumb = [
@@ -40,34 +42,69 @@ $(document).ready(async function () {
 });
 
 /**
- * ユーザー情報の取得とセレクトボックスへの反映
+ * 部署・ユーザーマスタの読み込みとUI生成
  */
-async function initUserSelects() {
-  const usersSnap = await utils.getWrapDocs(
-    utils.collection(utils.db, 'users')
-  );
-  const allUsers = usersSnap.docs.map((d) => d.data());
+async function loadInitialMasterData() {
+  const [usersSnap, sectionsSnap] = await Promise.all([
+    utils.getWrapDocs(utils.collection(utils.db, 'users')),
+    utils.getWrapDocs(utils.collection(utils.db, 'sections')),
+  ]);
 
-  // ソート用関数 (sectionId ASC, roleId ASC)
-  const sortUsers = (a, b) => {
+  allUsers = usersSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+  sectionsSnap.docs.forEach((d) => {
+    sectionsMap[d.id] = d.data().name;
+  });
+
+  // ソート (sectionId ASC, roleId ASC)
+  allUsers.sort((a, b) => {
     if (a.sectionId !== b.sectionId)
       return a.sectionId.localeCompare(b.sectionId);
-    return a.roleId.localeCompare(b.roleId);
-  };
+    return (a.roleId || '').localeCompare(b.roleId || '');
+  });
 
-  // 全ユーザー（建て替え担当者用）
-  const upfrontUsers = [...allUsers].sort(sortUsers);
-  // sectionId === "1" のみ（集金担当者用）
-  const managerUsers = allUsers
-    .filter((u) => u.sectionId === '1')
-    .sort(sortUsers);
+  renderParticipantSelector();
+  initDropdowns();
+}
 
-  upfrontUsers.forEach((u) =>
-    $('#upfront-payer').append(new Option(u.displayName, u.displayName))
-  );
-  managerUsers.forEach((u) =>
-    $('#manager-name').append(new Option(u.displayName, u.displayName))
-  );
+function renderParticipantSelector() {
+  const $container = $('#participant-selection-container').empty();
+
+  // 部署ごとにグループ化
+  const grouped = {};
+  allUsers.forEach((u) => {
+    if (!grouped[u.sectionId]) grouped[u.sectionId] = [];
+    grouped[u.sectionId].push(u);
+  });
+
+  Object.keys(grouped).forEach((sId) => {
+    const sectionName = sectionsMap[sId] || `部署コード:${sId}`;
+    const $sectionDiv = $(`
+      <div class="section-group">
+        <div class="section-title">${sectionName}</div>
+        <div class="user-grid"></div>
+      </div>
+    `);
+
+    grouped[sId].forEach((u) => {
+      const $userItem = $(`
+        <label class="user-checkbox-item">
+          <input type="checkbox" class="user-chk" value="${u.displayName}" data-id="${u.id}">
+          <span>${u.displayName}</span>
+        </label>
+      `);
+      $sectionDiv.find('.user-grid').append($userItem);
+    });
+    $container.append($sectionDiv);
+  });
+}
+
+function initDropdowns() {
+  allUsers.forEach((u) => {
+    $('#upfront-payer').append(new Option(u.displayName, u.displayName));
+    if (u.sectionId === '1') {
+      $('#manager-name').append(new Option(u.displayName, u.displayName));
+    }
+  });
 }
 
 async function setupPage(mode, collectId) {
@@ -75,7 +112,6 @@ async function setupPage(mode, collectId) {
 
   if (mode === 'new' || mode === 'copy') {
     saveBtn.text('登録');
-    // 日付の初期値設定 (new/copy時)
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const day13th = new Date();
@@ -87,39 +123,54 @@ async function setupPage(mode, collectId) {
     if (mode === 'copy') {
       $('#page-title, #title').text('集金新規作成(コピー)');
       await loadCollectData(collectId, mode);
-    } else {
-      $('#page-title, #title').text('集金新規作成');
     }
   } else {
     $('#page-title, #title').text('集金編集');
     saveBtn.text('更新');
+    // 編集時は開始日を非活性化
+    $('#accept-start-date').hide();
+    $('#accept-start-text').show();
     await loadCollectData(collectId, mode);
   }
 }
 
 /**
- * 自動計算ロジック
+ * 自動計算
  */
-function calculatePerPerson() {
+function runCalculations() {
   const total = Number($('#upfront-amount').val()) || 0;
-  const count = Number($('#participant-count').val()) || 0;
+  const selectedPayer = $('#upfront-payer').val();
+  const selectedUsers = $('.user-chk:checked')
+    .map(function () {
+      return $(this).val();
+    })
+    .get();
+  const count = selectedUsers.length;
+
+  $('#participant-count-display').val(count);
 
   if (total > 0 && count > 0) {
-    const perPerson = Math.ceil(total / count); // 切り上げ
+    const perPerson = Math.ceil(total / count);
     $('#amount-per-person').val(perPerson);
-    // 送金額の初期値としてもセット（必要に応じて手修正可能）
-    $('#remittance-amount').val(total);
+
+    // 送金額計算: 建替者が対象に含まれていれば「総額 - 1人分」
+    const isPayerIncluded = selectedUsers.includes(selectedPayer);
+    const remittance = isPayerIncluded
+      ? perPerson * (count - 1)
+      : perPerson * count;
+    $('#remittance-amount').val(remittance);
   } else {
     $('#amount-per-person').val('');
+    $('#remittance-amount').val('');
   }
 }
 
 function setupEventHandlers(mode, collectId) {
-  // 自動計算のトリガー
-  $('#upfront-amount, #participant-count').on('input', calculatePerPerson);
+  $(document).on('change', '.user-chk, #upfront-payer', runCalculations);
+  $('#upfront-amount').on('input', runCalculations);
 
   $('#save-button').on('click', async () => {
-    if (!validateData()) return;
+    if (!validateData(mode)) return;
     const actionText = mode === 'edit' ? '更新' : '登録';
     if (!(await utils.showDialog(`${actionText}しますか？`))) return;
 
@@ -152,21 +203,29 @@ function setupEventHandlers(mode, collectId) {
   });
 
   $('#clear-button').on('click', async () => {
-    if (await utils.showDialog('リセットしますか？')) restoreInitialState();
+    if (await utils.showDialog('リセットしますか？')) location.reload();
   });
 }
 
 function gatherData() {
+  const participants = $('.user-chk:checked')
+    .map(function () {
+      return $(this).val();
+    })
+    .get();
   return {
     targetDate: utils.formatDateToYMDDot($('#target-date').val()),
     title: $('#collect-title').val().trim(),
-    acceptStartDate: utils.formatDateToYMDDot($('#accept-start-date').val()),
+    acceptStartDate: utils.formatDateToYMDDot(
+      $('#accept-start-date').val() || $('#accept-start-text').text()
+    ),
     acceptEndDate: utils.formatDateToYMDDot($('#accept-end-date').val()),
     amountPerPerson: Number($('#amount-per-person').val()),
     paymentUrl: $('#payment-url').val().trim(),
     upfrontAmount: Number($('#upfront-amount').val()),
     upfrontPayer: $('#upfront-payer').val(),
-    participantCount: Number($('#participant-count').val()),
+    participantCount: participants.length,
+    participants: participants,
     managerName: $('#manager-name').val(),
     remittanceAmount: Number($('#remittance-amount').val()),
     remarks: $('#collect-remarks').val().trim(),
@@ -181,29 +240,66 @@ async function loadCollectData(docId, mode) {
 
   $('#target-date').val(utils.formatDateToYMDHyphen(data.targetDate));
   $('#collect-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
-  $('#accept-start-date').val(
-    utils.formatDateToYMDHyphen(data.acceptStartDate)
-  );
+
+  const startYMD = utils.formatDateToYMDHyphen(data.acceptStartDate);
+  $('#accept-start-date').val(startYMD);
+  $('#accept-start-text').text(data.acceptStartDate); // yyyy.mm.dd
+
   $('#accept-end-date').val(utils.formatDateToYMDHyphen(data.acceptEndDate));
-  $('#amount-per-person').val(data.amountPerPerson);
-  $('#payment-url').val(data.paymentUrl || '');
   $('#upfront-amount').val(data.upfrontAmount || '');
   $('#upfront-payer').val(data.upfrontPayer || '');
-  $('#participant-count').val(data.participantCount || '');
   $('#manager-name').val(data.managerName || '');
-  $('#remittance-amount').val(data.remittanceAmount || '');
+  $('#payment-url').val(data.paymentUrl || '');
   $('#collect-remarks').val(data.remarks || '');
+
+  if (data.participants) {
+    data.participants.forEach((name) => {
+      $(`.user-chk[value="${name}"]`).prop('checked', true);
+    });
+  }
+  runCalculations();
 }
 
-function validateData() {
+function validateData(mode) {
   utils.clearErrors();
   let isValid = true;
+  const startStr = $('#accept-start-date').val();
+  const endStr = $('#accept-end-date').val();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
   if (!$('#target-date').val()) {
     utils.markError($('#target-date'), '必須');
     isValid = false;
   }
-  if (!$('#collect-title').val().trim()) {
-    utils.markError($('#collect-title'), '必須');
+
+  // 日付バリデーション
+  if (startStr && endStr) {
+    const start = new Date(startStr);
+    const end = new Date(endStr);
+
+    // 新規・コピー時のみ今日との比較
+    if (mode !== 'edit' && start <= today) {
+      utils.markError(
+        $('#accept-start-date'),
+        '開始日は明日以降にしてください'
+      );
+      isValid = false;
+    }
+    if (end <= start) {
+      utils.markError(
+        $('#accept-end-date'),
+        '終了日は開始日より後にしてください'
+      );
+      isValid = false;
+    }
+  }
+
+  if ($('.user-chk:checked').length === 0) {
+    utils.markError(
+      $('#participant-selection-container'),
+      '対象者を1人以上選択してください'
+    );
     isValid = false;
   }
   if (!$('#amount-per-person').val()) {
@@ -215,8 +311,4 @@ function validateData() {
 
 function captureInitialState() {
   initialState = gatherData();
-}
-function restoreInitialState() {
-  // ...初期状態への復元処理 (省略可、または上記loadDataに近い処理)
-  location.reload();
 }
