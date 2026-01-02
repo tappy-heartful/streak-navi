@@ -34,6 +34,25 @@ async function renderCollect() {
   const formatYen = (num) => (num ? `¥${Number(num).toLocaleString()}` : '-');
 
   // 表示のセット
+  // 受付中かどうかを判定
+  const isActive = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
+
+  // 画面に反映
+  let statusClass = '';
+  let statusText = '';
+  if (!isActive) {
+    statusClass = 'closed';
+    statusText = '期間外';
+  } else {
+    statusClass = 'pending';
+    statusText = '受付中';
+  }
+
+  $('#answer-status-label')
+    .removeClass('pending answered closed')
+    .addClass(statusClass)
+    .text(statusText);
+
   $('#target-date').text(
     data.targetDate ? utils.getDayOfWeek(data.targetDate_decoded) : '-'
   );
@@ -54,7 +73,6 @@ async function renderCollect() {
   $('#manager-name').text(data.managerName || '-');
 
   // 支払いボタンの制御
-  const isActive = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
   const $payContainer = $('#payment-link-container').empty();
 
   if (data.paymentUrl) {
