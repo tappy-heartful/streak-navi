@@ -62,9 +62,9 @@ async function renderCollect() {
       // ボタン構造を反映
       $payContainer.append(`
         <div id="answer-menu" class="menu-section">
+        <h2 class="menu-title">支払いメニュー</h2>
           <div class="confirm-buttons">
-            <button id="pay-button" class="save-button">
-              <i class="fas fa-external-link-alt"></i> 支払いリンクを開く
+            <button id="pay-button" class="save-button">支払う
             </button>
           </div>
         </div>
