@@ -59,14 +59,24 @@ async function renderCollect() {
 
   if (data.paymentUrl) {
     if (isActive) {
+      // ボタン構造を反映
       $payContainer.append(`
-        <a href="${data.paymentUrl}" target="_blank" class="pay-external-btn">
-          <i class="fas fa-external-link-alt"></i> 支払いページを開く
-        </a>
+        <div id="answer-menu" class="menu-section">
+          <div class="confirm-buttons">
+            <button id="pay-button" class="save-button">
+              <i class="fas fa-external-link-alt"></i> 支払いリンクを開く
+            </button>
+          </div>
+        </div>
       `);
+
+      // ボタン押下時の処理（別タブで開く）
+      $('#pay-button').on('click', function () {
+        window.open(data.paymentUrl, '_blank', 'noopener,noreferrer');
+      });
     } else {
       $payContainer.html(
-        '<span class="info-msg">受付期間外のため非表示です</span>'
+        '<span class="info-msg">受付期間外のためボタンは無効です</span>'
       );
     }
   } else {
