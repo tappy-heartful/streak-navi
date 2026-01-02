@@ -75,10 +75,9 @@ async function renderCollect() {
   // 支払いボタンの制御
   const $payContainer = $('#payment-link-container').empty();
 
-  if (data.paymentUrl) {
-    if (isActive) {
-      // ボタン構造を反映
-      $payContainer.append(`
+  if (data.paymentUrl && isActive) {
+    // ボタン構造を反映
+    $payContainer.append(`
         <div id="answer-menu" class="menu-section">
         <h2 class="menu-title">支払いメニュー</h2>
           <div class="confirm-buttons">
@@ -88,15 +87,10 @@ async function renderCollect() {
         </div>
       `);
 
-      // ボタン押下時の処理（別タブで開く）
-      $('#pay-button').on('click', function () {
-        window.open(data.paymentUrl, '_blank', 'noopener,noreferrer');
-      });
-    } else {
-      $payContainer.html('<span class="info-msg">受付期間外です</span>');
-    }
-  } else {
-    $payContainer.text('設定なし');
+    // ボタン押下時の処理（別タブで開く）
+    $('#pay-button').on('click', function () {
+      window.open(data.paymentUrl, '_blank', 'noopener,noreferrer');
+    });
   }
 
   setupEventHandlers(collectId, isAdmin);
