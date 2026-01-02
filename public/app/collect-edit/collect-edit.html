@@ -42,11 +42,51 @@
         </div>
       </div>
 
-      <div class="form-group">
+      <div class="form-group detail-edit-box">
+        <label class="section-label"
+          ><i class="fas fa-calculator"></i> 管理・建替詳細</label
+        >
+        <div class="sub-form-group">
+          <label for="upfront-amount">建替総額 (円)</label>
+          <input type="number" id="upfront-amount" placeholder="30000" />
+        </div>
+        <div class="sub-form-group">
+          <label for="participant-count">対象人数 (名)</label>
+          <input type="number" id="participant-count" placeholder="10" />
+        </div>
+        <div class="sub-form-group">
+          <label for="upfront-payer">建替担当者</label>
+          <select id="upfront-payer">
+            <option value="">選択してください</option>
+          </select>
+        </div>
+        <div class="sub-form-group">
+          <label for="manager-name">集金担当者 (管理担当)</label>
+          <select id="manager-name">
+            <option value="">選択してください</option>
+          </select>
+        </div>
+        <div class="sub-form-group">
+          <label for="remittance-amount">集金者 → 建替者への送金額 (円)</label>
+          <input
+            type="number"
+            id="remittance-amount"
+            placeholder="自動計算または入力"
+          />
+        </div>
+      </div>
+
+      <div class="form-group highlight-group">
         <label for="amount-per-person"
           >1人あたりの金額 (円) <span class="required">*</span></label
         >
-        <input type="number" id="amount-per-person" placeholder="3000" />
+        <input
+          type="number"
+          id="amount-per-person"
+          class="readonly-input"
+          readonly
+          placeholder="自動計算されます"
+        />
       </div>
 
       <div class="form-group">
@@ -56,26 +96,6 @@
           id="payment-url"
           placeholder="https://paypay.me/..."
         />
-      </div>
-
-      <div class="form-group detail-edit-box">
-        <label>管理・建替詳細</label>
-        <div class="sub-form-group">
-          <label for="upfront-amount">建替総額 (円)</label>
-          <input type="number" id="upfront-amount" placeholder="30000" />
-        </div>
-        <div class="sub-form-group">
-          <label for="upfront-payer">建替担当者</label>
-          <input type="text" id="upfront-payer" placeholder="氏名" />
-        </div>
-        <div class="sub-form-group">
-          <label for="participant-count">対象人数 (名)</label>
-          <input type="number" id="participant-count" placeholder="10" />
-        </div>
-        <div class="sub-form-group">
-          <label for="manager-name">管理担当者</label>
-          <input type="text" id="manager-name" placeholder="管理者の名前" />
-        </div>
       </div>
 
       <div class="form-group">
