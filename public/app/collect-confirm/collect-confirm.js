@@ -113,6 +113,7 @@ function setupEventHandlers(collectId, isAdmin) {
     try {
       utils.showSpinner();
       await utils.archiveAndDeleteDoc('collects', collectId);
+      await utils.showDialog('削除しました', true);
       window.location.href = '../collect-list/collect-list.html';
     } finally {
       utils.hideSpinner();

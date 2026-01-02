@@ -109,6 +109,7 @@ function initDropdowns() {
 
 async function setupPage(mode, collectId) {
   const saveBtn = $('#save-button');
+  const backLink = $('.back-link');
 
   if (mode === 'new' || mode === 'copy') {
     saveBtn.text('登録');
@@ -122,13 +123,17 @@ async function setupPage(mode, collectId) {
 
     if (mode === 'copy') {
       $('#page-title, #title').text('集金新規作成(コピー)');
+      backLink.text('← 集金一覧に戻る');
       await loadCollectData(collectId, mode);
+    } else {
+      backLink.text('← 集金確認に戻る');
     }
   } else {
     $('#page-title, #title').text('集金編集');
     saveBtn.text('更新');
     $('#accept-start-date').hide();
     $('#accept-start-text').show();
+    backLink.text('← 集金確認に戻る');
     await loadCollectData(collectId, mode);
   }
 }
@@ -204,6 +209,15 @@ function setupEventHandlers(mode, collectId) {
   $('#clear-button').on('click', async () => {
     if (await utils.showDialog('リセットしますか？')) location.reload();
   });
+
+  $(document).on(
+    'click',
+    '.back-link',
+    () =>
+      (window.location.href = ['edit', 'copy'].includes(mode)
+        ? `../collect-confirm/collect-confirm.html?collectId=${utils.globalGetParamCollectId}`
+        : '../collect-list/collect-list.html')
+  );
 }
 
 function gatherData() {
