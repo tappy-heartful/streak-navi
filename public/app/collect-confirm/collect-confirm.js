@@ -75,9 +75,7 @@ async function renderCollect() {
         window.open(data.paymentUrl, '_blank', 'noopener,noreferrer');
       });
     } else {
-      $payContainer.html(
-        '<span class="info-msg">受付期間外のためボタンは無効です</span>'
-      );
+      $payContainer.html('<span class="info-msg">受付期間外です</span>');
     }
   } else {
     $payContainer.text('設定なし');
