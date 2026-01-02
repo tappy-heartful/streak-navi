@@ -11,10 +11,8 @@ $(document).ready(async function () {
     const mode = utils.globalGetParamMode;
     const collectId = utils.globalGetParamCollectId;
 
-    // データの初期ロード
     await loadInitialMasterData();
 
-    // パンくず設定
     let breadcrumb = [
       { title: '集金一覧', url: '../collect-list/collect-list.html' },
     ];
@@ -41,9 +39,6 @@ $(document).ready(async function () {
   }
 });
 
-/**
- * 部署・ユーザーマスタの読み込みとUI生成
- */
 async function loadInitialMasterData() {
   const [usersSnap, sectionsSnap] = await Promise.all([
     utils.getWrapDocs(utils.collection(utils.db, 'users')),
@@ -55,7 +50,6 @@ async function loadInitialMasterData() {
     sectionsMap[d.id] = d.data().name;
   });
 
-  // ソート (sectionId ASC, roleId ASC)
   allUsers.sort((a, b) => {
     if (a.sectionId !== b.sectionId)
       return a.sectionId.localeCompare(b.sectionId);
@@ -68,7 +62,6 @@ async function loadInitialMasterData() {
 
 function renderParticipantSelector() {
   const $container = $('#participant-selection-container').empty();
-
   const grouped = {};
   allUsers.forEach((u) => {
     if (!grouped[u.sectionId]) grouped[u.sectionId] = [];
@@ -99,7 +92,6 @@ function renderParticipantSelector() {
 
 function initDropdowns() {
   allUsers.forEach((u) => {
-    // valueにユーザーID、textに名前を表示
     $('#upfront-payer').append(new Option(u.displayName, u.id));
     if (u.sectionId === '1') {
       $('#manager-name').append(new Option(u.displayName, u.id));
@@ -126,7 +118,7 @@ async function setupPage(mode, collectId) {
       backLink.text('← 集金一覧に戻る');
       await loadCollectData(collectId, mode);
     } else {
-      backLink.text('← 集金確認に戻る');
+      backLink.text('← 集金一覧に戻る');
     }
   } else {
     $('#page-title, #title').text('集金編集');
@@ -138,15 +130,12 @@ async function setupPage(mode, collectId) {
   }
 }
 
-/**
- * 自動計算 (IDベースで判定)
- */
 function runCalculations() {
   const total = Number($('#upfront-amount').val()) || 0;
-  const payerId = $('#upfront-payer').val(); // 選択された建替者のID
+  const payerId = $('#upfront-payer').val();
   const selectedParticipantIds = $('.user-chk:checked')
     .map(function () {
-      return $(this).val(); // 各チェックボックスのvalue(ID)を取得
+      return $(this).val();
     })
     .get();
   const count = selectedParticipantIds.length;
@@ -157,7 +146,6 @@ function runCalculations() {
     const perPerson = Math.ceil(total / count);
     $('#amount-per-person').val(perPerson);
 
-    // 建替者(ID)が対象者リスト(ID配列)に含まれているか
     const isPayerIncluded = selectedParticipantIds.includes(payerId);
     const remittance = isPayerIncluded
       ? perPerson * (count - 1)
@@ -210,20 +198,19 @@ function setupEventHandlers(mode, collectId) {
     if (await utils.showDialog('リセットしますか？')) location.reload();
   });
 
-  $(document).on(
-    'click',
-    '.back-link',
-    () =>
-      (window.location.href = ['edit', 'copy'].includes(mode)
-        ? `../collect-confirm/collect-confirm.html?collectId=${utils.globalGetParamCollectId}`
-        : '../collect-list/collect-list.html')
-  );
+  $(document).on('click', '.back-link', () => {
+    if (mode === 'new') {
+      window.location.href = '../collect-list/collect-list.html';
+    } else {
+      window.location.href = `../collect-confirm/collect-confirm.html?collectId=${utils.globalGetParamCollectId}`;
+    }
+  });
 }
 
 function gatherData() {
   const participantIds = $('.user-chk:checked')
     .map(function () {
-      return $(this).val(); // IDの配列を生成
+      return $(this).val();
     })
     .get();
   return {
@@ -236,10 +223,10 @@ function gatherData() {
     amountPerPerson: Number($('#amount-per-person').val()),
     paymentUrl: $('#payment-url').val().trim(),
     upfrontAmount: Number($('#upfront-amount').val()),
-    upfrontPayer: $('#upfront-payer').val(), // 建替者のID
+    upfrontPayer: $('#upfront-payer').val(),
     participantCount: participantIds.length,
-    participants: participantIds, // 対象者IDの配列
-    managerName: $('#manager-name').val(), // 管理担当者のID
+    participants: participantIds,
+    managerName: $('#manager-name').val(),
     remittanceAmount: Number($('#remittance-amount').val()),
     remarks: $('#collect-remarks').val().trim(),
   };
@@ -253,20 +240,17 @@ async function loadCollectData(docId, mode) {
 
   $('#target-date').val(utils.formatDateToYMDHyphen(data.targetDate));
   $('#collect-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
-
   const startYMD = utils.formatDateToYMDHyphen(data.acceptStartDate);
   $('#accept-start-date').val(startYMD);
   $('#accept-start-text').text(data.acceptStartDate);
-
   $('#accept-end-date').val(utils.formatDateToYMDHyphen(data.acceptEndDate));
   $('#upfront-amount').val(data.upfrontAmount || '');
-  $('#upfront-payer').val(data.upfrontPayer || ''); // IDでセット
-  $('#manager-name').val(data.managerName || ''); // IDでセット
+  $('#upfront-payer').val(data.upfrontPayer || '');
+  $('#manager-name').val(data.managerName || '');
   $('#payment-url').val(data.paymentUrl || '');
   $('#collect-remarks').val(data.remarks || '');
 
   if (data.participants) {
-    // IDの配列を元にチェックボックスを復元
     data.participants.forEach((id) => {
       $(`.user-chk[value="${id}"]`).prop('checked', true);
     });
@@ -295,11 +279,9 @@ function validateData(mode) {
     isValid = false;
   }
 
-  // 日付バリデーション
   if (startStr && endStr) {
     const start = new Date(startStr);
     const end = new Date(endStr);
-
     if (mode !== 'edit' && start <= today) {
       utils.markError(
         $('#accept-start-date'),
