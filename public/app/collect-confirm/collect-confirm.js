@@ -34,9 +34,16 @@ async function renderCollect() {
   const formatYen = (num) => (num ? `¥${Number(num).toLocaleString()}` : '-');
 
   // 表示のセット
-  $('#target-date').text(data.targetDate || '-');
+  $('#target-date').text(
+    data.targetDate ? utils.getDayOfWeek(data.targetDate_decoded) : '-'
+  );
   $('#collect-title').text(data.title);
-  $('#accept-term').text(`${data.acceptStartDate} ～ ${data.acceptEndDate}`);
+  $('#accept-term').text(`${
+    data.acceptStartDate ? utils.getDayOfWeek(data.acceptStartDate_decoded) : ''
+  } ～
+      ${
+        data.acceptEndDate ? utils.getDayOfWeek(data.acceptEndDate_decoded) : ''
+      }`);
   $('#amount-per-person').text(formatYen(data.amountPerPerson));
   $('#collect-remarks').text(data.remarks || '-');
 
