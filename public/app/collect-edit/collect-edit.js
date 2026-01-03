@@ -131,40 +131,36 @@ function runCalculations() {
   if (total > 0 && count > 0) {
     const hasRemainder = total % count !== 0;
 
-    // 割り切れるかどうかのUI表示切り替え
     if (hasRemainder) {
       $('#no-adjustment-msg').hide();
       $('#adjustment-checkbox-wrapper').show();
     } else {
       $('#no-adjustment-msg').show();
       $('#adjustment-checkbox-wrapper').hide();
-      $('#is-adjustment-enabled').prop('checked', false).trigger('change');
+      // 無限ループ防止のため .trigger('change') は使わず、UIだけ隠してチェックを外す
+      $('#is-adjustment-enabled').prop('checked', false);
+      $('#adjustment-settings').hide();
     }
 
     const isAdj = $('#is-adjustment-enabled').prop('checked');
     let perPerson;
 
     if (isAdj) {
-      // 調整あり：切り捨ててベース金額を算出
       perPerson = Math.floor(total / count);
       const adjustmentPayerTotal = perPerson + (total - perPerson * count);
       $('#adjustment-payer-amount').val(adjustmentPayerTotal);
     } else {
-      // 調整なし：切り上げて端数が出ないようにする
       perPerson = Math.ceil(total / count);
       $('#adjustment-payer-amount').val('');
     }
 
     $('#amount-per-person').val(perPerson);
 
-    // 送金額の計算
     const isPayerIncluded = selectedParticipantIds.includes(payerId);
     let remittance;
     if (isAdj) {
-      // 調整あり：建替者への送金は元の建替額を維持（ただし自身が参加者なら自身のベース分を引く）
       remittance = isPayerIncluded ? total - perPerson : total;
     } else {
-      // 調整なし：(1人あたりの集金額 * (人数 - 1 or 人数))
       remittance = isPayerIncluded
         ? perPerson * (count - 1)
         : perPerson * count;
@@ -178,6 +174,7 @@ function runCalculations() {
 }
 
 function setupEventHandlers(mode, collectId) {
+  // すべての入力項目を監視。ただし、ここで trigger('change') を呼ぶ項目があるとループするので注意
   $(document).on(
     'change',
     '.user-chk, #upfront-payer, #adjustment-payer, #is-adjustment-enabled',
@@ -185,6 +182,7 @@ function setupEventHandlers(mode, collectId) {
   );
   $('#upfront-amount').on('input', runCalculations);
 
+  // チェックボックスの状態による表示切り替えのみを行う
   $('#is-adjustment-enabled').on('change', function () {
     $('#adjustment-settings').toggle($(this).prop('checked'));
   });
@@ -289,12 +287,15 @@ async function loadCollectData(docId, mode) {
     });
   }
 
-  // 計算を走らせてから調整フラグをセット
+  // 初期読み込み時の計算
   runCalculations();
+
+  // 調整が有効なデータだった場合の表示制御
   if (data.isAdjustmentEnabled) {
-    $('#is-adjustment-enabled').prop('checked', true).trigger('change');
+    $('#is-adjustment-enabled').prop('checked', true);
+    $('#adjustment-settings').show();
     $('#adjustment-payer').val(data.adjustmentPayer || '');
-    runCalculations(); // 再計算
+    runCalculations();
   }
 }
 
