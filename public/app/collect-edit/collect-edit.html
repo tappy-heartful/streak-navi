@@ -62,7 +62,7 @@
           <label for="upfront-amount"
             >建替総額 (円) <span class="required">*</span></label
           >
-          <input type="number" id="upfront-amount" placeholder="30000" />
+          <input type="number" id="upfront-amount" placeholder="4410" />
         </div>
 
         <div class="sub-form-group">
@@ -75,8 +75,15 @@
           />
         </div>
 
-        <div class="sub-form-group">
-          <label class="checkbox-label">
+        <div class="sub-form-group" id="adjustment-trigger-area">
+          <p id="no-adjustment-msg" class="info-text" style="display: none">
+            調整の必要はありません（割り切れます）
+          </p>
+          <label
+            class="checkbox-label"
+            id="adjustment-checkbox-wrapper"
+            style="display: none"
+          >
             <input type="checkbox" id="is-adjustment-enabled" />
             集金額を調整する（端数を特定の人に寄せる）
           </label>
@@ -87,7 +94,7 @@
           style="
             display: none;
             padding-left: 15px;
-            border-left: 3px solid #ccc;
+            border-left: 3px solid #1a73e8;
             margin-bottom: 15px;
           "
         >
@@ -99,10 +106,19 @@
               <option value="">選択してください</option>
             </select>
           </div>
+          <div class="sub-form-group">
+            <label>調整負担者の集金額 (円)</label>
+            <input
+              type="number"
+              id="adjustment-payer-amount"
+              class="readonly-input-small w-full highlight-blue"
+              readonly
+            />
+          </div>
         </div>
 
         <div class="sub-form-group">
-          <label for="amount-per-person">1人あたりの金額 (円)</label>
+          <label for="amount-per-person">1人あたりの集金額 (円)</label>
           <input
             type="number"
             id="amount-per-person"

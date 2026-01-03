@@ -7,7 +7,6 @@ let sectionsMap = {};
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
-
     const mode = utils.globalGetParamMode;
     const collectId = utils.globalGetParamCollectId;
 
@@ -70,21 +69,18 @@ function renderParticipantSelector() {
 
   Object.keys(grouped).forEach((sId) => {
     const sectionName = sectionsMap[sId] || `部署コード:${sId}`;
-    const $sectionDiv = $(`
-      <div class="section-group">
-        <div class="section-title">${sectionName}</div>
-        <div class="user-grid"></div>
-      </div>
-    `);
-
+    const $sectionDiv = $(
+      `<div class="section-group"><div class="section-title">${sectionName}</div><div class="user-grid"></div></div>`
+    );
     grouped[sId].forEach((u) => {
-      const $userItem = $(`
+      $sectionDiv.find('.user-grid').append(
+        $(`
         <label class="user-checkbox-item">
           <input type="checkbox" class="user-chk" value="${u.id}">
           <span>${u.displayName}</span>
         </label>
-      `);
-      $sectionDiv.find('.user-grid').append($userItem);
+      `)
+      );
     });
     $container.append($sectionDiv);
   });
@@ -102,31 +98,20 @@ function initDropdowns() {
 
 async function setupPage(mode, collectId) {
   const saveBtn = $('#save-button');
-  const backLink = $('.back-link');
-
   if (mode === 'new' || mode === 'copy') {
     saveBtn.text('登録');
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const day13th = new Date();
     day13th.setDate(day13th.getDate() + 13);
-
     $('#accept-start-date').val(utils.formatDateToYMDHyphen(tomorrow));
     $('#accept-end-date').val(utils.formatDateToYMDHyphen(day13th));
-
-    if (mode === 'copy') {
-      $('#page-title, #title').text('集金新規作成(コピー)');
-      backLink.text('← 集金一覧に戻る');
-      await loadCollectData(collectId, mode);
-    } else {
-      backLink.text('← 集金一覧に戻る');
-    }
+    if (mode === 'copy') await loadCollectData(collectId, mode);
   } else {
     $('#page-title, #title').text('集金編集');
     saveBtn.text('更新');
     $('#accept-start-date').hide();
     $('#accept-start-text').show();
-    backLink.text('← 集金確認に戻る');
     await loadCollectData(collectId, mode);
   }
 }
@@ -134,7 +119,6 @@ async function setupPage(mode, collectId) {
 function runCalculations() {
   const total = Number($('#upfront-amount').val()) || 0;
   const payerId = $('#upfront-payer').val();
-  const isAdj = $('#is-adjustment-enabled').prop('checked');
   const selectedParticipantIds = $('.user-chk:checked')
     .map(function () {
       return $(this).val();
@@ -145,40 +129,51 @@ function runCalculations() {
   $('#participant-count-display').val(count);
 
   if (total > 0 && count > 0) {
+    const hasRemainder = total % count !== 0;
+
+    // 割り切れるかどうかのUI表示切り替え
+    if (hasRemainder) {
+      $('#no-adjustment-msg').hide();
+      $('#adjustment-checkbox-wrapper').show();
+    } else {
+      $('#no-adjustment-msg').show();
+      $('#adjustment-checkbox-wrapper').hide();
+      $('#is-adjustment-enabled').prop('checked', false).trigger('change');
+    }
+
+    const isAdj = $('#is-adjustment-enabled').prop('checked');
     let perPerson;
+
     if (isAdj) {
-      // 調整あり：切り捨ててベース金額を出す（残りは調整担当者が払う）
+      // 調整あり：切り捨ててベース金額を算出
       perPerson = Math.floor(total / count);
+      const adjustmentPayerTotal = perPerson + (total - perPerson * count);
+      $('#adjustment-payer-amount').val(adjustmentPayerTotal);
     } else {
       // 調整なし：切り上げて端数が出ないようにする
       perPerson = Math.ceil(total / count);
+      $('#adjustment-payer-amount').val('');
     }
 
     $('#amount-per-person').val(perPerson);
 
-    // 送金額の計算（建替担当者が参加者に含まれる場合は、その人の分を引く）
+    // 送金額の計算
     const isPayerIncluded = selectedParticipantIds.includes(payerId);
     let remittance;
-
     if (isAdj) {
-      // 調整ありの場合、送金額は常に建替総額そのものにする
-      // (集金額の合計 = total になるようにバックエンド/運用で調整される想定)
-      remittance = total;
-      // ただし建替者自身が参加者の場合、その人が支払うべき「ベース金額」は送らなくて良い
-      if (isPayerIncluded) {
-        remittance -= perPerson;
-      }
+      // 調整あり：建替者への送金は元の建替額を維持（ただし自身が参加者なら自身のベース分を引く）
+      remittance = isPayerIncluded ? total - perPerson : total;
     } else {
-      // 調整なしの場合、(1人あたりの集金額 * 対象人数) が基本
+      // 調整なし：(1人あたりの集金額 * (人数 - 1 or 人数))
       remittance = isPayerIncluded
         ? perPerson * (count - 1)
         : perPerson * count;
     }
-
     $('#remittance-amount').val(remittance);
   } else {
     $('#amount-per-person').val('');
     $('#remittance-amount').val('');
+    $('#adjustment-trigger-area > *').hide();
   }
 }
 
@@ -288,27 +283,24 @@ async function loadCollectData(docId, mode) {
   $('#payment-url').val(data.paymentUrl || '');
   $('#collect-remarks').val(data.remarks || '');
 
-  if (data.isAdjustmentEnabled) {
-    $('#is-adjustment-enabled').prop('checked', true).trigger('change');
-    $('#adjustment-payer').val(data.adjustmentPayer || '');
-  }
-
   if (data.participants) {
     data.participants.forEach((id) => {
       $(`.user-chk[value="${id}"]`).prop('checked', true);
     });
   }
+
+  // 計算を走らせてから調整フラグをセット
   runCalculations();
+  if (data.isAdjustmentEnabled) {
+    $('#is-adjustment-enabled').prop('checked', true).trigger('change');
+    $('#adjustment-payer').val(data.adjustmentPayer || '');
+    runCalculations(); // 再計算
+  }
 }
 
 function validateData(mode) {
   utils.clearErrors();
   let isValid = true;
-  const startStr = $('#accept-start-date').val();
-  const endStr = $('#accept-end-date').val();
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-
   if (!$('#target-date').val()) {
     utils.markError($('#target-date'), '必須');
     isValid = false;
@@ -341,26 +333,6 @@ function validateData(mode) {
     utils.markError($('#adjustment-payer'), '調整担当者を選択してください');
     isValid = false;
   }
-
-  if (startStr && endStr) {
-    const start = new Date(startStr);
-    const end = new Date(endStr);
-    if (mode !== 'edit' && start <= today) {
-      utils.markError(
-        $('#accept-start-date'),
-        '開始日は明日以降にしてください'
-      );
-      isValid = false;
-    }
-    if (end <= start) {
-      utils.markError(
-        $('#accept-end-date'),
-        '終了日は開始日より後にしてください'
-      );
-      isValid = false;
-    }
-  }
-
   if ($('.user-chk:checked').length === 0) {
     utils.markError(
       $('#participant-selection-container'),
@@ -368,12 +340,6 @@ function validateData(mode) {
     );
     isValid = false;
   }
-
-  if (!$('#amount-per-person').val()) {
-    utils.markError($('#upfront-amount'), '計算に失敗しました');
-    isValid = false;
-  }
-
   return isValid;
 }
 

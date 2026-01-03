@@ -1,3 +1,22 @@
+/* 既存のスタイルに以下を追加 */
+
+.info-text {
+  font-size: 0.85rem;
+  color: #2e7d32;
+  background-color: #e8f5e9;
+  padding: 8px 12px;
+  border-radius: 4px;
+  border: 1px solid #c8e6c9;
+  display: inline-block;
+  margin: 5px 0;
+}
+
+.highlight-blue {
+  color: #1a73e8 !important;
+  font-weight: bold;
+}
+
+/* 既存のCSS... */
 .participant-selector {
   background: #fff;
   border: 1px solid #cfd8dc;
