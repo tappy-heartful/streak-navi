@@ -93,6 +93,7 @@ function renderParticipantSelector() {
 function initDropdowns() {
   allUsers.forEach((u) => {
     $('#upfront-payer').append(new Option(u.displayName, u.id));
+    $('#adjustment-payer').append(new Option(u.displayName, u.id));
     if (u.sectionId === '1') {
       $('#manager-name').append(new Option(u.displayName, u.id));
     }
@@ -133,6 +134,7 @@ async function setupPage(mode, collectId) {
 function runCalculations() {
   const total = Number($('#upfront-amount').val()) || 0;
   const payerId = $('#upfront-payer').val();
+  const isAdj = $('#is-adjustment-enabled').prop('checked');
   const selectedParticipantIds = $('.user-chk:checked')
     .map(function () {
       return $(this).val();
@@ -143,13 +145,36 @@ function runCalculations() {
   $('#participant-count-display').val(count);
 
   if (total > 0 && count > 0) {
-    const perPerson = Math.ceil(total / count);
+    let perPerson;
+    if (isAdj) {
+      // 調整あり：切り捨ててベース金額を出す（残りは調整担当者が払う）
+      perPerson = Math.floor(total / count);
+    } else {
+      // 調整なし：切り上げて端数が出ないようにする
+      perPerson = Math.ceil(total / count);
+    }
+
     $('#amount-per-person').val(perPerson);
 
+    // 送金額の計算（建替担当者が参加者に含まれる場合は、その人の分を引く）
     const isPayerIncluded = selectedParticipantIds.includes(payerId);
-    const remittance = isPayerIncluded
-      ? perPerson * (count - 1)
-      : perPerson * count;
+    let remittance;
+
+    if (isAdj) {
+      // 調整ありの場合、送金額は常に建替総額そのものにする
+      // (集金額の合計 = total になるようにバックエンド/運用で調整される想定)
+      remittance = total;
+      // ただし建替者自身が参加者の場合、その人が支払うべき「ベース金額」は送らなくて良い
+      if (isPayerIncluded) {
+        remittance -= perPerson;
+      }
+    } else {
+      // 調整なしの場合、(1人あたりの集金額 * 対象人数) が基本
+      remittance = isPayerIncluded
+        ? perPerson * (count - 1)
+        : perPerson * count;
+    }
+
     $('#remittance-amount').val(remittance);
   } else {
     $('#amount-per-person').val('');
@@ -158,8 +183,16 @@ function runCalculations() {
 }
 
 function setupEventHandlers(mode, collectId) {
-  $(document).on('change', '.user-chk, #upfront-payer', runCalculations);
+  $(document).on(
+    'change',
+    '.user-chk, #upfront-payer, #adjustment-payer, #is-adjustment-enabled',
+    runCalculations
+  );
   $('#upfront-amount').on('input', runCalculations);
+
+  $('#is-adjustment-enabled').on('change', function () {
+    $('#adjustment-settings').toggle($(this).prop('checked'));
+  });
 
   $('#save-button').on('click', async () => {
     if (!validateData(mode)) return;
@@ -199,11 +232,11 @@ function setupEventHandlers(mode, collectId) {
   });
 
   $(document).on('click', '.back-link', () => {
-    if (mode === 'new') {
-      window.location.href = '../collect-list/collect-list.html';
-    } else {
-      window.location.href = `../collect-confirm/collect-confirm.html?collectId=${utils.globalGetParamCollectId}`;
-    }
+    const url =
+      mode === 'new'
+        ? '../collect-list/collect-list.html'
+        : `../collect-confirm/collect-confirm.html?collectId=${utils.globalGetParamCollectId}`;
+    window.location.href = url;
   });
 }
 
@@ -224,6 +257,10 @@ function gatherData() {
     paymentUrl: $('#payment-url').val().trim(),
     upfrontAmount: Number($('#upfront-amount').val()),
     upfrontPayer: $('#upfront-payer').val(),
+    isAdjustmentEnabled: $('#is-adjustment-enabled').prop('checked'),
+    adjustmentPayer: $('#is-adjustment-enabled').prop('checked')
+      ? $('#adjustment-payer').val()
+      : null,
     participantCount: participantIds.length,
     participants: participantIds,
     managerName: $('#manager-name').val(),
@@ -240,8 +277,9 @@ async function loadCollectData(docId, mode) {
 
   $('#target-date').val(utils.formatDateToYMDHyphen(data.targetDate));
   $('#collect-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
-  const startYMD = utils.formatDateToYMDHyphen(data.acceptStartDate);
-  $('#accept-start-date').val(startYMD);
+  $('#accept-start-date').val(
+    utils.formatDateToYMDHyphen(data.acceptStartDate)
+  );
   $('#accept-start-text').text(data.acceptStartDate);
   $('#accept-end-date').val(utils.formatDateToYMDHyphen(data.acceptEndDate));
   $('#upfront-amount').val(data.upfrontAmount || '');
@@ -249,6 +287,11 @@ async function loadCollectData(docId, mode) {
   $('#manager-name').val(data.managerName || '');
   $('#payment-url').val(data.paymentUrl || '');
   $('#collect-remarks').val(data.remarks || '');
+
+  if (data.isAdjustmentEnabled) {
+    $('#is-adjustment-enabled').prop('checked', true).trigger('change');
+    $('#adjustment-payer').val(data.adjustmentPayer || '');
+  }
 
   if (data.participants) {
     data.participants.forEach((id) => {
@@ -266,7 +309,6 @@ function validateData(mode) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  // 必須項目チェック (備考以外)
   if (!$('#target-date').val()) {
     utils.markError($('#target-date'), '必須');
     isValid = false;
@@ -292,7 +334,14 @@ function validateData(mode) {
     isValid = false;
   }
 
-  // 日付バリデーション
+  if (
+    $('#is-adjustment-enabled').prop('checked') &&
+    !$('#adjustment-payer').val()
+  ) {
+    utils.markError($('#adjustment-payer'), '調整担当者を選択してください');
+    isValid = false;
+  }
+
   if (startStr && endStr) {
     const start = new Date(startStr);
     const end = new Date(endStr);
@@ -312,7 +361,6 @@ function validateData(mode) {
     }
   }
 
-  // 対象者選択
   if ($('.user-chk:checked').length === 0) {
     utils.markError(
       $('#participant-selection-container'),
@@ -321,12 +369,8 @@ function validateData(mode) {
     isValid = false;
   }
 
-  // 計算結果
   if (!$('#amount-per-person').val()) {
-    utils.markError(
-      $('#upfront-amount'),
-      '金額と対象者を正しく入力してください'
-    );
+    utils.markError($('#upfront-amount'), '計算に失敗しました');
     isValid = false;
   }
 

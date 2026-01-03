@@ -56,7 +56,6 @@
   border-radius: 4px;
 }
 
-/* 読み取り専用入力項目のスタイル */
 .readonly-input-small {
   background: #f5f5f5 !important;
   border: 1px solid #cfd8dc !important;
@@ -90,4 +89,14 @@
   margin-bottom: 15px;
   border-bottom: 2px solid #d1d9e6;
   padding-bottom: 5px;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+  color: #1a73e8;
+  margin: 10px 0;
+  cursor: pointer;
 }

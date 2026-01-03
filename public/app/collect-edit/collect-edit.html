@@ -76,6 +76,32 @@
         </div>
 
         <div class="sub-form-group">
+          <label class="checkbox-label">
+            <input type="checkbox" id="is-adjustment-enabled" />
+            集金額を調整する（端数を特定の人に寄せる）
+          </label>
+        </div>
+
+        <div
+          id="adjustment-settings"
+          style="
+            display: none;
+            padding-left: 15px;
+            border-left: 3px solid #ccc;
+            margin-bottom: 15px;
+          "
+        >
+          <div class="sub-form-group">
+            <label for="adjustment-payer"
+              >調整額を負担する人 <span class="required">*</span></label
+            >
+            <select id="adjustment-payer">
+              <option value="">選択してください</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="sub-form-group">
           <label for="amount-per-person">1人あたりの金額 (円)</label>
           <input
             type="number"
