@@ -270,11 +270,14 @@ async function loadCollectData(docId, mode) {
 
   $('#target-date').val(utils.formatDateToYMDHyphen(data.targetDate));
   $('#collect-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
-  $('#accept-start-date').val(
-    utils.formatDateToYMDHyphen(data.acceptStartDate)
-  );
-  $('#accept-start-text').text(data.acceptStartDate);
-  $('#accept-end-date').val(utils.formatDateToYMDHyphen(data.acceptEndDate));
+  // コピーの場合は受付期間を踏襲しない
+  if (mode === 'edit') {
+    $('#accept-start-date').val(
+      utils.formatDateToYMDHyphen(data.acceptStartDate)
+    );
+    $('#accept-start-text').text(data.acceptStartDate);
+    $('#accept-end-date').val(utils.formatDateToYMDHyphen(data.acceptEndDate));
+  }
   $('#upfront-amount').val(data.upfrontAmount || '');
   $('#upfront-payer').val(data.upfrontPayer || '');
   $('#manager-name').val(data.managerName || '');
