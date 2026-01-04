@@ -344,6 +344,11 @@ function validateData(mode) {
     );
     isValid = false;
   }
+
+  if (!$('#payment-url').val()) {
+    utils.markError($('#payment-url'), '必須');
+    isValid = false;
+  }
   return isValid;
 }
 
