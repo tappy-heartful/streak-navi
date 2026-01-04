@@ -40,19 +40,41 @@
     height: 1px;
 }
 
-/* 対象者リストのボックス */
-.participant-display-box {
-    background: #fff;
-    border: 1px solid #eee;
-    padding: 12px;
-    border-radius: 6px;
-    font-size: 0.9rem;
-    line-height: 1.6;
-    color: #555;
-    max-height: 150px;
-    overflow-y: auto;
-}
-
 .pay-button i {
     margin-right: 8px;
+}
+/* 対象者リスト内の部署グループ */
+.confirm-section-group {
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.confirm-section-group:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.confirm-section-title {
+    font-weight: bold;
+    font-size: 0.85rem;
+    color: #1a73e8;
+    margin-bottom: 4px;
+}
+
+.confirm-section-names {
+    font-size: 0.9rem;
+    color: #333;
+    padding-left: 4px;
+}
+
+/* スクロールエリアの微調整 */
+.participant-display-box {
+    background: #fff;
+    border: 1px solid #ddd;
+    padding: 15px;
+    border-radius: 8px;
+    max-height: 250px; /* 少し高さを広げました */
+    overflow-y: auto;
 }
