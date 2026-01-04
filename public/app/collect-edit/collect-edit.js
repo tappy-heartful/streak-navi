@@ -98,8 +98,11 @@ function initDropdowns() {
 
 async function setupPage(mode, collectId) {
   const saveBtn = $('#save-button');
+  const backLink = $('.back-link');
   if (mode === 'new' || mode === 'copy') {
+    $('#page-title, #title').text('集金新規作成');
     saveBtn.text('登録');
+    backLink.text(mode === 'new' ? '集金一覧に戻る' : '集金確認に戻る');
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const day13th = new Date();
@@ -109,6 +112,7 @@ async function setupPage(mode, collectId) {
     if (mode === 'copy') await loadCollectData(collectId, mode);
   } else {
     $('#page-title, #title').text('集金編集');
+    backLink.text('集金確認に戻る');
     saveBtn.text('更新');
     $('#accept-start-date').hide();
     $('#accept-start-text').show();
