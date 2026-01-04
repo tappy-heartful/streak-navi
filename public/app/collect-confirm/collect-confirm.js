@@ -1,5 +1,7 @@
 import * as utils from '../common/functions.js';
 
+let currentTargetUserId = null; // アップロード対象のユーザーを保持
+
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
@@ -23,25 +25,33 @@ $(document).ready(async function () {
 
 async function renderCollect() {
   const collectId = utils.globalGetParamCollectId;
-  const isAdmin = utils.isAdmin('Collect');
+  const isAdmin = utils.isAdmin('Collect'); // 集金管理者かどうか
 
-  // 集金データ、ユーザーリスト、部署リストを同時に取得
-  const [collectSnap, usersSnap, sectionsSnap] = await Promise.all([
-    utils.getWrapDoc(utils.doc(utils.db, 'collects', collectId)),
-    utils.getWrapDocs(utils.collection(utils.db, 'users')),
-    utils.getWrapDocs(utils.collection(utils.db, 'sections')),
-  ]);
+  // データ一括取得（responsesサブコレクションも取得）
+  const [collectSnap, usersSnap, sectionsSnap, responsesSnap] =
+    await Promise.all([
+      utils.getWrapDoc(utils.doc(utils.db, 'collects', collectId)),
+      utils.getWrapDocs(utils.collection(utils.db, 'users')),
+      utils.getWrapDocs(utils.collection(utils.db, 'sections')),
+      utils.getWrapDocs(
+        utils.collection(utils.db, 'collects', collectId, 'responses')
+      ),
+    ]);
 
   if (!collectSnap.exists()) throw new Error('データが見つかりません');
   const data = collectSnap.data();
 
-  // 部署マップの作成 { id: name }
+  // 証跡マップ作成
+  const responseMap = {};
+  responsesSnap.docs.forEach((d) => {
+    responseMap[d.id] = d.data();
+  });
+
   const sectionsMap = {};
   sectionsSnap.docs.forEach((d) => {
     sectionsMap[d.id] = d.data().name;
   });
 
-  // ユーザー情報をマップ化（部署IDも保持）
   const userFullMap = {};
   usersSnap.docs.forEach((d) => {
     userFullMap[d.id] = {
@@ -50,43 +60,24 @@ async function renderCollect() {
     };
   });
 
-  const formatYen = (num) =>
-    num !== undefined && num !== null
-      ? `¥${Number(num).toLocaleString()}`
-      : '-';
-
-  // 受付ステータス判定
+  // 基本情報表示
+  const formatYen = (num) => (num ? `¥${Number(num).toLocaleString()}` : '-');
   const isActive = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
-  let statusClass = isActive ? 'pending' : 'closed';
-  let statusText = isActive ? '受付中' : '期間外';
-
   $('#answer-status-label')
-    .removeClass('pending answered closed')
-    .addClass(statusClass)
-    .text(statusText);
-
-  // 基本情報反映
+    .addClass(isActive ? 'pending' : 'closed')
+    .text(isActive ? '受付中' : '期間外');
   $('#target-date').text(
     data.targetDate ? utils.getDayOfWeek(data.targetDate_decoded) : '-'
   );
   $('#collect-title').text(data.title);
   $('#accept-term').text(
-    `${
-      data.acceptStartDate
-        ? utils.getDayOfWeek(data.acceptStartDate_decoded)
-        : ''
-    } ～ ${
-      data.acceptEndDate ? utils.getDayOfWeek(data.acceptEndDate_decoded) : ''
-    }`
+    `${data.acceptStartDate || ''} ～ ${data.acceptEndDate || ''}`
   );
   $('#amount-per-person').text(formatYen(data.amountPerPerson));
-  $('#collect-remarks').text(data.remarks || '-');
-
-  // 詳細情報反映
   $('#upfront-amount').text(formatYen(data.upfrontAmount));
-  $('#upfront-payer').text(userFullMap[data.upfrontPayer]?.name || '未設定');
+  $('#upfront-payer').text(userFullMap[data.upfrontPayer]?.name || '-');
   $('#participant-count').text(`${data.participantCount || 0} 名`);
-  $('#manager-name').text(userFullMap[data.managerName]?.name || '未設定');
+  $('#manager-name').text(userFullMap[data.managerName]?.name || '-');
   $('#remittance-amount').text(formatYen(data.remittanceAmount));
 
   // 調整情報の表示
@@ -105,52 +96,56 @@ async function renderCollect() {
     $('#adjustment-details').hide();
   }
 
-  // --- 対象者リストの表示 (部署ごとにグルーピング) ---
+  // 対象者リスト表示
   const $listContainer = $('#participant-list-container').empty();
-  if (data.participants && data.participants.length > 0) {
-    const groupedParticipants = {};
+  const grouped = {};
+  (data.participants || []).forEach((uId) => {
+    const user = userFullMap[uId];
+    const sId = user?.sectionId || 'unknown';
+    if (!grouped[sId]) grouped[sId] = [];
+    grouped[sId].push({ id: uId, name: user?.name || '不明' });
+  });
 
-    // 選択された対象者を部署ごとに分ける
-    data.participants.forEach((uId) => {
-      const user = userFullMap[uId];
-      if (user) {
-        const sId = user.sectionId || 'unknown';
-        if (!groupedParticipants[sId]) groupedParticipants[sId] = [];
-        groupedParticipants[sId].push(user.name);
-      }
-    });
-
-    // 部署名順（またはID順）にHTMLを生成
-    Object.keys(groupedParticipants).forEach((sId) => {
-      const sectionName = sectionsMap[sId] || 'その他';
-      const names = groupedParticipants[sId].join(', ');
-
-      const $sectionBox = $(`
-        <div class="confirm-section-group">
-          <div class="confirm-section-title">${sectionName}</div>
-          <div class="confirm-section-names">${names}</div>
+  Object.keys(grouped).forEach((sId) => {
+    const $section = $(
+      `<div class="confirm-section-group"><div class="confirm-section-title">${
+        sectionsMap[sId] || 'その他'
+      }</div></div>`
+    );
+    grouped[sId].forEach((u) => {
+      const resp = responseMap[u.id];
+      const hasReceipt = !!resp?.receiptUrl;
+      const $row = $(`
+        <div class="user-receipt-row">
+          <div class="user-name-cell">${u.name} ${
+        hasReceipt ? '<span class="status-badge uploaded">済</span>' : ''
+      }</div>
+          <div class="receipt-actions">
+            ${
+              hasReceipt
+                ? `<button class="btn-receipt-view" data-url="${resp.receiptUrl}">表示</button>`
+                : ''
+            }
+            ${
+              isAdmin
+                ? `<button class="btn-receipt-upload" data-uid="${u.id}"><i class="fas fa-upload"></i></button>`
+                : ''
+            }
+          </div>
         </div>
       `);
-      $listContainer.append($sectionBox);
+      $section.append($row);
     });
-  } else {
-    $listContainer.text('選択されていません');
-  }
+    $listContainer.append($section);
+  });
 
   // 支払いボタン
-  const $payContainer = $('#payment-link-container').empty();
   if (data.paymentUrl && isActive) {
-    $payContainer.append(`
-      <div id="answer-menu" class="menu-section">
-        <h2 class="menu-title">支払いメニュー</h2>
-        <div class="confirm-buttons">
-          <button id="pay-button" class="save-button"><i class="fas fa-external-link-alt"></i> 支払う</button>
-        </div>
-      </div>
+    $('#payment-link-container').html(`
+      <div class="menu-section"><h2 class="menu-title">支払いメニュー</h2>
+      <div class="confirm-buttons"><button id="pay-button" class="save-button">支払う</button></div></div>
     `);
-    $('#pay-button').on('click', () => {
-      window.open(data.paymentUrl, '_blank', 'noopener,noreferrer');
-    });
+    $('#pay-button').on('click', () => window.open(data.paymentUrl, '_blank'));
   }
 
   setupEventHandlers(collectId, isAdmin);
@@ -158,12 +153,88 @@ async function renderCollect() {
 
 function setupEventHandlers(collectId, isAdmin) {
   if (!isAdmin) $('#collect-menu').hide();
-  $('#collect-edit-button').on('click', () => {
-    window.location.href = `../collect-edit/collect-edit.html?mode=edit&collectId=${collectId}`;
+
+  // 証跡表示（簡易）
+  $(document).on('click', '.btn-receipt-view', function () {
+    const url = $(this).data('url');
+    $('body').append(`
+      <div class="receipt-preview-overlay">
+        <div class="receipt-preview-content">
+          <span class="close-preview">&times;</span>
+          <img src="${url}">
+        </div>
+      </div>
+    `);
   });
-  $('#collect-copy-button').on('click', () => {
-    window.location.href = `../collect-edit/collect-edit.html?mode=copy&collectId=${collectId}`;
+
+  $(document).on(
+    'click',
+    '.close-preview, .receipt-preview-overlay',
+    function () {
+      $('.receipt-preview-overlay').remove();
+    }
+  );
+
+  // アップロード処理
+  $(document).on('click', '.btn-receipt-upload', function () {
+    currentTargetUserId = $(this).data('uid');
+    $('#receipt-file-input').click();
   });
+
+  $('#receipt-file-input').on('change', async function (e) {
+    const file = e.target.files[0];
+    if (!file || !currentTargetUserId) return;
+
+    try {
+      utils.showSpinner();
+      // 画像圧縮
+      const compressedBlob = await compressImage(file);
+
+      // Storageへ保存
+      const path = `receipts/${collectId}/${currentTargetUserId}_${Date.now()}.jpg`;
+      const storageRef = utils.ref(utils.storage, path);
+      await utils.uploadBytes(storageRef, compressedBlob);
+      const url = await utils.getDownloadURL(storageRef);
+
+      // Firestore更新
+      await utils.setDoc(
+        utils.doc(
+          utils.db,
+          'collects',
+          collectId,
+          'responses',
+          currentTargetUserId
+        ),
+        {
+          userId: currentTargetUserId,
+          receiptUrl: url,
+          updatedAt: utils.serverTimestamp(),
+        },
+        { merge: true }
+      );
+
+      await utils.showDialog('証跡を登録しました', true);
+      location.reload();
+    } catch (err) {
+      console.error(err);
+      alert('アップロード失敗');
+    } finally {
+      utils.hideSpinner();
+      $(this).val('');
+    }
+  });
+
+  // 既存のボタン
+  $('#collect-edit-button').on(
+    'click',
+    () =>
+      (window.location.href = `../collect-edit/collect-edit.html?mode=edit&collectId=${collectId}`)
+  );
+  $('#collect-copy-button').on(
+    'click',
+    () =>
+      (window.location.href = `../collect-edit/collect-edit.html?mode=copy&collectId=${collectId}`)
+  );
   $('#collect-delete-button').on('click', async () => {
     if (!(await utils.showDialog('この集金データを削除してもよろしいですか？')))
       return;
@@ -175,5 +246,34 @@ function setupEventHandlers(collectId, isAdmin) {
     } finally {
       utils.hideSpinner();
     }
+  });
+}
+
+// 圧縮関数
+async function compressImage(file) {
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        let width = img.width;
+        let height = img.height;
+        const max = 1000; // 長辺1000pxに制限
+        if (width > height && width > max) {
+          height *= max / width;
+          width = max;
+        } else if (height > max) {
+          width *= max / height;
+          height = max;
+        }
+        canvas.width = width;
+        canvas.height = height;
+        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
+        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.7); // 70%品質
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
   });
 }

@@ -1,25 +1,25 @@
 // Firebase 初期化
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import {
   getAuth,
   signInWithCustomToken,
-} from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js';
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyC7bYnZ2F70SuKGZ72Dd24ag2MVH9rBXk4',
   authDomain: 'streak-navi.firebaseapp.com',
   projectId: 'streak-navi',
-  storageBucket: 'streak-navi.appspot.com',
+  storageBucket: 'streak-navi.firebasestorage.app',
   messagingSenderId: '1095960567149',
   appId: '1:1095960567149:web:4b7061d633cdbdd7318e64',
   measurementId: 'G-RVYQBWT924',
 };
 
+// 1. Appの初期化
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-export { app, auth, signInWithCustomToken };
 
-// Firestore
+// Firestore のインポート
 import {
   getFirestore,
   query,
@@ -36,10 +36,30 @@ import {
   serverTimestamp,
   limit,
   writeBatch,
-} from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';
-const db = getFirestore();
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+// Storage のインポート (バージョンを10.7.1に統一)
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+
+// 2. 各サービスの初期化（必ず app を引数に入れる）
+const db = getFirestore(app);
+const storage = getStorage(app, 'streak-navi.firebasestorage.app');
+
+// エクスポート
 export {
+  app,
+  auth,
+  signInWithCustomToken,
   db,
+  storage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
   doc,
   query,
   where,

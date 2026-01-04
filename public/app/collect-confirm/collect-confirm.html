@@ -57,7 +57,6 @@
             集金担当者: <span id="manager-name"></span>
           </div>
           <div class="detail-item divider"></div>
-
           <div id="adjustment-info-area">
             <div class="detail-item">
               集金調整: <span id="adjustment-status"></span>
@@ -75,7 +74,6 @@
               </div>
             </div>
           </div>
-
           <div class="detail-item divider"></div>
           <div class="detail-item">
             送金額 (集金者→建替者): <span id="remittance-amount"></span>
@@ -84,7 +82,7 @@
       </div>
 
       <div class="form-group">
-        <label class="label-title">集金対象者リスト</label>
+        <label class="label-title">集金対象者と証跡</label>
         <div
           id="participant-list-container"
           class="participant-display-box"
@@ -95,6 +93,13 @@
         <label class="label-title">備考</label>
         <div class="label-value" id="collect-remarks"></div>
       </div>
+
+      <input
+        type="file"
+        id="receipt-file-input"
+        accept="image/*"
+        style="display: none"
+      />
 
       <div id="payment-link-container"></div>
 
