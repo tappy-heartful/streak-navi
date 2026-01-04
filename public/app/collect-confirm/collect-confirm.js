@@ -1,6 +1,7 @@
 import * as utils from '../common/functions.js';
 
-let currentTargetUserId = null; // アップロード対象のユーザーを保持
+let currentTargetUserId = null;
+let $currentUploadButton = null; // 押されたボタンを特定するために追加
 
 $(document).ready(async function () {
   try {
@@ -25,9 +26,8 @@ $(document).ready(async function () {
 
 async function renderCollect() {
   const collectId = utils.globalGetParamCollectId;
-  const isAdmin = utils.isAdmin('Collect'); // 集金管理者かどうか
+  const isAdmin = utils.isAdmin('Collect');
 
-  // データ一括取得（responsesサブコレクションも取得）
   const [collectSnap, usersSnap, sectionsSnap, responsesSnap] =
     await Promise.all([
       utils.getWrapDoc(utils.doc(utils.db, 'collects', collectId)),
@@ -41,7 +41,6 @@ async function renderCollect() {
   if (!collectSnap.exists()) throw new Error('データが見つかりません');
   const data = collectSnap.data();
 
-  // 証跡マップ作成
   const responseMap = {};
   responsesSnap.docs.forEach((d) => {
     responseMap[d.id] = d.data();
@@ -60,7 +59,6 @@ async function renderCollect() {
     };
   });
 
-  // 基本情報表示
   const formatYen = (num) => (num ? `¥${Number(num).toLocaleString()}` : '-');
   const isActive = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
   $('#answer-status-label')
@@ -116,7 +114,7 @@ async function renderCollect() {
       const resp = responseMap[u.id];
       const hasReceipt = !!resp?.receiptUrl;
       const $row = $(`
-        <div class="user-receipt-row">
+        <div class="user-receipt-row" data-uid="${u.id}">
           <div class="user-name-cell">${u.name} ${
         hasReceipt ? '<span class="status-badge uploaded">済</span>' : ''
       }</div>
@@ -139,12 +137,10 @@ async function renderCollect() {
     $listContainer.append($section);
   });
 
-  // 支払いボタン
   if (data.paymentUrl && isActive) {
-    $('#payment-link-container').html(`
-      <div class="menu-section"><h2 class="menu-title">支払いメニュー</h2>
-      <div class="confirm-buttons"><button id="pay-button" class="save-button">支払う</button></div></div>
-    `);
+    $('#payment-link-container').html(
+      `<div class="menu-section"><h2 class="menu-title">支払いメニュー</h2><div class="confirm-buttons"><button id="pay-button" class="save-button">支払う</button></div></div>`
+    );
     $('#pay-button').on('click', () => window.open(data.paymentUrl, '_blank'));
   }
 
@@ -154,17 +150,11 @@ async function renderCollect() {
 function setupEventHandlers(collectId, isAdmin) {
   if (!isAdmin) $('#collect-menu').hide();
 
-  // 証跡表示（簡易）
   $(document).on('click', '.btn-receipt-view', function () {
     const url = $(this).data('url');
-    $('body').append(`
-      <div class="receipt-preview-overlay">
-        <div class="receipt-preview-content">
-          <span class="close-preview">&times;</span>
-          <img src="${url}">
-        </div>
-      </div>
-    `);
+    $('body').append(
+      `<div class="receipt-preview-overlay"><div class="receipt-preview-content"><span class="close-preview">&times;</span><img src="${url}"></div></div>`
+    );
   });
 
   $(document).on(
@@ -175,28 +165,26 @@ function setupEventHandlers(collectId, isAdmin) {
     }
   );
 
-  // アップロード処理
+  // アップロード開始ボタン
   $(document).on('click', '.btn-receipt-upload', function () {
     currentTargetUserId = $(this).data('uid');
+    $currentUploadButton = $(this); // 現在のボタンを保持
     $('#receipt-file-input').click();
   });
 
   $('#receipt-file-input').on('change', async function (e) {
     const file = e.target.files[0];
+    const collectId = utils.globalGetParamCollectId;
     if (!file || !currentTargetUserId) return;
 
     try {
       utils.showSpinner();
-      // 画像圧縮
       const compressedBlob = await compressImage(file);
-
-      // Storageへ保存
       const path = `receipts/${collectId}/${currentTargetUserId}_${Date.now()}.jpg`;
       const storageRef = utils.ref(utils.storage, path);
       await utils.uploadBytes(storageRef, compressedBlob);
       const url = await utils.getDownloadURL(storageRef);
 
-      // Firestore更新
       await utils.setDoc(
         utils.doc(
           utils.db,
@@ -213,8 +201,10 @@ function setupEventHandlers(collectId, isAdmin) {
         { merge: true }
       );
 
-      await utils.showDialog('証跡を登録しました', true);
-      location.reload();
+      // --- 再読み込みせずにUIを更新 ---
+      updateUIAfterUpload(currentTargetUserId, url);
+
+      await utils.showDialog('スクショを登録しました', true);
     } catch (err) {
       console.error(err);
       alert('アップロード失敗');
@@ -224,7 +214,28 @@ function setupEventHandlers(collectId, isAdmin) {
     }
   });
 
-  // 既存のボタン
+  // UI更新用関数
+  function updateUIAfterUpload(uid, url) {
+    const $row = $(`.user-receipt-row[data-uid="${uid}"]`);
+    // 1. 名前セルに「済」バッジを追加（既になければ）
+    if ($row.find('.status-badge').length === 0) {
+      $row
+        .find('.user-name-cell')
+        .append(' <span class="status-badge uploaded">済</span>');
+    }
+    // 2. 「表示」ボタンを追加またはURLを更新
+    let $viewBtn = $row.find('.btn-receipt-view');
+    if ($viewBtn.length === 0) {
+      $row
+        .find('.receipt-actions')
+        .prepend(
+          `<button class="btn-receipt-view" data-url="${url}">表示</button>`
+        );
+    } else {
+      $viewBtn.data('url', url).attr('data-url', url);
+    }
+  }
+
   $('#collect-edit-button').on(
     'click',
     () =>
@@ -259,7 +270,7 @@ async function compressImage(file) {
         const canvas = document.createElement('canvas');
         let width = img.width;
         let height = img.height;
-        const max = 1000; // 長辺1000pxに制限
+        const max = 1000;
         if (width > height && width > max) {
           height *= max / width;
           width = max;
@@ -270,7 +281,7 @@ async function compressImage(file) {
         canvas.width = width;
         canvas.height = height;
         canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.7); // 70%品質
+        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.7);
       };
       img.src = e.target.result;
     };
