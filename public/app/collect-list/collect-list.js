@@ -62,7 +62,7 @@ async function setUpPage() {
 }
 
 function makeCollectRow(id, data, isActive, amountText, upfrontText, termText) {
-  const statusClass = isActive ? 'status-active' : 'status-closed';
+  const statusClass = isActive ? 'pending' : 'closed';
   const statusText = isActive ? '受付中' : '期間外';
   const isInTerm = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
 
@@ -85,7 +85,7 @@ function makeCollectRow(id, data, isActive, amountText, upfrontText, termText) {
         </div>
       </td>
       <td>
-        <span class="collect-status ${statusClass}">${statusText}</span>
+        <span class="answer-status ${statusClass}">${statusText}</span>
       </td>
       <td class="term-col">
         <div class="term-text">${termText}</div>

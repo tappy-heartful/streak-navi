@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="../../images/favicon.png" />
+    <title>集金確認</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="collect-confirm.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <div class="page-header">
+      <h1 id="page-title">💰 集金確認</h1>
+    </div>
+
+    <main class="container">
+      <div class="answer-status-container">
+        <span id="answer-status-label" class="answer-status"></span>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">対象日</label>
+        <div class="label-value" id="target-date"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">タイトル</label>
+        <div class="label-value" id="collect-title"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">受付期間</label>
+        <div class="label-value" id="accept-term"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">1人あたり集金額</label>
+        <div class="label-value highlight-text" id="amount-per-person"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">管理・建替詳細</label>
+        <div class="detail-box">
+          <div class="detail-item">
+            建替総額: <span id="upfront-amount"></span>
+          </div>
+          <div class="detail-item">
+            建替担当者: <span id="upfront-payer"></span>
+          </div>
+          <div class="detail-item">
+            対象人数: <span id="participant-count"></span>
+          </div>
+          <div class="detail-item">
+            集金担当者: <span id="manager-name"></span>
+          </div>
+          <div class="detail-item divider"></div>
+          <div id="adjustment-info-area">
+            <div class="detail-item">
+              集金調整: <span id="adjustment-status"></span>
+            </div>
+            <div id="adjustment-details" style="display: none">
+              <div class="detail-item">
+                調整負担者: <span id="adjustment-payer"></span>
+              </div>
+              <div class="detail-item">
+                調整負担者の金額:
+                <span
+                  id="adjustment-payer-amount"
+                  class="highlight-blue"
+                ></span>
+              </div>
+            </div>
+          </div>
+          <div class="detail-item divider"></div>
+          <div class="detail-item">
+            送金額 (集金者→建替者): <span id="remittance-amount"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">集金対象者と証跡</label>
+        <div
+          id="participant-list-container"
+          class="participant-display-box"
+        ></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">備考</label>
+        <div class="label-value" id="collect-remarks"></div>
+      </div>
+
+      <input
+        type="file"
+        id="receipt-file-input"
+        accept="image/*"
+        style="display: none"
+      />
+
+      <div id="payment-link-container"></div>
+
+      <div id="collect-menu" class="menu-section">
+        <h2 class="menu-title">集金管理メニュー</h2>
+        <div class="confirm-buttons">
+          <button id="collect-edit-button" class="edit-button">編集</button>
+          <button id="collect-copy-button" class="copy-button">コピー</button>
+          <button id="collect-delete-button" class="delete-button">削除</button>
+        </div>
+      </div>
+    </main>
+
+    <div class="page-footer">
+      <a href="../collect-list/collect-list.html" class="back-link"
+        >← 集金一覧に戻る</a
+      >
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="collect-confirm.js"></script>
+  </body>
+</html>

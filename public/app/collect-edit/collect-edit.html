@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="../../images/favicon.png" />
+    <title id="title">集金新規作成/編集</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="collect-edit.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <div class="page-header">
+      <h1 id="page-title">集金新規作成/編集</h1>
+    </div>
+
+    <main class="container">
+      <div class="form-group">
+        <label for="target-date">対象日 <span class="required">*</span></label>
+        <input type="date" id="target-date" />
+      </div>
+
+      <div class="form-group">
+        <label for="collect-title"
+          >集金タイトル <span class="required">*</span></label
+        >
+        <input type="text" id="collect-title" placeholder="例：練習会場費" />
+      </div>
+
+      <div class="form-group">
+        <label>受付期間 <span class="required">*</span></label>
+        <div class="form-group-dates" id="accept-date">
+          <input type="date" id="accept-start-date" />
+          <span
+            id="accept-start-text"
+            class="readonly-text"
+            style="display: none"
+          ></span>
+          ～
+          <input type="date" id="accept-end-date" />
+        </div>
+        <p class="form-help-text">
+          ※アナウンス、催促は自動で行われます (9:00ごろ)
+        </p>
+      </div>
+
+      <div class="form-group">
+        <label>集金対象者リスト <span class="required">*</span></label>
+        <div id="participant-selection-container" class="participant-selector">
+          <div class="loading-msg">ユーザーリストを読み込み中...</div>
+        </div>
+      </div>
+
+      <div class="form-group detail-edit-box">
+        <label class="section-label"
+          ><i class="fas fa-calculator"></i> 管理・建替詳細</label
+        >
+
+        <div class="sub-form-group">
+          <label for="upfront-amount"
+            >建替総額 (円) <span class="required">*</span></label
+          >
+          <input type="number" id="upfront-amount" placeholder="4410" />
+        </div>
+
+        <div class="sub-form-group">
+          <label for="participant-count-display">対象人数 (自動カウント)</label>
+          <input
+            type="number"
+            id="participant-count-display"
+            readonly
+            class="readonly-input-small"
+          />
+        </div>
+
+        <div class="sub-form-group" id="adjustment-trigger-area">
+          <p id="no-adjustment-msg" class="info-text" style="display: none">
+            調整の必要はありません（割り切れます）
+          </p>
+          <label
+            class="checkbox-label"
+            id="adjustment-checkbox-wrapper"
+            style="display: none"
+          >
+            <input type="checkbox" id="is-adjustment-enabled" />
+            集金額を調整する（端数を特定の人に寄せる）
+          </label>
+        </div>
+
+        <div
+          id="adjustment-settings"
+          style="
+            display: none;
+            padding-left: 15px;
+            border-left: 3px solid #1a73e8;
+            margin-bottom: 15px;
+          "
+        >
+          <div class="sub-form-group">
+            <label for="adjustment-payer"
+              >調整額を負担する人 <span class="required">*</span></label
+            >
+            <select id="adjustment-payer">
+              <option value="">選択してください</option>
+            </select>
+          </div>
+          <div class="sub-form-group">
+            <label>調整負担者の集金額 (円)</label>
+            <input
+              type="number"
+              id="adjustment-payer-amount"
+              class="readonly-input-small w-full highlight-blue"
+              readonly
+            />
+          </div>
+        </div>
+
+        <div class="sub-form-group">
+          <label for="amount-per-person">1人あたりの集金額 (円)</label>
+          <input
+            type="number"
+            id="amount-per-person"
+            class="readonly-input-small w-full highlight-text"
+            readonly
+          />
+        </div>
+
+        <div class="sub-form-group">
+          <label for="remittance-amount">集金者 → 建替者への送金額 (円)</label>
+          <input
+            type="number"
+            id="remittance-amount"
+            class="readonly-input-small w-full"
+            readonly
+            placeholder="自動計算されます"
+          />
+        </div>
+
+        <div class="sub-form-group">
+          <label for="upfront-payer"
+            >建替担当者 <span class="required">*</span></label
+          >
+          <select id="upfront-payer">
+            <option value="">選択してください</option>
+          </select>
+        </div>
+
+        <div class="sub-form-group">
+          <label for="manager-name"
+            >集金担当者 (管理担当) <span class="required">*</span></label
+          >
+          <select id="manager-name">
+            <option value="">選択してください</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="payment-url">支払いリンク (PayPay等)</label>
+        <input
+          type="url"
+          id="payment-url"
+          placeholder="https://paypay.me/..."
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="collect-remarks">備考</label>
+        <textarea
+          id="collect-remarks"
+          rows="3"
+          placeholder="補足事項があれば入力..."
+        ></textarea>
+      </div>
+
+      <div id="confirm-buttons" class="confirm-buttons">
+        <button id="clear-button" class="clear-button">クリア</button>
+        <button id="save-button" class="save-button">登録 / 更新</button>
+      </div>
+    </main>
+
+    <div class="page-footer">
+      <a class="back-link">← 集金一覧/確認に戻る</a>
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="collect-edit.js"></script>
+  </body>
+</html>

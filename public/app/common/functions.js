@@ -1,25 +1,25 @@
 // Firebase 初期化
-import { initializeApp } from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js';
+import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js';
 import {
   getAuth,
   signInWithCustomToken,
-} from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js';
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyC7bYnZ2F70SuKGZ72Dd24ag2MVH9rBXk4',
   authDomain: 'streak-navi.firebaseapp.com',
   projectId: 'streak-navi',
-  storageBucket: 'streak-navi.appspot.com',
+  storageBucket: 'streak-navi.firebasestorage.app',
   messagingSenderId: '1095960567149',
   appId: '1:1095960567149:web:4b7061d633cdbdd7318e64',
   measurementId: 'G-RVYQBWT924',
 };
 
+// 1. Appの初期化
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
-export { app, auth, signInWithCustomToken };
 
-// Firestore
+// Firestore のインポート
 import {
   getFirestore,
   query,
@@ -36,10 +36,30 @@ import {
   serverTimestamp,
   limit,
   writeBatch,
-} from 'https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js';
-const db = getFirestore();
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
+
+// Storage のインポート (バージョンを10.7.1に統一)
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
+} from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
+
+// 2. 各サービスの初期化（必ず app を引数に入れる）
+const db = getFirestore(app);
+const storage = getStorage(app, 'streak-navi.firebasestorage.app');
+
+// エクスポート
 export {
+  app,
+  auth,
+  signInWithCustomToken,
   db,
+  storage,
+  ref,
+  uploadBytes,
+  getDownloadURL,
   doc,
   query,
   where,
@@ -94,6 +114,7 @@ export const globalGetParamVoteId = globalGetparams.get('voteId');
 export const globalGetParamMediaId = globalGetparams.get('mediaId');
 export const globalGetParamCallId = globalGetparams.get('callId');
 export const globalGetParamStudioId = globalGetparams.get('studioId');
+export const globalGetParamCollectId = globalGetparams.get('collectId');
 export const globalGetParamMonth = globalGetparams.get('month');
 export const globalGetParamType = globalGetparams.get('type');
 
@@ -621,22 +642,46 @@ export function buildGoogleDriveHtml(driveUrl, showNotice = false) {
     </div>
   `;
 }
+/**
+ * yyyy.mm.dd 形式に変換
+ * Date型、または日付として認識可能な文字列に対応
+ */
+export function formatDateToYMDDot(dateInput) {
+  if (!dateInput) return '';
 
-export function formatDateToYMDDot(dateStr) {
-  if (!dateStr) return '';
-  const date = new Date(dateStr);
-  if (isNaN(date)) return '';
+  // Dateオブジェクトでない場合はDateに変換を試みる
+  const date = dateInput instanceof Date ? dateInput : new Date(dateInput);
+
+  if (isNaN(date.getTime())) return '';
+
   const yyyy = date.getFullYear();
   const mm = String(date.getMonth() + 1).padStart(2, '0');
   const dd = String(date.getDate()).padStart(2, '0');
   return `${yyyy}.${mm}.${dd}`;
 }
 
-export function formatDateToYMDHyphen(dateStr) {
-  if (!dateStr) return '';
-  const parts = dateStr.split('.');
-  if (parts.length !== 3) return '';
-  const [yyyy, mm, dd] = parts;
+/**
+ * yyyy-mm-dd 形式に変換 (input type="date" 用)
+ * Date型、または yyyy.mm.dd / yyyy-mm-dd 形式の文字列に対応
+ */
+export function formatDateToYMDHyphen(dateInput) {
+  if (!dateInput) return '';
+
+  let date;
+  if (dateInput instanceof Date) {
+    date = dateInput;
+  } else if (typeof dateInput === 'string' && dateInput.includes('.')) {
+    // yyyy.mm.dd 形式を yyyy/mm/dd に置換してからパース（ブラウザ互換性のため）
+    date = new Date(dateInput.replace(/\./g, '/'));
+  } else {
+    date = new Date(dateInput);
+  }
+
+  if (isNaN(date.getTime())) return '';
+
+  const yyyy = date.getFullYear();
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const dd = String(date.getDate()).padStart(2, '0');
   return `${yyyy}-${mm}-${dd}`;
 }
 

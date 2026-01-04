@@ -340,7 +340,7 @@ select:disabled {
   word-break: break-all; /* 長い名前が来ても枠内で折り返す */
 }
 
-input[type="text"], textarea {
+input[type="text"], textarea, input[type="number"], input[type="url"] {
   width: 100%;
   padding: 10px;
   border: 1px solid #ccc;
