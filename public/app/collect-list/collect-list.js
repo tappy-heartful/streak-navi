@@ -18,12 +18,25 @@ async function setUpPage() {
   const $activeBody = $('#active-list-body').empty();
   const $closedBody = $('#closed-list-body').empty();
 
+  // 1. 集金データとユーザーデータを並列で取得
   const collectRef = utils.collection(utils.db, 'collects');
+  const userRef = utils.collection(utils.db, 'users'); // 追加
+
   const qCollects = utils.query(
     collectRef,
     utils.orderBy('targetDate', 'desc')
   );
-  const snap = await utils.getWrapDocs(qCollects);
+
+  const [snap, userSnap] = await Promise.all([
+    utils.getWrapDocs(qCollects),
+    utils.getWrapDocs(userRef), // ユーザー一覧を取得
+  ]);
+
+  // 2. ユーザーIDをキーにした名前のマップを作成
+  const userMap = {};
+  userSnap.forEach((doc) => {
+    userMap[doc.id] = doc.data().displayName || '不明';
+  });
 
   let activeCount = 0;
   let closedCount = 0;
@@ -39,13 +52,15 @@ async function setUpPage() {
     const upfrontText = formatYen(data.upfrontAmount);
     const termText = `${data.acceptStartDate}～<br>${data.acceptEndDate}`;
 
+    // 3. 行作成関数に userMap を渡す
     const row = makeCollectRow(
       id,
       data,
       isActive,
       amountText,
       upfrontText,
-      termText
+      termText,
+      userMap // 引数追加
     );
 
     if (isActive) {
@@ -61,10 +76,25 @@ async function setUpPage() {
   if (closedCount === 0) $('#closed-container').hide();
 }
 
-function makeCollectRow(id, data, isActive, amountText, upfrontText, termText) {
+// 引数に userMap を追加
+function makeCollectRow(
+  id,
+  data,
+  isActive,
+  amountText,
+  upfrontText,
+  termText,
+  userMap
+) {
   const statusClass = isActive ? 'pending' : 'closed';
   const statusText = isActive ? '受付中' : '期間外';
   const isInTerm = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
+
+  // IDから名前に変換（該当がなければ元のIDまたは'-'を表示）
+  const managerDisplayName =
+    userMap[data.managerName] || data.managerName || '-';
+  const payerDisplayName =
+    userMap[data.upfrontPayer] || data.upfrontPayer || '-';
 
   // 支払いリンクボタンの生成
   const payBtnHtml =
@@ -102,12 +132,8 @@ function makeCollectRow(id, data, isActive, amountText, upfrontText, termText) {
       </td>
       <td class="staff-col">
         <div class="staff-info">
-          <span><i class="fas fa-user-tie"></i> ${
-            data.managerName || '-'
-          }</span><br>
-          <span class="payer-label"><i class="fas fa-hand-holding-usd"></i> ${
-            data.upfrontPayer || '-'
-          }</span>
+          <span><i class="fas fa-user-tie"></i> ${managerDisplayName}</span><br>
+          <span class="payer-label"><i class="fas fa-hand-holding-usd"></i> ${payerDisplayName}</span>
         </div>
       </td>
       <td class="remarks-col">
