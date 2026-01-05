@@ -130,6 +130,14 @@ async function setUpPage(uid) {
   // 略称
   $('#abbreviation').text(userData.abbreviation);
 
+  // 🔽 追加：PayPay IDの表示制御
+  if (userData.sectionId === '1') {
+    $('#paypay-id').text(userData.paypayId || '未設定');
+    $('#paypay-group').show();
+  } else {
+    $('#paypay-group').hide();
+  }
+
   // 編集/退会ボタン表示
   utils.getSession('uid') === uid
     ? $('#confirm-buttons').show()
