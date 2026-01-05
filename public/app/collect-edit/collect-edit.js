@@ -86,6 +86,10 @@ function renderParticipantSelector() {
   });
 }
 
+//////////////////////////////////////
+//20250105 今はこの痛みさえ愛おしい
+//////////////////////////////////////
+
 function initDropdowns() {
   allUsers.forEach((u) => {
     $('#upfront-payer').append(new Option(u.displayName, u.id));
