@@ -25,16 +25,13 @@ $(document).ready(async function () {
 
 /**
  * Storage上のファイルを削除する共通関数
- * @param {string} url - 削除対象のダウンロードURL
  */
 async function deleteStorageFile(url) {
   if (!url || !url.startsWith('http')) return;
   try {
-    // URLからStorageのリファレンスを取得して削除
     const fileRef = utils.ref(utils.storage, url);
     await utils.deleteObject(fileRef);
   } catch (err) {
-    // ファイルが既に存在しない場合などはエラーを無視して進む
     console.warn('Storage file delete warning:', err);
   }
 }
@@ -68,9 +65,11 @@ async function renderCollect() {
 
   const userFullMap = {};
   usersSnap.docs.forEach((d) => {
+    const uData = d.data();
     userFullMap[d.id] = {
-      name: d.data().displayName,
-      sectionId: d.data().sectionId,
+      name: uData.displayName,
+      sectionId: uData.sectionId,
+      paypayId: uData.paypayId, // 🔽 paypayIdを取得
     };
   });
 
@@ -78,8 +77,9 @@ async function renderCollect() {
   const isActive = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
 
   $('#answer-status-label')
-    .addClass(isActive ? 'pending' : 'closed')
+    .attr('class', 'answer-status ' + (isActive ? 'pending' : 'closed'))
     .text(isActive ? '受付中' : '期間外');
+
   $('#target-date').text(
     data.targetDate ? utils.getDayOfWeek(data.targetDate_decoded) : '-'
   );
@@ -92,6 +92,7 @@ async function renderCollect() {
   $('#upfront-payer').text(userFullMap[data.upfrontPayer]?.name || '-');
   $('#participant-count').text(`${data.participantCount || 0} 名`);
   $('#manager-name').text(userFullMap[data.managerName]?.name || '-');
+  $('#collect-remarks').text(data.remarks || '-');
 
   // 送金額とエビデンス表示
   const $remittanceArea = $('#remittance-amount-area').empty();
@@ -200,11 +201,52 @@ async function renderCollect() {
     $listContainer.append($section);
   });
 
-  if (data.paymentUrl && isActive) {
-    $('#payment-link-container').html(
-      `<div class="menu-section"><h2 class="menu-title">支払いメニュー</h2><div class="confirm-buttons"><button id="pay-button" class="save-button">支払う</button></div></div>`
+  // 🔽 支払いメニューの表示 (期間外でも表示)
+  let paymentHtml = `
+    <div class="menu-section">
+      <h2 class="menu-title">支払いメニュー</h2>
+      <div class="payment-guide-box">
+        <p class="guide-title"><i class="fas fa-info-circle"></i> 送金手順</p>
+        <ol class="guide-list">
+          <li>下の「PayPayアプリを開く」を押す</li>
+          <li>「送る」タブを選択</li>
+          <li>${
+            userFullMap[data.managerName]?.paypayId
+              ? `<strong>「${
+                  userFullMap[data.managerName].paypayId
+                }」</strong>を検索`
+              : '集金担当者を検索'
+          }</li>
+          <li><strong>${formatYen(data.amountPerPerson)}</strong> を送金</li>
+        </ol>
+      </div>
+      <div class="confirm-buttons">
+        <button id="pay-app-button" class="pay-app-button">
+          <i class="fas fa-external-link-alt"></i> PayPayアプリを開く
+        </button>
+        ${
+          data.paymentUrl
+            ? `<button id="pay-link-button" class="save-button">支払いリンクを開く</button>`
+            : ''
+        }
+      </div>
+      ${
+        !isActive
+          ? '<p class="closed-warning">※受付期間外ですが、手動支払いが可能です。</p>'
+          : ''
+      }
+    </div>
+  `;
+  $('#payment-link-container').html(paymentHtml);
+
+  // イベント登録
+  $('#pay-app-button').on('click', () => {
+    window.location.href = 'paypay://';
+  });
+  if (data.paymentUrl) {
+    $('#pay-link-button').on('click', () =>
+      window.open(data.paymentUrl, '_blank')
     );
-    $('#pay-button').on('click', () => window.open(data.paymentUrl, '_blank'));
   }
 
   setupEventHandlers(collectId, isAdmin);
@@ -256,8 +298,6 @@ function setupEventHandlers(collectId, isAdmin) {
 
       try {
         utils.showSpinner();
-
-        // 1. 既存の画像があればStorageから削除（上書き対応）
         const docRef = utils.doc(
           utils.db,
           'collects',
@@ -270,14 +310,12 @@ function setupEventHandlers(collectId, isAdmin) {
           await deleteStorageFile(oldDoc.data().receiptUrl);
         }
 
-        // 2. 新しい画像をアップロード
         const compressedBlob = await compressImage(file);
         const path = `receipts/${collectId}/${currentTargetUserId}_${Date.now()}.jpg`;
         const storageRef = utils.ref(utils.storage, path);
         await utils.uploadBytes(storageRef, compressedBlob);
         const url = await utils.getDownloadURL(storageRef);
 
-        // 3. Firestore更新
         await utils.setDoc(
           docRef,
           {
@@ -299,7 +337,7 @@ function setupEventHandlers(collectId, isAdmin) {
       }
     });
 
-  // 削除機能（Storageファイル削除含む）
+  // 削除機能
   $(document)
     .off('click', '.btn-receipt-delete')
     .on('click', '.btn-receipt-delete', async function () {
@@ -310,19 +348,12 @@ function setupEventHandlers(collectId, isAdmin) {
 
       try {
         utils.showSpinner();
-
-        // 1. Storageからファイルを削除
-        if (url) {
-          await deleteStorageFile(url);
-        }
-
-        // 2. FirestoreのURLを消去
+        if (url) await deleteStorageFile(url);
         await utils.setDoc(
           utils.doc(utils.db, 'collects', collectId, 'responses', uid),
           { receiptUrl: '', updatedAt: utils.serverTimestamp() },
           { merge: true }
         );
-
         updateUIRow(uid, null, isAdmin);
         await utils.showDialog('削除が完了しました', true);
       } catch (err) {
@@ -333,14 +364,12 @@ function setupEventHandlers(collectId, isAdmin) {
       }
     });
 
-  // UI表示の更新
   function updateUIRow(uid, url, isAdmin) {
     const $row = $(`.user-receipt-row[data-uid="${uid}"]`);
     const $nameCell = $row.find('.user-name-cell');
     const $actions = $row.find('.receipt-actions');
 
     if (url) {
-      // アップロード済みの表示へ変更
       if ($nameCell.find('.status-badge').length === 0) {
         $nameCell.append(' <span class="status-badge uploaded">済</span>');
       }
@@ -354,13 +383,11 @@ function setupEventHandlers(collectId, isAdmin) {
         }
       `);
     } else {
-      // 未アップロードの表示へ変更
       $nameCell.find('.status-badge').remove();
       $actions.find('.btn-receipt-view, .btn-receipt-delete').remove();
     }
   }
 
-  // 集金管理メニュー（編集・コピー・削除）
   $('#collect-edit-button').on(
     'click',
     () =>
@@ -387,9 +414,6 @@ function setupEventHandlers(collectId, isAdmin) {
   });
 }
 
-/**
- * 画像の圧縮処理
- */
 async function compressImage(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();

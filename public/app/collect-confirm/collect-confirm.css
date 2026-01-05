@@ -190,3 +190,39 @@
 .btn-receipt-delete:hover {
     background: #c82333;
 }
+/* 支払いガイドボックス */
+.payment-guide-box {
+  background-color: #f0f7ff;
+  border-left: 4px solid #1a73e8;
+  padding: 15px;
+  margin-bottom: 15px;
+  border-radius: 4px;
+}
+.guide-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+  color: #1a73e8;
+}
+.guide-list {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+/* PayPayアプリ起動ボタン */
+.pay-app-button {
+  background-color: #ff0033; /* PayPayレッド */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 5px;
+  font-weight: bold;
+  cursor: pointer;
+  flex: 1;
+}
+.closed-warning {
+  color: #d93025;
+  font-size: 0.8rem;
+  margin-top: 10px;
+  text-align: center;
+}
