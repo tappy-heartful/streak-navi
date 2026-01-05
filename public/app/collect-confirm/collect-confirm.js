@@ -76,8 +76,20 @@ async function renderCollect() {
   $('#upfront-payer').text(userFullMap[data.upfrontPayer]?.name || '-');
   $('#participant-count').text(`${data.participantCount || 0} 名`);
   $('#manager-name').text(userFullMap[data.managerName]?.name || '-');
-  $('#remittance-amount').text(formatYen(data.remittanceAmount));
-
+  // $('#remittance-amount').text(formatYen(data.remittanceAmount));
+  if (
+    data.upfrontPayer &&
+    data.managerName &&
+    data.upfrontPayer === data.managerName
+  ) {
+    $('#remittance-amount')
+      .text('建替者=担当者のためなし')
+      .css({ 'font-size': '0.85rem', color: '#666', 'font-weight': 'normal' });
+  } else {
+    $('#remittance-amount')
+      .text(formatYen(data.remittanceAmount))
+      .css({ 'font-size': '', color: '', 'font-weight': '' }); // スタイルを戻す
+  }
   // 調整情報の表示
   if (data.isAdjustmentEnabled) {
     $('#adjustment-status').text('あり（端数調整）');
