@@ -59,7 +59,7 @@ function createNotificationBlockHtml(type, data = {}) {
         <div class="days-input-group">
           ${blockLabel}の
           <input
-            type="number"
+            type="text"
             min="0"
             value="${days}"
             class="small-input days-input"

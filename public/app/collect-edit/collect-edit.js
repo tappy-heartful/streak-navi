@@ -98,8 +98,11 @@ function initDropdowns() {
 
 async function setupPage(mode, collectId) {
   const saveBtn = $('#save-button');
+  const backLink = $('.back-link');
   if (mode === 'new' || mode === 'copy') {
+    $('#page-title, #title').text('集金新規作成');
     saveBtn.text('登録');
+    backLink.text(mode === 'new' ? '← 集金一覧に戻る' : '← 集金確認に戻る');
     const tomorrow = new Date();
     tomorrow.setDate(tomorrow.getDate() + 1);
     const day13th = new Date();
@@ -109,6 +112,7 @@ async function setupPage(mode, collectId) {
     if (mode === 'copy') await loadCollectData(collectId, mode);
   } else {
     $('#page-title, #title').text('集金編集');
+    backLink.text('← 集金確認に戻る');
     saveBtn.text('更新');
     $('#accept-start-date').hide();
     $('#accept-start-text').show();
@@ -118,7 +122,8 @@ async function setupPage(mode, collectId) {
 
 function runCalculations() {
   const total = Number($('#upfront-amount').val()) || 0;
-  const payerId = $('#upfront-payer').val();
+  const payerId = $('#upfront-payer').val(); // 建替者
+  const managerId = $('#manager-name').val(); // 集金担当者
   const selectedParticipantIds = $('.user-chk:checked')
     .map(function () {
       return $(this).val();
@@ -127,6 +132,11 @@ function runCalculations() {
   const count = selectedParticipantIds.length;
 
   $('#participant-count-display').val(count);
+
+  // 送金額表示エリアの初期化
+  const $remittanceInput = $('#remittance-amount');
+  $remittanceInput.show();
+  $('#remittance-msg').remove(); // 以前のメッセージがあれば消す
 
   if (total > 0 && count > 0) {
     const hasRemainder = total % count !== 0;
@@ -137,7 +147,6 @@ function runCalculations() {
     } else {
       $('#no-adjustment-msg').show();
       $('#adjustment-checkbox-wrapper').hide();
-      // 無限ループ防止のため .trigger('change') は使わず、UIだけ隠してチェックを外す
       $('#is-adjustment-enabled').prop('checked', false);
       $('#adjustment-settings').hide();
     }
@@ -165,7 +174,16 @@ function runCalculations() {
         ? perPerson * (count - 1)
         : perPerson * count;
     }
-    $('#remittance-amount').val(remittance);
+
+    // --- ここで建替者＝担当者のチェックを行う ---
+    if (payerId && managerId && payerId === managerId) {
+      $remittanceInput.val(0).hide(); // 値は一応0にして非表示に
+      $remittanceInput.after(
+        '<span id="remittance-msg" style="color: #666; font-size: 0.85rem; margin-left: 8px;">建替者=担当者のためなし</span>'
+      );
+    } else {
+      $remittanceInput.val(remittance);
+    }
   } else {
     $('#amount-per-person').val('');
     $('#remittance-amount').val('');
@@ -177,7 +195,8 @@ function setupEventHandlers(mode, collectId) {
   // すべての入力項目を監視。ただし、ここで trigger('change') を呼ぶ項目があるとループするので注意
   $(document).on(
     'change',
-    '.user-chk, #upfront-payer, #adjustment-payer, #is-adjustment-enabled',
+    // #manager-name を追加
+    '.user-chk, #upfront-payer, #adjustment-payer, #is-adjustment-enabled, #manager-name',
     runCalculations
   );
   $('#upfront-amount').on('input', runCalculations);
@@ -342,6 +361,11 @@ function validateData(mode) {
       $('#participant-selection-container'),
       '対象者を1人以上選択してください'
     );
+    isValid = false;
+  }
+
+  if (!$('#payment-url').val()) {
+    utils.markError($('#payment-url'), '必須');
     isValid = false;
   }
   return isValid;
