@@ -99,6 +99,12 @@ async function setUpPage(uid) {
 
   // 略称
   $('#abbreviation').val(userData.abbreviation);
+
+  // 🔽 修正・追加
+  $('#paypay-id').val(userData.paypayId || ''); // 既存データ反映
+  if (userData.sectionId === '1') {
+    $('#paypay-group').show();
+  }
 }
 
 async function populateSections(selectedId) {
@@ -258,6 +264,23 @@ function setupEventHandlers(uid) {
     $(this).hide();
   });
 
+  // user-edit.js: setupEventHandlers(uid) 内の #section-select changeイベントを修正
+  $('#section-select').on('change', function () {
+    const selectedSectionId = $(this).val();
+
+    // 🔽 追加：サックス(1)ならPayPay IDを表示、それ以外は非表示
+    if (selectedSectionId === '1') {
+      $('#paypay-group').slideDown(200);
+    } else {
+      $('#paypay-group').slideUp(200);
+      $('#paypay-id').val(''); // 非表示にする際に値をクリア（任意）
+    }
+
+    userInstrumentIds = getSelectedInstrumentIds();
+    populateInstruments(selectedSectionId);
+    utils.clearErrors($('#instrument-checkbox-list'));
+  });
+
   // 合言葉追加/削除
   const $list = $('#secret-word-list');
 
@@ -304,6 +327,7 @@ function setupEventHandlers(uid) {
       abbreviation: $('#abbreviation').val(),
       // 選択された楽器IDの配列を取得
       instrumentIds: getSelectedInstrumentIds(),
+      paypayId: $('#paypay-id').val().trim(), // 🔽 追加
     };
 
     // --- 合言葉チェック ---
@@ -450,6 +474,13 @@ function validateUserData() {
     isValid = false;
   } else if (abbreviation.length > 2) {
     utils.markError($('#abbreviation'), '略称は2文字以下で入力してください');
+    isValid = false;
+  }
+
+  const paypayId = $('#paypay-id').val().trim();
+  // サックス(1)が選ばれている場合のみ必須チェック
+  if (sectionId === '1' && !paypayId) {
+    utils.markError($('#paypay-id'), 'PayPay IDを入力してください');
     isValid = false;
   }
 
