@@ -647,9 +647,9 @@ async function collectEventData(mode) {
 
     // 【修正・新規追加】日程/出欠関連のデータ
     attendanceType: attendanceType,
-    // 【新規追加】回答を受け付けるかどうかのフラグ(日程調整の場合にのみ判定)
+    // 【新規追加】回答を受け付けるかどうかのフラグ(出欠確認の場合にのみ判定)
     isAcceptingResponses:
-      attendanceType === 'schedule' ? attendanceStatus === 'on' : true,
+      attendanceType !== 'schedule' ? attendanceStatus === 'on' : true,
     // 'schedule'でなければ通常の日付を保存
     date: attendanceType !== 'schedule' ? formatDateForSave(rawDate) : '',
 
