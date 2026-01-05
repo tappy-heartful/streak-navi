@@ -1,7 +1,6 @@
 import * as utils from '../common/functions.js';
 
 let currentTargetUserId = null;
-let $currentUploadButton = null;
 
 $(document).ready(async function () {
   try {
@@ -107,6 +106,11 @@ async function renderCollect() {
               : ''
           }
           ${
+            isAdmin && hasRemiReceipt
+              ? `<button class="btn-receipt-delete" data-uid="remittance_evidence"><i class="fas fa-trash-alt"></i></button>`
+              : ''
+          }
+          ${
             isAdmin
               ? `<button class="btn-receipt-upload" data-uid="remittance_evidence"><i class="fas fa-upload"></i></button>`
               : ''
@@ -163,6 +167,11 @@ async function renderCollect() {
                 : ''
             }
             ${
+              isAdmin && hasReceipt
+                ? `<button class="btn-receipt-delete" data-uid="${u.id}"><i class="fas fa-trash-alt"></i></button>`
+                : ''
+            }
+            ${
               isAdmin
                 ? `<button class="btn-receipt-upload" data-uid="${u.id}"><i class="fas fa-upload"></i></button>`
                 : ''
@@ -188,6 +197,7 @@ async function renderCollect() {
 function setupEventHandlers(collectId, isAdmin) {
   if (!isAdmin) $('#collect-menu').hide();
 
+  // 表示
   $(document)
     .off('click', '.btn-receipt-view')
     .on('click', '.btn-receipt-view', function () {
@@ -203,6 +213,7 @@ function setupEventHandlers(collectId, isAdmin) {
       $('body').append(overlay);
     });
 
+  // 閉じる
   $(document).on(
     'click',
     '.close-preview, .receipt-preview-overlay',
@@ -212,11 +223,11 @@ function setupEventHandlers(collectId, isAdmin) {
     }
   );
 
+  // アップロード
   $(document)
     .off('click', '.btn-receipt-upload')
     .on('click', '.btn-receipt-upload', function () {
       currentTargetUserId = $(this).data('uid');
-      $currentUploadButton = $(this);
       $('#receipt-file-input').click();
     });
 
@@ -224,7 +235,6 @@ function setupEventHandlers(collectId, isAdmin) {
     .off('change')
     .on('change', async function (e) {
       const file = e.target.files[0];
-      const collectId = utils.globalGetParamCollectId;
       if (!file || !currentTargetUserId) return;
 
       try {
@@ -251,7 +261,7 @@ function setupEventHandlers(collectId, isAdmin) {
           { merge: true }
         );
 
-        updateUIAfterUpload(currentTargetUserId, url);
+        updateUIRow(currentTargetUserId, url, isAdmin);
         await utils.showDialog('スクショを登録しました', true);
       } catch (err) {
         console.error(err);
@@ -262,25 +272,61 @@ function setupEventHandlers(collectId, isAdmin) {
       }
     });
 
-  function updateUIAfterUpload(uid, url) {
-    const $row = $(`.user-receipt-row[data-uid="${uid}"]`);
-    if ($row.find('.status-badge').length === 0) {
-      $row
-        .find('.user-name-cell')
-        .append(' <span class="status-badge uploaded">済</span>');
-    }
-    let $viewBtn = $row.find('.btn-receipt-view');
-    if ($viewBtn.length === 0) {
-      $row
-        .find('.receipt-actions')
-        .prepend(
-          `<button class="btn-receipt-view" data-url="${url}">表示</button>`
+  // 削除機能
+  $(document)
+    .off('click', '.btn-receipt-delete')
+    .on('click', '.btn-receipt-delete', async function () {
+      const uid = $(this).data('uid');
+      if (!(await utils.showDialog('このスクショを削除してもよろしいですか？')))
+        return;
+
+      try {
+        utils.showSpinner();
+        // FirestoreのreceiptUrlを空にする（Storageの物理削除は運用に合わせて追加検討）
+        await utils.setDoc(
+          utils.doc(utils.db, 'collects', collectId, 'responses', uid),
+          { receiptUrl: '', updatedAt: utils.serverTimestamp() },
+          { merge: true }
         );
+
+        updateUIRow(uid, null, isAdmin);
+        await utils.showDialog('削除しました', true);
+      } catch (err) {
+        console.error(err);
+        alert('削除失敗');
+      } finally {
+        utils.hideSpinner();
+      }
+    });
+
+  // UI行の更新
+  function updateUIRow(uid, url, isAdmin) {
+    const $row = $(`.user-receipt-row[data-uid="${uid}"]`);
+    const $nameCell = $row.find('.user-name-cell');
+    const $actions = $row.find('.receipt-actions');
+
+    if (url) {
+      // アップロード時
+      if ($nameCell.find('.status-badge').length === 0) {
+        $nameCell.append(' <span class="status-badge uploaded">済</span>');
+      }
+      $actions.find('.btn-receipt-view, .btn-receipt-delete').remove();
+      $actions.prepend(`
+        <button class="btn-receipt-view" data-url="${url}">表示</button>
+        ${
+          isAdmin
+            ? `<button class="btn-receipt-delete" data-uid="${uid}"><i class="fas fa-trash-alt"></i></button>`
+            : ''
+        }
+      `);
     } else {
-      $viewBtn.data('url', url).attr('data-url', url);
+      // 削除時
+      $nameCell.find('.status-badge').remove();
+      $actions.find('.btn-receipt-view, .btn-receipt-delete').remove();
     }
   }
 
+  // 集金管理メニュー
   $('#collect-edit-button').on(
     'click',
     () =>

@@ -174,3 +174,19 @@
         top: -50px;
     }
 }
+
+/* 既存のCSSの末尾に追加 */
+
+.btn-receipt-delete {
+    padding: 4px 8px;
+    background: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.btn-receipt-delete:hover {
+    background: #c82333;
+}
