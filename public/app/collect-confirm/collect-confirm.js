@@ -23,6 +23,22 @@ $(document).ready(async function () {
   }
 });
 
+/**
+ * Storage上のファイルを削除する共通関数
+ * @param {string} url - 削除対象のダウンロードURL
+ */
+async function deleteStorageFile(url) {
+  if (!url || !url.startsWith('http')) return;
+  try {
+    // URLからStorageのリファレンスを取得して削除
+    const fileRef = utils.ref(utils.storage, url);
+    await utils.deleteObject(fileRef);
+  } catch (err) {
+    // ファイルが既に存在しない場合などはエラーを無視して進む
+    console.warn('Storage file delete warning:', err);
+  }
+}
+
 async function renderCollect() {
   const collectId = utils.globalGetParamCollectId;
   const isAdmin = utils.isAdmin('Collect');
@@ -107,7 +123,7 @@ async function renderCollect() {
           }
           ${
             isAdmin && hasRemiReceipt
-              ? `<button class="btn-receipt-delete" data-uid="remittance_evidence"><i class="fas fa-trash-alt"></i></button>`
+              ? `<button class="btn-receipt-delete" data-uid="remittance_evidence" data-url="${remiResp.receiptUrl}"><i class="fas fa-trash-alt"></i></button>`
               : ''
           }
           ${
@@ -168,7 +184,7 @@ async function renderCollect() {
             }
             ${
               isAdmin && hasReceipt
-                ? `<button class="btn-receipt-delete" data-uid="${u.id}"><i class="fas fa-trash-alt"></i></button>`
+                ? `<button class="btn-receipt-delete" data-uid="${u.id}" data-url="${resp.receiptUrl}"><i class="fas fa-trash-alt"></i></button>`
                 : ''
             }
             ${
@@ -197,7 +213,7 @@ async function renderCollect() {
 function setupEventHandlers(collectId, isAdmin) {
   if (!isAdmin) $('#collect-menu').hide();
 
-  // 表示
+  // プレビュー表示
   $(document)
     .off('click', '.btn-receipt-view')
     .on('click', '.btn-receipt-view', function () {
@@ -213,7 +229,7 @@ function setupEventHandlers(collectId, isAdmin) {
       $('body').append(overlay);
     });
 
-  // 閉じる
+  // プレビュー閉じる
   $(document).on(
     'click',
     '.close-preview, .receipt-preview-overlay',
@@ -223,7 +239,7 @@ function setupEventHandlers(collectId, isAdmin) {
     }
   );
 
-  // アップロード
+  // アップロード開始
   $(document)
     .off('click', '.btn-receipt-upload')
     .on('click', '.btn-receipt-upload', function () {
@@ -231,6 +247,7 @@ function setupEventHandlers(collectId, isAdmin) {
       $('#receipt-file-input').click();
     });
 
+  // ファイル選択後のアップロード処理
   $('#receipt-file-input')
     .off('change')
     .on('change', async function (e) {
@@ -239,20 +256,30 @@ function setupEventHandlers(collectId, isAdmin) {
 
       try {
         utils.showSpinner();
+
+        // 1. 既存の画像があればStorageから削除（上書き対応）
+        const docRef = utils.doc(
+          utils.db,
+          'collects',
+          collectId,
+          'responses',
+          currentTargetUserId
+        );
+        const oldDoc = await utils.getDoc(docRef);
+        if (oldDoc.exists() && oldDoc.data().receiptUrl) {
+          await deleteStorageFile(oldDoc.data().receiptUrl);
+        }
+
+        // 2. 新しい画像をアップロード
         const compressedBlob = await compressImage(file);
         const path = `receipts/${collectId}/${currentTargetUserId}_${Date.now()}.jpg`;
         const storageRef = utils.ref(utils.storage, path);
         await utils.uploadBytes(storageRef, compressedBlob);
         const url = await utils.getDownloadURL(storageRef);
 
+        // 3. Firestore更新
         await utils.setDoc(
-          utils.doc(
-            utils.db,
-            'collects',
-            collectId,
-            'responses',
-            currentTargetUserId
-          ),
+          docRef,
           {
             userId: currentTargetUserId,
             receiptUrl: url,
@@ -265,24 +292,31 @@ function setupEventHandlers(collectId, isAdmin) {
         await utils.showDialog('スクショを登録しました', true);
       } catch (err) {
         console.error(err);
-        alert('アップロード失敗');
+        alert('アップロードに失敗しました');
       } finally {
         utils.hideSpinner();
         $(this).val('');
       }
     });
 
-  // 削除機能
+  // 削除機能（Storageファイル削除含む）
   $(document)
     .off('click', '.btn-receipt-delete')
     .on('click', '.btn-receipt-delete', async function () {
       const uid = $(this).data('uid');
+      const url = $(this).data('url');
       if (!(await utils.showDialog('このスクショを削除してもよろしいですか？')))
         return;
 
       try {
         utils.showSpinner();
-        // FirestoreのreceiptUrlを空にする（Storageの物理削除は運用に合わせて追加検討）
+
+        // 1. Storageからファイルを削除
+        if (url) {
+          await deleteStorageFile(url);
+        }
+
+        // 2. FirestoreのURLを消去
         await utils.setDoc(
           utils.doc(utils.db, 'collects', collectId, 'responses', uid),
           { receiptUrl: '', updatedAt: utils.serverTimestamp() },
@@ -290,23 +324,23 @@ function setupEventHandlers(collectId, isAdmin) {
         );
 
         updateUIRow(uid, null, isAdmin);
-        await utils.showDialog('削除しました', true);
+        await utils.showDialog('削除が完了しました', true);
       } catch (err) {
         console.error(err);
-        alert('削除失敗');
+        alert('削除に失敗しました');
       } finally {
         utils.hideSpinner();
       }
     });
 
-  // UI行の更新
+  // UI表示の更新
   function updateUIRow(uid, url, isAdmin) {
     const $row = $(`.user-receipt-row[data-uid="${uid}"]`);
     const $nameCell = $row.find('.user-name-cell');
     const $actions = $row.find('.receipt-actions');
 
     if (url) {
-      // アップロード時
+      // アップロード済みの表示へ変更
       if ($nameCell.find('.status-badge').length === 0) {
         $nameCell.append(' <span class="status-badge uploaded">済</span>');
       }
@@ -315,28 +349,30 @@ function setupEventHandlers(collectId, isAdmin) {
         <button class="btn-receipt-view" data-url="${url}">表示</button>
         ${
           isAdmin
-            ? `<button class="btn-receipt-delete" data-uid="${uid}"><i class="fas fa-trash-alt"></i></button>`
+            ? `<button class="btn-receipt-delete" data-uid="${uid}" data-url="${url}"><i class="fas fa-trash-alt"></i></button>`
             : ''
         }
       `);
     } else {
-      // 削除時
+      // 未アップロードの表示へ変更
       $nameCell.find('.status-badge').remove();
       $actions.find('.btn-receipt-view, .btn-receipt-delete').remove();
     }
   }
 
-  // 集金管理メニュー
+  // 集金管理メニュー（編集・コピー・削除）
   $('#collect-edit-button').on(
     'click',
     () =>
       (window.location.href = `../collect-edit/collect-edit.html?mode=edit&collectId=${collectId}`)
   );
+
   $('#collect-copy-button').on(
     'click',
     () =>
       (window.location.href = `../collect-edit/collect-edit.html?mode=copy&collectId=${collectId}`)
   );
+
   $('#collect-delete-button').on('click', async () => {
     if (!(await utils.showDialog('この集金データを削除してもよろしいですか？')))
       return;
@@ -351,6 +387,9 @@ function setupEventHandlers(collectId, isAdmin) {
   });
 }
 
+/**
+ * 画像の圧縮処理
+ */
 async function compressImage(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();

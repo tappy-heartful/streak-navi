@@ -44,6 +44,7 @@ import {
   ref,
   uploadBytes,
   getDownloadURL,
+  deleteObject,
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
 // 2. 各サービスの初期化（必ず app を引数に入れる）
@@ -74,6 +75,7 @@ export {
   serverTimestamp,
   limit,
   writeBatch,
+  deleteObject,
 };
 
 // ダイアログ関連
