@@ -45,9 +45,9 @@ function createNotificationBlockHtml(type, data = {}) {
   const message = data.message || '';
 
   // ラベル判定の修正
-  let blockLabel = '締切';
+  let blockLabel = '締切'; // デフォルトは締切
   if (type === 'event') blockLabel = 'イベント';
-  if (type === 'collect') blockLabel = '開始'; // 💰 集金は「開始の何日前/後」とする
+  if (type === 'collect') blockLabel = '開始'; // 💰 集金開始
 
   return `
     <div class="notification-block" data-type="${type}">
@@ -96,10 +96,11 @@ async function loadBaseConfig() {
   );
   if (docSnap.exists()) {
     const d = docSnap.data();
-    // 5つのセクションを読み込む
+    // 6つのセクションを読み込む
     renderNotifications('event', d.eventNotifications || []);
     renderNotifications('eventAdj', d.eventAdjNotifications || []);
-    renderNotifications('collect', d.collectNotifications || []); // 💰 追加
+    renderNotifications('collect', d.collectNotifications || []);
+    renderNotifications('collectEnd', d.collectEndNotifications || []); // 💰 終了追加
     renderNotifications('vote', d.voteNotifications || []);
     renderNotifications('call', d.callNotifications || []);
   } else {
@@ -107,7 +108,8 @@ async function loadBaseConfig() {
     const defaultVal = [{ days: 1, beforeAfter: 'before', message: '' }];
     renderNotifications('event', defaultVal);
     renderNotifications('eventAdj', defaultVal);
-    renderNotifications('collect', defaultVal); // 💰 追加
+    renderNotifications('collect', defaultVal);
+    renderNotifications('collectEnd', defaultVal);
     renderNotifications('vote', defaultVal);
     renderNotifications('call', defaultVal);
   }
@@ -171,7 +173,8 @@ function collectBaseData() {
   return {
     eventNotifications: collectNotifications('event'),
     eventAdjNotifications: collectNotifications('eventAdj'),
-    collectNotifications: collectNotifications('collect'), // 💰 追加
+    collectNotifications: collectNotifications('collect'),
+    collectEndNotifications: collectNotifications('collectEnd'), // 💰 終了追加
     voteNotifications: collectNotifications('vote'),
     callNotifications: collectNotifications('call'),
     updatedAt: utils.serverTimestamp(),

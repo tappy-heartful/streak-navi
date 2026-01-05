@@ -83,13 +83,16 @@ async function loadBaseConfig() {
     // ② イベント通知（日程調整） -> ラベルは「締切」
     renderNotificationSection('eventAdj', '締切', d.eventAdjNotifications);
 
-    // 💰 ③ 集金通知 -> ラベルは「開始」
+    // 💰 ③ 集金通知（開始） -> ラベルは「開始」
     renderNotificationSection('collect', '開始', d.collectNotifications);
 
-    // ④ 投票通知 -> ラベルは「締切」
+    // 💰 ④ 集金通知（終了） -> ラベルは「締切」
+    renderNotificationSection('collectEnd', '締切', d.collectEndNotifications);
+
+    // ⑤ 投票通知 -> ラベルは「締切」
     renderNotificationSection('vote', '締切', d.voteNotifications);
 
-    // ⑤ 曲募集通知 -> ラベルは「締切」
+    // ⑥ 曲募集通知 -> ラベルは「締切」
     renderNotificationSection('call', '締切', d.callNotifications);
   } else {
     $('.notifications-container').html(
