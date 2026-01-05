@@ -83,7 +83,7 @@ async function renderCollect() {
     data.upfrontPayer === data.managerName
   ) {
     $('#remittance-amount')
-      .text('建替者=担当者のためなし')
+      .text('なし')
       .css({ 'font-size': '0.85rem', color: '#666', 'font-weight': 'normal' });
   } else {
     $('#remittance-amount')
