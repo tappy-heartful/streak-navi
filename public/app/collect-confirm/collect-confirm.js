@@ -221,18 +221,19 @@ async function renderCollect() {
         </ol>
       </div>
       <div class="confirm-buttons">
-        <button id="pay-app-button" class="pay-app-button">
-          <i class="fas fa-external-link-alt"></i> PayPayアプリを開く
-        </button>
         ${
-          data.paymentUrl
+          !isActive
+            ? ` <button id="pay-app-button" class="pay-app-button">
+                  <i class="fas fa-external-link-alt"></i> PayPayアプリを開く
+                </button>`
+            : data.paymentUrl
             ? `<button id="pay-link-button" class="save-button">支払いリンクを開く</button>`
             : ''
         }
       </div>
       ${
         !isActive
-          ? '<p class="closed-warning">※受付期間外ですが、手動支払いが可能です。</p>'
+          ? '<p class="closed-warning">※受付期間外のため、<br>手動支払いでお願いします</p>'
           : ''
       }
     </div>
