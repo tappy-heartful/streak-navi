@@ -1,7 +1,7 @@
 import * as utils from '../common/functions.js';
 
 let currentTargetUserId = null;
-let $currentUploadButton = null; // 押されたボタンを特定するために追加
+let $currentUploadButton = null;
 
 $(document).ready(async function () {
   try {
@@ -61,6 +61,7 @@ async function renderCollect() {
 
   const formatYen = (num) => (num ? `¥${Number(num).toLocaleString()}` : '-');
   const isActive = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
+
   $('#answer-status-label')
     .addClass(isActive ? 'pending' : 'closed')
     .text(isActive ? '受付中' : '期間外');
@@ -76,20 +77,45 @@ async function renderCollect() {
   $('#upfront-payer').text(userFullMap[data.upfrontPayer]?.name || '-');
   $('#participant-count').text(`${data.participantCount || 0} 名`);
   $('#manager-name').text(userFullMap[data.managerName]?.name || '-');
-  // $('#remittance-amount').text(formatYen(data.remittanceAmount));
-  if (
-    data.upfrontPayer &&
-    data.managerName &&
-    data.upfrontPayer === data.managerName
-  ) {
-    $('#remittance-amount')
-      .text('なし')
-      .css({ 'font-size': '0.85rem', color: '#666', 'font-weight': 'normal' });
+
+  // 送金額とエビデンス表示
+  const $remittanceArea = $('#remittance-amount-area').empty();
+  const isSamePerson = data.upfrontPayer === data.managerName;
+
+  if (isSamePerson) {
+    $remittanceArea.append(
+      '<span style="font-size: 0.85rem; color: #666;">なし<br />(建替者=担当者のため)</span>'
+    );
   } else {
-    $('#remittance-amount')
-      .text(formatYen(data.remittanceAmount))
-      .css({ 'font-size': '', color: '', 'font-weight': '' }); // スタイルを戻す
+    const remiResp = responseMap['remittance_evidence'];
+    const hasRemiReceipt = !!remiResp?.receiptUrl;
+
+    $remittanceArea.append(`
+      <div class="user-receipt-row" data-uid="remittance_evidence" style="padding:0; width:100%;">
+        <div class="user-name-cell" style="font-weight:bold; color:#222;">
+          ${formatYen(data.remittanceAmount)}
+          ${
+            hasRemiReceipt
+              ? '<span class="status-badge uploaded">済</span>'
+              : ''
+          }
+        </div>
+        <div class="receipt-actions">
+          ${
+            hasRemiReceipt
+              ? `<button class="btn-receipt-view" data-url="${remiResp.receiptUrl}">表示</button>`
+              : ''
+          }
+          ${
+            isAdmin
+              ? `<button class="btn-receipt-upload" data-uid="remittance_evidence"><i class="fas fa-upload"></i></button>`
+              : ''
+          }
+        </div>
+      </div>
+    `);
   }
+
   // 調整情報の表示
   if (data.isAdjustmentEnabled) {
     $('#adjustment-status').text('あり（端数調整）');
@@ -162,80 +188,87 @@ async function renderCollect() {
 function setupEventHandlers(collectId, isAdmin) {
   if (!isAdmin) $('#collect-menu').hide();
 
-  $(document).on('click', '.btn-receipt-view', function () {
-    const url = $(this).data('url');
-    $('body').append(
-      `<div class="receipt-preview-overlay"><div class="receipt-preview-content"><span class="close-preview">&times;</span><img src="${url}"></div></div>`
-    );
-  });
+  $(document)
+    .off('click', '.btn-receipt-view')
+    .on('click', '.btn-receipt-view', function () {
+      const url = $(this).data('url');
+      const overlay = $(`
+      <div class="receipt-preview-overlay">
+        <div class="receipt-preview-content">
+          <span class="close-preview">&times;</span>
+          <img src="${url}">
+        </div>
+      </div>
+    `);
+      $('body').append(overlay);
+    });
 
   $(document).on(
     'click',
     '.close-preview, .receipt-preview-overlay',
-    function () {
+    function (e) {
+      if ($(e.target).closest('img').length > 0) return;
       $('.receipt-preview-overlay').remove();
     }
   );
 
-  // アップロード開始ボタン
-  $(document).on('click', '.btn-receipt-upload', function () {
-    currentTargetUserId = $(this).data('uid');
-    $currentUploadButton = $(this); // 現在のボタンを保持
-    $('#receipt-file-input').click();
-  });
+  $(document)
+    .off('click', '.btn-receipt-upload')
+    .on('click', '.btn-receipt-upload', function () {
+      currentTargetUserId = $(this).data('uid');
+      $currentUploadButton = $(this);
+      $('#receipt-file-input').click();
+    });
 
-  $('#receipt-file-input').on('change', async function (e) {
-    const file = e.target.files[0];
-    const collectId = utils.globalGetParamCollectId;
-    if (!file || !currentTargetUserId) return;
+  $('#receipt-file-input')
+    .off('change')
+    .on('change', async function (e) {
+      const file = e.target.files[0];
+      const collectId = utils.globalGetParamCollectId;
+      if (!file || !currentTargetUserId) return;
 
-    try {
-      utils.showSpinner();
-      const compressedBlob = await compressImage(file);
-      const path = `receipts/${collectId}/${currentTargetUserId}_${Date.now()}.jpg`;
-      const storageRef = utils.ref(utils.storage, path);
-      await utils.uploadBytes(storageRef, compressedBlob);
-      const url = await utils.getDownloadURL(storageRef);
+      try {
+        utils.showSpinner();
+        const compressedBlob = await compressImage(file);
+        const path = `receipts/${collectId}/${currentTargetUserId}_${Date.now()}.jpg`;
+        const storageRef = utils.ref(utils.storage, path);
+        await utils.uploadBytes(storageRef, compressedBlob);
+        const url = await utils.getDownloadURL(storageRef);
 
-      await utils.setDoc(
-        utils.doc(
-          utils.db,
-          'collects',
-          collectId,
-          'responses',
-          currentTargetUserId
-        ),
-        {
-          userId: currentTargetUserId,
-          receiptUrl: url,
-          updatedAt: utils.serverTimestamp(),
-        },
-        { merge: true }
-      );
+        await utils.setDoc(
+          utils.doc(
+            utils.db,
+            'collects',
+            collectId,
+            'responses',
+            currentTargetUserId
+          ),
+          {
+            userId: currentTargetUserId,
+            receiptUrl: url,
+            updatedAt: utils.serverTimestamp(),
+          },
+          { merge: true }
+        );
 
-      // --- 再読み込みせずにUIを更新 ---
-      updateUIAfterUpload(currentTargetUserId, url);
+        updateUIAfterUpload(currentTargetUserId, url);
+        await utils.showDialog('スクショを登録しました', true);
+      } catch (err) {
+        console.error(err);
+        alert('アップロード失敗');
+      } finally {
+        utils.hideSpinner();
+        $(this).val('');
+      }
+    });
 
-      await utils.showDialog('スクショを登録しました', true);
-    } catch (err) {
-      console.error(err);
-      alert('アップロード失敗');
-    } finally {
-      utils.hideSpinner();
-      $(this).val('');
-    }
-  });
-
-  // UI更新用関数
   function updateUIAfterUpload(uid, url) {
     const $row = $(`.user-receipt-row[data-uid="${uid}"]`);
-    // 1. 名前セルに「済」バッジを追加（既になければ）
     if ($row.find('.status-badge').length === 0) {
       $row
         .find('.user-name-cell')
         .append(' <span class="status-badge uploaded">済</span>');
     }
-    // 2. 「表示」ボタンを追加またはURLを更新
     let $viewBtn = $row.find('.btn-receipt-view');
     if ($viewBtn.length === 0) {
       $row
@@ -272,7 +305,6 @@ function setupEventHandlers(collectId, isAdmin) {
   });
 }
 
-// 圧縮関数
 async function compressImage(file) {
   return new Promise((resolve) => {
     const reader = new FileReader();
