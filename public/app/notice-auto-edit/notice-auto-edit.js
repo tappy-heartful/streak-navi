@@ -44,8 +44,10 @@ function createNotificationBlockHtml(type, data = {}) {
   const beforeAfter = data.beforeAfter || 'before';
   const message = data.message || '';
 
-  // event 以外（eventAdj, vote, call）はすべて「締切の」にする
-  const blockLabel = type === 'event' ? 'イベント' : '締切';
+  // ラベル判定の修正
+  let blockLabel = '締切';
+  if (type === 'event') blockLabel = 'イベント';
+  if (type === 'collect') blockLabel = '開始'; // 💰 集金は「開始の何日前/後」とする
 
   return `
     <div class="notification-block" data-type="${type}">
@@ -94,30 +96,29 @@ async function loadBaseConfig() {
   );
   if (docSnap.exists()) {
     const d = docSnap.data();
-    // 4つのセクションを読み込む（データがなければ空配列を渡す）
+    // 5つのセクションを読み込む
     renderNotifications('event', d.eventNotifications || []);
     renderNotifications('eventAdj', d.eventAdjNotifications || []);
+    renderNotifications('collect', d.collectNotifications || []); // 💰 追加
     renderNotifications('vote', d.voteNotifications || []);
     renderNotifications('call', d.callNotifications || []);
   } else {
-    // 完全に新規の場合のみ、入力のヒントとして1つずつ表示させる（任意）
+    // デフォルト表示
     const defaultVal = [{ days: 1, beforeAfter: 'before', message: '' }];
     renderNotifications('event', defaultVal);
     renderNotifications('eventAdj', defaultVal);
+    renderNotifications('collect', defaultVal); // 💰 追加
     renderNotifications('vote', defaultVal);
     renderNotifications('call', defaultVal);
   }
 }
 
 /**
- * 読み込んだデータをDOMに反映。データが0件なら空のままにする。
+ * 読み込んだデータをDOMに反映。
  */
 function renderNotifications(type, notifications) {
   const wrapper = $(`#${type}-settings-wrapper`);
   wrapper.empty();
-
-  // 💡 修正: notifications.length === 0 の時の push 処理を削除
-  // これにより、Firestore上の配列が空なら画面上も何も表示されない（通知なし状態）になります。
 
   notifications.forEach((data) => {
     const html = createNotificationBlockHtml(type, data);
@@ -135,7 +136,7 @@ function setupEventHandlers() {
     wrapper.append(html);
   });
 
-  // 💡 修正: 通知設定削除ボタン（最後の1つでも削除可能にする）
+  // 通知設定削除ボタン
   $(document).on('click', '.remove-notify-button', function () {
     $(this).closest('.notification-block').remove();
   });
@@ -170,6 +171,7 @@ function collectBaseData() {
   return {
     eventNotifications: collectNotifications('event'),
     eventAdjNotifications: collectNotifications('eventAdj'),
+    collectNotifications: collectNotifications('collect'), // 💰 追加
     voteNotifications: collectNotifications('vote'),
     callNotifications: collectNotifications('call'),
     updatedAt: utils.serverTimestamp(),
@@ -178,7 +180,6 @@ function collectBaseData() {
 
 /**
  * 特定のタイプの通知設定をDOMから抽出
- * 0件の場合は空配列 [] が返る
  */
 function collectNotifications(type) {
   const notifications = [];

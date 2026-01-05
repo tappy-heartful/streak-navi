@@ -32,7 +32,7 @@ async function setUpPage() {
 
 /**
  * 単一の通知設定ブロックのHTMLを生成する
- * @param {string} typeLabel - イベント or 締切
+ * @param {string} typeLabel - イベント / 開始 / 締切
  * @param {object} notification - {days, beforeAfter, message}
  * @returns {string} HTML文字列
  */
@@ -40,7 +40,7 @@ function createNotificationDisplayBlock(typeLabel, notification) {
   const days = notification.days ?? 0;
   const beforeAfter = notification.beforeAfter === 'after' ? '後' : '前';
   const time = '9:00ごろ';
-  // message_decoded または message を使用
+
   const message =
     notification.message ||
     notification.message_decoded ||
@@ -83,10 +83,13 @@ async function loadBaseConfig() {
     // ② イベント通知（日程調整） -> ラベルは「締切」
     renderNotificationSection('eventAdj', '締切', d.eventAdjNotifications);
 
-    // ③ 投票通知 -> ラベルは「締切」
+    // 💰 ③ 集金通知 -> ラベルは「開始」
+    renderNotificationSection('collect', '開始', d.collectNotifications);
+
+    // ④ 投票通知 -> ラベルは「締切」
     renderNotificationSection('vote', '締切', d.voteNotifications);
 
-    // ④ 曲募集通知 -> ラベルは「締切」
+    // ⑤ 曲募集通知 -> ラベルは「締切」
     renderNotificationSection('call', '締切', d.callNotifications);
   } else {
     $('.notifications-container').html(
@@ -102,7 +105,6 @@ function renderNotificationSection(type, typeLabel, notifications) {
   const container = $(`#${type}-notifications-container`);
   container.empty();
 
-  // 0件（未設定）の場合はメッセージを表示
   if (notifications && notifications.length > 0) {
     notifications.forEach((notification) => {
       const html = createNotificationDisplayBlock(typeLabel, notification);
