@@ -90,7 +90,8 @@ function initDropdowns() {
   allUsers.forEach((u) => {
     $('#upfront-payer').append(new Option(u.displayName, u.id));
     $('#adjustment-payer').append(new Option(u.displayName, u.id));
-    if (u.sectionId === '1') {
+    // サックスパートでかつpaypayIdが登録されているユーザーのみを担当者候補に追加
+    if (u.sectionId === '1' && u.paypayId) {
       $('#manager-name').append(new Option(u.displayName, u.id));
     }
   });
