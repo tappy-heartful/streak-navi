@@ -256,7 +256,7 @@ async function renderCollect() {
 function setupEventHandlers(collectId, isAdmin) {
   if (!isAdmin) $('#collect-menu').hide();
 
-  // プレビュー表示
+  // プレビュー表示（✕ボタンを削除）
   $(document)
     .off('click', '.btn-receipt-view')
     .on('click', '.btn-receipt-view', function () {
@@ -264,7 +264,6 @@ function setupEventHandlers(collectId, isAdmin) {
       const overlay = $(`
       <div class="receipt-preview-overlay">
         <div class="receipt-preview-content">
-          <span class="close-preview">&times;</span>
           <img src="${url}">
         </div>
       </div>
@@ -272,15 +271,10 @@ function setupEventHandlers(collectId, isAdmin) {
       $('body').append(overlay);
     });
 
-  // プレビュー閉じる
-  $(document).on(
-    'click',
-    '.close-preview, .receipt-preview-overlay',
-    function (e) {
-      if ($(e.target).closest('img').length > 0) return;
-      $('.receipt-preview-overlay').remove();
-    }
-  );
+  // プレビュー閉じる（どこをタップしても閉じるように修正）
+  $(document).on('click', '.receipt-preview-overlay', function () {
+    $(this).remove();
+  });
 
   // アップロード開始
   $(document)
