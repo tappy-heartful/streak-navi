@@ -42,12 +42,24 @@ async function setupPage() {
 function createNotificationBlockHtml(type, data = {}) {
   const days = data.days === undefined ? 1 : data.days;
   const beforeAfter = data.beforeAfter || 'before';
+  const interval = data.interval === undefined ? 14 : data.interval; // 💰 追加: 催促用
   const message = data.message || '';
 
-  // ラベル判定の修正
-  let blockLabel = '締切'; // デフォルトは締切
+  let blockLabel = '締切';
   if (type === 'event') blockLabel = 'イベント';
-  if (type === 'collect') blockLabel = '開始'; // 💰 集金開始
+  if (type === 'collect') blockLabel = '開始';
+
+  // 💰 催促用に追加するHTML（間隔設定）
+  const intervalHtml =
+    type === 'collectRemind'
+      ? `
+    <div class="interval-input-group">
+      から
+      <input type="text" min="1" value="${interval}" class="small-input interval-input" />
+      日ごと
+    </div>
+  `
+      : '';
 
   return `
     <div class="notification-block" data-type="${type}">
@@ -75,6 +87,7 @@ function createNotificationBlockHtml(type, data = {}) {
               beforeAfter === 'after' ? 'selected' : ''
             }>後</option>
           </select>
+          ${intervalHtml}
         </div>
       </div>
 
@@ -96,28 +109,28 @@ async function loadBaseConfig() {
   );
   if (docSnap.exists()) {
     const d = docSnap.data();
-    // 6つのセクションを読み込む
     renderNotifications('event', d.eventNotifications || []);
     renderNotifications('eventAdj', d.eventAdjNotifications || []);
     renderNotifications('collect', d.collectNotifications || []);
-    renderNotifications('collectEnd', d.collectEndNotifications || []); // 💰 終了追加
+    renderNotifications('collectEnd', d.collectEndNotifications || []);
+    renderNotifications('collectRemind', d.collectRemindNotifications || []); // 💰 催促追加
     renderNotifications('vote', d.voteNotifications || []);
     renderNotifications('call', d.callNotifications || []);
   } else {
-    // デフォルト表示
     const defaultVal = [{ days: 1, beforeAfter: 'before', message: '' }];
+    const defaultRemind = [
+      { days: 1, beforeAfter: 'after', interval: 14, message: '' },
+    ]; // 💰 催促デフォルト
     renderNotifications('event', defaultVal);
     renderNotifications('eventAdj', defaultVal);
     renderNotifications('collect', defaultVal);
     renderNotifications('collectEnd', defaultVal);
+    renderNotifications('collectRemind', defaultRemind);
     renderNotifications('vote', defaultVal);
     renderNotifications('call', defaultVal);
   }
 }
 
-/**
- * 読み込んだデータをDOMに反映。
- */
 function renderNotifications(type, notifications) {
   const wrapper = $(`#${type}-settings-wrapper`);
   wrapper.empty();
@@ -129,16 +142,17 @@ function renderNotifications(type, notifications) {
 }
 
 function setupEventHandlers() {
-  // 通知設定追加ボタン
   $(document).on('click', '.add-notify-button', function () {
     const type = $(this).data('type');
     const wrapper = $(`#${type}-settings-wrapper`);
-    const defaultData = { days: 1, beforeAfter: 'before', message: '' };
+    const defaultData =
+      type === 'collectRemind'
+        ? { days: 1, beforeAfter: 'after', interval: 14, message: '' }
+        : { days: 1, beforeAfter: 'before', message: '' };
     const html = createNotificationBlockHtml(type, defaultData);
     wrapper.append(html);
   });
 
-  // 通知設定削除ボタン
   $(document).on('click', '.remove-notify-button', function () {
     $(this).closest('.notification-block').remove();
   });
@@ -174,16 +188,14 @@ function collectBaseData() {
     eventNotifications: collectNotifications('event'),
     eventAdjNotifications: collectNotifications('eventAdj'),
     collectNotifications: collectNotifications('collect'),
-    collectEndNotifications: collectNotifications('collectEnd'), // 💰 終了追加
+    collectEndNotifications: collectNotifications('collectEnd'),
+    collectRemindNotifications: collectNotifications('collectRemind'), // 💰 催促追加
     voteNotifications: collectNotifications('vote'),
     callNotifications: collectNotifications('call'),
     updatedAt: utils.serverTimestamp(),
   };
 }
 
-/**
- * 特定のタイプの通知設定をDOMから抽出
- */
 function collectNotifications(type) {
   const notifications = [];
   $(`#${type}-settings-wrapper .notification-block`).each(function () {
@@ -192,19 +204,22 @@ function collectNotifications(type) {
     const beforeAfter = block.find('.before-after-select').val();
     const message = block.find('.msg-textarea').val().trim();
 
+    const item = { days, beforeAfter, message };
+
+    // 💰 催促タイプの場合は間隔も取得
+    if (type === 'collectRemind') {
+      const interval = parseInt(block.find('.interval-input').val());
+      item.interval = isNaN(interval) ? 14 : interval;
+    }
+
     if (!isNaN(days)) {
-      notifications.push({
-        days: days,
-        beforeAfter: beforeAfter,
-        message: message,
-      });
+      notifications.push(item);
     }
   });
   return notifications;
 }
 
 function validateData() {
-  utils.clearErrors();
   return true;
 }
 

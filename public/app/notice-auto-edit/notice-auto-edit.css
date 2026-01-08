@@ -11,55 +11,58 @@
   color: #333;
 }
 
-/* フォームブロックのラッパー */
 .notify-settings-wrapper {
-  /* 複数設定ブロックの間に隙間 */
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-/* 個々の通知設定ブロック */
 .notification-block {
   border: 1px solid #e0e0e0;
   border-radius: 6px;
   padding: 10px;
   background-color: #f9f9f9;
-  position: relative; /* 削除ボタン配置用 */
-  margin-left: 20px; /* notify-cardからのインデント */
+  position: relative;
+  margin-left: 20px;
 }
 
-/* 💡修正: timing-groupのflexを削除し、縦積みにする */
 .timing-group {
-  /* display: block; (デフォルト) */
   margin-bottom: 10px;
 }
 
-/* 日数・前後の入力グループ */
 .days-input-group {
   display: flex;
   align-items: center;
   gap: 5px;
-  font-size: 1em;
-  /* 💡修正: イベントの/締切の の行と日数入力の行を揃える */
+  font-size: 0.95em;
   flex-wrap: wrap; 
-  margin-bottom: 5px; /* 時刻入力との間隔 */
+  margin-bottom: 5px;
 }
 
-/* 日数入力欄 */
-.small-input.days-input {
-  width: 22.4px;
-  height: 22.4px;
-  padding: 4px;
+/* 💰 追加: 間隔入力のグループ */
+.interval-input-group {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #555;
+  border-left: 2px solid #ddd;
+  padding-left: 8px;
+  margin-left: 5px;
+}
+
+.small-input.days-input,
+.small-input.interval-input {
+  width: 32px; /* 少し広げました */
+  height: 24px;
+  padding: 2px 4px;
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 1rem;
-  box-sizing: unset;
+  text-align: center;
 }
 
-/* 前後セレクトボックス */
 select.before-after-select {
-  width: 50px; /* 日数入力は小さく */
+  width: 50px;
   padding: 4px;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -71,7 +74,6 @@ select.before-after-select {
   margin-bottom: 5px;
 }
 
-/* メッセージ入力欄 */
 textarea {
   width: 100%;
   box-sizing: border-box;
@@ -88,7 +90,6 @@ textarea {
   margin-bottom: 20px;
 }
 
-/* 複数登録用のボタン */
 .add-notify-button {
   margin-top: 10px;
   font-size: 14px;
@@ -101,11 +102,6 @@ textarea {
   transition: background-color 0.2s;
 }
 
-.add-notify-button:hover {
-  background-color: #dcedc8;
-}
-
-/* 削除ボタン */
 .remove-notify-button {
   position: absolute;
   top: 5px;
@@ -116,28 +112,5 @@ textarea {
   cursor: pointer;
   font-size: 1.2em;
   padding: 5px;
-  line-height: 1;
   opacity: 0.7;
-  z-index: 10;
-}
-
-.remove-notify-button:hover {
-  opacity: 1;
-}
-
-/* 以下は既存スタイルを維持 */
-
-.form-group-dates {
-  display: flex;
-  gap: 15px;
-}
-
-.form-sub {
-  flex: 1;
-}
-
-.related-group {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
 }
