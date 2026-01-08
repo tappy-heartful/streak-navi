@@ -122,14 +122,6 @@ async function setUpPage(uid) {
 
   // パート・役職
   $('#section').text(sectionName);
-  $('#role').text(roleName);
-
-  // 💡 変更点4: 楽器の表示
-  $('#instruments').text(instrumentNames);
-
-  // 略称
-  $('#abbreviation').text(userData.abbreviation);
-
   // 🔽 追加：PayPay IDの表示制御
   if (userData.sectionId === '1') {
     $('#paypay-id').text(userData.paypayId || '未設定');
@@ -137,6 +129,13 @@ async function setUpPage(uid) {
   } else {
     $('#paypay-group').hide();
   }
+  $('#role').text(roleName);
+
+  // 💡 変更点4: 楽器の表示
+  $('#instruments').text(instrumentNames);
+
+  // 略称
+  $('#abbreviation').text(userData.abbreviation);
 
   // 編集/退会ボタン表示
   utils.getSession('uid') === uid
