@@ -119,8 +119,6 @@ async function setupPage(mode, collectId) {
     $('#page-title, #title').text('集金編集');
     backLink.text('← 集金確認に戻る');
     saveBtn.text('更新');
-    $('#accept-start-date').hide();
-    $('#accept-start-text').show();
     await loadCollectData(collectId, mode);
   }
 }
@@ -266,9 +264,7 @@ function gatherData() {
   return {
     targetDate: utils.formatDateToYMDDot($('#target-date').val()),
     title: $('#collect-title').val().trim(),
-    acceptStartDate: utils.formatDateToYMDDot(
-      $('#accept-start-date').val() || $('#accept-start-text').text()
-    ),
+    acceptStartDate: utils.formatDateToYMDDot($('#accept-start-date').val()),
     acceptEndDate: utils.formatDateToYMDDot($('#accept-end-date').val()),
     amountPerPerson: Number($('#amount-per-person').val()),
     paymentUrl: $('#payment-url').val().trim(),
@@ -299,7 +295,6 @@ async function loadCollectData(docId, mode) {
     $('#accept-start-date').val(
       utils.formatDateToYMDHyphen(data.acceptStartDate)
     );
-    $('#accept-start-text').text(data.acceptStartDate);
     $('#accept-end-date').val(utils.formatDateToYMDHyphen(data.acceptEndDate));
   }
   $('#upfront-amount').val(data.upfrontAmount || '');
@@ -335,6 +330,10 @@ function validateData(mode) {
   }
   if (!$('#collect-title').val().trim()) {
     utils.markError($('#collect-title'), '必須');
+    isValid = false;
+  }
+  if (!$('#accept-start-date').val()) {
+    utils.markError($('#accept-start-date'), '必須');
     isValid = false;
   }
   if (!$('#accept-end-date').val()) {
