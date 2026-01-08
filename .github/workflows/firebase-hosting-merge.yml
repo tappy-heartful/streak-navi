@@ -17,8 +17,15 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install Firebase Tools
-        run: curl -sL https://firebase.tools | bash
+      # 💡 追加: Node.js のセットアップ (npm を使うために必要)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # 💡 修正: curl ではなく npm を使用し、安定版 (13.20.0) を指定
+      - name: Install Firebase Tools (Stable Version)
+        run: npm install -g firebase-tools@13.20.0
 
       - name: Deploy to appropriate Firebase site
         run: |
