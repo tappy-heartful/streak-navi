@@ -163,6 +163,7 @@ async function renderCollect() {
     grouped[sId].push({ id: uId, name: user?.name || '不明' });
   });
 
+  // 対象者リスト表示
   Object.keys(grouped).forEach((sId) => {
     const $section = $(
       `<div class="confirm-section-group"><div class="confirm-section-title">${
@@ -172,24 +173,33 @@ async function renderCollect() {
     grouped[sId].forEach((u) => {
       const resp = responseMap[u.id];
       const hasReceipt = !!resp?.receiptUrl;
+      const isManager = u.id === data.managerName; // 💡判定追加
+
       const $row = $(`
         <div class="user-receipt-row" data-uid="${u.id}">
-          <div class="user-name-cell">${u.name} ${
-        hasReceipt ? '<span class="status-badge uploaded">済</span>' : ''
-      }</div>
+          <div class="user-name-cell">
+            ${u.name} 
+            ${
+              isManager
+                ? '<span class="status-badge uploaded">集金担当</span>'
+                : hasReceipt
+                ? '<span class="status-badge uploaded">済</span>'
+                : ''
+            }
+          </div>
           <div class="receipt-actions">
             ${
-              hasReceipt
+              !isManager && hasReceipt // 💡担当者以外かつ画像あり
                 ? `<button class="btn-receipt-view" data-url="${resp.receiptUrl}">表示</button>`
                 : ''
             }
             ${
-              isAdmin && hasReceipt
+              !isManager && isAdmin && hasReceipt // 💡担当者以外かつ管理者かつ画像あり
                 ? `<button class="btn-receipt-delete" data-uid="${u.id}" data-url="${resp.receiptUrl}"><i class="fas fa-trash-alt"></i></button>`
                 : ''
             }
             ${
-              isAdmin
+              !isManager && isAdmin // 💡担当者以外かつ管理者の場合のみアップロード可能
                 ? `<button class="btn-receipt-upload" data-uid="${u.id}"><i class="fas fa-upload"></i></button>`
                 : ''
             }
