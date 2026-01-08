@@ -322,7 +322,6 @@ function setupEventHandlers(collectId, isAdmin) {
         );
 
         updateUIRow(currentTargetUserId, url, isAdmin);
-        await utils.showDialog('スクショを登録しました', true);
       } catch (err) {
         console.error(err);
         alert('アップロードに失敗しました');
@@ -331,26 +330,40 @@ function setupEventHandlers(collectId, isAdmin) {
         $(this).val('');
       }
     });
-
   // 削除機能
   $(document)
     .off('click', '.btn-receipt-delete')
     .on('click', '.btn-receipt-delete', async function () {
       const uid = $(this).data('uid');
       const url = $(this).data('url');
-      if (!(await utils.showDialog('このスクショを削除してもよろしいですか？')))
+
+      if (
+        !(await utils.showDialog(
+          'このスクショを削除し、支払い記録を取り消してもよろしいですか？'
+        ))
+      )
         return;
 
       try {
         utils.showSpinner();
-        if (url) await deleteStorageFile(url);
-        await utils.setDoc(
-          utils.doc(utils.db, 'collects', collectId, 'responses', uid),
-          { receiptUrl: '', updatedAt: utils.serverTimestamp() },
-          { merge: true }
+
+        // 1. Storageの画像ファイルを削除
+        if (url) {
+          await deleteStorageFile(url);
+        }
+
+        // 2. Firestoreのresponsesドキュメント自体を削除 💡修正ポイント
+        const responseDocRef = utils.doc(
+          utils.db,
+          'collects',
+          collectId,
+          'responses',
+          uid
         );
+        await utils.deleteDoc(responseDocRef);
+
+        // 3. UIの表示を更新
         updateUIRow(uid, null, isAdmin);
-        await utils.showDialog('削除が完了しました', true);
       } catch (err) {
         console.error(err);
         alert('削除に失敗しました');
