@@ -163,6 +163,7 @@ async function renderCollect() {
     grouped[sId].push({ id: uId, name: user?.name || '不明' });
   });
 
+  // 対象者リスト表示
   Object.keys(grouped).forEach((sId) => {
     const $section = $(
       `<div class="confirm-section-group"><div class="confirm-section-title">${
@@ -172,24 +173,33 @@ async function renderCollect() {
     grouped[sId].forEach((u) => {
       const resp = responseMap[u.id];
       const hasReceipt = !!resp?.receiptUrl;
+      const isManager = u.id === data.managerName; // 💡判定追加
+
       const $row = $(`
         <div class="user-receipt-row" data-uid="${u.id}">
-          <div class="user-name-cell">${u.name} ${
-        hasReceipt ? '<span class="status-badge uploaded">済</span>' : ''
-      }</div>
+          <div class="user-name-cell">
+            ${u.name} 
+            ${
+              isManager
+                ? '<span class="status-badge uploaded">集金担当</span>'
+                : hasReceipt
+                ? '<span class="status-badge uploaded">済</span>'
+                : ''
+            }
+          </div>
           <div class="receipt-actions">
             ${
-              hasReceipt
+              !isManager && hasReceipt // 💡担当者以外かつ画像あり
                 ? `<button class="btn-receipt-view" data-url="${resp.receiptUrl}">表示</button>`
                 : ''
             }
             ${
-              isAdmin && hasReceipt
+              !isManager && isAdmin && hasReceipt // 💡担当者以外かつ管理者かつ画像あり
                 ? `<button class="btn-receipt-delete" data-uid="${u.id}" data-url="${resp.receiptUrl}"><i class="fas fa-trash-alt"></i></button>`
                 : ''
             }
             ${
-              isAdmin
+              !isManager && isAdmin // 💡担当者以外かつ管理者の場合のみアップロード可能
                 ? `<button class="btn-receipt-upload" data-uid="${u.id}"><i class="fas fa-upload"></i></button>`
                 : ''
             }
@@ -322,7 +332,6 @@ function setupEventHandlers(collectId, isAdmin) {
         );
 
         updateUIRow(currentTargetUserId, url, isAdmin);
-        await utils.showDialog('スクショを登録しました', true);
       } catch (err) {
         console.error(err);
         alert('アップロードに失敗しました');
@@ -331,26 +340,40 @@ function setupEventHandlers(collectId, isAdmin) {
         $(this).val('');
       }
     });
-
   // 削除機能
   $(document)
     .off('click', '.btn-receipt-delete')
     .on('click', '.btn-receipt-delete', async function () {
       const uid = $(this).data('uid');
       const url = $(this).data('url');
-      if (!(await utils.showDialog('このスクショを削除してもよろしいですか？')))
+
+      if (
+        !(await utils.showDialog(
+          'このスクショを削除し、支払い記録を取り消してもよろしいですか？'
+        ))
+      )
         return;
 
       try {
         utils.showSpinner();
-        if (url) await deleteStorageFile(url);
-        await utils.setDoc(
-          utils.doc(utils.db, 'collects', collectId, 'responses', uid),
-          { receiptUrl: '', updatedAt: utils.serverTimestamp() },
-          { merge: true }
+
+        // 1. Storageの画像ファイルを削除
+        if (url) {
+          await deleteStorageFile(url);
+        }
+
+        // 2. Firestoreのresponsesドキュメント自体を削除 💡修正ポイント
+        const responseDocRef = utils.doc(
+          utils.db,
+          'collects',
+          collectId,
+          'responses',
+          uid
         );
+        await utils.deleteDoc(responseDocRef);
+
+        // 3. UIの表示を更新
         updateUIRow(uid, null, isAdmin);
-        await utils.showDialog('削除が完了しました', true);
       } catch (err) {
         console.error(err);
         alert('削除に失敗しました');
