@@ -33,12 +33,13 @@ async function setUpPage() {
 /**
  * 単一の通知設定ブロックのHTMLを生成する
  * @param {string} typeLabel - イベント / 開始 / 締切
- * @param {object} notification - {days, beforeAfter, message}
+ * @param {object} notification - {days, beforeAfter, interval, message}
  * @returns {string} HTML文字列
  */
 function createNotificationDisplayBlock(typeLabel, notification) {
   const days = notification.days ?? 0;
   const beforeAfter = notification.beforeAfter === 'after' ? '後' : '前';
+  const interval = notification.interval; // 💰 追加
   const time = '9:00ごろ';
 
   const message =
@@ -46,10 +47,16 @@ function createNotificationDisplayBlock(typeLabel, notification) {
     notification.message_decoded ||
     '通知メッセージが設定されていません。';
 
-  const timingText =
-    days === 0
-      ? `${typeLabel}の当日 ${time}`
-      : `${typeLabel}の ${days} 日${beforeAfter}の ${time}`;
+  // 💰 催促用（intervalがある場合）と通常用でタイミングのテキストを分岐
+  let timingText = '';
+  if (interval) {
+    timingText = `${typeLabel}の ${days} 日${beforeAfter}から ${interval} 日おき ${time}`;
+  } else {
+    timingText =
+      days === 0
+        ? `${typeLabel}の当日 ${time}`
+        : `${typeLabel}の ${days} 日${beforeAfter}の ${time}`;
+  }
 
   const messageContent =
     message === '通知メッセージが設定されていません。'
@@ -77,22 +84,29 @@ async function loadBaseConfig() {
   if (docSnap.exists()) {
     const d = docSnap.data();
 
-    // ① イベント通知（出欠） -> ラベルは「イベント」
+    // ① イベント通知（出欠）
     renderNotificationSection('event', 'イベント', d.eventNotifications);
 
-    // ② イベント通知（日程調整） -> ラベルは「締切」
+    // ② イベント通知（日程調整）
     renderNotificationSection('eventAdj', '締切', d.eventAdjNotifications);
 
-    // 💰 ③ 集金通知（開始） -> ラベルは「開始」
+    // 💰 ③ 集金通知（開始）
     renderNotificationSection('collect', '開始', d.collectNotifications);
 
-    // 💰 ④ 集金通知（終了） -> ラベルは「締切」
+    // 💰 ④ 集金通知（終了）
     renderNotificationSection('collectEnd', '締切', d.collectEndNotifications);
 
-    // ⑤ 投票通知 -> ラベルは「締切」
+    // 💰 ⑤ 集金通知（催促） -> 追加
+    renderNotificationSection(
+      'collectRemind',
+      '締切',
+      d.collectRemindNotifications
+    );
+
+    // ⑥ 投票通知
     renderNotificationSection('vote', '締切', d.voteNotifications);
 
-    // ⑥ 曲募集通知 -> ラベルは「締切」
+    // ⑦ 曲募集通知
     renderNotificationSection('call', '締切', d.callNotifications);
   } else {
     $('.notifications-container').html(
@@ -106,6 +120,8 @@ async function loadBaseConfig() {
  */
 function renderNotificationSection(type, typeLabel, notifications) {
   const container = $(`#${type}-notifications-container`);
+  if (container.length === 0) return; // HTML側にIDがない場合はスキップ
+
   container.empty();
 
   if (notifications && notifications.length > 0) {
