@@ -211,25 +211,33 @@ async function renderCollect() {
     $listContainer.append($section);
   });
 
-  // 🔽 支払いメニューの表示 (期間外でも表示)
+  // 🔽 支払いメニューの表示 (期間外の場合ナビ表示)
   let paymentHtml = `
     <div class="menu-section">
-      <h2 class="menu-title">支払いメニュー</h2>
-      <div class="payment-guide-box">
-        <p class="guide-title"><i class="fas fa-info-circle"></i> 送金手順</p>
-        <ol class="guide-list">
-          <li>下の「PayPayアプリを開く」を押す</li>
-          <li>「送る」タブを選択</li>
-          <li>${
-            userFullMap[data.managerName]?.paypayId
-              ? `<strong>「${
-                  userFullMap[data.managerName].paypayId
-                }」</strong>を検索`
-              : '集金担当者を検索'
-          }</li>
-          <li><strong>${formatYen(data.amountPerPerson)}</strong> を送金</li>
-        </ol>
-      </div>
+    <h2 class="menu-title">支払いメニュー</h2>
+      ${
+        !isActive
+          ? `
+            <div class="payment-guide-box">
+              <p class="guide-title"><i class="fas fa-info-circle"></i> 送金手順</p>
+              <ol class="guide-list">
+                <li>下の「PayPayアプリを開く」を押す</li>
+                <li>「送る」タブを選択</li>
+                <li>${
+                  userFullMap[data.managerName]?.paypayId
+                    ? `<strong>「${
+                        userFullMap[data.managerName].paypayId
+                      }」</strong>を検索`
+                    : '集金担当者を検索'
+                }</li>
+                <li><strong>${formatYen(
+                  data.amountPerPerson
+                )}</strong> を送金</li>
+              </ol>
+            </div>
+          `
+          : ''
+      }
       <div class="confirm-buttons">
         ${
           !isActive
@@ -237,7 +245,7 @@ async function renderCollect() {
                   <i class="fas fa-external-link-alt"></i> PayPayアプリを開く
                 </button>`
             : data.paymentUrl
-            ? `<button id="pay-link-button" class="save-button">支払いリンクを開く</button>`
+            ? `<button id="pay-link-button" class="save-button">支払う</button>`
             : ''
         }
       </div>
