@@ -38,7 +38,7 @@ $(document).ready(async function () {
     const $container = $('#user-list-container').empty();
 
     for (const [sectionId, users] of Object.entries(usersBySection)) {
-      const sectionName = sectionMap[sectionId]?.name || '未分類';
+      const sectionName = sectionMap[sectionId]?.name || '❓未設定';
 
       // --- 追加: roleId の昇順でソート ---
       users.sort((a, b) => {

@@ -129,13 +129,11 @@ async function fetchSectionsAndInstruments() {
     utils.collection(utils.db, 'sections') // where句を削除
   );
 
-  // 2. クライアント側（JavaScript）でdoc.idが '99' のものを除外
-  allSections = sectionSnap.docs
-    .filter((doc) => doc.id !== '99') // IDが'99'のドキュメントを除外
-    .map((doc) => ({
-      id: doc.id,
-      name: doc.data().name,
-    }));
+  // 2.doc.id順にソートして配列に格納
+  allSections = sectionSnap.docs.map((doc) => ({
+    id: doc.id,
+    name: doc.data().name,
+  }));
 
   allSections.sort((a, b) => a.id - b.id);
 
