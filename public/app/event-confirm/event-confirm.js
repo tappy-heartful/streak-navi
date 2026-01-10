@@ -382,7 +382,7 @@ async function renderEvent() {
 
         // グループ化されたパートごとに表示を生成
         for (const sectionId of sortedSectionIds) {
-          const sectionName = sections[sectionId] || '未所属';
+          const sectionName = sections[sectionId] || '❓未設定';
           const sectionUsers = usersBySection[sectionId];
 
           // パート名の見出し
@@ -1028,7 +1028,7 @@ async function buildUsersModalBody(uids) {
   }
 
   for (const sectionId of displaySectionIds) {
-    const sectionName = sections[sectionId] || '未所属';
+    const sectionName = sections[sectionId] || '❓未設定';
     const sectionUsers = usersBySection[sectionId];
 
     if (!sectionUsers) continue; // 該当ユーザがいなければスキップ
