@@ -649,7 +649,7 @@ async function loadMedias() {
   const q = utils.query(
     mediasRef,
     utils.orderBy('date', 'desc'),
-    utils.limit(3)
+    utils.limit(4)
   );
   const snap = await utils.getWrapDocs(q);
   let isExist = false;
