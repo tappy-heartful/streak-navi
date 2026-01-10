@@ -696,13 +696,11 @@ async function renderInstrumentConfig(configData) {
     utils.collection(utils.db, 'sections')
   );
 
-  // セクションデータをIDでルックアップできるように整形（IDが99のものを除外）
+  // セクションデータをIDでルックアップできるように整形
   const sectionsMap = new Map();
-  sectionSnap.docs
-    .filter((doc) => doc.id !== utils.globalStrUnset)
-    .forEach((doc) => {
-      sectionsMap.set(doc.id, doc.data().name_decoded || doc.data().name);
-    });
+  sectionSnap.docs.forEach((doc) => {
+    sectionsMap.set(doc.id, doc.data().name_decoded || doc.data().name);
+  });
 
   // データをセクションID順にソートして処理
   const sortedSectionIds = Object.keys(configData).sort((a, b) => {
