@@ -79,7 +79,7 @@ async function setUpPage(uid) {
     $('#page-title').text('ユーザ登録');
     $('#save-button').text('登録する');
     $('.page-footer').addClass('hidden');
-    $('#init-message').text('以下を設定してください');
+    $('#init-message').text('ユーザを登録してください');
   }
 
   // ユーザー名
