@@ -114,9 +114,6 @@ async function handleLineLoginCallback(code, state, error) {
         pictureUrl,
         lastLoginAt: utils.serverTimestamp(),
         createdAt: utils.serverTimestamp(),
-        roleId: utils.globalStrUnset,
-        sectionId: utils.globalStrUnset,
-        instrumentIds: [utils.globalStrUnset2],
       });
     }
 

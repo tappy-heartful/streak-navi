@@ -232,6 +232,9 @@ async function populateRoles(selectedId) {
   const $select = $('#role-select');
   $select.empty();
 
+  // 選択肢がない場合に備え、空のオプションを追加
+  $select.append($('<option>').val('').text('--- 選択してください ---'));
+
   roleSnapshot.forEach((doc) => {
     const data = doc.data();
     const option = $('<option>')
