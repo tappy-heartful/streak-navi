@@ -173,7 +173,9 @@ function setupEventHandlers(uid) {
       }
 
       // 削除のためもう一度確認
-      const dialogResultAgain = await utils.showDialog('本当に退会しますか？');
+      const dialogResultAgain = await utils.showDialog(
+        '本当に退会しますか？\n※再登録は可能です'
+      );
 
       if (!dialogResultAgain) {
         // ユーザがキャンセルしたら処理中断
