@@ -125,6 +125,10 @@ async function loadPendingAnnouncements() {
     const eventId = eventDoc.id;
     const eventDateStr = eventData.date || '';
     const attendanceType = eventData.attendanceType;
+    const isInTerm = utils.isInTerm(
+      eventData.acceptStartDate,
+      eventData.acceptEndDate
+    );
 
     // イベント日付オブジェクトの作成
     let eventDateObj = null;
@@ -160,18 +164,20 @@ async function loadPendingAnnouncements() {
     // B. 未回答の判定
     let answerDocRef = null;
 
-    if (attendanceType === 'schedule') {
-      answerDocRef = utils.doc(
-        utils.db,
-        'eventAdjustAnswers',
-        `${eventId}_${uid}`
-      );
-    } else if (attendanceType === 'attendance') {
-      answerDocRef = utils.doc(
-        utils.db,
-        'eventAttendanceAnswers',
-        `${eventId}_${uid}`
-      );
+    if (isInTerm) {
+      if (attendanceType === 'schedule') {
+        answerDocRef = utils.doc(
+          utils.db,
+          'eventAdjustAnswers',
+          `${eventId}_${uid}`
+        );
+      } else if (attendanceType === 'attendance') {
+        answerDocRef = utils.doc(
+          utils.db,
+          'eventAttendanceAnswers',
+          `${eventId}_${uid}`
+        );
+      }
     }
 
     if (answerDocRef) {

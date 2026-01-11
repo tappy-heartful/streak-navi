@@ -109,11 +109,10 @@ async function setUpPage() {
 }
 
 async function getAnswerStatus(eventId, uid, collectionName, eventData) {
-  const isInTerm =
-    collectionName === 'eventAdjustAnswers'
-      ? utils.isInTerm(eventData.acceptStartDate, eventData.acceptEndDate)
-      : true;
-
+  const isInTerm = utils.isInTerm(
+    eventData.acceptStartDate,
+    eventData.acceptEndDate
+  );
   if (!isInTerm) {
     return { text: '期間外', class: 'closed' };
   }
