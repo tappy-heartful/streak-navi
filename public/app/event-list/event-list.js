@@ -114,7 +114,7 @@ async function getAnswerStatus(eventId, uid, collectionName, eventData) {
       ? utils.isInTerm(eventData.acceptStartDate, eventData.acceptEndDate)
       : true;
 
-  if (!eventData.isAcceptingResponses || !isInTerm) {
+  if (!isInTerm) {
     return { text: '期間外', class: 'closed' };
   }
 
