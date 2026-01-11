@@ -80,17 +80,9 @@ async function renderEvent() {
   });
 
   // ------------------------------------------------------------------
-
-  // 【新規データ構造の判定】回答を受け付けているかどうか
-  const isAcceptingResponses =
-    eventData.isAcceptingResponses !== undefined
-      ? eventData.isAcceptingResponses
-      : eventData.attendanceType !== 'none';
-
-  // ------------------------------------------------------------------
   // 回答データ取得（日程調整 or 出欠確認に応じてコレクションを切り替え）
   // ------------------------------------------------------------------
-  // attendanceType は、isAcceptingResponsesがfalseでも、schedule/attendance のどちらかを持つ
+  // attendanceType は、schedule/attendance のどちらかを持つ
   const attendanceType = eventData.attendanceType || 'attendance'; // デフォルトは'attendance'
   const isSchedule = attendanceType === 'schedule';
   const answerCollectionName = isSchedule
@@ -98,9 +90,10 @@ async function renderEvent() {
     : 'eventAttendanceAnswers';
 
   // 受付中かどうかを判定(出欠回答は無条件OK)
-  const isInTerm =
-    !isSchedule ||
-    utils.isInTerm(eventData.acceptStartDate, eventData.acceptEndDate);
+  const isInTerm = utils.isInTerm(
+    eventData.acceptStartDate,
+    eventData.acceptEndDate
+  );
 
   // 自分の回答の存在チェック
   const myAnswerData = await utils.getWrapDoc(
@@ -146,7 +139,7 @@ async function renderEvent() {
     // 終了
     statusClass = 'closed';
     statusText = '終了';
-  } else if (!isAcceptingResponses || !isInTerm) {
+  } else if (!isInTerm) {
     // 回答受付なし(受け付けてない、または日程調整期間外)
     statusClass = 'closed';
     statusText = '回答を受け付けてません';
@@ -189,20 +182,21 @@ async function renderEvent() {
     $('#event-attendance').removeClass('label-value');
   $attendanceContainer.empty();
 
-  if (isSchedule) {
-    // 受付期間
-    $('#event-acceept-term').text(
-      `${
-        eventData.acceptStartDate
-          ? utils.getDayOfWeek(eventData.acceptStartDate_decoded)
-          : ''
-      } ～
+  // 受付期間
+  $('#event-acceept-term').text(
+    `${
+      eventData.acceptStartDate
+        ? utils.getDayOfWeek(eventData.acceptStartDate_decoded)
+        : ''
+    } ～
         ${
           eventData.acceptEndDate
             ? utils.getDayOfWeek(eventData.acceptEndDate_decoded)
             : ''
         }`
-    );
+  );
+
+  if (isSchedule) {
     // 日程調整受付中
     $attendanceTitle.text('日程調整');
     // 回答人数と未回答人数を新しいクラスと文言で表示
@@ -323,8 +317,6 @@ async function renderEvent() {
 
     $attendanceContainer.append($table);
   } else if (attendanceType === 'attendance') {
-    // 日程調整受付期間は非表示
-    $('#event-acceept-term-group').hide();
     // 出欠受付中
     $attendanceTitle.text('出欠');
     // 回答人数と未回答人数を新しいクラスと文言で表示
@@ -620,7 +612,7 @@ async function renderEvent() {
   // ------------------------------------------------------------------
   // 5. 回答メニュー制御
   // ------------------------------------------------------------------
-  if (!isAcceptingResponses || isPast || !isInTerm) {
+  if (isPast || !isInTerm) {
     $('#answer-menu').hide();
   } else {
     // 回答済みかどうかの判定を myAnswerExists に変更
