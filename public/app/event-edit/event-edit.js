@@ -838,6 +838,7 @@ function enableSortable() {
 //==================================
 function validateEventData() {
   let isValid = true;
+  const mode = utils.globalGetParamMode;
   utils.clearErrors();
 
   // --- タイトル必須 ---
@@ -859,11 +860,28 @@ function validateEventData() {
     utils.markError($('#accept-date'), '必須項目です');
     isValid = false;
   }
-  // ✅ 開始日 > 終了日のチェック（両方入力されている場合に判定）
+
+  // 日付の妥当性チェック
   if (acceptStartDate && acceptEndDate) {
     const start = new Date(acceptStartDate + 'T00:00:00');
     const end = new Date(acceptEndDate + 'T23:59:59');
 
+    // 今日の日付（時刻を00:00:00にリセット）
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // ✅ 新規またはコピー時、開始日は明日以降かチェック
+    if (mode === 'new' || mode === 'copy') {
+      if (start.getTime() <= today.getTime()) {
+        utils.markError(
+          $('#accept-date'),
+          '開始日は明日以降の日付を指定してください'
+        );
+        isValid = false;
+      }
+    }
+
+    // ✅ 開始日 > 終了日のチェック
     if (start.getTime() > end.getTime()) {
       utils.markError($('#accept-date'), '終了日は開始日以降にしてください');
       isValid = false;
