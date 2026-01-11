@@ -58,10 +58,6 @@ $(document).ready(async function () {
     'click',
     () => (location.href = '../assign-list/assign-list.html')
   );
-  $('#menu-studio-list').on(
-    'click',
-    () => (location.href = '../studio-list/studio-list.html')
-  );
   $('#menu-call-list').on(
     'click',
     () => (location.href = '../call-list/call-list.html')
@@ -73,6 +69,10 @@ $(document).ready(async function () {
   $('#menu-collect-list').on(
     'click',
     () => (location.href = '../collect-list/collect-list.html')
+  );
+  $('#menu-studio-list').on(
+    'click',
+    () => (location.href = '../studio-list/studio-list.html')
   );
   $('#menu-user-list').on(
     'click',
