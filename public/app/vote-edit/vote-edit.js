@@ -111,6 +111,16 @@ async function setupPage(mode) {
     pageTitle.text('投票管理');
     throw new Error('モード不正です');
   }
+
+  // 受付期間の初期値設定（明日〜13日後）
+  if (mode === 'new' || mode === 'copy') {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const day13th = new Date();
+    day13th.setDate(day13th.getDate() + 13);
+    $('#accept-start-date').val(utils.formatDateToYMDHyphen(tomorrow));
+    $('#accept-end-date').val(utils.formatDateToYMDHyphen(day13th));
+  }
 }
 
 //==================================
