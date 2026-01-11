@@ -101,8 +101,6 @@ async function setupPage(mode) {
     const initialType =
       type === 'schedule' || type === 'attendance' ? type : 'attendance';
     $('input[name="attendance-type"]').val([initialType]);
-    // 【新規追加】回答の受付の初期値は 'on'
-    $('input[name="attendance-status"]').val(['on']);
 
     // 譜割の登録の初期値は 'off'
     $('input[name="allow-assign"]').val(['off']);
@@ -182,9 +180,6 @@ async function loadEventData(eventId, mode) {
   $('#event-other').val(data.other || '');
 
   $('input[name="attendance-type"]').val([data.attendanceType]);
-  $('input[name="attendance-status"]').val([
-    data.isAcceptingResponses === true ? 'on' : 'off',
-  ]);
   $('input[name="allow-assign"]').val([
     data.allowAssign === true ? 'on' : 'off',
   ]);
@@ -218,8 +213,6 @@ function captureInitialState() {
     other: $('#event-other').val(),
     // 【修正】日程調整/出欠確認の種別
     attendanceType: $('input[name="attendance-type"]:checked').val(),
-    // 【新規追加】回答の受付
-    attendanceStatus: $('input[name="attendance-status"]:checked').val(),
     allowAssign: $('input[name="allow-assign"]:checked').val(),
     // 【新規追加】候補日
     candidateDates: getCandidateDatesFromInputs(),
@@ -245,7 +238,6 @@ function restoreInitialState() {
 
   // 【修正】日程調整/出欠確認の種別と回答受付状態の復元
   $('input[name="attendance-type"]').val([initialState.attendanceType]);
-  $('input[name="attendance-status"]').val([initialState.attendanceStatus]);
   $('input[name="allow-assign"]').val([initialState.allowAssign]);
   renderCandidateDates(initialState.candidateDates);
   $('#accept-start-date').val(initialStateHtml.acceptStartDate || ''); // ← yyyy-MM-dd形式
@@ -544,14 +536,10 @@ function toggleDateFields() {
     // 日程調整からする: 候補日入力、表示、通常の日付入力回答受付選択非表示
     $('#date-candidates-group').show();
     $('#date-single-group').hide();
-    $('#accept-date-group').show();
-    $('#attendance-status-group').hide();
   } else {
     // 出欠確認からする: 通常の日付入力回答受付選択表示、候補日入力非表示
     $('#date-candidates-group').hide();
     $('#date-single-group').show();
-    $('#accept-date-group').hide();
-    $('#attendance-status-group').show();
   }
 }
 
@@ -615,7 +603,6 @@ function getCandidateDatesFromInputs() {
 async function collectEventData(mode) {
   const rawDate = $('#event-date').val();
   const attendanceType = $('input[name="attendance-type"]:checked').val();
-  const attendanceStatus = $('input[name="attendance-status"]:checked').val(); // 【新規追加】回答受付状態
 
   // 日程調整からする 選択時のみ候補日を取得
   let candidateDates = [];
@@ -653,15 +640,8 @@ async function collectEventData(mode) {
 
     // 'schedule'であれば候補日配列と期限を保存
     candidateDates: candidateDates,
-    acceptStartDate:
-      attendanceType === 'schedule'
-        ? utils.formatDateToYMDDot($('#accept-start-date').val())
-        : '',
-    acceptEndDate:
-      attendanceType === 'schedule'
-        ? utils.formatDateToYMDDot($('#accept-end-date').val())
-        : '',
-
+    acceptStartDate: utils.formatDateToYMDDot($('#accept-start-date').val()),
+    acceptEndDate: utils.formatDateToYMDDot($('#accept-end-date').val()),
     createdAt: utils.serverTimestamp(),
   };
 
@@ -860,6 +840,29 @@ function validateEventData() {
     isValid = false;
   }
 
+  const acceptStartDate = $('#accept-start-date').val().trim();
+  const acceptEndDate = $('#accept-end-date').val().trim();
+  // 開始日付必須
+  if (!acceptStartDate) {
+    utils.markError($('#accept-date'), '必須項目です');
+    isValid = false;
+  }
+  // 終了日付必須
+  else if (!acceptEndDate) {
+    utils.markError($('#accept-date'), '必須項目です');
+    isValid = false;
+  }
+  // ✅ 開始日 > 終了日のチェック（両方入力されている場合に判定）
+  if (acceptStartDate && acceptEndDate) {
+    const start = new Date(acceptStartDate + 'T00:00:00');
+    const end = new Date(acceptEndDate + 'T23:59:59');
+
+    if (start.getTime() > end.getTime()) {
+      utils.markError($('#accept-date'), '終了日は開始日以降にしてください');
+      isValid = false;
+    }
+  }
+
   const attendanceType = $('input[name="attendance-type"]:checked').val();
 
   // --- 日付関連の必須チェック ---
@@ -876,29 +879,6 @@ function validateEventData() {
       isValid = false;
     } else {
       // 候補日が入力されている場合は、個々の入力値のチェックは省略 (type="date"であるため形式チェックはブラウザに任せる)
-    }
-
-    const acceptStartDate = $('#accept-start-date').val().trim();
-    const acceptEndDate = $('#accept-end-date').val().trim();
-    // 開始日付必須
-    if (!acceptStartDate) {
-      utils.markError($('#accept-date'), '必須項目です');
-      isValid = false;
-    }
-    // 終了日付必須
-    else if (!acceptEndDate) {
-      utils.markError($('#accept-date'), '必須項目です');
-      isValid = false;
-    }
-    // ✅ 開始日 > 終了日のチェック（両方入力されている場合に判定）
-    if (acceptStartDate && acceptEndDate) {
-      const start = new Date(acceptStartDate + 'T00:00:00');
-      const end = new Date(acceptEndDate + 'T23:59:59');
-
-      if (start.getTime() > end.getTime()) {
-        utils.markError($('#accept-date'), '終了日は開始日以降にしてください');
-        isValid = false;
-      }
     }
   } else {
     // 【修正】出欠確認からする: 単一の日付必須
