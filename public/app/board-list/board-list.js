@@ -3,14 +3,18 @@ import * as utils from '../common/functions.js';
 let currentTab = 'all'; // 'all' or 'section'
 let cachedBoards = [];
 let userSectionId = '';
+let userSectionName = 'セクション向け';
 
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
     utils.renderBreadcrumb([{ title: '掲示板一覧' }]);
 
-    // ログインユーザーの情報を取得
+    // セッションから情報を取得
     userSectionId = utils.getSession('sectionId') || '';
+
+    // セクション名の取得と反映
+    await fetchAndSetSectionName();
 
     await setUpPage();
     bindEvents();
@@ -27,6 +31,25 @@ $(document).ready(async function () {
   }
 });
 
+/**
+ * ユーザーのセクションIDに基づいてセクション名を取得し、タブに反映
+ */
+async function fetchAndSetSectionName() {
+  if (!userSectionId) return;
+
+  try {
+    const sectionDocRef = utils.doc(utils.db, 'sections', userSectionId);
+    const sectionSnap = await utils.getWrapDoc(sectionDocRef);
+
+    if (sectionSnap.exists()) {
+      userSectionName = sectionSnap.data().name || 'セクション向け';
+      $('#section-tab-text').text(`${userSectionName}専用`);
+    }
+  } catch (e) {
+    console.error('セクション名の取得に失敗:', e);
+  }
+}
+
 function bindEvents() {
   $('.tab-btn').on('click', function () {
     $('.tab-btn').removeClass('active');
@@ -37,9 +60,6 @@ function bindEvents() {
 }
 
 async function setUpPage() {
-  // 権限チェック（必要に応じて）
-  // utils.isAdmin('Board') ? $('#add-button').removeClass('hidden') : $('#add-button').addClass('hidden');
-
   const boardsRef = utils.collection(utils.db, 'boards');
   const qBoard = utils.query(boardsRef, utils.orderBy('createdAt', 'desc'));
   const boardSnap = await utils.getWrapDocs(qBoard);
@@ -68,7 +88,7 @@ function renderList() {
     const msg =
       currentTab === 'all'
         ? '全体向けの投稿はありません🍀'
-        : 'セクション向けの投稿はありません🍀';
+        : `${userSectionName}向けの投稿はありません🍀`;
     $tbody.append(`<tr><td colspan="3" class="empty-row">${msg}</td></tr>`);
     return;
   }
