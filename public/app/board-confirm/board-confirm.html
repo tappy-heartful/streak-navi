@@ -9,74 +9,62 @@
       href="../../images/favicon.png"
       type="image/png"
     />
-    <title>メディア確認</title>
+    <title>掲示板確認</title>
     <link rel="stylesheet" href="../common/common.css" />
-    <link rel="stylesheet" href="media-confirm.css" />
+    <link rel="stylesheet" href="board-confirm.css" />
   </head>
   <body>
     <div id="header-placeholder"></div>
 
-    <!-- タイトル -->
     <div class="page-header">
-      <h1 id="page-title">メディア確認</h1>
+      <h1 id="page-title">掲示板確認</h1>
     </div>
 
     <main class="container">
       <div class="form-group">
-        <label class="label-title">日付</label>
-        <div class="label-value" id="media-date"></div>
+        <label class="label-title">公開範囲</label>
+        <div class="label-value" id="board-scope"></div>
       </div>
 
       <div class="form-group">
         <label class="label-title">タイトル</label>
-        <div class="label-value" id="media-title"></div>
+        <div class="label-value" id="board-title"></div>
       </div>
 
       <div class="form-group">
-        <label class="label-title">Instagram</label>
-        <div class="label-value" id="media-instagram"></div>
+        <label class="label-title">内容</label>
+        <div class="label-value content-area" id="board-content"></div>
       </div>
 
       <div class="form-group">
-        <label class="label-title">YouTube</label>
-        <div class="label-value" id="media-youtube"></div>
+        <label class="label-title">作成者</label>
+        <div class="label-value" id="board-author"></div>
       </div>
 
-      <div class="form-group">
-        <label class="label-title">GoogleDrive</label>
-        <div class="label-value" id="media-drive"></div>
-      </div>
-
-      <div class="form-group">
-        <label class="label-title">ホームに表示</label>
-        <div class="label-value" id="is-disp-top"></div>
-      </div>
-
-      <!-- メニュー -->
       <div class="confirm-buttons">
-        <button id="media-edit-button" class="edit-button">編集</button>
-        <button id="media-copy-button" class="copy-button">コピー</button>
-        <button id="media-delete-button" class="delete-button">削除</button>
+        <button id="board-edit-button" class="edit-button">編集</button>
+        <button id="board-copy-button" class="edit-button">コピー</button>
+        <button id="board-delete-button" class="delete-button">削除</button>
       </div>
     </main>
 
     <div class="page-footer">
-      <a href="../media-list/media-list.html" class="back-link"
-        >← メディア一覧に戻る</a
+      <a href="../board-list/board-list.html" class="back-link"
+        >← 掲示板一覧に戻る</a
       >
     </div>
 
     <div id="footer-placeholder"></div>
     <div id="dialog-placeholder"></div>
     <div id="modal-placeholder"></div>
+
     <link
       rel="stylesheet"
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
-    <script async src="https://www.instagram.com/embed.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://unpkg.com/dompurify@2.4.4/dist/purify.min.js"></script>
     <script type="module" src="../common/functions.js"></script>
-    <script type="module" src="media-confirm.js"></script>
+    <script type="module" src="board-confirm.js"></script>
   </body>
 </html>

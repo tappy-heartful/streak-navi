@@ -3,124 +3,105 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   try {
     await utils.initDisplay();
-    // 画面ごとのパンくずをセット
     utils.renderBreadcrumb([
-      { title: 'メディア一覧', url: '../media-list/media-list.html' },
-      { title: 'メディア確認' },
+      { title: '掲示板一覧', url: '../board-list/board-list.html' },
+      { title: '掲示板確認' },
     ]);
-    await renderMedia();
+    await renderBoard();
   } catch (e) {
-    // ログ登録
+    console.error(e);
     await utils.writeLog({
-      dataId: utils.globalGetParamMediaId,
-      action: '初期表示',
+      dataId: utils.globalGetParamBoardId || 'none',
+      action: '掲示板確認',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
     });
   } finally {
-    // スピナー非表示
     utils.hideSpinner();
   }
 });
 
 ////////////////////////////
-// メディアデータ表示
+// 掲示板データ表示
 ////////////////////////////
-async function renderMedia() {
-  const mediaId = utils.globalGetParamMediaId;
+async function renderBoard() {
+  const boardId = utils.globalGetParamBoardId;
+  if (!boardId) throw new Error('IDが指定されていません');
 
-  // media コレクションから取得
-  const mediaSnap = await utils.getWrapDoc(
-    utils.doc(utils.db, 'medias', mediaId)
+  // データの取得
+  const boardSnap = await utils.getWrapDoc(
+    utils.doc(utils.db, 'boards', boardId)
   );
-  if (!mediaSnap.exists()) {
-    throw new Error('メディアが見つかりません：' + mediaId);
+  if (!boardSnap.exists()) {
+    throw new Error('投稿が見つかりません');
   }
-  const mediaData = mediaSnap.data();
+  const boardData = boardSnap.data();
 
-  $('#media-date').text(utils.getDayOfWeek(mediaData.date_decoded) || '');
-  $('#media-title').text(mediaData.title_decoded || '');
+  // タイトルと内容の反映（サニタイズ処理）
+  $('#board-title').text(boardData.title || '無題');
+  $('#board-content').html(
+    DOMPurify.sanitize(boardData.content || '').replace(/\n/g, '<br>')
+  );
+  $('#board-author').text(boardData.createdByName || '匿名');
 
-  // Instagramリンク
-  if (mediaData.instagramUrl) {
-    $('#media-instagram').html(
-      utils.buildInstagramHtml(mediaData.instagramUrl)
+  // 公開範囲（セクション名）の取得
+  if (boardData.sectionId) {
+    const sectionSnap = await utils.getWrapDoc(
+      utils.doc(utils.db, 'sections', boardData.sectionId)
     );
-    $('#media-instagram').removeClass('label-value');
+    const sectionName = sectionSnap.exists()
+      ? sectionSnap.data().name
+      : '不明なセクション';
+    $('#board-scope').html(`<i class="fas fa-users"></i> ${sectionName}専用`);
   } else {
-    $('#media-instagram').text('未設定');
+    $('#board-scope').html(`<i class="fas fa-globe"></i> 全体向け`);
   }
 
-  // YouTubeリンク
-  if (mediaData.youtubeUrl) {
-    $('#media-youtube').html(utils.buildYouTubeHtml(mediaData.youtubeUrl));
-    $('#media-youtube').removeClass('label-value');
+  // 権限チェック：作成者本人または管理者のみ編集・削除ボタンを表示
+  const currentUid = utils.getSession('uid');
+  if (currentUid === boardData.createdBy || utils.isAdmin('Board')) {
+    $('.confirm-buttons').show();
   } else {
-    $('#media-youtube').text('未設定');
+    $('.confirm-buttons').hide();
   }
 
-  // GoogleDriveリンク
-  if (mediaData.driveUrl) {
-    $('#media-drive').html(utils.buildGoogleDriveHtml(mediaData.driveUrl));
-    $('#media-drive').removeClass('label-value');
-  } else {
-    $('#media-drive').text('未設定');
-  }
-
-  // ホーム表示
-  $('#is-disp-top').text(
-    mediaData.isDispTop === true ? '表示する' : '表示しない'
-  );
-
-  // 管理者の場合のみ編集・削除ボタン表示
-  utils.isAdmin('Media')
-    ? $('.confirm-buttons').show()
-    : $('.confirm-buttons').hide();
-
-  // Instagram埋め込みを処理
-  if (window.instgrm) {
-    window.instgrm.Embeds.process();
-  }
-  setupEventHandlers(mediaId);
+  setupEventHandlers(boardId);
 }
 
 ////////////////////////////
 // イベントハンドラ
 ////////////////////////////
-function setupEventHandlers(mediaId) {
+function setupEventHandlers(boardId) {
   // 編集
-  $('#media-edit-button').on('click', () => {
-    window.location.href = `../media-edit/media-edit.html?mode=edit&mediaId=${mediaId}`;
+  $('#board-edit-button').on('click', () => {
+    window.location.href = `../board-edit/board-edit.html?mode=edit&boardId=${boardId}`;
   });
 
   // コピー
-  $('#media-copy-button').on('click', () => {
-    window.location.href = `../media-edit/media-edit.html?mode=copy&mediaId=${mediaId}`;
+  $('#board-copy-button').on('click', function () {
+    window.location.href = `../board-edit/board-edit.html?mode=copy&boardId=${boardId}`;
   });
 
   // 削除
-  $('#media-delete-button').on('click', async () => {
+  $('#board-delete-button').on('click', async () => {
     const confirmed = await utils.showDialog(
-      'このメディアを削除しますか？\nこの操作は元に戻せません。'
+      'この投稿を削除しますか？\nこの操作は元に戻せません。'
     );
     if (!confirmed) return;
 
     try {
       utils.showSpinner();
-      await utils.archiveAndDeleteDoc('medias', mediaId);
-      await utils.writeLog({ dataId: mediaId, action: 'メディア削除' });
+      // アーカイブして削除（共通関数を利用）
+      await utils.archiveAndDeleteDoc('boards', boardId);
+      await utils.writeLog({ dataId: boardId, action: '掲示板投稿削除' });
+
       utils.hideSpinner();
       await utils.showDialog('削除しました', true);
-      window.location.href = '../media-list/media-list.html';
+      window.location.href = '../board-list/board-list.html';
     } catch (e) {
-      await utils.writeLog({
-        dataId: mediaId,
-        action: 'メディア削除',
-        status: 'error',
-        errorDetail: { message: e.message, stack: e.stack },
-      });
-    } finally {
+      console.error(e);
       utils.hideSpinner();
+      await utils.showDialog('削除に失敗しました');
     }
   });
 }
