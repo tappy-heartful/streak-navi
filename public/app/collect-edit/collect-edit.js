@@ -108,18 +108,22 @@ async function setupPage(mode, collectId) {
     $('#page-title, #title').text('集金新規作成');
     saveBtn.text('登録');
     backLink.text(mode === 'new' ? '← 集金一覧に戻る' : '← 集金確認に戻る');
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    const day13th = new Date();
-    day13th.setDate(day13th.getDate() + 13);
-    $('#accept-start-date').val(utils.formatDateToYMDHyphen(tomorrow));
-    $('#accept-end-date').val(utils.formatDateToYMDHyphen(day13th));
     if (mode === 'copy') await loadCollectData(collectId, mode);
   } else {
     $('#page-title, #title').text('集金編集');
     backLink.text('← 集金確認に戻る');
     saveBtn.text('更新');
     await loadCollectData(collectId, mode);
+  }
+
+  // 募集受付期間の初期値設定（明日〜13日後）
+  if (mode === 'new' || mode === 'copy') {
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    const day13th = new Date();
+    day13th.setDate(day13th.getDate() + 13);
+    $('#accept-start-date').val(utils.formatDateToYMDHyphen(tomorrow));
+    $('#accept-end-date').val(utils.formatDateToYMDHyphen(day13th));
   }
 }
 
@@ -290,13 +294,10 @@ async function loadCollectData(docId, mode) {
 
   $('#target-date').val(utils.formatDateToYMDHyphen(data.targetDate));
   $('#collect-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
-  // コピーの場合は受付期間を踏襲しない
-  if (mode === 'edit') {
-    $('#accept-start-date').val(
-      utils.formatDateToYMDHyphen(data.acceptStartDate)
-    );
-    $('#accept-end-date').val(utils.formatDateToYMDHyphen(data.acceptEndDate));
-  }
+  $('#accept-start-date').val(
+    utils.formatDateToYMDHyphen(data.acceptStartDate)
+  );
+  $('#accept-end-date').val(utils.formatDateToYMDHyphen(data.acceptEndDate));
   $('#upfront-amount').val(data.upfrontAmount || '');
   $('#upfront-payer').val(data.upfrontPayer || '');
   $('#manager-name').val(data.managerName || '');
@@ -340,6 +341,36 @@ function validateData(mode) {
     utils.markError($('#accept-end-date'), '必須');
     isValid = false;
   }
+
+  const acceptStartDate = $('#accept-start-date').val().trim();
+  const acceptEndDate = $('#accept-end-date').val().trim();
+  // 日付の妥当性チェック
+  if (acceptStartDate && acceptEndDate) {
+    const start = new Date(acceptStartDate + 'T00:00:00');
+    const end = new Date(acceptEndDate + 'T23:59:59');
+
+    // 今日の日付（時刻を00:00:00にリセット）
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // ✅ 新規またはコピー時、開始日は明日以降かチェック
+    if (mode === 'new' || mode === 'copy') {
+      if (start.getTime() <= today.getTime()) {
+        utils.markError(
+          $('#accept-date'),
+          '開始日は明日以降の日付を指定してください'
+        );
+        isValid = false;
+      }
+    }
+
+    // ✅ 開始日 > 終了日のチェック
+    if (start.getTime() > end.getTime()) {
+      utils.markError($('#accept-date'), '終了日は開始日以降にしてください');
+      isValid = false;
+    }
+  }
+
   if (!$('#upfront-amount').val()) {
     utils.markError($('#upfront-amount'), '必須');
     isValid = false;
