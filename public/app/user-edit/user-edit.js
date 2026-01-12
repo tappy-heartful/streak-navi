@@ -8,15 +8,6 @@ $(document).ready(async function () {
   try {
     await utils.initDisplay();
     uid = utils.globalGetParamUid ?? utils.getSession('uid') ?? '';
-    // 画面ごとのパンくずをセット
-    utils.renderBreadcrumb([
-      { title: 'ユーザ一覧', url: '../user-list/user-list.html' },
-      {
-        title: 'ユーザ確認',
-        url: '../user-confirm/user-confirm.html?uid=' + uid,
-      },
-      { title: 'ユーザ編集' },
-    ]);
 
     // Instrumentsデータを事前に取得
     await loadAllInstruments();
@@ -80,6 +71,16 @@ async function setUpPage(uid) {
     $('#save-button').text('登録する');
     $('.page-footer').addClass('hidden');
     $('#init-message').text('ユーザを登録してください');
+  } else {
+    // 初回ではない場合にのみ画面ごとのパンくずをセット
+    utils.renderBreadcrumb([
+      { title: 'ユーザ一覧', url: '../user-list/user-list.html' },
+      {
+        title: 'ユーザ確認',
+        url: '../user-confirm/user-confirm.html?uid=' + uid,
+      },
+      { title: 'ユーザ編集' },
+    ]);
   }
 
   // ユーザー名
