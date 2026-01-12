@@ -60,9 +60,9 @@ async function renderBoard() {
   // 権限チェック：作成者本人または管理者のみ編集・削除ボタンを表示
   const currentUid = utils.getSession('uid');
   if (currentUid === boardData.createdBy || utils.isAdmin('Board')) {
-    $('.confirm-buttons').show();
+    $('#board-menu').show();
   } else {
-    $('.confirm-buttons').hide();
+    $('#board-menu').hide();
   }
 
   setupEventHandlers(boardId);
