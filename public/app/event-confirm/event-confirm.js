@@ -168,10 +168,12 @@ async function renderEvent() {
       .map((dateStr) => `・${utils.getDayOfWeek(dateStr)}`)
       .join('\n');
     $('#candidate-dates-display').text(dates || '候補日が設定されていません');
+    $('#event-acceept-term-title').text('日程調整受付期間');
   } else {
     // 出欠確認/受付なしの場合: 単一の日付を表示
     $('#event-date').text(utils.getDayOfWeek(eventData.date_decoded) || '');
     $('#candidate-dates-display').remove();
+    $('#event-acceept-term-title').text('出欠受付期間');
   }
 
   // ------------------------------------------------------------------
