@@ -42,9 +42,7 @@
   -webkit-line-clamp: 3;
   line-clamp: 3;
   overflow: hidden;
-  font-size: 0.95rem;
   color: #444;
-  line-height: 1.6;
   max-height: 4.8em;
   word-break: break-all;
 }
@@ -54,27 +52,4 @@
   font-size: 0.85rem;
   color: #777;
   vertical-align: middle;
-}
-
-.board-title-link {
-  font-weight: bold;
-  text-decoration: none;
-  color: #333;
-  transition: color 0.2s;
-}
-
-.board-title-link:hover {
-  color: #4caf50;
-  text-decoration: underline;
-}
-
-.empty-row {
-  text-align: center;
-  padding: 40px !important;
-  color: #999;
-}
-
-/* 追加ボタンの制御用 */
-.hidden {
-  display: none;
 }
