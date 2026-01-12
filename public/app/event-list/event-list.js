@@ -89,16 +89,14 @@ async function setUpPage() {
   });
 
   // --- 0件判定と表示制御 ---
-
-  // 日程調整：0件ならコンテナごと非表示。管理者なら「新規作成」ボタンを出したい可能性があるため、isAdmin判定を入れるのも手ですが、今回は「リストが空なら非表示」を優先します。
   if ($scheduleTbody.children().length === 0) {
     $('#schedule-container').hide();
   } else {
     $('#schedule-container').show();
   }
 
-  // 今後の予定
-  checkEmpty($futureTbody, 7);
+  // 今後の予定 (列数 8 に合わせて調整)
+  checkEmpty($futureTbody, 8);
 
   // 終了分
   if ($closedTbody.children().length === 0) {
@@ -131,11 +129,13 @@ function makeEventRow(eventId, data, type, statusInfo = null) {
   const dateDisplay = data.date
     ? `${data.date}(${utils.getDayOfWeek(data.date, true)})`
     : '-';
-  const termDisplay = `${data.acceptStartDate || ''} ～ <br> ${
-    data.acceptEndDate || ''
-  }`;
 
-  // 📅 追加: 候補日の配列を改行区切りに変換
+  // 受付期間の表示ロジック
+  const termDisplay =
+    data.acceptStartDate || data.acceptEndDate
+      ? `${data.acceptStartDate || ''} ～ <br> ${data.acceptEndDate || ''}`
+      : '-';
+
   const candidatesHtml =
     data.candidateDates && Array.isArray(data.candidateDates)
       ? data.candidateDates.join('<br>')
@@ -170,8 +170,9 @@ function makeEventRow(eventId, data, type, statusInfo = null) {
     return `
       <tr>
         <td><a href="${url}" class="table-link">${data.title}</a></td>
+        <td class="text-small">${candidatesHtml}</td> 
+        ${statusHtml}
         <td class="text-small">${termDisplay}</td>
-        <td class="text-small">${candidatesHtml}</td> ${statusHtml}
         ${placeHtml}
         ${accessHtml}
         ${mapHtml}
@@ -183,6 +184,7 @@ function makeEventRow(eventId, data, type, statusInfo = null) {
         <td><a href="${url}" class="table-link">${data.title}</a></td>
         <td class="text-small">${dateDisplay}</td>
         ${statusHtml}
+        <td class="text-small">${termDisplay}</td>
         ${placeHtml}
         ${accessHtml}
         ${mapHtml}
@@ -195,6 +197,7 @@ function makeEventRow(eventId, data, type, statusInfo = null) {
         <td><a href="${url}" class="table-link">${data.title}</a></td>
         <td class="text-small">${dateDisplay}</td>
         ${statusHtml}
+        <td class="text-small">${termDisplay}</td>
         ${placeHtml}
         ${assignHtml}
       </tr>`;
