@@ -31,23 +31,23 @@ async function setUpPage() {
 }
 
 /**
- * 単一の通知設定ブロックのHTMLを生成する
- * @param {string} typeLabel - イベント / 開始 / 締切
- * @param {object} notification - {days, beforeAfter, interval, message}
- * @returns {string} HTML文字列
+ * 単一の通知設定ブロックのHTMLを生成
  */
-function createNotificationDisplayBlock(typeLabel, notification) {
+function createNotificationDisplayBlock(type, notification) {
   const days = notification.days ?? 0;
   const beforeAfter = notification.beforeAfter === 'after' ? '後' : '前';
-  const interval = notification.interval; // 💰 追加
+  const interval = notification.interval;
   const time = '9:00ごろ';
 
-  const message =
-    notification.message ||
-    notification.message_decoded ||
-    '通知メッセージが設定されていません。';
+  // ラベル判定（物理名から推測）
+  let typeLabel = '締切日';
+  if (type.endsWith('Start')) typeLabel = '開始日';
+  if (type.endsWith('End')) typeLabel = '終了日';
+  if (type === 'collectRemind') typeLabel = '開始日';
 
-  // 💰 催促用（intervalがある場合）と通常用でタイミングのテキストを分岐
+  const message =
+    notification.message || '通知メッセージが設定されていません。';
+
   let timingText = '';
   if (interval) {
     timingText = `${typeLabel}の ${days} 日${beforeAfter}から ${interval} 日おき ${time}`;
@@ -64,19 +64,30 @@ function createNotificationDisplayBlock(typeLabel, notification) {
       : `<div class="label-value pre-wrap">${message}</div>`;
 
   return `
-        <div class="notification-display-block">
-            <label class="label-title">通知タイミング</label>
-            <div class="timing-value">${timingText}</div>
-            
-            <label class="label-title">通知メッセージ</label>
-            ${messageContent}
-        </div>
-    `;
+    <div class="notification-display-block">
+      <label class="label-title">通知タイミング</label>
+      <div class="timing-value">${timingText}</div>
+      <label class="label-title">通知メッセージ</label>
+      ${messageContent}
+    </div>
+  `;
 }
 
-/**
- * 自動通知設定の読み込みと表示
- */
+// 編集画面と共通の物理名リスト
+const configKeys = [
+  'eventStart',
+  'eventEnd',
+  'eventAdjStart',
+  'eventAdjEnd',
+  'collectStart',
+  'collectEnd',
+  'collectRemind',
+  'voteStart',
+  'voteEnd',
+  'callStart',
+  'callEnd',
+];
+
 async function loadBaseConfig() {
   const docRef = utils.doc(utils.db, 'configs', 'noticeBase');
   const docSnap = await utils.getWrapDoc(docRef);
@@ -84,52 +95,23 @@ async function loadBaseConfig() {
   if (docSnap.exists()) {
     const d = docSnap.data();
 
-    // ① イベント通知（出欠）
-    renderNotificationSection('event', 'イベント', d.eventNotifications);
+    configKeys.forEach((key) => {
+      const container = $(`#${key}-notifications-container`);
+      const notifications = d[`${key}Notifications`];
 
-    // ② イベント通知（日程調整）
-    renderNotificationSection('eventAdj', '締切', d.eventAdjNotifications);
+      container.empty();
 
-    // 💰 ③ 集金通知（開始）
-    renderNotificationSection('collect', '開始', d.collectNotifications);
-
-    // 💰 ④ 集金通知（終了）
-    renderNotificationSection('collectEnd', '締切', d.collectEndNotifications);
-
-    // 💰 ⑤ 集金通知（催促） -> 追加
-    renderNotificationSection(
-      'collectRemind',
-      '締切',
-      d.collectRemindNotifications
-    );
-
-    // ⑥ 投票通知
-    renderNotificationSection('vote', '締切', d.voteNotifications);
-
-    // ⑦ 曲募集通知
-    renderNotificationSection('call', '締切', d.callNotifications);
+      if (notifications && notifications.length > 0) {
+        notifications.forEach((notification) => {
+          container.append(createNotificationDisplayBlock(key, notification));
+        });
+      } else {
+        container.html('<div class="no-setting">通知設定はありません。</div>');
+      }
+    });
   } else {
     $('.notifications-container').html(
       '<div class="no-setting">設定データがありません。</div>'
     );
-  }
-}
-
-/**
- * 通知セクション全体のレンダリングを行う
- */
-function renderNotificationSection(type, typeLabel, notifications) {
-  const container = $(`#${type}-notifications-container`);
-  if (container.length === 0) return; // HTML側にIDがない場合はスキップ
-
-  container.empty();
-
-  if (notifications && notifications.length > 0) {
-    notifications.forEach((notification) => {
-      const html = createNotificationDisplayBlock(typeLabel, notification);
-      container.append(html);
-    });
-  } else {
-    container.html('<div class="no-setting">通知設定はありません。</div>');
   }
 }
