@@ -13,7 +13,7 @@ $(document).ready(async function () {
     // セッションから情報を取得
     userSectionId = utils.getSession('sectionId') || '';
 
-    // セクション名の取得と反映
+    // セクション名の取得と反映（未設定時はタブ非表示）
     await fetchAndSetSectionName();
 
     await setUpPage();
@@ -35,7 +35,11 @@ $(document).ready(async function () {
  * ユーザーのセクションIDに基づいてセクション名を取得し、タブに反映
  */
 async function fetchAndSetSectionName() {
-  if (!userSectionId) return;
+  // sectionIdが未設定の場合は、セクションタブを削除して終了
+  if (!userSectionId) {
+    $('#section-tab-btn').remove();
+    return;
+  }
 
   try {
     const sectionDocRef = utils.doc(utils.db, 'sections', userSectionId);
@@ -44,9 +48,14 @@ async function fetchAndSetSectionName() {
     if (sectionSnap.exists()) {
       userSectionName = sectionSnap.data().name || 'セクション向け';
       $('#section-tab-text').text(`${userSectionName}専用`);
+    } else {
+      // IDはあるがドキュメントが見つからない場合もタブを削除
+      $('#section-tab-btn').remove();
     }
   } catch (e) {
     console.error('セクション名の取得に失敗:', e);
+    // エラー時は安全のためにタブを非表示にする
+    $('#section-tab-btn').hide();
   }
 }
 
