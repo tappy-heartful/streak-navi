@@ -546,10 +546,12 @@ function toggleDateFields() {
     // 日程調整からする: 候補日入力、表示、通常の日付入力回答受付選択非表示
     $('#date-candidates-group').show();
     $('#date-single-group').hide();
+    $('#accept-date-title').text('日程調整受付期間');
   } else {
     // 出欠確認からする: 通常の日付入力回答受付選択表示、候補日入力非表示
     $('#date-candidates-group').hide();
     $('#date-single-group').show();
+    $('#accept-date-title').text('出欠受付期間');
   }
 }
 

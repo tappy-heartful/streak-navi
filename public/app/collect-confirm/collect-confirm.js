@@ -167,7 +167,7 @@ async function renderCollect() {
   Object.keys(grouped).forEach((sId) => {
     const $section = $(
       `<div class="confirm-section-group"><div class="confirm-section-title">${
-        sectionsMap[sId] || 'その他'
+        sectionsMap[sId] || '❓未設定'
       }</div></div>`
     );
     grouped[sId].forEach((u) => {

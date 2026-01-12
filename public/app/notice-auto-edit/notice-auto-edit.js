@@ -1,10 +1,7 @@
 import * as utils from '../common/functions.js';
 
-let initialState = {};
-
 $(document).ready(async function () {
   try {
-    const mode = 'base';
     await utils.initDisplay();
 
     utils.renderBreadcrumb([
@@ -17,7 +14,6 @@ $(document).ready(async function () {
     ]);
 
     await setupPage();
-    captureInitialState();
     setupEventHandlers();
   } catch (e) {
     await utils.writeLog({
@@ -37,19 +33,20 @@ async function setupPage() {
 }
 
 /**
- * 通知設定ブロックのHTMLテンプレートを生成する
+ * 通知設定ブロックのHTMLテンプレート
  */
 function createNotificationBlockHtml(type, data = {}) {
   const days = data.days === undefined ? 1 : data.days;
   const beforeAfter = data.beforeAfter || 'before';
-  const interval = data.interval === undefined ? 14 : data.interval; // 💰 追加: 催促用
+  const interval = data.interval === undefined ? 14 : data.interval;
   const message = data.message || '';
 
+  // ラベル判定
   let blockLabel = '締切';
-  if (type === 'event') blockLabel = 'イベント';
-  if (type === 'collect') blockLabel = '開始';
+  if (type.endsWith('Start')) blockLabel = '受付開始日';
+  if (type.endsWith('End')) blockLabel = '受付終了日';
+  if (type === 'collectRemind') blockLabel = '受付終了日';
 
-  // 💰 催促用に追加するHTML（間隔設定）
   const intervalHtml =
     type === 'collectRemind'
       ? `
@@ -69,15 +66,9 @@ function createNotificationBlockHtml(type, data = {}) {
 
       <div class="timing-group">
         <label class="label-title">通知タイミング</label>
-        
         <div class="days-input-group">
           ${blockLabel}の
-          <input
-            type="text"
-            min="0"
-            value="${days}"
-            class="small-input days-input"
-          />
+          <input type="text" min="0" value="${days}" class="small-input days-input" />
           日
           <select class="before-after-select">
             <option value="before" ${
@@ -93,64 +84,61 @@ function createNotificationBlockHtml(type, data = {}) {
 
       <div class="form-group">
         <label class="label-title">通知メッセージ</label>
-        <textarea
-          rows="4"
-          placeholder="通知メッセージ..."
-          class="msg-textarea"
-        >${message}</textarea>
+        <textarea rows="4" placeholder="通知メッセージ..." class="msg-textarea">${message}</textarea>
       </div>
     </div>
   `;
 }
 
+// 物理名のリスト
+const configKeys = [
+  'eventStart',
+  'eventEnd',
+  'eventAdjStart',
+  'eventAdjEnd',
+  'collectStart',
+  'collectEnd',
+  'collectRemind',
+  'voteStart',
+  'voteEnd',
+  'callStart',
+  'callEnd',
+];
+
 async function loadBaseConfig() {
   const docSnap = await utils.getWrapDoc(
     utils.doc(utils.db, 'configs', 'noticeBase')
   );
-  if (docSnap.exists()) {
-    const d = docSnap.data();
-    renderNotifications('event', d.eventNotifications || []);
-    renderNotifications('eventAdj', d.eventAdjNotifications || []);
-    renderNotifications('collect', d.collectNotifications || []);
-    renderNotifications('collectEnd', d.collectEndNotifications || []);
-    renderNotifications('collectRemind', d.collectRemindNotifications || []); // 💰 催促追加
-    renderNotifications('vote', d.voteNotifications || []);
-    renderNotifications('call', d.callNotifications || []);
-  } else {
-    const defaultVal = [{ days: 1, beforeAfter: 'before', message: '' }];
-    const defaultRemind = [
-      { days: 1, beforeAfter: 'after', interval: 14, message: '' },
-    ]; // 💰 催促デフォルト
-    renderNotifications('event', defaultVal);
-    renderNotifications('eventAdj', defaultVal);
-    renderNotifications('collect', defaultVal);
-    renderNotifications('collectEnd', defaultVal);
-    renderNotifications('collectRemind', defaultRemind);
-    renderNotifications('vote', defaultVal);
-    renderNotifications('call', defaultVal);
-  }
+  const d = docSnap.exists() ? docSnap.data() : {};
+
+  configKeys.forEach((key) => {
+    const notifications =
+      d[`${key}Notifications`] ||
+      (key === 'collectRemind'
+        ? [{ days: 1, beforeAfter: 'after', interval: 14, message: '' }]
+        : [{ days: 1, beforeAfter: 'before', message: '' }]);
+    renderNotifications(key, notifications);
+  });
 }
 
 function renderNotifications(type, notifications) {
   const wrapper = $(`#${type}-settings-wrapper`);
   wrapper.empty();
-
-  notifications.forEach((data) => {
-    const html = createNotificationBlockHtml(type, data);
-    wrapper.append(html);
-  });
+  notifications.forEach((data) =>
+    wrapper.append(createNotificationBlockHtml(type, data))
+  );
 }
 
 function setupEventHandlers() {
   $(document).on('click', '.add-notify-button', function () {
     const type = $(this).data('type');
-    const wrapper = $(`#${type}-settings-wrapper`);
     const defaultData =
       type === 'collectRemind'
         ? { days: 1, beforeAfter: 'after', interval: 14, message: '' }
         : { days: 1, beforeAfter: 'before', message: '' };
-    const html = createNotificationBlockHtml(type, defaultData);
-    wrapper.append(html);
+    $(`#${type}-settings-wrapper`).append(
+      createNotificationBlockHtml(type, defaultData)
+    );
   });
 
   $(document).on('click', '.remove-notify-button', function () {
@@ -158,11 +146,10 @@ function setupEventHandlers() {
   });
 
   $('#clear-button').on('click', async () => {
-    if (await utils.showDialog('編集前に戻しますか？')) restoreInitialState();
+    if (await utils.showDialog('編集前に戻しますか？')) location.reload();
   });
 
   $('#save-button').on('click', async () => {
-    if (!validateData()) return;
     const confirm = await utils.showDialog('設定を保存しますか？');
     if (!confirm) return;
 
@@ -184,16 +171,11 @@ function setupEventHandlers() {
 }
 
 function collectBaseData() {
-  return {
-    eventNotifications: collectNotifications('event'),
-    eventAdjNotifications: collectNotifications('eventAdj'),
-    collectNotifications: collectNotifications('collect'),
-    collectEndNotifications: collectNotifications('collectEnd'),
-    collectRemindNotifications: collectNotifications('collectRemind'), // 💰 催促追加
-    voteNotifications: collectNotifications('vote'),
-    callNotifications: collectNotifications('call'),
-    updatedAt: utils.serverTimestamp(),
-  };
+  const data = { updatedAt: utils.serverTimestamp() };
+  configKeys.forEach((key) => {
+    data[`${key}Notifications`] = collectNotifications(key);
+  });
+  return data;
 }
 
 function collectNotifications(type) {
@@ -203,27 +185,14 @@ function collectNotifications(type) {
     const days = parseInt(block.find('.days-input').val());
     const beforeAfter = block.find('.before-after-select').val();
     const message = block.find('.msg-textarea').val().trim();
-
     const item = { days, beforeAfter, message };
 
-    // 💰 催促タイプの場合は間隔も取得
     if (type === 'collectRemind') {
       const interval = parseInt(block.find('.interval-input').val());
       item.interval = isNaN(interval) ? 14 : interval;
     }
 
-    if (!isNaN(days)) {
-      notifications.push(item);
-    }
+    if (!isNaN(days)) notifications.push(item);
   });
   return notifications;
-}
-
-function validateData() {
-  return true;
-}
-
-function captureInitialState() {}
-function restoreInitialState() {
-  location.reload();
 }

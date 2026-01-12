@@ -51,7 +51,7 @@ async function loadInitialMasterData() {
 
   allUsers.sort((a, b) => {
     if (a.sectionId !== b.sectionId)
-      return a.sectionId.localeCompare(b.sectionId);
+      return (a.sectionId || '').localeCompare(b.sectionId || '');
     return (a.roleId || '').localeCompare(b.roleId || '');
   });
 
@@ -68,7 +68,7 @@ function renderParticipantSelector() {
   });
 
   Object.keys(grouped).forEach((sId) => {
-    const sectionName = sectionsMap[sId] || `部署コード:${sId}`;
+    const sectionName = sectionsMap[sId] || `❓未設定`;
     const $sectionDiv = $(
       `<div class="section-group"><div class="section-title">${sectionName}</div><div class="user-grid"></div></div>`
     );
