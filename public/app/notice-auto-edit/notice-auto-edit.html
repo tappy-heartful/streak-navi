@@ -27,41 +27,79 @@
           各項目につき、基準日の何日【前/後】に自動通知するかを複数設定できます(通知時間は9:00ごろ固定)。
         </p>
 
-        <div class="notify-card" id="event-notify-card">
-          <h4>📅 イベント通知（出欠）</h4>
+        <div class="notify-card">
+          <h4>📅 イベント出欠（開始）</h4>
           <div
             class="notify-settings-wrapper"
-            id="event-settings-wrapper"
+            id="eventStart-settings-wrapper"
           ></div>
-          <button type="button" class="add-notify-button" data-type="event">
+          <button
+            type="button"
+            class="add-notify-button"
+            data-type="eventStart"
+          >
             <i class="fas fa-plus-circle"></i> 通知設定を追加
           </button>
         </div>
 
-        <div class="notify-card" id="eventAdj-notify-card">
-          <h4>🗓️ イベント通知（日程調整）</h4>
+        <div class="notify-card">
+          <h4>📅 イベント出欠（終了）</h4>
           <div
             class="notify-settings-wrapper"
-            id="eventAdj-settings-wrapper"
+            id="eventEnd-settings-wrapper"
           ></div>
-          <button type="button" class="add-notify-button" data-type="eventAdj">
+          <button type="button" class="add-notify-button" data-type="eventEnd">
             <i class="fas fa-plus-circle"></i> 通知設定を追加
           </button>
         </div>
 
-        <div class="notify-card" id="collect-notify-card">
-          <h4>💰 集金通知（開始）</h4>
+        <div class="notify-card">
+          <h4>🗓️ 日程調整（開始）</h4>
           <div
             class="notify-settings-wrapper"
-            id="collect-settings-wrapper"
+            id="eventAdjStart-settings-wrapper"
           ></div>
-          <button type="button" class="add-notify-button" data-type="collect">
+          <button
+            type="button"
+            class="add-notify-button"
+            data-type="eventAdjStart"
+          >
             <i class="fas fa-plus-circle"></i> 通知設定を追加
           </button>
         </div>
 
-        <div class="notify-card" id="collectEnd-notify-card">
-          <h4>💰 集金通知（終了/締切）</h4>
+        <div class="notify-card">
+          <h4>🗓️ 日程調整（終了）</h4>
+          <div
+            class="notify-settings-wrapper"
+            id="eventAdjEnd-settings-wrapper"
+          ></div>
+          <button
+            type="button"
+            class="add-notify-button"
+            data-type="eventAdjEnd"
+          >
+            <i class="fas fa-plus-circle"></i> 通知設定を追加
+          </button>
+        </div>
+
+        <div class="notify-card">
+          <h4>💰 集金（開始）</h4>
+          <div
+            class="notify-settings-wrapper"
+            id="collectStart-settings-wrapper"
+          ></div>
+          <button
+            type="button"
+            class="add-notify-button"
+            data-type="collectStart"
+          >
+            <i class="fas fa-plus-circle"></i> 通知設定を追加
+          </button>
+        </div>
+
+        <div class="notify-card">
+          <h4>💰 集金（終了）</h4>
           <div
             class="notify-settings-wrapper"
             id="collectEnd-settings-wrapper"
@@ -75,8 +113,8 @@
           </button>
         </div>
 
-        <div class="notify-card" id="collectRemind-notify-card">
-          <h4>📣 集金通知（催促）</h4>
+        <div class="notify-card">
+          <h4>📣 集金（催促）</h4>
           <div
             class="notify-settings-wrapper"
             id="collectRemind-settings-wrapper"
@@ -90,18 +128,46 @@
           </button>
         </div>
 
-        <div class="notify-card" id="vote-notify-card">
-          <h4>🗳️ 投票通知</h4>
-          <div class="notify-settings-wrapper" id="vote-settings-wrapper"></div>
-          <button type="button" class="add-notify-button" data-type="vote">
+        <div class="notify-card">
+          <h4>🗳️ 投票（開始）</h4>
+          <div
+            class="notify-settings-wrapper"
+            id="voteStart-settings-wrapper"
+          ></div>
+          <button type="button" class="add-notify-button" data-type="voteStart">
             <i class="fas fa-plus-circle"></i> 通知設定を追加
           </button>
         </div>
 
-        <div class="notify-card" id="call-notify-card">
-          <h4>🎶 曲募集通知</h4>
-          <div class="notify-settings-wrapper" id="call-settings-wrapper"></div>
-          <button type="button" class="add-notify-button" data-type="call">
+        <div class="notify-card">
+          <h4>🗳️ 投票（終了）</h4>
+          <div
+            class="notify-settings-wrapper"
+            id="voteEnd-settings-wrapper"
+          ></div>
+          <button type="button" class="add-notify-button" data-type="voteEnd">
+            <i class="fas fa-plus-circle"></i> 通知設定を追加
+          </button>
+        </div>
+
+        <div class="notify-card">
+          <h4>🎶 曲募集（開始）</h4>
+          <div
+            class="notify-settings-wrapper"
+            id="callStart-settings-wrapper"
+          ></div>
+          <button type="button" class="add-notify-button" data-type="callStart">
+            <i class="fas fa-plus-circle"></i> 通知設定を追加
+          </button>
+        </div>
+
+        <div class="notify-card">
+          <h4>🎶 曲募集（終了）</h4>
+          <div
+            class="notify-settings-wrapper"
+            id="callEnd-settings-wrapper"
+          ></div>
+          <button type="button" class="add-notify-button" data-type="callEnd">
             <i class="fas fa-plus-circle"></i> 通知設定を追加
           </button>
         </div>
