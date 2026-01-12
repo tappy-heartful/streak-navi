@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="../../images/favicon.png" />
+    <title>掲示板一覧</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="board-list.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="page-header">
+        <h1>掲示板一覧</h1>
+      </div>
+
+      <div class="container">
+        <div class="tab-area">
+          <button class="tab-btn active" data-tab="all">全体向け</button>
+          <button class="tab-btn" data-tab="section">セクション向け</button>
+        </div>
+
+        <div class="table-wrapper">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>タイトル</th>
+                <th>内容</th>
+                <th>作成者</th>
+              </tr>
+            </thead>
+            <tbody id="board-list-body"></tbody>
+          </table>
+        </div>
+
+        <button
+          id="add-button"
+          class="list-add-button"
+          onclick="window.location.href = '../board-edit/board-edit.html?mode=new'"
+        >
+          ＋ 新規投稿
+        </button>
+      </div>
+
+      <div class="page-footer">
+        <a href="../home/home.html" class="back-link">← ホームに戻る</a>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/dompurify@2.4.4/dist/purify.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="board-list.js"></script>
+  </body>
+</html>
