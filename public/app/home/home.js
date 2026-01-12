@@ -119,7 +119,6 @@ async function loadPendingAnnouncements() {
   const thirtyDaysLater = new Date(todayOnly);
   thirtyDaysLater.setDate(todayOnly.getDate() + 30);
 
-  // 💡 効率化: 全ての未回答チェックを並列処理で実行する
   const pendingChecks = eventDocs.map(async (eventDoc) => {
     const eventData = eventDoc.data();
     const eventId = eventDoc.id;
@@ -130,16 +129,18 @@ async function loadPendingAnnouncements() {
       eventData.acceptEndDate
     );
 
-    // イベント日付オブジェクトの作成
     let eventDateObj = null;
+    let diffDays = null;
     if (eventDateStr) {
       const [year, month, day] = eventDateStr.split('.').map(Number);
       if (year && month && day) {
         eventDateObj = new Date(year, month - 1, day);
+        // 💡 残り日数を計算 (ミリ秒 -> 秒 -> 分 -> 時間 -> 日)
+        const diffTime = eventDateObj.getTime() - todayOnly.getTime();
+        diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
       }
     }
 
-    // 過去のイベントは無視
     if (eventDateObj && eventDateObj < todayOnly) return null;
 
     const results = {
@@ -148,22 +149,20 @@ async function loadPendingAnnouncements() {
       date: eventDateStr,
       display: `📅${eventDateStr}`,
       url: `../event-confirm/event-confirm.html?eventId=${eventId}`,
-      isAssignPending: false, // 譜割り受付中
-      isSchedulePending: false, // 日程調整未回答
-      isAttendancePending: false, // 出欠確認未回答
-      isImminent: false, // 30日以内
+      isAssignPending: false,
+      isSchedulePending: false,
+      isAttendancePending: false,
+      isImminent: false,
+      diffDays: diffDays, // 💡 追加
       type: attendanceType,
     };
 
-    // A. 譜割り受付中の判定
     if (eventData.allowAssign) {
       results.isAssignPending = true;
       results.assignUrl = `../assign-confirm/assign-confirm.html?eventId=${eventId}`;
     }
 
-    // B. 未回答の判定
     let answerDocRef = null;
-
     if (isInTerm) {
       if (attendanceType === 'schedule') {
         answerDocRef = utils.doc(
@@ -193,7 +192,6 @@ async function loadPendingAnnouncements() {
       }
     }
 
-    // C. 30日以内のイベントの判定
     if (
       eventDateObj &&
       eventDateObj >= todayOnly &&
@@ -205,7 +203,6 @@ async function loadPendingAnnouncements() {
     return results;
   });
 
-  // 全ての非同期チェックを待機
   const allEventChecks = (await Promise.all(pendingChecks)).filter(
     (r) => r !== null
   );
@@ -214,10 +211,9 @@ async function loadPendingAnnouncements() {
   // 3. イベント関連のリストの抽出と整理
   // ------------------------------------------------------------------
 
-  const messages = {}; // {messageKey: {header: string, events: array, order: number}}
+  const messages = {};
 
-  // --- 3.1. 日程調整回答受付中のイベント (最優先・別枠) ---
-  // 【要件: 1.日程調整回答受付中のイベント(日程調整、受付中です！)
+  // --- 3.1. 日程調整回答受付中 ---
   const schedulePending = allEventChecks.filter((r) => r.isSchedulePending);
   if (schedulePending.length > 0) {
     messages['schedule_pending'] = {
@@ -227,61 +223,57 @@ async function loadPendingAnnouncements() {
     };
   }
 
-  // --- 3.2. 出欠確認と次のイベント ---
+  // --- 3.2. 出欠確認 と カウントダウン ---
 
-  // 1. 出欠確認未回答のイベントを抽出 (要件 1)
+  // 1. 出欠確認未回答
   const attendancePending = allEventChecks.filter((r) => r.isAttendancePending);
 
-  // 2. 回答済み or 回答を受付てない、かつ30日以内のイベントを抽出 (要件 2)
-  const imminentEvents = allEventChecks.filter(
-    (r) => !r.isAttendancePending && !r.isSchedulePending && r.isImminent
+  // 2. 回答済み or 回答期間外 の「次のイベント」候補を抽出
+  const upcomingEvents = allEventChecks.filter(
+    (r) => !r.isAttendancePending && !r.isSchedulePending && r.date !== ''
   );
 
-  // 3. 出欠確認未回答、または30日以内のイベントを統合
-  let mainEvents = [...attendancePending, ...imminentEvents];
+  // メイン表示リストの作成
+  let mainEvents = [...attendancePending];
 
-  // 4. フォールバックロジック (要件 2 の補足)
-  // 出欠確認未回答もなく、30日以内のイベントもない場合、直近のイベント1件を表示
-  if (mainEvents.length === 0) {
-    // 日程調整中でなく、かつ日付が空文字ではない(=日程が確定している)未来の最初のイベントを取得
-    const nextEvent = allEventChecks.find(
-      (r) => !r.isSchedulePending && r.date !== ''
-    );
-    if (nextEvent) {
-      mainEvents.push(nextEvent);
-    }
+  // 未回答がない、または30日以内の直近イベントがある場合は統合
+  const imminent = upcomingEvents.filter((u) => u.isImminent);
+  if (imminent.length > 0) {
+    mainEvents = [...mainEvents, ...imminent];
   }
 
-  // 5. 統合されたメインイベントリストをメッセージに変換
+  // それでも表示するものがない場合は、フォールバックとして直近1件
+  if (mainEvents.length === 0 && upcomingEvents.length > 0) {
+    mainEvents.push(upcomingEvents[0]);
+  }
+
   if (mainEvents.length > 0) {
-    const mainMessages = {}; // ヘッダーごとにグループ化
+    const mainMessages = {};
 
     mainEvents.forEach((event) => {
       let header;
       let messageKey;
 
       if (event.isAttendancePending) {
-        // 要件 1: 出欠確認、受付中です！
         header = '📌出欠確認、受付中です！';
         messageKey = 'attendance_pending';
-      } else if (event.isImminent) {
-        // 要件 2: 回答済み or 回答なしの30日以内 -> もうすぐイベントです！
-        header = '📌もうすぐイベントです！';
-        messageKey = 'imminent';
       } else {
-        // 要件 2のフォールバック: 直近のイベント1件 -> 次のイベントです！
-        header = '📌次のイベントです！';
-        messageKey = 'next_event';
+        // 💡 統合：カウントダウン表示
+        header =
+          event.diffDays === 0
+            ? '📌今日はイベント当日です！'
+            : `📌次のイベントまで、あと${event.diffDays}日！`;
+        messageKey = `next_countdown_${event.id}`; // イベントごとにキーを分けることで個別ヘッダーにする
       }
 
       if (!mainMessages[messageKey]) {
         mainMessages[messageKey] = {
           header: header,
           events: [],
-          order: 2, // 日程調整より後
+          order: 2,
         };
       }
-      // 同一イベントが異なるメッセージに属さないように（ex: 未回答で30日以内のイベントが出欠と imminent両方に載るのを防ぐ）
+
       if (!mainMessages[messageKey].events.some((e) => e.id === event.id)) {
         mainMessages[messageKey].events.push(event);
       }
