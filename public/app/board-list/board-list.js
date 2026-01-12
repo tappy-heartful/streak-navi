@@ -114,7 +114,7 @@ function renderList() {
         </td>
         <td>
           <div class="board-content-preview">
-            ${DOMPurify.sanitize(data.content || '')}
+            ${DOMPurify.sanitize(data.content?.replace(/\n/g, '<br>') || '')}
           </div>
         </td>
         <td class="board-author">
