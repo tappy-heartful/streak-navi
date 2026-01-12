@@ -258,6 +258,10 @@
   content: '🎬';
 }
 
+.menu-button.board::after {
+  content: '📋';
+}
+
 .menu-button:hover {
   background-color: #45a049;
 }
