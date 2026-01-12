@@ -10,7 +10,7 @@ $(document).ready(async function () {
     setupEventHandlers();
   } catch (e) {
     await utils.writeLog({
-      dataId: utils.globalGetParamMonth,
+      dataId: String(new Date().getMonth() + 1),
       action: '初期表示',
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
@@ -42,8 +42,7 @@ async function setupPage() {
 
   const $tabsContainer = $('#month-tabs');
 
-  const currentMonth =
-    utils.globalGetParamMonth || String(new Date().getMonth() + 1);
+  const currentMonth = String(new Date().getMonth() + 1);
 
   months.forEach((name, index) => {
     const month = String(index + 1);

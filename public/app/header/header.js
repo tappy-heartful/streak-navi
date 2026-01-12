@@ -90,6 +90,10 @@ $(document).ready(async function () {
     'click',
     () => (location.href = '../media-list/media-list.html')
   );
+  $('#menu-board-list').on(
+    'click',
+    () => (location.href = '../board-list/board-list.html')
+  );
 
   $('#profile-button').on(
     'click',

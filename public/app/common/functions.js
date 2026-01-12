@@ -115,7 +115,6 @@ export const globalGetParamMediaId = globalGetparams.get('mediaId');
 export const globalGetParamCallId = globalGetparams.get('callId');
 export const globalGetParamStudioId = globalGetparams.get('studioId');
 export const globalGetParamCollectId = globalGetparams.get('collectId');
-export const globalGetParamMonth = globalGetparams.get('month');
 export const globalGetParamType = globalGetparams.get('type');
 
 // 画面名

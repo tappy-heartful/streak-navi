@@ -1,0 +1,57 @@
+/* タブのスタイル */
+.tab-area {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+  border-bottom: 2px solid #eee;
+}
+
+.tab-btn {
+  padding: 10px 20px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-weight: bold;
+  color: #666;
+  transition: all 0.3s;
+}
+
+.tab-btn.active {
+  color: var(--primary-color); /* 共通カラー */
+  border-bottom: 3px solid var(--primary-color);
+}
+
+/* テーブル内の3行表示制限 */
+.board-content-preview {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3; /* 3行に制限 */
+  line-clamp: 3; /* 標準プロパティ */
+  overflow: hidden;
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.5;
+  max-height: 4.5em; /* 1.5 * 3 */
+  word-break: break-all;
+}
+
+.board-author {
+  white-space: nowrap;
+  font-size: 0.85rem;
+  color: #888;
+}
+
+.board-title-link {
+  font-weight: bold;
+  text-decoration: none;
+  color: var(--primary-color);
+}
+
+.board-title-link:hover {
+  text-decoration: underline;
+}
+
+/* 追加ボタンの制御用 */
+.hidden {
+  display: none;
+}
