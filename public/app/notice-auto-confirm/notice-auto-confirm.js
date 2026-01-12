@@ -41,9 +41,9 @@ function createNotificationDisplayBlock(type, notification) {
 
   // ラベル判定（物理名から推測）
   let typeLabel = '締切日';
-  if (type.endsWith('Start')) typeLabel = '開始日';
-  if (type.endsWith('End')) typeLabel = '終了日';
-  if (type === 'collectRemind') typeLabel = '開始日';
+  if (type.endsWith('Start')) typeLabel = '受付開始日';
+  if (type.endsWith('End')) typeLabel = '受付終了日';
+  if (type === 'collectRemind') typeLabel = '受付終了日';
 
   const message =
     notification.message || '通知メッセージが設定されていません。';

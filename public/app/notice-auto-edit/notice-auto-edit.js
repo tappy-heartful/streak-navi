@@ -43,9 +43,9 @@ function createNotificationBlockHtml(type, data = {}) {
 
   // ラベル判定
   let blockLabel = '締切';
-  if (type.endsWith('Start')) blockLabel = '開始日';
-  if (type.endsWith('End')) blockLabel = '終了日';
-  if (type === 'collectRemind') blockLabel = '開始日';
+  if (type.endsWith('Start')) blockLabel = '受付開始日';
+  if (type.endsWith('End')) blockLabel = '受付終了日';
+  if (type === 'collectRemind') blockLabel = '受付終了日';
 
   const intervalHtml =
     type === 'collectRemind'
