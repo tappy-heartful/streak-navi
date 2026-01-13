@@ -100,7 +100,7 @@ function setupEventHandlers(mode, boardId) {
   // ファイル選択ボタンの連動
   $('#btn-file-select').on('click', () => $('#board-file-input').click());
 
-  // ファイルアップロード処理
+  // ファイル選択後のアップロード処理（画像は圧縮、その他はそのまま）
   $('#board-file-input').on('change', async function (e) {
     const files = e.target.files;
     if (!files.length) return;
@@ -108,20 +108,41 @@ function setupEventHandlers(mode, boardId) {
     utils.showSpinner();
     try {
       for (let file of files) {
-        // 保存パス: boards/uniqueId/filename_timestamp
-        const timestamp = Date.now();
-        const path = `boards/attachments/${timestamp}_${file.name}`;
-        const storageRef = utils.ref(utils.storage, path);
+        let uploadBlob = file;
+        let fileName = file.name;
+        let path = `boards/attachments/${Date.now()}_${fileName}`;
 
-        await utils.uploadBytes(storageRef, file);
+        // 画像ファイル(jpg/png/webp等)の場合のみ圧縮を試みる
+        if (file.type.startsWith('image/')) {
+          try {
+            // utils.compressImage を利用 (共通関数にある前提)
+            uploadBlob = await utils.compressImage(file);
+            // 圧縮後のファイル名は、拡張子を.jpgに統一することが一般的です
+            if (
+              !fileName.toLowerCase().endsWith('.jpg') &&
+              !fileName.toLowerCase().endsWith('.jpeg')
+            ) {
+              path = path.replace(/\.[^/.]+$/, '') + '.jpg';
+            }
+          } catch (compressErr) {
+            console.warn(
+              '画像の圧縮に失敗したため、オリジナルをアップロードします:',
+              compressErr
+            );
+            uploadBlob = file; // 失敗したらオリジナルをセット
+          }
+        }
+
+        const storageRef = utils.ref(utils.storage, path);
+        await utils.uploadBytes(storageRef, uploadBlob);
         const url = await utils.getDownloadURL(storageRef);
 
-        attachedFiles.push({ name: file.name, url: url, path: path });
+        attachedFiles.push({ name: fileName, url: url, path: path });
       }
       renderFileList();
     } catch (err) {
       console.error(err);
-      alert('ファイルのアップロードに失敗しました');
+      alert('アップロードに失敗しました');
     } finally {
       utils.hideSpinner();
       $(this).val('');
