@@ -759,7 +759,7 @@ a:hover {
 }
 
 /* --- プレビュー用モーダル修正 --- */
-.receipt-preview-overlay {
+.image-preview-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -773,7 +773,7 @@ a:hover {
     cursor: pointer; /* どこでも閉じれる感 */
 }
 
-.receipt-preview-content {
+.image-preview-content {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -781,7 +781,7 @@ a:hover {
     height: 100%;
 }
 
-.receipt-preview-content img {
+.image-preview-content img {
     display: block;
     max-width: 95%;  /* 左右に少し余白 */
     max-height: 100%; /* 上下端を画面に合わせる */

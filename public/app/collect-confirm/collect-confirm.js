@@ -280,8 +280,8 @@ function setupEventHandlers(collectId, isAdmin) {
     .on('click', '.btn-receipt-view', function () {
       const url = $(this).data('url');
       const overlay = $(`
-      <div class="receipt-preview-overlay">
-        <div class="receipt-preview-content">
+      <div class="image-preview-overlay">
+        <div class="image-preview-content">
           <img src="${url}">
         </div>
       </div>
@@ -290,7 +290,7 @@ function setupEventHandlers(collectId, isAdmin) {
     });
 
   // プレビュー閉じる（どこをタップしても閉じるように修正）
-  $(document).on('click', '.receipt-preview-overlay', function () {
+  $(document).on('click', '.image-preview-overlay', function () {
     $(this).remove();
   });
 

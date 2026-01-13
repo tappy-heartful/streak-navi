@@ -95,8 +95,8 @@ function setupEventHandlers(boardId) {
     e.preventDefault();
     const url = $(this).data('url');
     const overlay = $(`
-      <div class="receipt-preview-overlay">
-        <div class="receipt-preview-content">
+      <div class="image-preview-overlay">
+        <div class="image-preview-content">
           <img src="${url}">
         </div>
       </div>
@@ -104,7 +104,7 @@ function setupEventHandlers(boardId) {
     $('body').append(overlay);
   });
 
-  $(document).on('click', '.receipt-preview-overlay', function () {
+  $(document).on('click', '.image-preview-overlay', function () {
     $(this).remove();
   });
 
