@@ -280,8 +280,8 @@ function setupEventHandlers(collectId, isAdmin) {
     .on('click', '.btn-receipt-view', function () {
       const url = $(this).data('url');
       const overlay = $(`
-      <div class="receipt-preview-overlay">
-        <div class="receipt-preview-content">
+      <div class="image-preview-overlay">
+        <div class="image-preview-content">
           <img src="${url}">
         </div>
       </div>
@@ -290,7 +290,7 @@ function setupEventHandlers(collectId, isAdmin) {
     });
 
   // プレビュー閉じる（どこをタップしても閉じるように修正）
-  $(document).on('click', '.receipt-preview-overlay', function () {
+  $(document).on('click', '.image-preview-overlay', function () {
     $(this).remove();
   });
 
@@ -323,7 +323,7 @@ function setupEventHandlers(collectId, isAdmin) {
           await deleteStorageFile(oldDoc.data().receiptUrl);
         }
 
-        const compressedBlob = await compressImage(file);
+        const compressedBlob = await utils.compressImage(file);
         const path = `receipts/${collectId}/${currentTargetUserId}_${Date.now()}.jpg`;
         const storageRef = utils.ref(utils.storage, path);
         await utils.uploadBytes(storageRef, compressedBlob);
@@ -437,33 +437,5 @@ function setupEventHandlers(collectId, isAdmin) {
     } finally {
       utils.hideSpinner();
     }
-  });
-}
-
-async function compressImage(file) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-        const max = 1000;
-        if (width > height && width > max) {
-          height *= max / width;
-          width = max;
-        } else if (height > max) {
-          width *= max / height;
-          height = max;
-        }
-        canvas.width = width;
-        canvas.height = height;
-        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.7);
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
   });
 }

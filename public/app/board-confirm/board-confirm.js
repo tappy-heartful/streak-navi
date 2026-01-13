@@ -28,23 +28,21 @@ async function renderBoard() {
   const boardId = utils.globalGetParamBoardId;
   if (!boardId) throw new Error('IDが指定されていません');
 
-  // データの取得
   const boardSnap = await utils.getWrapDoc(
     utils.doc(utils.db, 'boards', boardId)
   );
-  if (!boardSnap.exists()) {
-    throw new Error('投稿が見つかりません');
-  }
+  if (!boardSnap.exists()) throw new Error('投稿が見つかりません');
+
   const boardData = boardSnap.data();
 
-  // タイトルと内容の反映（サニタイズ処理）
+  // タイトル・内容・作成者
   $('#board-title').text(boardData.title || '無題');
   $('#board-content').html(
     DOMPurify.sanitize(boardData.content || '').replace(/\n/g, '<br>')
   );
   $('#board-author').text(boardData.createdByName || '匿名');
 
-  // 公開範囲（セクション名）の取得
+  // 公開範囲
   if (boardData.sectionId) {
     const sectionSnap = await utils.getWrapDoc(
       utils.doc(utils.db, 'sections', boardData.sectionId)
@@ -57,7 +55,30 @@ async function renderBoard() {
     $('#board-scope').html(`<i class="fas fa-globe"></i> 全体向け`);
   }
 
-  // 権限チェック：作成者本人または管理者のみ編集・削除ボタンを表示
+  // --- 添付ファイルの表示処理 ---
+  if (boardData.files && boardData.files.length > 0) {
+    const $fileList = $('#file-display-list').empty();
+    boardData.files.forEach((file) => {
+      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name);
+      const icon = isImage ? 'fa-image' : 'fa-file-pdf';
+      const btnClass = isImage ? 'btn-view-image' : ''; // 画像のみプレビュー対象
+
+      $fileList.append(`
+        <a href="${
+          file.url
+        }" target="_blank" class="file-download-link ${btnClass}" data-url="${
+        file.url
+      }">
+          <i class="fas ${icon}"></i>
+          <span>${DOMPurify.sanitize(file.name)}</span>
+          <i class="fas fa-external-link-alt" style="margin-left:auto; font-size:0.8rem; opacity:0.5;"></i>
+        </a>
+      `);
+    });
+    $('#file-section').show();
+  }
+
+  // 権限チェック
   const currentUid = utils.getSession('uid');
   if (currentUid === boardData.createdBy || utils.isAdmin('Board')) {
     $('#board-menu').show();
@@ -68,30 +89,61 @@ async function renderBoard() {
   setupEventHandlers(boardId);
 }
 
-////////////////////////////
-// イベントハンドラ
-////////////////////////////
 function setupEventHandlers(boardId) {
-  // 編集
+  // 画像プレビュー（リンク移動をキャンセルしてオーバーレイ表示）
+  $(document).on('click', '.btn-view-image', function (e) {
+    e.preventDefault();
+    const url = $(this).data('url');
+    const overlay = $(`
+      <div class="image-preview-overlay">
+        <div class="image-preview-content">
+          <img src="${url}">
+        </div>
+      </div>
+    `);
+    $('body').append(overlay);
+  });
+
+  $(document).on('click', '.image-preview-overlay', function () {
+    $(this).remove();
+  });
+
+  // 編集・コピー・削除
   $('#board-edit-button').on('click', () => {
     window.location.href = `../board-edit/board-edit.html?mode=edit&boardId=${boardId}`;
   });
 
-  // コピー
-  $('#board-copy-button').on('click', function () {
+  $('#board-copy-button').on('click', () => {
     window.location.href = `../board-edit/board-edit.html?mode=copy&boardId=${boardId}`;
   });
 
-  // 削除
   $('#board-delete-button').on('click', async () => {
     const confirmed = await utils.showDialog(
-      'この投稿を削除しますか？\nこの操作は元に戻せません。'
+      'この投稿を削除しますか？\n添付ファイルも削除されます。'
     );
     if (!confirmed) return;
 
     try {
       utils.showSpinner();
-      // アーカイブして削除（共通関数を利用）
+
+      // 1. Storageのファイルを削除（投稿データからパスを取得）
+      const boardSnap = await utils.getWrapDoc(
+        utils.doc(utils.db, 'boards', boardId)
+      );
+      if (boardSnap.exists()) {
+        const data = boardSnap.data();
+        if (data.files) {
+          for (const file of data.files) {
+            try {
+              await utils.deleteObject(utils.ref(utils.storage, file.path));
+            } catch (err) {
+              console.warn('File delete failed:', file.path);
+            }
+          }
+        }
+      }
+
+      // 2. ドキュメント削除
       await utils.archiveAndDeleteDoc('boards', boardId);
       await utils.writeLog({ dataId: boardId, action: '掲示板投稿削除' });
 
