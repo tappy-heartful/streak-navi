@@ -203,12 +203,9 @@ h3 {
 /* 各種リンク */
 .list-table a {
   color: #1a73e8;
-  text-decoration: none;
-}
-
-.list-table a:hover {
   text-decoration: underline;
 }
+
 /* データなしの表示 */
 .empty-text {
   text-align: center;
