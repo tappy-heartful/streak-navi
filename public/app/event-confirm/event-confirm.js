@@ -41,6 +41,12 @@ async function renderEvent() {
   const isAdmin = utils.isAdmin('Event');
   const uid = utils.getSession('uid');
 
+  // TODO 削除 消したイベントに対する「応急対応」
+  if (eventId === 'h5P7Q8WXP4WMdZbelXmJ') {
+    window.location.href =
+      '../event-confirm/event-confirm.html?eventId=OrCTz3WMlNiuvu74TIag';
+  }
+
   // events からデータを取得
   const eventSnap = await utils.getWrapDoc(
     utils.doc(utils.db, 'events', eventId)
