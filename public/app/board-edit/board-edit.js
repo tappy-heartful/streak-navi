@@ -13,7 +13,6 @@ $(document).ready(async function () {
     userSectionId = utils.getSession('sectionId');
     await setupScopeSelect();
 
-    // パンくず設定（略）...
     setupBreadcrumbs(mode, boardId);
 
     await setupPage(mode, boardId);
@@ -32,7 +31,6 @@ $(document).ready(async function () {
   }
 });
 
-// パンくず設定用（可読性のため分離）
 function setupBreadcrumbs(mode, boardId) {
   let breadcrumb = [
     { title: '掲示板一覧', url: '../board-list/board-list.html' },
@@ -91,16 +89,23 @@ async function loadBoardData(boardId, mode) {
 
   // ファイル情報の読み込み
   if (data.files && Array.isArray(data.files)) {
-    attachedFiles = [...data.files];
+    // 💡 読み込み時に _decoded がついた重複データをフィルタリングしてクリーンな状態で保持
+    attachedFiles = data.files.map((file) => {
+      const cleanFile = {};
+      Object.keys(file).forEach((key) => {
+        if (!key.endsWith('_decoded')) {
+          cleanFile[key] = file[key];
+        }
+      });
+      return cleanFile;
+    });
     renderFileList();
   }
 }
 
 function setupEventHandlers(mode, boardId) {
-  // ファイル選択ボタンの連動
   $('#btn-file-select').on('click', () => $('#board-file-input').click());
 
-  // ファイル選択後のアップロード処理（画像は圧縮、その他はそのまま）
   $('#board-file-input').on('change', async function (e) {
     const files = e.target.files;
     if (!files.length) return;
@@ -112,12 +117,9 @@ function setupEventHandlers(mode, boardId) {
         let fileName = file.name;
         let path = `boards/attachments/${Date.now()}_${fileName}`;
 
-        // 画像ファイル(jpg/png/webp等)の場合のみ圧縮を試みる
         if (file.type.startsWith('image/')) {
           try {
-            // utils.compressImage を利用 (共通関数にある前提)
             uploadBlob = await utils.compressImage(file);
-            // 圧縮後のファイル名は、拡張子を.jpgに統一することが一般的です
             if (
               !fileName.toLowerCase().endsWith('.jpg') &&
               !fileName.toLowerCase().endsWith('.jpeg')
@@ -125,11 +127,8 @@ function setupEventHandlers(mode, boardId) {
               path = path.replace(/\.[^/.]+$/, '') + '.jpg';
             }
           } catch (compressErr) {
-            console.warn(
-              '画像の圧縮に失敗したため、オリジナルをアップロードします:',
-              compressErr
-            );
-            uploadBlob = file; // 失敗したらオリジナルをセット
+            console.warn('圧縮失敗、オリジナルを使用:', compressErr);
+            uploadBlob = file;
           }
         }
 
@@ -149,7 +148,6 @@ function setupEventHandlers(mode, boardId) {
     }
   });
 
-  // ファイル削除処理
   $(document).on('click', '.btn-file-delete', async function () {
     const index = $(this).data('index');
     const file = attachedFiles[index];
@@ -158,7 +156,6 @@ function setupEventHandlers(mode, boardId) {
 
     try {
       utils.showSpinner();
-      // Storageから削除（共通関数 deleteStorageFile または utils.deleteObject を想定）
       const fileRef = utils.ref(utils.storage, file.path);
       await utils.deleteObject(fileRef);
 
@@ -172,7 +169,6 @@ function setupEventHandlers(mode, boardId) {
     }
   });
 
-  // 保存（登録/更新）
   $('#save-button').on('click', async () => {
     if (!validateData()) return;
     const actionLabel = mode === 'edit' ? '更新' : '登録';
@@ -241,11 +237,23 @@ function renderFileList() {
 
 function collectData(mode) {
   const scope = $('#board-scope').val();
+
+  // 💡 保存前に attachedFiles から _decoded キーを除去したクリーンな配列を作成
+  const cleanFiles = attachedFiles.map((file) => {
+    const cleanFile = {};
+    Object.keys(file).forEach((key) => {
+      if (!key.endsWith('_decoded')) {
+        cleanFile[key] = file[key];
+      }
+    });
+    return cleanFile;
+  });
+
   const data = {
     title: $('#board-title').val().trim(),
     content: $('#board-content').val().trim(),
     sectionId: scope === 'all' ? null : scope,
-    files: attachedFiles, // アップロード済みのファイル情報を配列で保存
+    files: cleanFiles, // クリーンなデータをセット
     updatedAt: utils.serverTimestamp(),
   };
 
