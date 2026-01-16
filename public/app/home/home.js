@@ -99,7 +99,7 @@ async function loadPendingAnnouncements() {
   }
 
   // --------------------------------------------------
-  // 3. 集金セクション (新規追加)
+  // 3. 集金セクション
   // --------------------------------------------------
   const collectsRef = utils.collection(utils.db, 'collects');
   const collectsSnap = await utils.getWrapDocs(collectsRef);
@@ -108,11 +108,19 @@ async function loadPendingAnnouncements() {
   for (const collectDoc of collectsSnap.docs) {
     const collectData = collectDoc.data();
 
-    // 受付期間チェック
+    // A. 受付期間チェック
     if (!utils.isInTerm(collectData.acceptStartDate, collectData.acceptEndDate))
       continue;
 
-    // 支払い済み（responsesサブコレクションにUIDのドキュメントがあるか）チェック
+    // B. 対象ユーザー (participants) に含まれているかチェック
+    const participants = collectData.participants || [];
+    if (!participants.includes(uid)) continue;
+
+    // C. 担当者（建て替え、または集金管理）本人の場合は除外
+    if (collectData.upfrontPayer === uid || collectData.managerName === uid)
+      continue;
+
+    // D. 支払い済みチェック
     const responseRef = utils.doc(
       utils.db,
       'collects',
