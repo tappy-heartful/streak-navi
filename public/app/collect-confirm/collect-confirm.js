@@ -280,7 +280,7 @@ function updateGlobalStatusLabel(data, responseMap, myUid, isActive) {
   const $statusLabel = $('#answer-status-label');
 
   if (isParticipant && hasPaid) {
-    $statusLabel.attr('class', 'answer-status uploaded').text('支払い済');
+    $statusLabel.attr('class', 'answer-status answered').text('支払い済');
   } else {
     $statusLabel
       .attr('class', 'answer-status ' + (isActive ? 'pending' : 'closed'))
