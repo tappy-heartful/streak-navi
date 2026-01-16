@@ -39,6 +39,7 @@ async function deleteStorageFile(url) {
 async function renderCollect() {
   const collectId = utils.globalGetParamCollectId;
   const isAdmin = utils.isAdmin('Collect');
+  const myUid = utils.getSession('uid');
 
   const [collectSnap, usersSnap, sectionsSnap, responsesSnap] =
     await Promise.all([
@@ -69,16 +70,15 @@ async function renderCollect() {
     userFullMap[d.id] = {
       name: uData.displayName,
       sectionId: uData.sectionId,
-      paypayId: uData.paypayId, // 🔽 paypayIdを取得
+      paypayId: uData.paypayId,
     };
   });
 
   const formatYen = (num) => (num ? `¥${Number(num).toLocaleString()}` : '-');
   const isActive = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
 
-  $('#answer-status-label')
-    .attr('class', 'answer-status ' + (isActive ? 'pending' : 'closed'))
-    .text(isActive ? '受付中' : '期間外');
+  // --- ステータスラベルの初期表示 ---
+  updateGlobalStatusLabel(data, responseMap, myUid, isActive);
 
   $('#target-date').text(
     data.targetDate ? utils.getDayOfWeek(data.targetDate_decoded) : '-'
@@ -163,7 +163,6 @@ async function renderCollect() {
     grouped[sId].push({ id: uId, name: user?.name || '不明' });
   });
 
-  // 対象者リスト表示
   Object.keys(grouped).forEach((sId) => {
     const $section = $(
       `<div class="confirm-section-group"><div class="confirm-section-title">${
@@ -173,7 +172,8 @@ async function renderCollect() {
     grouped[sId].forEach((u) => {
       const resp = responseMap[u.id];
       const hasReceipt = !!resp?.receiptUrl;
-      const isManager = u.id === data.managerName; // 💡判定追加
+      const isManager = u.id === data.managerName;
+      const isUpfrontPayer = u.id === data.upfrontPayer;
 
       const $row = $(`
         <div class="user-receipt-row" data-uid="${u.id}">
@@ -182,6 +182,8 @@ async function renderCollect() {
             ${
               isManager
                 ? '<span class="status-badge uploaded">集金担当</span>'
+                : isUpfrontPayer
+                ? '<span class="status-badge uploaded">建替担当</span>'
                 : hasReceipt
                 ? '<span class="status-badge uploaded">済</span>'
                 : ''
@@ -189,17 +191,17 @@ async function renderCollect() {
           </div>
           <div class="receipt-actions">
             ${
-              !isManager && hasReceipt // 💡担当者以外かつ画像あり
+              !isManager && !isUpfrontPayer && hasReceipt
                 ? `<button class="btn-receipt-view" data-url="${resp.receiptUrl}">表示</button>`
                 : ''
             }
             ${
-              !isManager && isAdmin && hasReceipt // 💡担当者以外かつ管理者かつ画像あり
+              !isManager && !isUpfrontPayer && isAdmin && hasReceipt
                 ? `<button class="btn-receipt-delete" data-uid="${u.id}" data-url="${resp.receiptUrl}"><i class="fas fa-trash-alt"></i></button>`
                 : ''
             }
             ${
-              !isManager && isAdmin // 💡担当者以外かつ管理者の場合のみアップロード可能
+              !isManager && !isUpfrontPayer && isAdmin
                 ? `<button class="btn-receipt-upload" data-uid="${u.id}"><i class="fas fa-upload"></i></button>`
                 : ''
             }
@@ -211,7 +213,7 @@ async function renderCollect() {
     $listContainer.append($section);
   });
 
-  // 🔽 支払いメニューの表示 (期間外の場合ナビ表示)
+  // 支払いメニューの表示
   let paymentHtml = `
     <div class="menu-section">
     <h2 class="menu-title">支払いメニュー</h2>
@@ -268,13 +270,27 @@ async function renderCollect() {
     );
   }
 
-  setupEventHandlers(collectId, isAdmin);
+  setupEventHandlers(collectId, isAdmin, data, myUid, isActive);
 }
 
-function setupEventHandlers(collectId, isAdmin) {
+// ステータスラベルを更新する共通関数
+function updateGlobalStatusLabel(data, responseMap, myUid, isActive) {
+  const isParticipant = (data.participants || []).includes(myUid);
+  const hasPaid = !!responseMap[myUid];
+  const $statusLabel = $('#answer-status-label');
+
+  if (isParticipant && hasPaid) {
+    $statusLabel.attr('class', 'answer-status uploaded').text('支払い済');
+  } else {
+    $statusLabel
+      .attr('class', 'answer-status ' + (isActive ? 'pending' : 'closed'))
+      .text(isActive ? '受付中' : '期間外');
+  }
+}
+
+function setupEventHandlers(collectId, isAdmin, data, myUid, isActive) {
   if (!isAdmin) $('#collect-menu').hide();
 
-  // プレビュー表示（✕ボタンを削除）
   $(document)
     .off('click', '.btn-receipt-view')
     .on('click', '.btn-receipt-view', function () {
@@ -289,12 +305,10 @@ function setupEventHandlers(collectId, isAdmin) {
       $('body').append(overlay);
     });
 
-  // プレビュー閉じる（どこをタップしても閉じるように修正）
   $(document).on('click', '.image-preview-overlay', function () {
     $(this).remove();
   });
 
-  // アップロード開始
   $(document)
     .off('click', '.btn-receipt-upload')
     .on('click', '.btn-receipt-upload', function () {
@@ -302,7 +316,6 @@ function setupEventHandlers(collectId, isAdmin) {
       $('#receipt-file-input').click();
     });
 
-  // ファイル選択後のアップロード処理
   $('#receipt-file-input')
     .off('change')
     .on('change', async function (e) {
@@ -329,17 +342,19 @@ function setupEventHandlers(collectId, isAdmin) {
         await utils.uploadBytes(storageRef, compressedBlob);
         const url = await utils.getDownloadURL(storageRef);
 
-        await utils.setDoc(
-          docRef,
-          {
-            userId: currentTargetUserId,
-            receiptUrl: url,
-            updatedAt: utils.serverTimestamp(),
-          },
-          { merge: true }
-        );
+        const resData = {
+          userId: currentTargetUserId,
+          receiptUrl: url,
+          updatedAt: utils.serverTimestamp(),
+        };
+        await utils.setDoc(docRef, resData, { merge: true });
 
+        // UI行を更新し、ステータスラベルも更新
         updateUIRow(currentTargetUserId, url, isAdmin);
+
+        // メモリ上のマップも更新してステータスラベル反映
+        const responseMap = { [currentTargetUserId]: resData };
+        updateGlobalStatusLabel(data, responseMap, myUid, isActive);
       } catch (err) {
         console.error(err);
         alert('アップロードに失敗しました');
@@ -348,7 +363,7 @@ function setupEventHandlers(collectId, isAdmin) {
         $(this).val('');
       }
     });
-  // 削除機能
+
   $(document)
     .off('click', '.btn-receipt-delete')
     .on('click', '.btn-receipt-delete', async function () {
@@ -364,13 +379,9 @@ function setupEventHandlers(collectId, isAdmin) {
 
       try {
         utils.showSpinner();
-
-        // 1. Storageの画像ファイルを削除
         if (url) {
           await deleteStorageFile(url);
         }
-
-        // 2. Firestoreのresponsesドキュメント自体を削除 💡修正ポイント
         const responseDocRef = utils.doc(
           utils.db,
           'collects',
@@ -380,8 +391,8 @@ function setupEventHandlers(collectId, isAdmin) {
         );
         await utils.deleteDoc(responseDocRef);
 
-        // 3. UIの表示を更新
         updateUIRow(uid, null, isAdmin);
+        updateGlobalStatusLabel(data, {}, myUid, isActive);
       } catch (err) {
         console.error(err);
         alert('削除に失敗しました');
@@ -396,7 +407,7 @@ function setupEventHandlers(collectId, isAdmin) {
     const $actions = $row.find('.receipt-actions');
 
     if (url) {
-      if ($nameCell.find('.status-badge').length === 0) {
+      if ($nameCell.find('.status-badge:contains("済")').length === 0) {
         $nameCell.append(' <span class="status-badge uploaded">済</span>');
       }
       $actions.find('.btn-receipt-view, .btn-receipt-delete').remove();
@@ -409,7 +420,7 @@ function setupEventHandlers(collectId, isAdmin) {
         }
       `);
     } else {
-      $nameCell.find('.status-badge').remove();
+      $nameCell.find('.status-badge:contains("済")').remove();
       $actions.find('.btn-receipt-view, .btn-receipt-delete').remove();
     }
   }
