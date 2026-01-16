@@ -35,12 +35,43 @@ async function renderBoard() {
 
   const boardData = boardSnap.data();
 
-  // タイトル・内容・作成者
+  // タイトル・作成者
   $('#board-title').text(boardData.title || '無題');
-  $('#board-content').html(
-    DOMPurify.sanitize(boardData.content || '').replace(/\n/g, '<br>')
-  );
   $('#board-author').text(boardData.createdByName || '匿名');
+
+  // --- 内容の表示処理 (リンク化 & YouTube埋め込み) ---
+  const content = boardData.content || '';
+  const lines = content.split('\n');
+  const $contentArea = $('#board-content').empty();
+
+  // URL判定用の正規表現
+  const urlRegex = /^(https?:\/\/[^\s]+)$/;
+
+  lines.forEach((line, index) => {
+    const trimmedLine = line.trim();
+    const match = trimmedLine.match(urlRegex);
+
+    if (match) {
+      // 1行がリンクのみの場合
+      const url = match[1];
+      const $linkWrapper = $('<div class="content-link-line"></div>');
+      $linkWrapper.append(
+        `<a href="${url}" target="_blank" class="text-link">${url}</a>`
+      );
+
+      // YouTubeリンク判定
+      if (url.includes('youtube.com') || url.includes('youtu.be')) {
+        const youtubeHtml = utils.buildYouTubeHtml(url);
+        if (youtubeHtml) {
+          $linkWrapper.append(youtubeHtml);
+        }
+      }
+      $contentArea.append($linkWrapper);
+    } else {
+      // 通常のテキスト行
+      $contentArea.append($('<span></span><br>').text(line));
+    }
+  });
 
   // 公開範囲
   if (boardData.sectionId) {
@@ -61,16 +92,12 @@ async function renderBoard() {
     boardData.files.forEach((file) => {
       const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(file.name);
       const icon = isImage ? 'fa-image' : 'fa-file-pdf';
-      const btnClass = isImage ? 'btn-view-image' : ''; // 画像のみプレビュー対象
+      const btnClass = isImage ? 'btn-view-image' : '';
 
       $fileList.append(`
-        <a href="${
-          file.url
-        }" target="_blank" class="file-download-link ${btnClass}" data-url="${
-        file.url
-      }">
+        <a href="${file.url}" target="_blank" class="file-download-link ${btnClass}" data-url="${file.url}">
           <i class="fas ${icon}"></i>
-          <span>${DOMPurify.sanitize(file.name)}</span>
+          <span>${file.name}</span>
           <i class="fas fa-external-link-alt" style="margin-left:auto; font-size:0.8rem; opacity:0.5;"></i>
         </a>
       `);
@@ -90,7 +117,7 @@ async function renderBoard() {
 }
 
 function setupEventHandlers(boardId) {
-  // 画像プレビュー（リンク移動をキャンセルしてオーバーレイ表示）
+  // 画像プレビュー
   $(document).on('click', '.btn-view-image', function (e) {
     e.preventDefault();
     const url = $(this).data('url');
@@ -126,7 +153,6 @@ function setupEventHandlers(boardId) {
     try {
       utils.showSpinner();
 
-      // 1. Storageのファイルを削除（投稿データからパスを取得）
       const boardSnap = await utils.getWrapDoc(
         utils.doc(utils.db, 'boards', boardId)
       );
@@ -143,7 +169,6 @@ function setupEventHandlers(boardId) {
         }
       }
 
-      // 2. ドキュメント削除
       await utils.archiveAndDeleteDoc('boards', boardId);
       await utils.writeLog({ dataId: boardId, action: '掲示板投稿削除' });
 

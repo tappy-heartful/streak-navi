@@ -32,7 +32,7 @@ $(document).ready(async function () {
   }
 });
 
-// 投票・募集・イベントをまとめて「お知らせ」に表示
+// 投票・募集・集金・イベントをまとめて「お知らせ」に表示
 async function loadPendingAnnouncements() {
   const uid = utils.getSession('uid');
   const $announcementList = $('.notification-list');
@@ -41,321 +41,238 @@ async function loadPendingAnnouncements() {
   let hasPending = false;
 
   // --------------------------------------------------
-  // 1. 投票・募集セクション (変更なし)
+  // 1. 投票セクション
   // --------------------------------------------------
-
-  // --- 受付中の投票 ---
   const votesRef = utils.collection(utils.db, 'votes');
   const qVotes = utils.query(votesRef, utils.orderBy('createdAt', 'desc'));
   const votesSnap = await utils.getWrapDocs(qVotes);
 
   let hasPendingVotes = false;
-
   for (const voteDoc of votesSnap.docs) {
     const voteData = voteDoc.data();
-
     if (!utils.isInTerm(voteData.acceptStartDate, voteData.acceptEndDate))
       continue;
 
-    const voteId = voteDoc.id;
-
     if (!hasPendingVotes) {
-      $announcementList.append(`
-                <li class="pending-message">📌投票、受付中です！</li>
-            `);
+      $announcementList.append(
+        `<li class="pending-message">📌投票、受付中です！</li>`
+      );
       hasPendingVotes = true;
       hasPending = true;
     }
     $announcementList.append(`
-            <li>
-                <a href="../vote-confirm/vote-confirm.html?voteId=${voteId}" class="notification-link">
-                    📝${voteData.name}
-                </a>
-            </li>
-        `);
+      <li>
+        <a href="../vote-confirm/vote-confirm.html?voteId=${voteDoc.id}" class="notification-link">
+          📝${voteData.name}
+        </a>
+      </li>
+    `);
   }
 
-  // --- 募集中の曲募集 ---
+  // --------------------------------------------------
+  // 2. 曲募集セクション
+  // --------------------------------------------------
   const callsRef = utils.collection(utils.db, 'calls');
   const qCalls = utils.query(callsRef, utils.orderBy('createdAt', 'desc'));
   const callsSnap = await utils.getWrapDocs(qCalls);
 
   let hasPendingCalls = false;
-
   for (const callDoc of callsSnap.docs) {
     const callData = callDoc.data();
     if (!utils.isInTerm(callData.acceptStartDate, callData.acceptEndDate))
       continue;
 
-    const callId = callDoc.id;
-
     if (!hasPendingCalls) {
-      $announcementList.append(`
-                <li class="pending-message">📌候補曲、募集中です！</li>
-            `);
+      $announcementList.append(
+        `<li class="pending-message">📌候補曲、募集中です！</li>`
+      );
       hasPendingCalls = true;
       hasPending = true;
     }
     $announcementList.append(`
-            <li>
-                <a href="../call-confirm/call-confirm.html?callId=${callId}" class="notification-link">
-                    🎶${callData.title}
-                </a>
-            </li>
-        `);
+      <li>
+        <a href="../call-confirm/call-confirm.html?callId=${callDoc.id}" class="notification-link">
+          🎶${callData.title}
+        </a>
+      </li>
+    `);
   }
 
   // --------------------------------------------------
-  // 2. イベントセクション (データ収集と並列チェック)
+  // 3. 集金セクション
   // --------------------------------------------------
+  const collectsRef = utils.collection(utils.db, 'collects');
+  const collectsSnap = await utils.getWrapDocs(collectsRef);
 
+  let hasPendingCollects = false;
+  for (const collectDoc of collectsSnap.docs) {
+    const collectData = collectDoc.data();
+
+    // A. 受付期間チェック
+    if (!utils.isInTerm(collectData.acceptStartDate, collectData.acceptEndDate))
+      continue;
+
+    // B. 対象ユーザー (participants) に含まれているかチェック
+    const participants = collectData.participants || [];
+    if (!participants.includes(uid)) continue;
+
+    // C. 担当者（建て替え、または集金管理）本人の場合は除外
+    if (collectData.upfrontPayer === uid || collectData.managerName === uid)
+      continue;
+
+    // D. 支払い済みチェック
+    const responseRef = utils.doc(
+      utils.db,
+      'collects',
+      collectDoc.id,
+      'responses',
+      uid
+    );
+    const responseSnap = await utils.getWrapDoc(responseRef);
+
+    // ドキュメントが存在しなければ未支払い
+    if (!responseSnap.exists()) {
+      if (!hasPendingCollects) {
+        $announcementList.append(
+          `<li class="pending-message">📌集金、受付中です！</li>`
+        );
+        hasPendingCollects = true;
+        hasPending = true;
+      }
+      $announcementList.append(`
+        <li>
+          <a href="../collect-confirm/collect-confirm.html?collectId=${collectDoc.id}" class="notification-link">
+            💰${collectData.title}
+          </a>
+        </li>
+      `);
+    }
+  }
+
+  // --------------------------------------------------
+  // 4. イベントデータの取得と判定
+  // --------------------------------------------------
   const eventsRef = utils.collection(utils.db, 'events');
   const qEvents = utils.query(eventsRef, utils.orderBy('date', 'asc'));
   const eventsSnap = await utils.getWrapDocs(qEvents);
-  const eventDocs = eventsSnap.docs;
 
-  const now = new Date();
-  const todayOnly = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-  const thirtyDaysLater = new Date(todayOnly);
-  thirtyDaysLater.setDate(todayOnly.getDate() + 30);
+  const todayStr = new Date().toISOString().split('T')[0].replace(/-/g, '.');
 
-  const pendingChecks = eventDocs.map(async (eventDoc) => {
-    const eventData = eventDoc.data();
-    const eventId = eventDoc.id;
-    const eventDateStr = eventData.date || '';
-    const attendanceType = eventData.attendanceType;
-    const isInTerm = utils.isInTerm(
-      eventData.acceptStartDate,
-      eventData.acceptEndDate
-    );
+  const allEvents = await Promise.all(
+    eventsSnap.docs.map(async (doc) => {
+      const data = doc.data();
+      const eventId = doc.id;
+      const isInTerm = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
 
-    let eventDateObj = null;
-    let diffDays = null;
-    if (eventDateStr) {
-      const [year, month, day] = eventDateStr.split('.').map(Number);
-      if (year && month && day) {
-        eventDateObj = new Date(year, month - 1, day);
-        // 💡 残り日数を計算 (ミリ秒 -> 秒 -> 分 -> 時間 -> 日)
-        const diffTime = eventDateObj.getTime() - todayOnly.getTime();
-        diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      }
-    }
+      const res = {
+        id: eventId,
+        title: data.title,
+        date: data.date,
+        type: data.attendanceType,
+        isPast: data.date && data.date < todayStr,
+        isAssignPending: data.allowAssign,
+        isSchedule: data.attendanceType === 'schedule',
+        isAttendance: data.attendanceType === 'attendance',
+      };
 
-    if (eventDateObj && eventDateObj < todayOnly) return null;
-
-    const results = {
-      id: eventId,
-      title: eventData.title,
-      date: eventDateStr,
-      display: `📅${eventDateStr}`,
-      url: `../event-confirm/event-confirm.html?eventId=${eventId}`,
-      isAssignPending: false,
-      isSchedulePending: false,
-      isAttendancePending: false,
-      isImminent: false,
-      diffDays: diffDays, // 💡 追加
-      type: attendanceType,
-    };
-
-    if (eventData.allowAssign) {
-      results.isAssignPending = true;
-      results.assignUrl = `../assign-confirm/assign-confirm.html?eventId=${eventId}`;
-    }
-
-    let answerDocRef = null;
-    if (isInTerm) {
-      if (attendanceType === 'schedule') {
-        answerDocRef = utils.doc(
-          utils.db,
-          'eventAdjustAnswers',
-          `${eventId}_${uid}`
+      if (isInTerm && uid) {
+        const coll = res.isSchedule
+          ? 'eventAdjustAnswers'
+          : 'eventAttendanceAnswers';
+        const answerSnap = await utils.getWrapDoc(
+          utils.doc(utils.db, coll, `${eventId}_${uid}`)
         );
-      } else if (attendanceType === 'attendance') {
-        answerDocRef = utils.doc(
-          utils.db,
-          'eventAttendanceAnswers',
-          `${eventId}_${uid}`
-        );
+        res.isUnanswered = !answerSnap.exists();
       }
-    }
 
-    if (answerDocRef) {
-      const answerSnap = await utils.getWrapDoc(answerDocRef);
-      if (!answerSnap.exists()) {
-        if (attendanceType === 'schedule') {
-          results.isSchedulePending = true;
-          results.display = '🗓️';
-        } else if (attendanceType === 'attendance') {
-          results.isAttendancePending = true;
-          results.display = `📅${eventDateStr}`;
-        }
+      if (data.date) {
+        const eventDate = new Date(data.date.replace(/\./g, '/'));
+        const today = new Date(new Date().setHours(0, 0, 0, 0));
+        res.diffDays = Math.ceil((eventDate - today) / (1000 * 60 * 60 * 24));
       }
-    }
-
-    if (
-      eventDateObj &&
-      eventDateObj >= todayOnly &&
-      eventDateObj < thirtyDaysLater
-    ) {
-      results.isImminent = true;
-    }
-
-    return results;
-  });
-
-  const allEventChecks = (await Promise.all(pendingChecks)).filter(
-    (r) => r !== null
+      return res;
+    })
   );
 
-  // ------------------------------------------------------------------
-  // 3. イベント関連のリストの抽出と整理
-  // ------------------------------------------------------------------
+  const upcomingEvents = allEvents.filter((e) => !e.isPast);
 
-  const messages = {};
+  // --------------------------------------------------
+  // 5. 表示ロジック（イベント関連）
+  // --------------------------------------------------
 
-  // --- 3.1. 日程調整回答受付中 ---
-  const schedulePending = allEventChecks.filter((r) => r.isSchedulePending);
+  // --- 5.1. 未回答の日程調整 (🗓️) ---
+  const schedulePending = upcomingEvents.filter(
+    (e) => e.isSchedule && e.isUnanswered
+  );
   if (schedulePending.length > 0) {
-    messages['schedule_pending'] = {
-      header: '📌日程調整、受付中です！',
-      events: schedulePending,
-      order: 1,
-    };
-  }
-
-  // --- 3.2. 出欠確認 と カウントダウン ---
-
-  // 1. 出欠確認未回答
-  const attendancePending = allEventChecks.filter((r) => r.isAttendancePending);
-
-  // 2. 回答済み or 回答期間外 の「次のイベント」候補を抽出
-  const upcomingEvents = allEventChecks.filter(
-    (r) => !r.isAttendancePending && !r.isSchedulePending && r.date !== ''
-  );
-
-  // メイン表示リストの作成
-  let mainEvents = [...attendancePending];
-
-  // 未回答がない、または30日以内の直近イベントがある場合は統合
-  const imminent = upcomingEvents.filter((u) => u.isImminent);
-  if (imminent.length > 0) {
-    mainEvents = [...mainEvents, ...imminent];
-  }
-
-  // それでも表示するものがない場合は、フォールバックとして直近1件
-  if (mainEvents.length === 0 && upcomingEvents.length > 0) {
-    mainEvents.push(upcomingEvents[0]);
-  }
-
-  if (mainEvents.length > 0) {
-    const mainMessages = {};
-
-    mainEvents.forEach((event) => {
-      let header;
-      let messageKey;
-
-      if (event.isAttendancePending) {
-        header = '📌出欠確認、受付中です！';
-        messageKey = 'attendance_pending';
-      } else {
-        // 💡 統合：カウントダウン表示
-        header =
-          event.diffDays === 0
-            ? '📌今日はイベント当日です！'
-            : `📌次のイベントまで、あと${event.diffDays}日！`;
-        messageKey = `next_countdown_${event.id}`; // イベントごとにキーを分けることで個別ヘッダーにする
-      }
-
-      if (!mainMessages[messageKey]) {
-        mainMessages[messageKey] = {
-          header: header,
-          events: [],
-          order: 2,
-        };
-      }
-
-      if (!mainMessages[messageKey].events.some((e) => e.id === event.id)) {
-        mainMessages[messageKey].events.push(event);
-      }
-    });
-
-    Object.assign(messages, mainMessages);
-  }
-
-  // --- 3.3. 譜割り受付中のイベント (別枠) ---
-  // 【要件: 1.譜割り受付中の今日以降のイベント(譜割り、受付中です！)
-  const assign = allEventChecks.filter((r) => r.isAssignPending);
-  if (assign.length > 0) {
-    messages['assign'] = {
-      header: '📌譜割り、受付中です！',
-      events: assign,
-      order: 3,
-    };
-  }
-
-  // ------------------------------------------------------------------
-  // 4. 最終表示ロジック
-  // ------------------------------------------------------------------
-
-  // 4.1. イベント関連のメッセージを優先度順に並び替え
-  // 1: 日程調整, 2: 出欠/次のイベント, 3: 譜割り
-  const messageKeys = Object.keys(messages).sort(
-    (a, b) => messages[a].order - messages[b].order
-  );
-
-  // 4.2. 表示
-  messageKeys.forEach((key) => {
-    const messageGroup = messages[key];
     hasPending = true;
-
-    // メッセージヘッダーの表示
     $announcementList.append(
-      `<li class="pending-message">${messageGroup.header}</li>`
+      `<li class="pending-message">📌日程調整、受付中です！</li>`
     );
-
-    // イベントリストの表示
-    messageGroup.events.forEach((event) => {
-      let url = event.url;
-      let display = event.display;
-
-      // リンク先と表示の調整
-      if (key === 'assign') {
-        url = event.assignUrl;
-        display = `🎵${event.date}`;
-      } else if (key === 'schedule_pending') {
-        // 日程調整は常に日程調整ページへ
-        url = `../event-confirm/event-confirm.html?eventId=${event.id}`; // event-confirmにリンク
-        display = '🗓️'; // 日程調整は日付不要
-      } else if (key === 'attendance_pending') {
-        // 出欠確認は出欠確認ページへ
-        url = `../event-confirm/event-confirm.html?eventId=${event.id}`;
-        display = `📅${event.date}`;
-      } else {
-        // もうすぐイベント/次のイベント は日付を表示
-        display = `📅${event.date}`;
-      }
-
+    schedulePending.forEach((e) => {
       $announcementList.append(`
-                <li>
-                    <a href="${url}" class="notification-link">
-                        ${display} ${event.title}
-                    </a>
-                </li>
-            `);
+        <li><a href="../event-confirm/event-confirm.html?eventId=${e.id}" class="notification-link">🗓️ ${e.title}</a></li>
+      `);
     });
-  });
+  }
 
-  // ------------------------------------------------------------------
-  // 5. お知らせがない場合のメッセージ
-  // ------------------------------------------------------------------
+  // --- 5.2. 直近の確定イベントを1つだけ表示 ---
+  let targetEvent = upcomingEvents.find(
+    (e) => e.isAttendance && e.isUnanswered
+  );
+  if (!targetEvent) {
+    targetEvent = upcomingEvents.find((e) => e.date);
+  }
 
-  // 投票、募集、イベントの全てに pending がなければ空メッセージ
-  if (!hasPending && !hasPendingVotes && !hasPendingCalls) {
+  if (targetEvent) {
+    hasPending = true;
+    let header = targetEvent.isUnanswered
+      ? '📌出欠確認、受付中です！'
+      : `📌次のイベントまで、あと${targetEvent.diffDays}日！`;
+    if (targetEvent.diffDays === 0) header = '📌今日はイベント当日です！';
+
+    $announcementList.append(`<li class="pending-message">${header}</li>`);
     $announcementList.append(`
-            <li class="empty-message">
-                <div class="notification-link">お知らせはありません🍀</div>
-            </li>
-        `);
+      <li>
+        <a href="../event-confirm/event-confirm.html?eventId=${targetEvent.id}" class="notification-link">
+          📅${targetEvent.date} ${targetEvent.title}
+        </a>
+      </li>
+    `);
+  }
+
+  // --- 5.3. 譜割り受付中 (🎵) ---
+  const assignPending = upcomingEvents.filter((e) => e.isAssignPending);
+  if (assignPending.length > 0) {
+    hasPending = true;
+    $announcementList.append(
+      `<li class="pending-message">📌譜割り、受付中です！</li>`
+    );
+    assignPending.forEach((e) => {
+      $announcementList.append(`
+        <li>
+          <a href="../assign-confirm/assign-confirm.html?eventId=${e.id}" class="notification-link">
+            🎵${e.date} ${e.title}
+          </a>
+        </li>
+      `);
+    });
+  }
+
+  // --------------------------------------------------
+  // 6. お知らせがない場合のメッセージ
+  // --------------------------------------------------
+  if (
+    !hasPending &&
+    !hasPendingVotes &&
+    !hasPendingCalls &&
+    !hasPendingCollects
+  ) {
+    $announcementList.append(`
+      <li class="empty-message">
+        <div class="notification-link">お知らせはありません🍀</div>
+      </li>
+    `);
   }
 }
 

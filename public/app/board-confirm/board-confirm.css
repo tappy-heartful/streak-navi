@@ -1,6 +1,6 @@
 /* 本文の改行を保持するための設定 */
 .content-area {
-  white-space: pre-wrap;
+  /* white-space: pre-wrap; */
   word-wrap: break-word;
   line-height: 1.6;
   background-color: #fdfdfd;

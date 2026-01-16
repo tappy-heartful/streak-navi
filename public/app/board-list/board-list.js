@@ -1,6 +1,6 @@
 import * as utils from '../common/functions.js';
 
-let currentTab = 'all'; // 'all' or 'section'
+let currentTab = 'section'; // 💡 初期表示を 'section' に変更
 let cachedBoards = [];
 let userSectionId = '';
 let userSectionName = 'セクション向け';
@@ -13,7 +13,7 @@ $(document).ready(async function () {
     // セッションから情報を取得
     userSectionId = utils.getSession('sectionId') || '';
 
-    // セクション名の取得と反映（未設定時はタブ非表示）
+    // セクション名の取得と反映
     await fetchAndSetSectionName();
 
     await setUpPage();
@@ -35,9 +35,11 @@ $(document).ready(async function () {
  * ユーザーのセクションIDに基づいてセクション名を取得し、タブに反映
  */
 async function fetchAndSetSectionName() {
-  // sectionIdが未設定の場合は、セクションタブを削除して終了
+  // sectionIdが未設定の場合は、セクションタブを削除して全体表示に切り替え
   if (!userSectionId) {
     $('#section-tab-btn').remove();
+    $('.tab-btn[data-tab="all"]').addClass('active');
+    currentTab = 'all'; // 💡 セクションがない場合は全体を初期値にする
     return;
   }
 
@@ -51,11 +53,14 @@ async function fetchAndSetSectionName() {
     } else {
       // IDはあるがドキュメントが見つからない場合もタブを削除
       $('#section-tab-btn').remove();
+      $('.tab-btn[data-tab="all"]').addClass('active');
+      currentTab = 'all';
     }
   } catch (e) {
     console.error('セクション名の取得に失敗:', e);
-    // エラー時は安全のためにタブを非表示にする
     $('#section-tab-btn').hide();
+    $('.tab-btn[data-tab="all"]').addClass('active');
+    currentTab = 'all';
   }
 }
 
@@ -109,16 +114,16 @@ function renderList() {
           <a href="../board-confirm/board-confirm.html?boardId=${
             data.id
           }" class="board-title-link">
-            ${DOMPurify.sanitize(data.title || '無題')}
+            ${data.title || '無題'}
           </a>
         </td>
         <td>
           <div class="board-content-preview">
-            ${DOMPurify.sanitize(data.content?.replace(/\n/g, '<br>') || '')}
+            ${(data.content || '').replace(/\n/g, '<br>')}
           </div>
         </td>
         <td class="board-author">
-          ${DOMPurify.sanitize(data.createdByName || '匿名')}
+          ${data.createdByName || '匿名'}
         </td>
       </tr>
     `);
