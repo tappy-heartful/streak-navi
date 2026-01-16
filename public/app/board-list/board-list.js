@@ -109,16 +109,16 @@ function renderList() {
           <a href="../board-confirm/board-confirm.html?boardId=${
             data.id
           }" class="board-title-link">
-            ${DOMPurify.sanitize(data.title || '無題')}
+            ${data.title || '無題'}
           </a>
         </td>
         <td>
           <div class="board-content-preview">
-            ${DOMPurify.sanitize(data.content?.replace(/\n/g, '<br>') || '')}
+            ${(data.content || '').replace(/\n/g, '<br>')}
           </div>
         </td>
         <td class="board-author">
-          ${DOMPurify.sanitize(data.createdByName || '匿名')}
+          ${data.createdByName || '匿名'}
         </td>
       </tr>
     `);

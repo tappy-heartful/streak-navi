@@ -37,9 +37,7 @@ async function renderBoard() {
 
   // タイトル・内容・作成者
   $('#board-title').text(boardData.title || '無題');
-  $('#board-content').html(
-    DOMPurify.sanitize(boardData.content || '').replace(/\n/g, '<br>')
-  );
+  $('#board-content').html((boardData.content || '').replace(/\n/g, '<br>'));
   $('#board-author').text(boardData.createdByName || '匿名');
 
   // 公開範囲
@@ -64,13 +62,9 @@ async function renderBoard() {
       const btnClass = isImage ? 'btn-view-image' : ''; // 画像のみプレビュー対象
 
       $fileList.append(`
-        <a href="${
-          file.url
-        }" target="_blank" class="file-download-link ${btnClass}" data-url="${
-        file.url
-      }">
+        <a href="${file.url}" target="_blank" class="file-download-link ${btnClass}" data-url="${file.url}">
           <i class="fas ${icon}"></i>
-          <span>${DOMPurify.sanitize(file.name)}</span>
+          <span>${file.name}</span>
           <i class="fas fa-external-link-alt" style="margin-left:auto; font-size:0.8rem; opacity:0.5;"></i>
         </a>
       `);

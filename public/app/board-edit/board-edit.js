@@ -229,7 +229,7 @@ function renderFileList() {
       <li class="file-item">
         <div class="file-info">
           <i class="far fa-file"></i>
-          <span>${DOMPurify.sanitize(file.name)}</span>
+          <span>${file.name}</span>
         </div>
         <button type="button" class="btn-file-delete" data-index="${index}">
           <i class="fas fa-times"></i>
