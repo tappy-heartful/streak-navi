@@ -37,7 +37,6 @@
     border: 1px solid #ddd;
     padding: 15px;
     border-radius: 8px;
-    max-height: 250px;
     overflow-y: auto;
 }
 .confirm-section-group {
