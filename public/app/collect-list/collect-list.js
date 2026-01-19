@@ -18,9 +18,11 @@ async function setUpPage() {
   const $activeBody = $('#active-list-body').empty();
   const $closedBody = $('#closed-list-body').empty();
 
-  // 1. 集金データとユーザーデータを並列で取得
+  const myUid = utils.getSession('uid'); // ログイン中のユーザーIDを取得
+
+  // 1. 集金データとユーザーデータを取得
   const collectRef = utils.collection(utils.db, 'collects');
-  const userRef = utils.collection(utils.db, 'users'); // 追加
+  const userRef = utils.collection(utils.db, 'users');
 
   const qCollects = utils.query(
     collectRef,
@@ -29,7 +31,7 @@ async function setUpPage() {
 
   const [snap, userSnap] = await Promise.all([
     utils.getWrapDocs(qCollects),
-    utils.getWrapDocs(userRef), // ユーザー一覧を取得
+    utils.getWrapDocs(userRef),
   ]);
 
   // 2. ユーザーIDをキーにした名前のマップを作成
@@ -38,13 +40,39 @@ async function setUpPage() {
     userMap[doc.id] = doc.data().displayName || '不明';
   });
 
+  // 3. 各集金ドキュメントに対して「支払い済み」かどうかの判定を並列で行う
+  // responsesサブコレクションの中に自分のUIDがあるかを確認
+  const collectDocsWithPaymentStatus = await Promise.all(
+    snap.docs.map(async (doc) => {
+      const data = doc.data();
+      let hasPaid = false;
+
+      // 自分が参加者に含まれている場合のみ、支払い状況を確認
+      if (myUid && data.participants && data.participants.includes(myUid)) {
+        const responseDocRef = utils.doc(
+          utils.db,
+          'collects',
+          doc.id,
+          'responses',
+          myUid
+        );
+        const responseSnap = await utils.getDoc(responseDocRef);
+        hasPaid = responseSnap.exists();
+      }
+
+      return {
+        id: doc.id,
+        data: data,
+        hasPaid: hasPaid,
+        myUid: myUid,
+      };
+    })
+  );
+
   let activeCount = 0;
   let closedCount = 0;
 
-  snap.forEach((doc) => {
-    const data = doc.data();
-    const id = doc.id;
-
+  collectDocsWithPaymentStatus.forEach(({ id, data, hasPaid, myUid }) => {
     const isActive = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
 
     const formatYen = (num) => (num ? `¥${Number(num).toLocaleString()}` : '-');
@@ -52,7 +80,6 @@ async function setUpPage() {
     const upfrontText = formatYen(data.upfrontAmount);
     const termText = `${data.acceptStartDate}～<br>${data.acceptEndDate}`;
 
-    // 3. 行作成関数に userMap を渡す
     const row = makeCollectRow(
       id,
       data,
@@ -60,7 +87,9 @@ async function setUpPage() {
       amountText,
       upfrontText,
       termText,
-      userMap // 引数追加
+      userMap,
+      hasPaid, // 支払い済みフラグを追加
+      myUid // 自分のUIDを渡す（参加者判定用）
     );
 
     if (isActive) {
@@ -76,7 +105,6 @@ async function setUpPage() {
   if (closedCount === 0) $('#closed-container').hide();
 }
 
-// 引数に userMap を追加
 function makeCollectRow(
   id,
   data,
@@ -84,19 +112,27 @@ function makeCollectRow(
   amountText,
   upfrontText,
   termText,
-  userMap
+  userMap,
+  hasPaid,
+  myUid
 ) {
-  const statusClass = isActive ? 'pending' : 'closed';
-  const statusText = isActive ? '受付中' : '期間外';
+  // ステータスラベルの判定
+  let statusClass = isActive ? 'pending' : 'closed';
+  let statusText = isActive ? '受付中' : '期間外';
+
+  // 💡 自分が参加者リストに入っている、かつ支払い済みの場合
+  if (data.participants && data.participants.includes(myUid) && hasPaid) {
+    statusClass = 'answered';
+    statusText = '支払済';
+  }
+
   const isInTerm = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
 
-  // IDから名前に変換（該当がなければ元のIDまたは'-'を表示）
   const managerDisplayName =
     userMap[data.managerName] || data.managerName || '-';
   const payerDisplayName =
     userMap[data.upfrontPayer] || data.upfrontPayer || '-';
 
-  // 支払いリンクボタンの生成
   const payBtnHtml =
     isInTerm && data.paymentUrl
       ? `<a href="${data.paymentUrl}" target="_blank" title="支払いリンクを開く">
