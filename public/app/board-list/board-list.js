@@ -108,6 +108,16 @@ function renderList() {
   }
 
   filtered.forEach((data) => {
+    // 💡 最初の3行のみを抽出するロジック
+    const content = data.content || '';
+    const lines = content.split('\n');
+    let displayContent = lines.slice(0, 3).join('<br>');
+
+    // 4行以上ある場合は三点リーダーを追加
+    if (lines.length > 3) {
+      displayContent += ' ...';
+    }
+
     const tr = $(`
       <tr>
         <td class="list-table-row-header">
@@ -119,7 +129,7 @@ function renderList() {
         </td>
         <td>
           <div class="board-content-preview">
-            ${(data.content || '').replace(/\n/g, '<br>')}
+            ${displayContent}
           </div>
         </td>
         <td class="board-author">

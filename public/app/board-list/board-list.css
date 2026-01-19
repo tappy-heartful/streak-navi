@@ -35,18 +35,6 @@
   border-bottom: 4px solid #4caf50;
 }
 
-/* テーブル内の3行表示制限 */
-.board-content-preview {
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
-  line-clamp: 3;
-  overflow: hidden;
-  color: #444;
-  max-height: 4.8em;
-  word-break: break-all;
-}
-
 .board-author {
   white-space: nowrap;
   font-size: 0.85rem;
