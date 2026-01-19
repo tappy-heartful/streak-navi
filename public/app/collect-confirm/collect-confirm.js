@@ -100,7 +100,7 @@ async function renderCollect() {
 
   if (isSamePerson) {
     $remittanceArea.append(
-      '<span style="font-size: 0.85rem; color: #666;">なし<br />(建替者=担当者のため)</span>'
+      '<span style="font-size: 0.85rem; color: #666;">なし<br />(立替者=担当者のため)</span>'
     );
   } else {
     const remiResp = responseMap['remittance_evidence'];
@@ -183,7 +183,7 @@ async function renderCollect() {
               isManager
                 ? '<span class="status-badge uploaded">集金担当</span>'
                 : isUpfrontPayer
-                ? '<span class="status-badge uploaded">建替担当</span>'
+                ? '<span class="status-badge uploaded">立替担当</span>'
                 : hasReceipt
                 ? '<span class="status-badge uploaded">済</span>'
                 : ''

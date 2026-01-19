@@ -127,7 +127,7 @@ function makeCollectRow(
         ${payBtnHtml}
       </td>
       <td class="info-col">
-        <div class="info-item">建替: ${upfrontText}</div>
+        <div class="info-item">立替: ${upfrontText}</div>
         <div class="info-item">人数: ${data.participantCount || '-'}名</div>
       </td>
       <td class="staff-col">

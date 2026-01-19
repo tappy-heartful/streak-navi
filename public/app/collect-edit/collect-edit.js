@@ -129,7 +129,7 @@ async function setupPage(mode, collectId) {
 
 function runCalculations() {
   const total = Number($('#upfront-amount').val()) || 0;
-  const payerId = $('#upfront-payer').val(); // 建替者
+  const payerId = $('#upfront-payer').val(); // 立替者
   const managerId = $('#manager-name').val(); // 集金担当者
   const selectedParticipantIds = $('.user-chk:checked')
     .map(function () {
@@ -182,11 +182,11 @@ function runCalculations() {
         : perPerson * count;
     }
 
-    // --- ここで建替者＝担当者のチェックを行う ---
+    // --- ここで立替者＝担当者のチェックを行う ---
     if (payerId && managerId && payerId === managerId) {
       $remittanceInput.val(0).hide(); // 値は一応0にして非表示に
       $remittanceInput.after(
-        '<span id="remittance-msg" style="color: #666; font-size: 0.85rem; margin-left: 8px;">建替者=担当者のためなし</span>'
+        '<span id="remittance-msg" style="color: #666; font-size: 0.85rem; margin-left: 8px;">立替者=担当者のためなし</span>'
       );
     } else {
       $remittanceInput.val(remittance);
