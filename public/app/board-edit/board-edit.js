@@ -87,8 +87,8 @@ async function loadBoardData(boardId, mode) {
   $('#board-content').val(data.content || '');
   $('#board-scope').val(data.sectionId || 'all');
 
-  // ファイル情報の読み込み
-  if (data.files && Array.isArray(data.files)) {
+  // ファイル情報の読み込み(編集モードのみ)
+  if (mode === 'edit' && data.files && Array.isArray(data.files)) {
     // 💡 読み込み時に _decoded がついた重複データをフィルタリングしてクリーンな状態で保持
     attachedFiles = data.files.map((file) => {
       const cleanFile = {};
