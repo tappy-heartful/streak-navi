@@ -615,6 +615,7 @@ function getCandidateDatesFromInputs() {
 async function collectEventData(mode) {
   const rawDate = $('#event-date').val();
   const attendanceType = $('input[name="attendance-type"]:checked').val();
+  const allowAssign = $('input[name="allow-assign"]:checked').val() === 'on';
 
   // 日程調整からする 選択時のみ候補日を取得
   let candidateDates = [];
@@ -635,11 +636,11 @@ async function collectEventData(mode) {
     googleMap: $('#event-google-map').val().trim(),
     schedule: $('#event-schedule').val().trim(),
     setlist: getSetlistDataFromInputs(), // 【修正】セットリストを保存
-    allowAssign: $('input[name="allow-assign"]:checked').val() === 'on',
+    allowAssign: allowAssign,
     dress: $('#event-dress').val().trim(),
     bring: $('#event-bring').val().trim(),
     rent: $('#event-rent').val().trim(),
-    instrumentConfig: getInstrumentConfigFromInputs(),
+    instrumentConfig: allowAssign ? getInstrumentConfigFromInputs() : [],
     other: $('#event-other').val().trim(),
 
     // 【修正・新規追加】日程/出欠関連のデータ
