@@ -16,6 +16,7 @@ $(document).ready(async function () {
     await fetchAndSetSectionName();
 
     await setUpPage();
+    setupEventHandlers();
   } catch (e) {
     console.error(e);
     await utils.writeLog({
@@ -131,5 +132,13 @@ function renderTable($tbody, dataList, emptyMsg) {
       </tr>
     `);
     $tbody.append(tr);
+  });
+}
+
+function setupEventHandlers() {
+  $('#add-button-section').on('click', () => {
+    window.location.href =
+      '../board-edit/board-edit.html?mode=new&sectionId=' +
+      utils.getSession('sectionId');
   });
 }

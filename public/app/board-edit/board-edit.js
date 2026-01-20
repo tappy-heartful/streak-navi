@@ -8,6 +8,7 @@ $(document).ready(async function () {
   try {
     const mode = utils.globalGetParamMode;
     const boardId = utils.globalGetParamBoardId;
+    const sectionIdParam = utils.globalGetParamSectionId;
     await utils.initDisplay();
 
     userSectionId = utils.getSession('sectionId');
@@ -68,6 +69,7 @@ async function setupPage(mode, boardId) {
   if (mode === 'new') {
     $('#page-title, #title').text('掲示板新規作成');
     $('#save-button').text('登録する');
+    $('#board-scope').val(utils.globalGetParamSectionId || 'all');
   } else {
     const label = mode === 'edit' ? '掲示板編集' : '掲示板新規作成(コピー)';
     $('#page-title, #title').text(label);
