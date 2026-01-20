@@ -176,7 +176,10 @@ function setupEventHandlers(mode, boardId) {
   });
 
   $('#save-button').on('click', async () => {
-    if (!validateData()) return;
+    if (!validateData()) {
+      utils.showDialog('入力内容を確認してください', true);
+      return;
+    }
     const actionLabel = mode === 'edit' ? '更新' : '登録';
     if (!(await utils.showDialog(`${actionLabel}しますか？`))) return;
 
