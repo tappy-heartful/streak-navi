@@ -75,7 +75,7 @@ function bindEvents() {
 
 async function setUpPage() {
   const boardsRef = utils.collection(utils.db, 'boards');
-  const qBoard = utils.query(boardsRef, utils.orderBy('createdAt', 'desc'));
+  const qBoard = utils.query(boardsRef, utils.orderBy('title', 'asc'));
   const boardSnap = await utils.getWrapDocs(qBoard);
 
   cachedBoards = boardSnap.docs.map((doc) => ({

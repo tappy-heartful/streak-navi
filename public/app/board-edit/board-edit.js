@@ -83,7 +83,9 @@ async function loadBoardData(boardId, mode) {
   if (!docSnap.exists()) throw new Error('投稿が見つかりません');
 
   const data = docSnap.data();
-  $('#board-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
+  $('#board-title').val(
+    data.title_decoded + (mode === 'copy' ? '（コピー）' : '')
+  );
   $('#board-content').val(data.content || '');
   $('#board-scope').val(data.sectionId || 'all');
 
