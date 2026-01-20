@@ -70,11 +70,13 @@ async function setupPage(mode, boardId) {
     $('#page-title, #title').text('掲示板新規作成');
     $('#save-button').text('登録する');
     $('#board-scope').val(utils.globalGetParamSectionId || 'all');
+    $('.back-link').text('← 掲示板一覧に戻る');
   } else {
     const label = mode === 'edit' ? '掲示板編集' : '掲示板新規作成(コピー)';
     $('#page-title, #title').text(label);
     $('#save-button').text(mode === 'edit' ? '更新する' : '登録する');
     await loadBoardData(boardId, mode);
+    $('.back-link').text('← 掲示板確認に戻る');
   }
 }
 
