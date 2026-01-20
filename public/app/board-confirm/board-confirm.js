@@ -69,7 +69,7 @@ async function renderBoard() {
       $contentArea.append($linkWrapper);
     } else {
       // 通常のテキスト行
-      $contentArea.append($('<span></span><br>').text(line));
+      $contentArea.append($('<span>' + line + '</span><br>'));
     }
   });
 

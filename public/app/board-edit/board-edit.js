@@ -86,7 +86,7 @@ async function loadBoardData(boardId, mode) {
   $('#board-title').val(
     data.title_decoded + (mode === 'copy' ? '（コピー）' : '')
   );
-  $('#board-content').val(data.content || '');
+  $('#board-content').val(data.content_decoded || '');
   $('#board-scope').val(data.sectionId || 'all');
 
   // ファイル情報の読み込み(編集モードのみ)
