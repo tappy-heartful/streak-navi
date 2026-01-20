@@ -123,6 +123,7 @@
   border-radius: 6px;
   cursor: pointer;
   margin-bottom: 20px;
+  border: none;
   transition: background-color 0.2s;
 }
 
@@ -138,6 +139,7 @@
   font-size: 16px;
   background-color: #4CAF50;
   color: white;
+  border: none;
   border-radius: 8px;
   cursor: pointer;
   transition: background-color 0.2s;
@@ -192,18 +194,125 @@
   background-color: #f0f0f0;
 }
 
+/* --- 共通ボタン定義 (追加/削除) --- */
+
+/* 削除ボタン共通（右上に配置されるケースや行末に置かれるケースを想定） */
+.remove-group-button,
+.remove-song-button,
+.remove-part-button {
+  background-color: #ff5252;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.remove-group-button:hover,
+.remove-song-button:hover,
+.remove-part-button:hover {
+  background-color: #d32f2f;
+}
+
+/* 追加ボタン共通 */
+.add-group-button,
+.add-part-button,
+.add-song-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  gap: 5px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+/* グループ追加（少し目立たせる） */
+.add-group-button {
+  background-color: #00bcd4;
+  color: white;
+  width: 100%;
+  margin-top: 15px;
+  padding: 10px;
+}
+.add-group-button:hover {
+  background-color: #00acc1;
+}
+
+/* パート追加（中立的な青） */
+.add-part-button {
+  background-color: #03a9f4;
+  color: white;
+}
+.add-part-button:hover {
+  background-color: #039be5;
+}
+
+/* 曲追加（既設のものを整理） */
+.add-song-button {
+  background-color: #03a9f4;
+  color: white;
+}
+.add-song-button:hover {
+  background-color: #039be5;
+}
+
+/* --- セットリスト・グループ構造の補足デザイン --- */
+.setlist-group {
+  position: relative;
+  border: 1px solid #ddd;
+  padding: 20px 15px 15px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+}
+
+/* グループ削除ボタンを右上に置く場合 */
+.setlist-group .remove-group-button {
+  top: 10px;
+  right: 10px;
+}
+
+.song-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+.part-item {
+  display: flex;
+  gap: 5px;
+  margin-top: 5px;
+  margin-left: 20px; /* パートはインデント */
+  align-items: center;
+}
+
 /* --- レスポンシブ対応 --- */
 @media (max-width: 480px) {
   .event-choices {
     gap: 4px;
   }
-  #add-item-button, #save-event-button {
+  #add-candidate-date-button, #save-event-button {
     font-size: 14px;
     padding: 12px 0;
   }
 }
 
-/* --- 以下、セットリスト・楽器構成などの既存CSS --- */
 .radio-group label {
   display: block;
   margin-bottom: 5px;
@@ -214,30 +323,5 @@
   display: flex;
   gap: 5px;
   align-items: center;
+  margin-bottom: 8px;
 }
-
-.setlist-group {
-  border: 1px solid #ddd;
-  padding: 15px;
-  border-radius: 8px;
-  margin-bottom: 15px;
-  background-color: #f9f9f9;
-}
-
-.setlist-group .add-song-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  background-color: #03a9f4;
-  color: white;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 4px;
-  font-size: 14px;
-  cursor: pointer;
-  margin-top: 5px;
-  margin-bottom: 5px;
-  transition: background-color 0.2s;
-}
-
-/* (中略: 他の既存スタイルはそのまま維持) */

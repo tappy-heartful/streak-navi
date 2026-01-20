@@ -18,28 +18,45 @@
       </div>
 
       <div class="container">
-        <div class="tab-area">
-          <button
-            class="tab-btn active"
-            data-tab="section"
-            id="section-tab-btn"
-          >
-            <span id="section-tab-text">セクション向け</span>
-          </button>
-          <button class="tab-btn" data-tab="all">全体向け</button>
+        <div id="section-board-container" class="board-group">
+          <h2 class="board-section-title">
+            <i class="fas fa-users"></i>
+            <span id="section-title-text">セクション向け</span>
+          </h2>
+          <div class="table-wrapper">
+            <table class="list-table">
+              <thead>
+                <tr>
+                  <th>タイトル</th>
+                  <th>内容</th>
+                  <th>作成者</th>
+                </tr>
+              </thead>
+              <tbody id="section-board-body"></tbody>
+            </table>
+          </div>
         </div>
 
-        <div class="table-wrapper">
-          <table class="list-table">
-            <thead>
-              <tr>
-                <th>タイトル</th>
-                <th>内容</th>
-                <th>作成者</th>
-              </tr>
-            </thead>
-            <tbody id="board-list-body"></tbody>
-          </table>
+        <button id="add-button-section" class="list-add-button">
+          ＋ 新規投稿
+        </button>
+
+        <div id="all-board-container" class="board-group">
+          <h2 class="board-section-title">
+            <i class="fas fa-globe"></i> 全体向け
+          </h2>
+          <div class="table-wrapper">
+            <table class="list-table">
+              <thead>
+                <tr>
+                  <th>タイトル</th>
+                  <th>内容</th>
+                  <th>作成者</th>
+                </tr>
+              </thead>
+              <tbody id="all-board-body"></tbody>
+            </table>
+          </div>
         </div>
 
         <button

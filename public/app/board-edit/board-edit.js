@@ -8,6 +8,7 @@ $(document).ready(async function () {
   try {
     const mode = utils.globalGetParamMode;
     const boardId = utils.globalGetParamBoardId;
+    const sectionIdParam = utils.globalGetParamSectionId;
     await utils.initDisplay();
 
     userSectionId = utils.getSession('sectionId');
@@ -68,11 +69,14 @@ async function setupPage(mode, boardId) {
   if (mode === 'new') {
     $('#page-title, #title').text('掲示板新規作成');
     $('#save-button').text('登録する');
+    $('#board-scope').val(utils.globalGetParamSectionId || 'all');
+    $('.back-link').text('← 掲示板一覧に戻る');
   } else {
     const label = mode === 'edit' ? '掲示板編集' : '掲示板新規作成(コピー)';
     $('#page-title, #title').text(label);
     $('#save-button').text(mode === 'edit' ? '更新する' : '登録する');
     await loadBoardData(boardId, mode);
+    $('.back-link').text('← 掲示板確認に戻る');
   }
 }
 
@@ -83,12 +87,14 @@ async function loadBoardData(boardId, mode) {
   if (!docSnap.exists()) throw new Error('投稿が見つかりません');
 
   const data = docSnap.data();
-  $('#board-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
-  $('#board-content').val(data.content || '');
+  $('#board-title').val(
+    data.title_decoded + (mode === 'copy' ? '（コピー）' : '')
+  );
+  $('#board-content').val(data.content_decoded || '');
   $('#board-scope').val(data.sectionId || 'all');
 
-  // ファイル情報の読み込み
-  if (data.files && Array.isArray(data.files)) {
+  // ファイル情報の読み込み(編集モードのみ)
+  if (mode === 'edit' && data.files && Array.isArray(data.files)) {
     // 💡 読み込み時に _decoded がついた重複データをフィルタリングしてクリーンな状態で保持
     attachedFiles = data.files.map((file) => {
       const cleanFile = {};
@@ -170,7 +176,10 @@ function setupEventHandlers(mode, boardId) {
   });
 
   $('#save-button').on('click', async () => {
-    if (!validateData()) return;
+    if (!validateData()) {
+      utils.showDialog('入力内容を確認してください', true);
+      return;
+    }
     const actionLabel = mode === 'edit' ? '更新' : '登録';
     if (!(await utils.showDialog(`${actionLabel}しますか？`))) return;
 

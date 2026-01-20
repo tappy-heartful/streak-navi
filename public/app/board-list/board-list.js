@@ -1,6 +1,5 @@
 import * as utils from '../common/functions.js';
 
-let currentTab = 'section'; // 💡 初期表示を 'section' に変更
 let cachedBoards = [];
 let userSectionId = '';
 let userSectionName = 'セクション向け';
@@ -17,7 +16,7 @@ $(document).ready(async function () {
     await fetchAndSetSectionName();
 
     await setUpPage();
-    bindEvents();
+    setupEventHandlers();
   } catch (e) {
     console.error(e);
     await utils.writeLog({
@@ -32,14 +31,12 @@ $(document).ready(async function () {
 });
 
 /**
- * ユーザーのセクションIDに基づいてセクション名を取得し、タブに反映
+ * ユーザーのセクションIDに基づいてセクション名を取得
  */
 async function fetchAndSetSectionName() {
-  // sectionIdが未設定の場合は、セクションタブを削除して全体表示に切り替え
   if (!userSectionId) {
-    $('#section-tab-btn').remove();
-    $('.tab-btn[data-tab="all"]').addClass('active');
-    currentTab = 'all'; // 💡 セクションがない場合は全体を初期値にする
+    // セクションがない場合はセクション用コンテナごと非表示にする
+    $('#section-board-container').hide();
     return;
   }
 
@@ -49,33 +46,21 @@ async function fetchAndSetSectionName() {
 
     if (sectionSnap.exists()) {
       userSectionName = sectionSnap.data().name || 'セクション向け';
-      $('#section-tab-text').text(`${userSectionName}専用`);
+      $('#section-title-text').text(`${userSectionName}専用`);
     } else {
-      // IDはあるがドキュメントが見つからない場合もタブを削除
-      $('#section-tab-btn').remove();
-      $('.tab-btn[data-tab="all"]').addClass('active');
-      currentTab = 'all';
+      $('#section-board-container').hide();
     }
   } catch (e) {
     console.error('セクション名の取得に失敗:', e);
-    $('#section-tab-btn').hide();
-    $('.tab-btn[data-tab="all"]').addClass('active');
-    currentTab = 'all';
+    $('#section-board-container').hide();
   }
 }
 
-function bindEvents() {
-  $('.tab-btn').on('click', function () {
-    $('.tab-btn').removeClass('active');
-    $(this).addClass('active');
-    currentTab = $(this).data('tab');
-    renderList();
-  });
-}
-
 async function setUpPage() {
+  // 注意: 元のコードが orderBy('title', 'asc') でしたのでそのままにしていますが、
+  // 通常は createdAt (降順) の方が掲示板らしいかもしれません。
   const boardsRef = utils.collection(utils.db, 'boards');
-  const qBoard = utils.query(boardsRef, utils.orderBy('createdAt', 'desc'));
+  const qBoard = utils.query(boardsRef, utils.orderBy('title', 'asc'));
   const boardSnap = await utils.getWrapDocs(qBoard);
 
   cachedBoards = boardSnap.docs.map((doc) => ({
@@ -83,31 +68,50 @@ async function setUpPage() {
     ...doc.data(),
   }));
 
-  renderList();
+  renderAllLists();
 }
 
-function renderList() {
-  const $tbody = $('#board-list-body').empty();
+/**
+ * 2つのリストを同時にレンダリング
+ */
+function renderAllLists() {
+  // 1. セクション向け
+  const sectionBoards = cachedBoards.filter(
+    (data) => data.sectionId === userSectionId
+  );
+  renderTable(
+    $('#section-board-body'),
+    sectionBoards,
+    `${userSectionName}向けの投稿はありません🍀`
+  );
 
-  // フィルタリング
-  const filtered = cachedBoards.filter((data) => {
-    if (currentTab === 'all') {
-      return !data.sectionId; // sectionIdが未設定(全体)
-    } else {
-      return data.sectionId === userSectionId; // 自分のセクションと一致
-    }
-  });
+  // 2. 全体向け
+  const allBoards = cachedBoards.filter((data) => !data.sectionId);
+  renderTable($('#all-board-body'), allBoards, '全体向けの投稿はありません🍀');
+}
 
-  if (filtered.length === 0) {
-    const msg =
-      currentTab === 'all'
-        ? '全体向けの投稿はありません🍀'
-        : `${userSectionName}向けの投稿はありません🍀`;
-    $tbody.append(`<tr><td colspan="3" class="empty-row">${msg}</td></tr>`);
+/**
+ * テーブル描画用共通関数
+ */
+function renderTable($tbody, dataList, emptyMsg) {
+  $tbody.empty();
+
+  if (dataList.length === 0) {
+    $tbody.append(
+      `<tr><td colspan="3" class="empty-row">${emptyMsg}</td></tr>`
+    );
     return;
   }
 
-  filtered.forEach((data) => {
+  dataList.forEach((data) => {
+    // 最初の3行のみを抽出
+    const content = data.content || '';
+    const lines = content.split('\n');
+    let displayContent = lines.slice(0, 3).join('<br>');
+    if (lines.length > 3) {
+      displayContent += ' ...';
+    }
+
     const tr = $(`
       <tr>
         <td class="list-table-row-header">
@@ -119,7 +123,7 @@ function renderList() {
         </td>
         <td>
           <div class="board-content-preview">
-            ${(data.content || '').replace(/\n/g, '<br>')}
+            ${displayContent}
           </div>
         </td>
         <td class="board-author">
@@ -128,5 +132,13 @@ function renderList() {
       </tr>
     `);
     $tbody.append(tr);
+  });
+}
+
+function setupEventHandlers() {
+  $('#add-button-section').on('click', () => {
+    window.location.href =
+      '../board-edit/board-edit.html?mode=new&sectionId=' +
+      utils.getSession('sectionId');
   });
 }

@@ -117,6 +117,7 @@ export const globalGetParamStudioId = globalGetparams.get('studioId');
 export const globalGetParamCollectId = globalGetparams.get('collectId');
 export const globalGetParamBoardId = globalGetparams.get('boardId');
 export const globalGetParamType = globalGetparams.get('type');
+export const globalGetParamSectionId = globalGetparams.get('sectionId');
 
 // 画面名
 export const globalScreenName = document.title || 'Streak Navi';

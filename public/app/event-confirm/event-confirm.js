@@ -346,19 +346,21 @@ async function renderEvent() {
 
     // ステータスごとに表示
     for (const status of statuses) {
-      const $statusBlock = $(`
-      <div class="attendance-status-block">
-        <h3>${status.name}</h3>
-        <div class="status-content"></div>
-      </div>
-    `);
-
-      const $statusContent = $statusBlock.find('.status-content');
-
       // このステータスに該当するユーザを抽出
       const filteredAnswers = allAnswers.filter(
         (ans) => ans.status === status.id
       );
+
+      const $statusBlock = $(`
+      <div class="attendance-status-block">
+        <h3>${status.name} ${
+        filteredAnswers.length > 0 ? `(${filteredAnswers.length}人)` : ''
+      }</h3>
+        <div class="status-content"></div>
+      </div>
+      `);
+
+      const $statusContent = $statusBlock.find('.status-content');
 
       if (filteredAnswers.length === 0) {
         $statusContent.append('<p class="no-user">該当者なし</p>');
@@ -388,7 +390,7 @@ async function renderEvent() {
           // パート名の見出し
           const $sectionBlock = $(`
             <div class="attendance-section-group">
-              <h4>${sectionName}</h4>
+              <h4>${sectionName} (${sectionUsers.length}人)</h4>
               <div class="attendance-users"></div>
             </div>
           `);

@@ -36,8 +36,8 @@ async function renderBoard() {
   const boardData = boardSnap.data();
 
   // タイトル・作成者
-  $('#board-title').text(boardData.title || '無題');
-  $('#board-author').text(boardData.createdByName || '匿名');
+  $('#board-title').text(boardData.title_decoded || '無題');
+  $('#board-author').text(boardData.createdByName_decoded || '匿名');
 
   // --- 内容の表示処理 (リンク化 & YouTube埋め込み) ---
   const content = boardData.content || '';
@@ -69,7 +69,7 @@ async function renderBoard() {
       $contentArea.append($linkWrapper);
     } else {
       // 通常のテキスト行
-      $contentArea.append($('<span></span><br>').text(line));
+      $contentArea.append($('<span>' + line + '</span><br>'));
     }
   });
 
