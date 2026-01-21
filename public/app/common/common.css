@@ -139,6 +139,7 @@ h3 {
 }
 
 .list-table {
+  -webkit-text-size-adjust: 100%;
   /* 余計な余白を生まないよう、中身に合わせる設定 */
   width: max-content;
   min-width: 100%;
