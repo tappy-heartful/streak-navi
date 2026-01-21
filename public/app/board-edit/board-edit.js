@@ -86,6 +86,7 @@ async function loadBoardData(boardId, mode) {
   if (!docSnap.exists()) throw new Error('投稿が見つかりません');
 
   const data = docSnap.data();
+  // タイトルと本文は decoded 版を使用
   $('#board-title').val(
     data.title_decoded + (mode === 'copy' ? '（コピー）' : '')
   );
@@ -93,13 +94,13 @@ async function loadBoardData(boardId, mode) {
   $('#board-scope').val(data.sectionId || 'all');
 
   // ファイル情報の読み込み
-  if (mode === 'edit' && data.files && Array.isArray(data.files)) {
-    // 💡 修正ポイント: エスケープされた name ではなく name_decoded を優先的に採用する
+  if (data.files && Array.isArray(data.files)) {
+    // 💡 修正ポイント: name, url, path すべてにおいて decoded 版（生データ）を優先採用する
     attachedFiles = data.files.map((file) => {
       return {
-        name: file.name_decoded || file.name, // デコード済みの値があればそれを使う
-        url: file.url,
-        path: file.path,
+        name: file.name_decoded || file.name,
+        url: file.url_decoded || file.url, // URL内の & 等がエスケープされているのを戻す
+        path: file.path_decoded || file.path, // パス内の / 等がエスケープされているのを戻す
       };
     });
     renderFileList();
@@ -244,12 +245,11 @@ function renderFileList() {
 function collectData(mode) {
   const scope = $('#board-scope').val();
 
-  // 💡 attachedFiles には既にデコード済みのきれいな名前が入っているため、そのまま保存
   const data = {
     title: $('#board-title').val().trim(),
     content: $('#board-content').val().trim(),
     sectionId: scope === 'all' ? null : scope,
-    files: attachedFiles,
+    files: attachedFiles, // ここには生データが入っているため、このまま保存して共通関数側でサニタイズさせる
     updatedAt: utils.serverTimestamp(),
   };
 
