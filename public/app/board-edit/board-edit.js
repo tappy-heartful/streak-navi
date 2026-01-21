@@ -8,7 +8,6 @@ $(document).ready(async function () {
   try {
     const mode = utils.globalGetParamMode;
     const boardId = utils.globalGetParamBoardId;
-    const sectionIdParam = utils.globalGetParamSectionId;
     await utils.initDisplay();
 
     userSectionId = utils.getSession('sectionId');
@@ -93,17 +92,15 @@ async function loadBoardData(boardId, mode) {
   $('#board-content').val(data.content_decoded || '');
   $('#board-scope').val(data.sectionId || 'all');
 
-  // ファイル情報の読み込み(編集モードのみ)
+  // ファイル情報の読み込み
   if (mode === 'edit' && data.files && Array.isArray(data.files)) {
-    // 💡 読み込み時に _decoded がついた重複データをフィルタリングしてクリーンな状態で保持
+    // 💡 修正ポイント: エスケープされた name ではなく name_decoded を優先的に採用する
     attachedFiles = data.files.map((file) => {
-      const cleanFile = {};
-      Object.keys(file).forEach((key) => {
-        if (!key.endsWith('_decoded')) {
-          cleanFile[key] = file[key];
-        }
-      });
-      return cleanFile;
+      return {
+        name: file.name_decoded || file.name, // デコード済みの値があればそれを使う
+        url: file.url,
+        path: file.path,
+      };
     });
     renderFileList();
   }
@@ -247,22 +244,12 @@ function renderFileList() {
 function collectData(mode) {
   const scope = $('#board-scope').val();
 
-  // 💡 保存前に attachedFiles から _decoded キーを除去したクリーンな配列を作成
-  const cleanFiles = attachedFiles.map((file) => {
-    const cleanFile = {};
-    Object.keys(file).forEach((key) => {
-      if (!key.endsWith('_decoded')) {
-        cleanFile[key] = file[key];
-      }
-    });
-    return cleanFile;
-  });
-
+  // 💡 attachedFiles には既にデコード済みのきれいな名前が入っているため、そのまま保存
   const data = {
     title: $('#board-title').val().trim(),
     content: $('#board-content').val().trim(),
     sectionId: scope === 'all' ? null : scope,
-    files: cleanFiles, // クリーンなデータをセット
+    files: attachedFiles,
     updatedAt: utils.serverTimestamp(),
   };
 
