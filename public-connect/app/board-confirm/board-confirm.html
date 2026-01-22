@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link
+      rel="apple-touch-icon"
+      href="../../images/favicon.png"
+      type="image/png"
+    />
+    <title>掲示板確認</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="board-confirm.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <div class="page-header">
+      <h1 id="page-title">掲示板確認</h1>
+    </div>
+
+    <main class="container">
+      <div class="form-group">
+        <label class="label-title">公開範囲</label>
+        <div class="label-value" id="board-scope"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">タイトル</label>
+        <div class="label-value" id="board-title"></div>
+      </div>
+
+      <div class="form-group" id="file-section" style="display: none">
+        <label class="label-title">添付ファイル</label>
+        <div id="file-display-list" class="file-display-list"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">内容</label>
+        <div class="label-value content-area" id="board-content"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">作成者</label>
+        <div class="label-value" id="board-author"></div>
+      </div>
+
+      <div id="board-menu" class="menu-section">
+        <h2 class="menu-title">掲示板管理メニュー</h2>
+        <div class="confirm-buttons">
+          <button id="board-edit-button" class="edit-button">編集</button>
+          <button id="board-copy-button" class="edit-button">コピー</button>
+          <button id="board-delete-button" class="delete-button">削除</button>
+        </div>
+      </div>
+    </main>
+
+    <div class="page-footer">
+      <a href="../board-list/board-list.html" class="back-link"
+        >← 掲示板一覧に戻る</a
+      >
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/dompurify@2.4.4/dist/purify.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="board-confirm.js"></script>
+  </body>
+</html>

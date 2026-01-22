@@ -1,0 +1,788 @@
+/* ベーススタイル */
+html {
+  /* height: 100%; は削除 */
+  width: 100%;
+  /* 縦スクロールを常に許可し、メニューバーの挙動を安定させる */
+  overflow-y: scroll;
+}
+
+body {
+  /* 画面の高さに合わせつつ、メニューバーの変化に対応させる */
+  min-height: 100dvh; 
+  width: 100%;
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 0;
+  
+  /* 横揺れ防止 */
+  overflow-x: hidden;
+  
+  /* Safariでスクロールが止まる現象（フリーズ）への対策 */
+  -webkit-overflow-scrolling: touch;
+  
+  /* 上下の引っ張りすぎ（バウンス）による背景のチラつき防止 */
+  overscroll-behavior-y: none;
+
+  font-family: Arial, sans-serif;
+  color: #333;
+  background-color: #f4f4f4;
+}
+
+/* 💡もし初回ログインのオーバーレイが表示されている間だけ
+   スクロールを止めているなら、以下のクラスをJSでbodyに付与すると完璧です */
+body.fixed {
+  position: fixed;
+  width: 100%;
+  height: 100%;
+}
+
+/* 初回ログインポップアップ */
+/* 全画面ウェルカム演出 */
+.first-login-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(240, 255, 240, 0.96); /* 薄い緑がかった背景 */
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+.first-login-overlay.show {
+  opacity: 1;
+  z-index: 9999;
+}
+
+.first-login-content {
+  text-align: center;
+  animation: popIn 0.8s ease;
+}
+
+.first-login-content .line-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  margin-bottom: 15px;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.1);
+}
+
+.first-login-content .welcome-message {
+  font-size: 22px;
+  color: #333;
+  font-weight: bold;
+}
+
+@keyframes popIn {
+  0% {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+
+/* 共通レイアウト */
+/* カード */
+.container {
+  box-sizing: border-box;
+  width: 90%;
+  max-width: 768px;
+  margin: 0 auto 40px auto;
+  padding: 20px;
+  border-radius: 10px;
+  background-color: #ffffff;
+  box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.1);
+  animation: fadeInUp 0.4s ease;
+}
+
+/* タイトル */
+.page-header {
+  max-width: 768px;
+  margin: 30px auto 10px auto;
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 24px;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+/* メニュー */
+h3 {
+  font-size: 18px;
+  color: #333;
+  margin-bottom: 20px;
+  border-left: 5px solid #4CAF50;
+  padding-left: 10px;
+  text-align: left;
+}
+
+/* 一覧画面テーブル */
+
+/* テーブルレスポンシブ対応 */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+  position: relative;
+}
+
+.list-table {
+  -webkit-text-size-adjust: 100%;
+  /* 余計な余白を生まないよう、中身に合わせる設定 */
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  background-color: #fff;
+}
+
+.list-table th, .list-table td {
+  border-bottom: 1px solid #eee;
+  border-right: 1px solid #eee;
+  padding: 12px;
+  text-align: left;
+  font-size: 14px;
+}
+
+/* 1列目（スタジオ名/譜面名など）の固定 & 幅指定 */
+.list-table th:first-child,
+.list-table td:first-child {
+  position: -webkit-sticky;
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  border-right: 2px solid #ddd;
+  
+  /* 幅を70pxに固定し、改行ルールを適用 */
+  width: 70px;
+  min-width: 70px;
+  max-width: 70px;
+  white-space: normal;   /* 改行を許可 */
+  word-break: break-all; /* スペースがない場合でも適当なところで改行 */
+  font-weight: bold;
+}
+
+.list-table th:first-child {
+  z-index: 3;
+  background-color: #f4f4f4;
+}
+
+.list-table td:first-child {
+  background-color: #fdfdfd;
+}
+
+.list-table th {
+  background-color: #f4f4f4;
+  font-weight: bold;
+  color: #555;
+  white-space: nowrap; /* 基本は1行表示（1列目以外） */
+}
+
+/* 1列目のヘッダのみwhite-spaceを上書きして改行を許可 */
+.list-table th:first-child {
+  white-space: normal;
+}
+
+/* スタジオ名セルのテキストスタイル */
+.list-table-row-header {
+  font-weight: bold;
+  color: #2c3e50;
+}
+
+/* 各種リンク */
+.list-table a {
+  color: #1a73e8;
+  text-decoration: underline;
+}
+
+/* データなしの表示 */
+.empty-text {
+  text-align: center;
+  padding: 30px !important;
+  color: #999;
+  font-size: 14px;
+  background-color: #fdfdfd;
+}
+
+/* 新規作成ボタン（一覧用調整） */
+.list-add-button {
+  display: block;
+  margin: 25px auto 5px auto;
+  background-color: #4CAF50;
+  color: #fff;
+  border: none;
+  border-radius: 25px;
+  padding: 12px 30px;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(76, 175, 80, 0.3);
+  transition: all 0.3s ease;
+}
+
+.list-add-button:hover {
+  background-color: #45a049;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 15px rgba(76, 175, 80, 0.4);
+}
+
+/* 必須項目 */
+.required {
+  color: red;
+  margin-left: 4px;
+}
+
+/* 見出しとリンクを同じ行に配置 */
+.score-header {
+  display: flex;
+  justify-content: space-between; /* 左右に分ける */
+  align-items: center; /* 高さを揃える */
+  margin-bottom: 10px;
+}
+
+.playlist-button {
+  display: inline-block;
+  padding: 10px 16px;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+/* プルダウン */
+/* select全体のスタイル */
+select {
+  width: 100%;
+  max-width: 100%;
+  padding: 10px 40px 10px 15px; /* 右に余裕を持たせ矢印が見えるように */
+  font-size: 16px;
+  line-height: 1.4;
+  border: 1.5px solid #ccc;
+  border-radius: 6px;
+  background-color: #fff;
+  appearance: none;      /* ブラウザデフォルトの矢印非表示 */
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  transition: border-color 0.3s ease;
+  box-sizing: border-box;
+  background-image: url("data:image/svg+xml,%3Csvg fill='none' stroke='%23666' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' viewBox='0 0 24 24' xmlns='http://www.w3.org/2000/svg'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px 16px;
+}
+
+/* フォーカス時の枠線 */
+select:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* disabled時の見た目 */
+select:disabled {
+  background-color: #eee;
+  color: #999;
+  cursor: not-allowed;
+}
+/* ユーザプロフィール */
+.user-profile {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.user-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.user-name {
+  font-size: 20px;
+  font-weight: bold;
+  color: #333;
+}
+
+/* フォーム共通 */
+.form-group {
+  margin-bottom: 1.5em; /* 元の20pxと1.5emを統一 */
+}
+
+.form-group label {
+  display: block;
+  font-weight: bold;
+  margin-bottom: 6px;
+}
+
+.form-group-dates {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-group-dates label {
+  width: 100px;
+}
+
+.label-title {
+  display: block;
+  margin-bottom: 0.5em;
+  font-weight: bold; /* 600とboldを統一 */
+  color: #333;
+}
+
+.label-title input[type="checkbox"] {
+  margin-right: 8px;
+  transform: scale(1.2);
+}
+
+.label-value {
+  padding: 10px;
+  background: #f4f4f4;
+  border-radius: 6px;
+  font-size: 16px;
+  word-break: break-all; /* 長い名前が来ても枠内で折り返す */
+}
+
+input[type="text"], textarea, input[type="number"], input[type="url"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  box-sizing: border-box;
+}
+
+/* date入力をテキスト入力と同じ見た目に */
+input[type="date"] {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 16px;
+  box-sizing: border-box;
+  background-color: #fff;
+  appearance: none; /* 一部ブラウザで矢印非表示 */
+}
+
+input[type="date"]:focus {
+  border-color: #007bff;
+  outline: none;
+  box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+input[type="time"] {
+  width:100px; /* 100%ではなく固定幅を指定 */
+  box-sizing: border-box;
+  padding: 10px;
+  border: 1px solid #ccc;
+  font-size: 16px;
+  border-radius: 4px;
+  /* Safari対策: 見た目を標準に近づけるため、フォント設定などを加える場合もありますが、
+     まずは幅の調整とボックスモデルの指定を徹底します。*/
+}
+
+.checkbox-group {
+  margin-top: 20px;
+  text-align: center;
+}
+
+/* ステータスラベル */
+.answer-status-container {
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.answer-status {
+  display: inline-block;
+  padding: 3px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-right: 8px;
+  color: #fff;
+  white-space: nowrap;
+}
+
+.answer-status.pending {
+  background-color: #ff9800; /* オレンジ */
+}
+
+.answer-status.answered {
+  background-color: #4caf50; /* 緑 */
+}
+
+.answer-status.closed {
+  background-color: #9e9e9e; /* グレー */
+}
+
+/* エラー */
+.error-field {
+  background-color: #ffecec;
+}
+
+.error-message
+{
+  color:red;
+  margin-bottom: 10px;
+}
+
+/* データ操作ボタン */
+/* ボタンタイトル */
+.menu-section {
+  margin-top: 1.5em;
+}
+
+.menu-title {
+  font-size: 16px;
+  color: #666;
+  border-bottom: 1px solid #ccc;
+  margin-bottom: 0.5em;
+  padding-bottom: 0.2em;
+}
+
+/* ボタン共通 */
+button {
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+/* 確認ボタンレイアウト */
+.confirm-buttons {
+  display: flex;
+  gap: 15px;
+  margin-top: 10px;
+  justify-content: space-between;
+}
+
+.confirm-buttons button {
+  flex: 1;
+  padding: 12px;
+  font-size: 16px;
+}
+
+/* カラー別ボタン */
+.save-button {
+  display: block;
+  width: 100%;
+  padding: 12px 24px;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+}
+
+.save-button:hover {
+  background-color: #45a049;
+}
+
+.edit-button {
+  background-color: #2196F3;
+  color: white;
+}
+
+.copy-button {
+  background-color: #2196F3;
+  color: white;
+}
+
+.delete-button {
+  background-color: #f44336;
+  color: white;
+}
+
+.clear-button {
+  background-color: #ccc;
+}
+
+/* ツールチップ */
+.tooltip-icon {
+  display: inline-block;
+  width: 20px;
+  height: 20px;
+  line-height: 18px;
+  text-align: center;
+  border-radius: 50%;
+  background-color: #666;
+  color: white;
+  font-size: 14px;
+  margin-left: 6px;
+  cursor: pointer;
+  position: relative;
+}
+
+.tooltip-icon::after {
+  content: attr(data-tooltip);
+  position: absolute;
+  bottom: 125%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #333;
+  color: #fff;
+  padding: 8px 12px;
+  font-size: 14px;
+  white-space: normal;
+  border-radius: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+  width: max-content;
+  max-width: 240px;
+  z-index: 100;
+}
+
+.tooltip-icon::before {
+  content: '';
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  border: 6px solid transparent;
+  border-top-color: #333;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.tooltip-icon.show::after,
+.tooltip-icon.show::before {
+  opacity: 1;
+}
+
+/* 戻るボタン */
+.page-footer {
+  max-width: 768px;
+  margin: 30px auto 50px auto;
+  text-align: center;
+}
+
+.back-link {
+  text-decoration: none;
+  color: #4CAF50;
+  font-weight: bold;
+  border: 2px solid #4CAF50;
+  padding: 10px 20px;
+  border-radius: 8px;
+  display: inline-block;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.back-link:hover {
+  background-color: #d8f7de;
+}
+
+/* 隠し */
+.hidden {
+  display: none !important;
+}
+
+/* リンクの色指定 */
+a {
+  color: #4caf50;
+  text-decoration:none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* スピナー表示 */
+#spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(255,255,255,0.8);
+  z-index: 999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.spinner {
+  border: 6px solid #f3f3f3;
+  border-top: 6px solid #4caf50;
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 投票者リスト */
+.voter {
+  display: flex;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.voter-icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  margin-right: 8px;
+  object-fit: cover;
+}
+
+/* アニメーション */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+/* YouTube埋め込みモーダル */
+.youtube-embed {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow: hidden;
+  max-width: 100%;
+  border-radius: 16px;
+  margin-bottom: 8px;
+}
+
+.youtube-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  border: 0;
+}
+
+/* YouTubeリンクコンテナ */
+.youtube-link-container {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+/* 左側の注意文 */
+.youtube-notice {
+  font-size: 14px;
+  font-weight: bold;
+  color: #888888;
+  margin-right: 8px; /* 左側とのスペース */
+}
+
+/* 右側のリンク */
+.youtube-link-container a {
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto; /* ←これで常に右寄せ */
+}
+
+/* Instagram埋め込み */
+.instagram-embed {
+  background: #fff;
+  border: 0;
+  border-radius: 16px;
+  box-shadow: 0 0 1px 0 rgba(0,0,0,0.5), 0 1px 10px 0 rgba(0,0,0,0.15);
+  margin: 8px 0;
+  padding: 0;
+  width: 100%;          /* コンテナ幅に合わせる */
+  max-width: 100%;      /* はみ出し防止 */
+  box-sizing: border-box;
+}
+
+/* Instagram 埋め込みの幅をレスポンシブにする */
+.instagram-embed iframe.instagram-media {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: 16px !important;
+}
+
+/* Google Drive埋め込み */
+/* drive-embedはiframe専用ラッパーに */
+.drive-embed-wrapper {
+  margin-bottom: 12px; /* 注意文との間隔 */
+}
+
+/* iframeラッパー */
+.drive-embed {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.drive-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  border: 0;
+}
+
+/* 注意文 */
+.drive-notice {
+  text-align: left;
+  font-size: 14px;
+  margin-top: 4px;
+  font-weight: bold;
+  color: #888888; /* 薄めグレー */
+}
+
+/* --- プレビュー用モーダル修正 --- */
+.image-preview-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.9); /* 背景を少し濃く */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    cursor: pointer; /* どこでも閉じれる感 */
+}
+
+.image-preview-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.image-preview-content img {
+    display: block;
+    max-width: 95%;  /* 左右に少し余白 */
+    max-height: 100%; /* 上下端を画面に合わせる */
+    object-fit: contain; /* アスペクト比を維持して収める */
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}

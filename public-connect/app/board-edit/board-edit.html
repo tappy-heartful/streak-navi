@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="title">掲示板管理</title>
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link
+      rel="apple-touch-icon"
+      href="../../images/favicon.png"
+      type="image/png"
+    />
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="board-edit.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <div class="page-header">
+      <h1 id="page-title">掲示板管理</h1>
+    </div>
+
+    <main class="container">
+      <div class="form-group">
+        <label for="board-scope"
+          >公開範囲 <span class="required">*</span></label
+        >
+        <select id="board-scope">
+          <option value="all">全体向け</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="board-title"
+          >タイトル <span class="required">*</span></label
+        >
+        <input type="text" id="board-title" placeholder="タイトルを入力..." />
+      </div>
+
+      <div class="form-group">
+        <label>添付ファイル</label>
+        <div class="file-upload-container">
+          <button type="button" id="btn-file-select" class="file-select-btn">
+            <i class="fas fa-paperclip"></i> ファイルを選択
+          </button>
+          <input
+            type="file"
+            id="board-file-input"
+            style="display: none"
+            multiple
+          />
+          <ul id="file-list" class="file-list"></ul>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="board-content">内容 <span class="required">*</span></label>
+        <p class="form-note">※ リンクは1行に1つ記載してください。</p>
+        <textarea
+          id="board-content"
+          rows="30"
+          placeholder="内容を入力..."
+        ></textarea>
+      </div>
+
+      <div id="confirm-buttons" class="confirm-buttons">
+        <button id="clear-button" class="clear-button">クリア</button>
+        <button id="save-button" class="save-button">登録 / 更新</button>
+      </div>
+    </main>
+
+    <div class="page-footer">
+      <a class="back-link">← 掲示板一覧に戻る</a>
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/dompurify@2.4.4/dist/purify.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="board-edit.js"></script>
+  </body>
+</html>

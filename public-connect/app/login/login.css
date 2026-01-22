@@ -1,0 +1,94 @@
+html, body {
+  overflow: hidden; /* スクロール禁止 */
+  background-color: black;
+  z-index: -2;
+}
+
+body.login-page {
+  font-family: sans-serif;
+  text-align: center;
+
+  /* flexでコンテンツ中央揃え */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative; /* 背景レイヤーやカバーの基準 */
+}
+
+/* コンテンツ最大幅を768pxに制限 */
+.title {
+  padding: 20px;
+  box-sizing: border-box;
+  z-index: 1;
+}
+
+/* タイトル：背景は文字部分のみ黒 */
+h1 {
+  display: inline-block;
+  font-family: Impact, sans-serif;
+  color: white;
+  background-color: black;
+  padding: 10px 20px;
+  font-size: 32px;
+  margin: 40px 0;
+  border-radius: 8px;
+}
+
+/* ログインボタンを画面下部に固定 */
+button {
+  background-color: #06c755;
+  color: white;
+  font-size: 18px;
+  padding: 12px 24px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1;
+}
+
+button:hover {
+  background-color: #04a94f;
+}
+
+button.logging-in {
+  animation: pulseText 3s infinite;
+}
+
+@keyframes pulseText {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
+
+.bg-layer {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-color: black;
+  z-index: -1;
+  width: 100%;
+  height: 100%;
+}
+
+.bg-cover {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(255, 255, 255, 0.35);
+  z-index: 0;
+}
+
+/* ズームイン・ズームアウト */
+@keyframes zoomIn {
+  from { transform: scale(1); }
+  to   { transform: scale(1.1); }
+}
+
+@keyframes zoomOut {
+  from { transform: scale(1.1); }
+  to   { transform: scale(1); }
+}

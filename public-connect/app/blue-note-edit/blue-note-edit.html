@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link
+      rel="apple-touch-icon"
+      href="../../images/favicon.png"
+      type="image/png"
+    />
+    <title id="title">今日の一曲</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="blue-note-edit.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <div class="page-header">
+      <h1 id="page-title">今日の一曲</h1>
+    </div>
+
+    <main class="container">
+      <h3>今日の一曲について</h3>
+      <p class="page-description">
+        あなたのお気に入りのジャズを登録してください🌸<br />
+        匿名・日替わりでホーム画面に表示されるようになります！<br />
+        (季節に合った曲だとなお良きです)<br />
+      </p>
+      <div style="text-align: center">
+        <a
+          id="playlist-link-blue-note"
+          href="#"
+          target="_blank"
+          class="playlist-button"
+        >
+          <i class="fa-brands fa-youtube"></i> プレイリスト
+        </a>
+      </div>
+
+      <!-- プレイヤー本体 -->
+      <div class="player-wrapper">
+        <!-- 動画表示部分 -->
+        <div id="blue-note-videos"></div>
+
+        <!-- ボタン部分 -->
+        <div class="player-controls">
+          <button id="blue-note-prev" class="player-control">
+            <i class="fa-solid fa-backward-step"></i>
+          </button>
+
+          <button id="blue-note-random" class="player-control">
+            ランダム <i class="fa-solid fa-arrows-rotate"></i>
+          </button>
+
+          <button id="blue-note-next" class="player-control">
+            <i class="fa-solid fa-forward-step"></i>
+          </button>
+        </div>
+      </div>
+
+      <h3>月選択</h3>
+      <ul id="month-tabs" class="month-tabs"></ul>
+      <h3 id="month"></h3>
+      <div id="blue-note-container"></div>
+    </main>
+
+    <div class="page-footer">
+      <a class="back-link">← ホームに戻る</a>
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/dompurify@2.4.4/dist/purify.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="blue-note-edit.js"></script>
+  </body>
+</html>

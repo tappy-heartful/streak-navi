@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="title">メディア管理</title>
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link
+      rel="apple-touch-icon"
+      href="../../images/favicon.png"
+      type="image/png"
+    />
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="media-edit.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <div class="page-header">
+      <h1 id="page-title">メディア管理</h1>
+    </div>
+
+    <main class="container">
+      <div class="form-group">
+        <label for="media-date">日付 <span class="required">*</span></label>
+        <input type="date" id="media-date" />
+      </div>
+
+      <div class="form-group">
+        <label for="media-title"
+          >タイトル <span class="required">*</span></label
+        >
+        <input type="text" id="media-title" placeholder="タイトルを入力..." />
+      </div>
+
+      <div class="form-group">
+        <label for="instagram-url">Instagram URL</label>
+        <input
+          type="text"
+          id="instagram-url"
+          placeholder="InstagramのURLを入力..."
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="youtube-url">YouTube URL</label>
+        <input
+          type="text"
+          id="youtube-url"
+          placeholder="YouTubeのURLを入力..."
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="drive-url">Google Drive URL</label>
+        <input type="text" id="drive-url" placeholder="Drive共有URLを入力..." />
+      </div>
+
+      <div class="form-group checkbox-group">
+        <label>
+          <input type="checkbox" id="is-disp-top" />
+          ホームに表示
+        </label>
+      </div>
+
+      <!-- アクションボタン -->
+      <div id="confirm-buttons" class="confirm-buttons">
+        <button id="clear-button" class="clear-button">クリア</button>
+        <button id="save-button" class="save-button">登録 / 更新</button>
+      </div>
+    </main>
+
+    <div class="page-footer">
+      <a class="back-link">← メディア一覧に戻る</a>
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/dompurify@2.4.4/dist/purify.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="media-edit.js"></script>
+  </body>
+</html>

@@ -1,0 +1,20 @@
+footer {
+  text-align: center;
+  margin-top: 3rem;
+  margin-bottom: 2rem; /* 下側に少し余裕を持たせる */
+  font-size: 0.85rem;   /* 少しだけ小さくして馴染ませる */
+  color: #888;
+  line-height: 1.6;
+}
+
+.developed-by {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.footer-actions {
+  margin-top: 0.8rem;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}

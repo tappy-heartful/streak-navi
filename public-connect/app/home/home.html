@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link
+      rel="apple-touch-icon"
+      href="../../images/favicon.png"
+      type="image/png"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto&display=swap"
+      rel="stylesheet"
+    />
+    <title>ホーム</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="home.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <!-- タイトル（カード外） -->
+    <div class="page-header">
+      <h1 id="home-title"><i class="fa fa-home"></i> ホーム</h1>
+    </div>
+
+    <main class="container">
+      <section class="announcement-container">
+        <div class="announcement-header">
+          <h3>お知らせ</h3>
+        </div>
+        <ul class="notification-list"></ul>
+      </section>
+    </main>
+
+    <main class="container">
+      <div class="score-header">
+        <h3>新着譜面</h3>
+        <a
+          id="playlist-link-score"
+          href="#"
+          target="_blank"
+          class="playlist-button"
+          style="display: none"
+        >
+          <i class="fa-brands fa-youtube"></i> プレイリスト
+        </a>
+      </div>
+
+      <!-- クイックリンク一覧 -->
+      <div class="score-list"></div>
+
+      <!-- 🎵 YouTube埋め込みプレイヤー -->
+      <div class="player-wrapper">
+        <h2 id="score-player-title" class="player-title">参考演奏</h2>
+        <div id="score-videos"></div>
+        <div class="player-controls">
+          <button id="score-prev" class="player-control">
+            <i class="fa-solid fa-backward-step"></i>
+          </button>
+          <button id="score-random" class="player-control">
+            ランダム <i class="fa-solid fa-arrows-rotate"></i>
+          </button>
+          <button id="score-next" class="player-control">
+            <i class="fa-solid fa-forward-step"></i>
+          </button>
+        </div>
+      </div>
+
+      <div style="text-align: center">
+        <a href="../score-list/score-list.html" style="font-weight: bold"
+          >もっと見る</a
+        >
+      </div>
+    </main>
+
+    <main class="container">
+      <h3>メニュー</h3>
+      <div class="menu-list">
+        <h2 class="menu-title">演奏メニュー</h2>
+        <a href="../score-list/score-list.html" class="menu-button score"
+          >🎼 譜面</a
+        >
+        <a href="../event-list/event-list.html" class="menu-button event"
+          >🎺 イベント</a
+        >
+        <a href="../assign-list/assign-list.html" class="menu-button assign"
+          >🎵 譜割り</a
+        >
+        <h2 class="menu-title">活動メニュー</h2>
+        <a href="../call-list/call-list.html" class="menu-button call"
+          >🎶 曲募集</a
+        >
+        <a href="../vote-list/vote-list.html" class="menu-button vote"
+          >📊 投票</a
+        >
+        <a href="../collect-list/collect-list.html" class="menu-button collect"
+          >💰 集金</a
+        >
+        <a href="../studio-list/studio-list.html" class="menu-button studio"
+          >📍 スタジオ</a
+        >
+        <h2 class="menu-title">アプリメニュー</h2>
+        <a href="../user-list/user-list.html" class="menu-button user"
+          >👥 ユーザ</a
+        >
+        <a href="../notice-list/notice-list.html" class="menu-button notice"
+          >📣 通知設定</a
+        >
+        <h2 class="menu-title">コンテンツメニュー</h2>
+        <a
+          href="../blue-note-edit/blue-note-edit.html"
+          class="menu-button blue-note badge-inline"
+        >
+          🎧 今日の一曲
+          <span class="badge">募集中</span>
+        </a>
+        <a href="../media-list/media-list.html" class="menu-button media"
+          >🎬 メディア</a
+        >
+        <a href="../board-list/board-list.html" class="menu-button board"
+          >📋 掲示板</a
+        >
+      </div>
+    </main>
+
+    <main class="container">
+      <div class="score-header">
+        <h3>今日の一曲</h3>
+        <a
+          id="playlist-link-blue-note"
+          href="#"
+          target="_blank"
+          class="playlist-button"
+          style="display: none"
+        >
+          <i class="fa-brands fa-youtube"></i> プレイリスト
+        </a>
+      </div>
+
+      <!-- プレイヤー本体 -->
+      <div class="player-wrapper">
+        <h2 id="blue-note-title" class="player-title">今日の一曲</h2>
+        <!-- 動画表示部分 -->
+        <div id="blue-note-videos"></div>
+
+        <!-- ボタン部分 -->
+        <div class="player-controls">
+          <button id="blue-note-prev" class="player-control">
+            <i class="fa-solid fa-backward-step"></i>
+          </button>
+
+          <button id="blue-note-random" class="player-control">
+            ランダム <i class="fa-solid fa-arrows-rotate"></i>
+          </button>
+
+          <button id="blue-note-next" class="player-control">
+            <i class="fa-solid fa-forward-step"></i>
+          </button>
+        </div>
+      </div>
+      <div style="text-align: center">
+        <a
+          href="../blue-note-edit/blue-note-edit.html"
+          style="font-weight: bold"
+          >もっと見る</a
+        >
+      </div>
+    </main>
+
+    <main class="container">
+      <h3>メディア</h3>
+      <div class="content-list"></div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script async src="https://www.instagram.com/embed.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/dompurify@2.4.4/dist/purify.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="home.js"></script>
+  </body>
+</html>

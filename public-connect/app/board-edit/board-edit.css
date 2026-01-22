@@ -1,0 +1,66 @@
+/* ファイルアップロード周りのスタイル */
+.file-upload-container {
+  border: 2px dashed #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  background: #fcfcfc;
+}
+
+.file-select-btn {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.file-select-btn:hover {
+  background-color: #e0e0e0;
+}
+
+.file-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 10px;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  padding: 8px 12px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  margin-bottom: 5px;
+  font-size: 0.9rem;
+}
+
+.file-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.btn-file-delete {
+  color: #e53935;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 5px;
+}
+
+.btn-file-delete:hover {
+  color: #c62828;
+}
+
+.loading-text {
+  color: #666;
+  font-size: 0.8rem;
+  font-style: italic;
+}

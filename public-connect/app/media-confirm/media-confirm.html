@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link
+      rel="apple-touch-icon"
+      href="../../images/favicon.png"
+      type="image/png"
+    />
+    <title>メディア確認</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="media-confirm.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <!-- タイトル -->
+    <div class="page-header">
+      <h1 id="page-title">メディア確認</h1>
+    </div>
+
+    <main class="container">
+      <div class="form-group">
+        <label class="label-title">日付</label>
+        <div class="label-value" id="media-date"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">タイトル</label>
+        <div class="label-value" id="media-title"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">Instagram</label>
+        <div class="label-value" id="media-instagram"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">YouTube</label>
+        <div class="label-value" id="media-youtube"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">GoogleDrive</label>
+        <div class="label-value" id="media-drive"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">ホームに表示</label>
+        <div class="label-value" id="is-disp-top"></div>
+      </div>
+
+      <!-- メニュー -->
+      <div class="confirm-buttons">
+        <button id="media-edit-button" class="edit-button">編集</button>
+        <button id="media-copy-button" class="copy-button">コピー</button>
+        <button id="media-delete-button" class="delete-button">削除</button>
+      </div>
+    </main>
+
+    <div class="page-footer">
+      <a href="../media-list/media-list.html" class="back-link"
+        >← メディア一覧に戻る</a
+      >
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script async src="https://www.instagram.com/embed.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/dompurify@2.4.4/dist/purify.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="media-confirm.js"></script>
+  </body>
+</html>

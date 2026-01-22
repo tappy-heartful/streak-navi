@@ -1,0 +1,327 @@
+/* --- イベントフォーム全体 --- */
+.event-form {
+  max-width: 768px;
+  margin: 0 auto 40px auto;
+  padding: 20px;
+  background-color: #fff;
+  border-radius: 10px;
+  box-shadow: 2px 2px 15px rgba(0, 0, 0, 0.08);
+}
+
+/* --- フォームラベル行（ラベルとボタンを横並びにする） --- */
+.form-label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.form-label-row label {
+  margin-bottom: 0; /* デフォルトのmarginをリセット */
+  font-weight: bold;
+}
+
+/* 場所を選択ボタンのデザイン */
+.btn-select-place {
+  font-size: 12px;
+  padding: 4px 10px;
+  background-color: #f5f5f5;
+  color: #333;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+}
+
+.btn-select-place:hover {
+  background-color: #e0e0e0;
+  border-color: #bbb;
+}
+
+/* --- イベント基本情報 --- */
+.event-basic-group {
+  margin-bottom: 20px;
+}
+
+/* 日付・場所 */
+#event-date, #event-place-name {
+  margin-bottom: 12px;
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+/* --- スコア選択 --- */
+#score-select-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+#score-select-container select {
+  width: 100%;
+}
+
+/* --- イベント項目 --- */
+.event-item {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 12px;
+  background-color: #fafafa;
+}
+
+.event-item-title {
+  margin-bottom: 8px;
+}
+
+.event-choices {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* 選択肢 input テキストボックス */
+.event-choice {
+  padding: 8px 10px;
+  font-size: 15px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* 選択肢追加・削除ボタン */
+.event-choice-buttons {
+  display: flex;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.event-choice-buttons button {
+  flex: 1;
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+/* --- エラー表示 --- */
+.event-item .error-message {
+  margin-top: 6px;
+  color: #e53935;
+  font-size: 13px;
+}
+
+/* --- 項目追加ボタン --- */
+#add-candidate-date-button {
+  display: inline-block;
+  padding: 10px 14px;
+  font-size: 15px;
+  background-color: #2196F3;
+  color: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-bottom: 20px;
+  border: none;
+  transition: background-color 0.2s;
+}
+
+#add-candidate-date-button:hover {
+  background-color: #1976d2;
+}
+
+/* --- 保存ボタン --- */
+#save-event-button {
+  display: block;
+  width: 100%;
+  padding: 14px 0;
+  font-size: 16px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+#save-event-button:hover {
+  background-color: #45a049;
+}
+
+/* --- モーダル内のスタジオ選択デザイン --- */
+.studio-select-container {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.studio-group {
+  margin-bottom: 15px;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 8px;
+}
+
+.studio-group-title {
+  font-weight: bold;
+  margin-bottom: 8px;
+  border-bottom: 2px solid #eee;
+  font-size: 0.9em;
+  color: #666;
+  display: flex;
+  justify-content: space-between;
+}
+
+.room-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.room-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  cursor: pointer;
+  background: #f9f9f9;
+  padding: 5px 10px;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+}
+
+.room-item:hover {
+  background-color: #f0f0f0;
+}
+
+/* --- 共通ボタン定義 (追加/削除) --- */
+
+/* 削除ボタン共通（右上に配置されるケースや行末に置かれるケースを想定） */
+.remove-group-button,
+.remove-song-button,
+.remove-part-button {
+  background-color: #ff5252;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.remove-group-button:hover,
+.remove-song-button:hover,
+.remove-part-button:hover {
+  background-color: #d32f2f;
+}
+
+/* 追加ボタン共通 */
+.add-group-button,
+.add-part-button,
+.add-song-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 12px;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s;
+  gap: 5px;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+/* グループ追加（少し目立たせる） */
+.add-group-button {
+  background-color: #00bcd4;
+  color: white;
+  width: 100%;
+  margin-top: 15px;
+  padding: 10px;
+}
+.add-group-button:hover {
+  background-color: #00acc1;
+}
+
+/* パート追加（中立的な青） */
+.add-part-button {
+  background-color: #03a9f4;
+  color: white;
+}
+.add-part-button:hover {
+  background-color: #039be5;
+}
+
+/* 曲追加（既設のものを整理） */
+.add-song-button {
+  background-color: #03a9f4;
+  color: white;
+}
+.add-song-button:hover {
+  background-color: #039be5;
+}
+
+/* --- セットリスト・グループ構造の補足デザイン --- */
+.setlist-group {
+  position: relative;
+  border: 1px solid #ddd;
+  padding: 20px 15px 15px 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  background-color: #f9f9f9;
+}
+
+/* グループ削除ボタンを右上に置く場合 */
+.setlist-group .remove-group-button {
+  top: 10px;
+  right: 10px;
+}
+
+.song-item {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 10px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+.part-item {
+  display: flex;
+  gap: 5px;
+  margin-top: 5px;
+  margin-left: 20px; /* パートはインデント */
+  align-items: center;
+}
+
+/* --- レスポンシブ対応 --- */
+@media (max-width: 480px) {
+  .event-choices {
+    gap: 4px;
+  }
+  #add-candidate-date-button, #save-event-button {
+    font-size: 14px;
+    padding: 12px 0;
+  }
+}
+
+.radio-group label {
+  display: block;
+  margin-bottom: 5px;
+  cursor: pointer;
+}
+
+.candidate-date-item {
+  display: flex;
+  gap: 5px;
+  align-items: center;
+  margin-bottom: 8px;
+}

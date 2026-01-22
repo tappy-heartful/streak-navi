@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link
+      rel="apple-touch-icon"
+      href="../../images/favicon.png"
+      type="image/png"
+    />
+    <title>スタジオ確認</title>
+    <link rel="stylesheet" href="../common/common.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <div class="page-header">
+      <h1 id="page-title">スタジオ確認</h1>
+    </div>
+
+    <main class="container">
+      <div class="form-group">
+        <label class="label-title">都道府県</label>
+        <div class="label-value" id="studio-prefecture"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">場所名</label>
+        <div class="label-value" id="studio-name"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">公式サイト</label>
+        <div class="label-value" id="studio-hp"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">地図 (Google Map)</label>
+        <div class="label-value" id="studio-map"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">空き情報</label>
+        <div class="label-value" id="studio-availability"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">利用料</label>
+        <div class="label-value" id="studio-fee"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">部屋一覧</label>
+        <div class="label-value" id="studio-rooms"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">部屋詳細リンク</label>
+        <div class="label-value" id="studio-rooms-url"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">電話番号</label>
+        <div class="label-value" id="studio-tel"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">予約方法</label>
+        <div class="label-value" id="studio-reserve"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">交通アクセス・駐車場</label>
+        <div class="label-value" id="studio-access"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="label-title">備考</label>
+        <div
+          class="label-value"
+          id="studio-note"
+          style="white-space: pre-wrap"
+        ></div>
+      </div>
+
+      <div class="confirm-buttons" style="display: none">
+        <button id="studio-edit-button" class="edit-button">編集</button>
+        <button id="studio-copy-button" class="copy-button">コピー</button>
+        <button id="studio-delete-button" class="delete-button">削除</button>
+      </div>
+    </main>
+
+    <div class="page-footer">
+      <a href="../studio-list/studio-list.html" class="back-link"
+        >← スタジオ一覧に戻る</a
+      >
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/dompurify@2.4.4/dist/purify.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="studio-confirm.js"></script>
+  </body>
+</html>

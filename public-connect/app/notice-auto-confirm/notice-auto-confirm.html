@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="../../images/favicon.png" />
+    <title>自動通知設定確認</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="notice-auto-confirm.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <div class="page-header">
+      <h1 id="page-title">自動通知設定確認</h1>
+    </div>
+
+    <main class="container">
+      <div id="base-config-section">
+        <h3 class="menu-title">📅 イベント出欠（受付開始）</h3>
+        <div class="form-group base-notify-box">
+          <div
+            class="notifications-container"
+            id="eventStart-notifications-container"
+          ></div>
+        </div>
+
+        <h3 class="menu-title">📅 イベント出欠（受付終了）</h3>
+        <div class="form-group base-notify-box">
+          <div
+            class="notifications-container"
+            id="eventEnd-notifications-container"
+          ></div>
+        </div>
+
+        <h3 class="menu-title">🗓️ 日程調整（受付開始）</h3>
+        <div class="form-group base-notify-box">
+          <div
+            class="notifications-container"
+            id="eventAdjStart-notifications-container"
+          ></div>
+        </div>
+
+        <h3 class="menu-title">🗓️ 日程調整（受付終了）</h3>
+        <div class="form-group base-notify-box">
+          <div
+            class="notifications-container"
+            id="eventAdjEnd-notifications-container"
+          ></div>
+        </div>
+
+        <h3 class="menu-title">💰 集金（受付開始）</h3>
+        <div class="form-group base-notify-box">
+          <div
+            class="notifications-container"
+            id="collectStart-notifications-container"
+          ></div>
+        </div>
+
+        <h3 class="menu-title">💰 集金（受付終了）</h3>
+        <div class="form-group base-notify-box">
+          <div
+            class="notifications-container"
+            id="collectEnd-notifications-container"
+          ></div>
+        </div>
+
+        <h3 class="menu-title">📣 集金（催促）</h3>
+        <div class="form-group base-notify-box">
+          <div
+            class="notifications-container"
+            id="collectRemind-notifications-container"
+          ></div>
+        </div>
+
+        <h3 class="menu-title">🗳️ 投票（受付開始）</h3>
+        <div class="form-group base-notify-box">
+          <div
+            class="notifications-container"
+            id="voteStart-notifications-container"
+          ></div>
+        </div>
+
+        <h3 class="menu-title">🗳️ 投票（受付終了）</h3>
+        <div class="form-group base-notify-box">
+          <div
+            class="notifications-container"
+            id="voteEnd-notifications-container"
+          ></div>
+        </div>
+
+        <h3 class="menu-title">🎶 曲募集（受付開始）</h3>
+        <div class="form-group base-notify-box">
+          <div
+            class="notifications-container"
+            id="callStart-notifications-container"
+          ></div>
+        </div>
+
+        <h3 class="menu-title">🎶 曲募集（受付終了）</h3>
+        <div class="form-group base-notify-box">
+          <div
+            class="notifications-container"
+            id="callEnd-notifications-container"
+          ></div>
+        </div>
+      </div>
+
+      <div class="confirm-buttons">
+        <button id="edit-button" class="edit-button">編集する</button>
+      </div>
+    </main>
+
+    <div class="page-footer">
+      <a href="../notice-list/notice-list.html" class="back-link"
+        >← 通知設定一覧に戻る</a
+      >
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="notice-auto-confirm.js"></script>
+  </body>
+</html>
