@@ -3,7 +3,6 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
     <link rel="icon" href="../../images/favicon.png" type="image/png" />
     <link
       rel="apple-touch-icon"
@@ -29,19 +28,42 @@
               ><span class="accent-j">J</span>azz Orchestra</span
             >
           </h1>
-          <p class="tagline">IN MATSUYAMA, EHIME</p>
+          <p class="tagline">BASED IN MATSUYAMA, EHIME</p>
         </div>
         <div class="scroll-guide">SCROLL</div>
       </section>
 
-      <section class="content-section">
+      <section class="content-section" id="concept">
+        <div class="inner">
+          <h2 class="section-title">Concept</h2>
+          <div class="concept-body">
+            <p class="concept-lead">Jazzは続く、人も続く</p>
+            <p class="concept-text">
+              Swing Streak Jazz Orchestra（SSJO）は、愛媛大学軽音楽部Sound
+              Solution
+              OrchestraのOB・OGを中心に2021年に松山で結成されました。<br /><br />
+              現役時代のみんなで楽しく演奏ができる関係性が、これからも絶えず続けばいいなという思いが込めています。
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-section" id="live">
         <div class="inner">
           <h2 class="section-title">Upcoming Live</h2>
-          <div class="live-card-placeholder">
+          <div id="live-list" class="live-card-placeholder">
             <p>Loading Live Information...</p>
           </div>
+        </div>
+      </section>
 
-          <div style="height: 400px"></div>
+      <section class="content-section" id="latest-media">
+        <div class="inner">
+          <h2 class="section-title">Latest Media</h2>
+          <div id="media-preview"></div>
+          <div class="more-container">
+            <a href="../media/media.html" class="btn-more">VIEW ALL ARCHIVES</a>
+          </div>
         </div>
       </section>
     </main>
@@ -50,13 +72,8 @@
     <div id="dialog-placeholder"></div>
     <div id="modal-placeholder"></div>
 
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://unpkg.com/dompurify@2.4.4/dist/purify.min.js"></script>
-    <script type="module" src="../common/functions.js"></script>
+    <script async src="//www.instagram.com/embed.js"></script>
     <script type="module" src="home.js"></script>
   </body>
 </html>

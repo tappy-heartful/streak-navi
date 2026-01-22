@@ -102,3 +102,75 @@
     40% {transform: translateY(-5px);}
     60% {transform: translateY(-3px);}
 }
+/* --- Concept --- */
+.concept-lead {
+    font-size: 1.4rem;
+    color: #e7211a;
+    font-weight: bold;
+    line-height: 1.5;
+    margin-bottom: 25px;
+}
+
+.concept-text {
+    line-height: 1.8;
+    color: #ccc;
+    font-size: 0.95rem;
+}
+
+/* --- Live Cards --- */
+.live-card {
+    background: #111;
+    border: 1px solid #333;
+    display: flex;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.live-date-box {
+    border-right: 1px solid #e7211a;
+    padding-right: 15px;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.l-date {
+    font-family: 'Impact', sans-serif;
+    font-size: 1.1rem;
+    color: #e7211a;
+}
+
+.l-title {
+    font-size: 1rem;
+    margin: 0 0 5px 0;
+}
+
+.l-venue {
+    font-size: 0.8rem;
+    color: #888;
+}
+
+/* --- More Button --- */
+.more-container {
+    text-align: center;
+    margin-top: 30px;
+}
+
+.btn-more {
+    display: inline-block;
+    padding: 12px 30px;
+    border: 1px solid #e7211a;
+    color: #e7211a;
+    text-decoration: none;
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 0.1em;
+    transition: 0.3s;
+}
+
+.btn-more:hover {
+    background: #e7211a;
+    color: #fff;
+}
+
+/* 既存の hero, content-section などのスタイルは維持 */
