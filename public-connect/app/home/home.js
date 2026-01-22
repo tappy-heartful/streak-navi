@@ -6,7 +6,7 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   try {
     // 初期処理
-    await utils.initDisplay();
+    // await utils.initDisplay();
     await loadPendingAnnouncements();
     await loadQuickScores();
     await initScorePlayer();
