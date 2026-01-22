@@ -1,18 +1,22 @@
-
-/* ヘッダー：固定を解除 */
 .main-header {
+    position: fixed;    /* 画面上部に固定 */
+    top: 0;
+    left: 50%;          /* 中央配置のテクニック */
+    transform: translateX(-50%);
     width: 100%;
-    max-width: 768px;
-    margin: 0 auto;
-    background: #000;
+    max-width: 768px;   /* bodyの最大幅に合わせる */
+    height: 60px;       /* 高さを明示的に指定 */
+    background: rgba(0, 0, 0, 0.9); /* 背後が少し透ける黒 */
+    backdrop-filter: blur(5px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1000;      /* コンテンツより上に表示 */
 }
 
 .nav-container {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    height: 60px;
+    height: 100%;
 }
 
 .nav-item {
@@ -27,9 +31,9 @@
 
 .nav-item:hover {
     opacity: 1;
-    color: #e7211a; /* ホバー時にアクセントカラー */
+    color: #e7211a;
 }
 
 .nav-mypage {
-    color: #e7211a; /* マイページをアクセントカラーに */
+    color: #e7211a;
 }

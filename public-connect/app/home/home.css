@@ -4,11 +4,12 @@ body {
     color: #fff;
 }
 
-/* ヒーローセクション */
+/* --- ヒーローセクションの修正 --- */
 .hero {
     position: relative;
     width: 100%;
-    aspect-ratio: 16 / 9;
+    /* 領域を広げるため 16/9 から縦長寄りの 1/1.1 等に調整（お好みで） */
+    aspect-ratio: 1 / 1.1; 
     display: flex;
     justify-content: center;
     align-items: center;
@@ -37,15 +38,18 @@ body {
     z-index: 0;
 }
 
+
 .hero-content {
     text-align: center;
     z-index: 1;
+    /* 重要：ヘッダー(60px)の高さ分＋余白を空けて、バンド名を下げる */
+    padding-top: 80px; 
 }
 
 /* バンド名：Impactフォント適用 */
 .band-name {
     font-family: 'Impact', 'Charcoal', sans-serif;
-    font-size: 3rem; /* 少し大きく */
+    font-size: 3.2rem; /* 少し強調 */
     line-height: 1.1;
     margin: 0;
     letter-spacing: 0.05em;
