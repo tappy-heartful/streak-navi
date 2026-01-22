@@ -28,11 +28,11 @@ $(document).ready(async function () {
 async function loadMedias() {
   const mediaList = $('#media-list');
 
-  // クエリ作成：mediasコレクションからdate降順で4件
+  // クエリ作成：mediasコレクションからdate降順で10件
   const q = utils.query(
     utils.collection(utils.db, 'medias'),
     utils.orderBy('date', 'desc'),
-    utils.limit(4)
+    utils.limit(10)
   );
 
   const snapshot = await utils.getWrapDocs(q);
