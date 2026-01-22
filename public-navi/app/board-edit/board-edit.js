@@ -8,7 +8,6 @@ $(document).ready(async function () {
   try {
     const mode = utils.globalGetParamMode;
     const boardId = utils.globalGetParamBoardId;
-    const sectionIdParam = utils.globalGetParamSectionId;
     await utils.initDisplay();
 
     userSectionId = utils.getSession('sectionId');
@@ -87,23 +86,22 @@ async function loadBoardData(boardId, mode) {
   if (!docSnap.exists()) throw new Error('投稿が見つかりません');
 
   const data = docSnap.data();
+  // タイトルと本文は decoded 版を使用
   $('#board-title').val(
     data.title_decoded + (mode === 'copy' ? '（コピー）' : '')
   );
   $('#board-content').val(data.content_decoded || '');
   $('#board-scope').val(data.sectionId || 'all');
 
-  // ファイル情報の読み込み(編集モードのみ)
-  if (mode === 'edit' && data.files && Array.isArray(data.files)) {
-    // 💡 読み込み時に _decoded がついた重複データをフィルタリングしてクリーンな状態で保持
+  // ファイル情報の読み込み
+  if (data.files && Array.isArray(data.files)) {
+    // 💡 修正ポイント: name, url, path すべてにおいて decoded 版（生データ）を優先採用する
     attachedFiles = data.files.map((file) => {
-      const cleanFile = {};
-      Object.keys(file).forEach((key) => {
-        if (!key.endsWith('_decoded')) {
-          cleanFile[key] = file[key];
-        }
-      });
-      return cleanFile;
+      return {
+        name: file.name_decoded || file.name,
+        url: file.url_decoded || file.url, // URL内の & 等がエスケープされているのを戻す
+        path: file.path_decoded || file.path, // パス内の / 等がエスケープされているのを戻す
+      };
     });
     renderFileList();
   }
@@ -247,22 +245,11 @@ function renderFileList() {
 function collectData(mode) {
   const scope = $('#board-scope').val();
 
-  // 💡 保存前に attachedFiles から _decoded キーを除去したクリーンな配列を作成
-  const cleanFiles = attachedFiles.map((file) => {
-    const cleanFile = {};
-    Object.keys(file).forEach((key) => {
-      if (!key.endsWith('_decoded')) {
-        cleanFile[key] = file[key];
-      }
-    });
-    return cleanFile;
-  });
-
   const data = {
     title: $('#board-title').val().trim(),
     content: $('#board-content').val().trim(),
     sectionId: scope === 'all' ? null : scope,
-    files: cleanFiles, // クリーンなデータをセット
+    files: attachedFiles, // ここには生データが入っているため、このまま保存して共通関数側でサニタイズさせる
     updatedAt: utils.serverTimestamp(),
   };
 

@@ -5,10 +5,16 @@
   "targets": {
     "streak-navi": {
       "hosting": {
-        "prod": [
+        "connect-prod": [
+          "streak-connect"
+        ],
+        "connect-test": [
+          "streak-connect-test"
+        ],
+        "navi-prod": [
           "streak-navi"
         ],
-        "test": [
+        "navi-test": [
           "streak-navi-test"
         ]
       }
