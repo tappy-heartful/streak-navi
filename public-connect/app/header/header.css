@@ -33,3 +33,22 @@
     opacity: 1;
     color: #e7211a;
 }
+
+.nav-item.selected {
+    color: #e7211a;
+    opacity: 1;
+    position: relative;
+}
+
+/* 下に小さなドットかラインを入れる演出（お好みで） */
+.nav-item.selected::after {
+    content: "";
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 4px;
+    height: 4px;
+    background-color: #e7211a;
+    border-radius: 50%;
+}
