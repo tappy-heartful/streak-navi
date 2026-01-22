@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="../../images/favicon.png" />
+    <title>メディア一覧</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="media-list.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="page-header">
+        <h1>メディア一覧</h1>
+      </div>
+
+      <div class="container">
+        <div class="table-wrapper">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>タイトル</th>
+                <th>日付</th>
+                <th>メディア<br />(動画公開厳禁)</th>
+                <th>Top表示</th>
+              </tr>
+            </thead>
+            <tbody id="media-list-body"></tbody>
+          </table>
+        </div>
+
+        <button
+          id="add-button"
+          class="list-add-button"
+          onclick="window.location.href = '../media-edit/media-edit.html?mode=new'"
+          style="display: none"
+        >
+          ＋ 新規作成
+        </button>
+      </div>
+
+      <div class="page-footer">
+        <a href="../home/home.html" class="back-link">← ホームに戻る</a>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://unpkg.com/dompurify@2.4.4/dist/purify.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="media-list.js"></script>
+  </body>
+</html>

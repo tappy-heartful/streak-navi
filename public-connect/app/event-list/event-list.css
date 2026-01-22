@@ -1,0 +1,53 @@
+.event-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.event-list li {
+  margin-bottom: 15px;
+}
+
+/* イベントリンクを横並びに */
+.event-link {
+  display: flex;
+  justify-content: space-between; /* 左右に振り分け */
+  align-items: center; /* 高さを揃える */
+  padding: 14px 18px;
+  border-radius: 8px;
+  background-color: #f9f9f9;
+  font-size: 16px;
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.05);
+  transition: background-color 0.3s ease;
+  text-decoration: none; /* リンクの下線消す */
+}
+
+.event-link:hover {
+  background-color: #e0f5e9;
+}
+
+/* 左側の情報部分（日時・タイトル） */
+.event-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.event-date {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 5px;
+}
+
+.event-title {
+  font-size: 18px;
+  font-weight: bold;
+}
+
+/* 空リスト用 */
+.event-link.empty {
+  text-align: center;
+  color: #777;
+  background-color: #f0f0f0;
+  box-shadow: none;
+  font-size: 14px;
+}

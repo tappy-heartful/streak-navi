@@ -1,0 +1,57 @@
+.call-item {
+  margin-bottom: 20px;
+  padding: 15px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  background: #f9f9f9;
+}
+
+.call-item-title {
+  margin-bottom: 10px;
+}
+
+.call-choices input {
+  margin-bottom: 8px;
+}
+
+.add-choice, .remove-item, #add-item, #add-link {
+  margin-top: 10px;
+  background-color: #eee;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.choice-wrapper {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 8px;
+  align-items: center;
+}
+
+.choice-wrapper input {
+  flex: 1;
+}
+
+.remove-choice {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+}
+
+/* remove-itemボタン右寄せ */
+.remove-item {
+  display: block;
+  margin-left: auto;
+  margin-top: 10px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
