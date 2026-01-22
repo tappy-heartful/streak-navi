@@ -68,25 +68,6 @@
     letter-spacing: 0.2em;
 }
 
-/* コンテンツセクション */
-.content-section {
-    background-color: #000; /* 黒背景 */
-    padding: 60px 20px;
-}
-
-.section-title {
-    border-left: 4px solid #e7211a; /* タイトルの横に赤いライン */
-    padding-left: 15px;
-    font-family: 'Impact', sans-serif;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-}
-
-.inner {
-    max-width: 600px;
-    margin: 0 auto;
-}
-
 .scroll-guide {
     position: absolute;
     bottom: 20px;
@@ -172,5 +153,3 @@
     background: #e7211a;
     color: #fff;
 }
-
-/* 既存の home-hero, content-section などのスタイルは維持 */

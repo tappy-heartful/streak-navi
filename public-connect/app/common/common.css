@@ -83,6 +83,25 @@ body {
     font-weight: bold;
 }
 
+/* コンテンツセクション */
+.content-section {
+    background-color: #000; /* 黒背景 */
+    padding: 60px 20px;
+}
+
+.section-title {
+    border-left: 4px solid #e7211a; /* タイトルの横に赤いライン */
+    padding-left: 15px;
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.inner {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
 /* --- スタイリッシュ・スピナー修正 --- */
 #spinner-overlay {
   position: fixed;

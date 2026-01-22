@@ -304,6 +304,24 @@ export async function initDisplay(isShowSpinner = true) {
 
   // ウェルカム演出
   renderWelcomeOverlay();
+
+  // 画像プレビュー
+  $(document).on('click', '.btn-view-image', function (e) {
+    e.preventDefault();
+    const src = $(this).data('src');
+    const overlay = $(`
+      <div class="image-preview-overlay">
+        <div class="image-preview-content">
+          <img src="${src}">
+        </div>
+      </div>
+    `);
+    $('body').append(overlay);
+  });
+
+  $(document).on('click', '.image-preview-overlay', function () {
+    $(this).remove();
+  });
 }
 
 // パンくずリスト取得
