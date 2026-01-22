@@ -1,0 +1,124 @@
+/* --- ヒーローエリア（他ページと共通構造） --- */
+.page-hero {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-color: #000;
+    z-index: 0;
+}
+
+.page-hero::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background-image: url('../../images/background/home.jpg'); /* 背景は共通でもOK */
+    background-size: cover;
+    background-position: center;
+    filter: blur(4px) brightness(0.4);
+    z-index: -2;
+}
+
+.page-hero::after {
+    content: "";
+    position: absolute;
+    bottom: 0; left: 0; width: 100%; height: 60%;
+    background: linear-gradient(to bottom, transparent, #000);
+    z-index: -1;
+}
+
+.page-title {
+    font-family: 'Impact', sans-serif;
+    font-size: 3.5rem;
+    letter-spacing: 0.1em;
+    color: #fff;
+    padding-top: 60px;
+    text-transform: uppercase;
+}
+
+/* --- BOOTH スワイプ部分 --- */
+.goods-desc {
+    font-size: 0.9rem;
+    margin-bottom: 20px;
+    color: #ccc;
+}
+
+.horizontal-scroll {
+    display: flex;
+    gap: 15px;
+    overflow-x: auto;
+    padding-bottom: 15px;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+}
+
+.square-img {
+    width: 200px;
+    height: 200px;
+    object-fit: cover;
+    flex-shrink: 0;
+    scroll-snap-align: start;
+    border: 1px solid #333;
+}
+
+/* スクロールバーのデザイン */
+.horizontal-scroll::-webkit-scrollbar { height: 4px; }
+.horizontal-scroll::-webkit-scrollbar-thumb { background: #e7211a; }
+
+/* --- ボタン共通 --- */
+.btn-area { margin-top: 20px; text-align: center; }
+
+.btn-link, .btn-line {
+    display: inline-block;
+    padding: 12px 25px;
+    text-decoration: none;
+    font-weight: bold;
+    border-radius: 4px;
+    transition: 0.3s;
+}
+
+.btn-link {
+    border: 1px solid #e7211a;
+    color: #e7211a;
+}
+.btn-link:hover { background: #e7211a; color: #fff; }
+
+.btn-line {
+    background: #06C755; /* LINEカラー */
+    color: #fff;
+    margin-top: 15px;
+}
+
+/* --- ユヤマメ（縦長画像） --- */
+.coffee-card {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    background: #111;
+    padding: 20px;
+    border-radius: 8px;
+}
+
+.portrait-img {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.owner-name {
+    color: #e7211a;
+    font-family: 'Impact', sans-serif;
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+}
+
+.coffee-desc {
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #ddd;
+}
