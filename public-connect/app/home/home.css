@@ -1,18 +1,15 @@
-/* 追加・上書きスタイル */
+/* ベースカラー設定 */
 body {
-    background-color: #000; /* 全体のベースを黒に */
-    color: #fff;            /* 文字は白に */
+    background-color: #000;
+    color: #fff;
 }
 
-/* ヘッダー */
+/* ヘッダー：固定を解除 */
 .main-header {
-    position: fixed;
-    top: 0;
     width: 100%;
-    max-width: 768px; /* bodyに合わせる */
-    z-index: 100;
-    background: rgba(0, 0, 0, 0.5);
-    backdrop-filter: blur(10px); /* ガラスのような質感 */
+    max-width: 768px;
+    margin: 0 auto;
+    background: #000;
     border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
@@ -30,22 +27,23 @@ body {
     font-weight: bold;
     letter-spacing: 0.05em;
     opacity: 0.8;
-    transition: opacity 0.3s;
+    transition: 0.3s;
 }
 
 .nav-item:hover {
     opacity: 1;
+    color: #e7211a; /* ホバー時にアクセントカラー */
 }
 
 .nav-mypage {
-    color: #ffd700; /* マイページだけアクセントカラー */
+    color: #e7211a; /* マイページをアクセントカラーに */
 }
 
 /* ヒーローセクション */
 .hero {
     position: relative;
     width: 100%;
-    aspect-ratio: 16 / 9; /* 16:9を維持 */
+    aspect-ratio: 16 / 9;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -56,23 +54,21 @@ body {
     content: "";
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    /* ここに背景画像を指定 */
-    background-image: url('your-image.jpg'); 
+    background-image: url('../../images/background/home.jpg'); 
     background-size: cover;
     background-position: center;
-    filter: blur(4px) brightness(0.6); /* ぼやっとさせて暗くする */
+    filter: blur(2px) brightness(0.5); /* ボヤかしを2pxに軽減 */
     z-index: -1;
 }
 
-/* 下に向かって黒く消えていくグラデーション */
 .hero::after {
     content: "";
     position: absolute;
     bottom: 0;
     left: 0;
     width: 100%;
-    height: 50%;
-    background: linear-gradient(to bottom, transparent, #111);
+    height: 60%;
+    background: linear-gradient(to bottom, transparent, #000);
     z-index: 0;
 }
 
@@ -81,29 +77,46 @@ body {
     z-index: 1;
 }
 
+/* バンド名：Impactフォント適用 */
 .band-name {
-    font-size: 2.2rem;
+    font-family: 'Impact', 'Charcoal', sans-serif;
+    font-size: 3rem; /* 少し大きく */
+    line-height: 1.1;
     margin: 0;
-    letter-spacing: 0.1em;
-    font-family: 'Times New Roman', serif;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
 }
 
 .sub-name {
-    font-size: 1.2rem;
-    color: #ccc;
+    font-size: 1.8rem;
+    display: block;
+}
+
+/* J だけ赤く */
+.accent-j {
+    color: #e7211a;
 }
 
 .tagline {
     font-size: 0.9rem;
     margin-top: 10px;
-    color: #aaa;
+    color: #eee;
+    font-weight: bold;
+    letter-spacing: 0.2em;
 }
 
-/* スクロール後のコンテンツエリア */
+/* コンテンツセクション */
 .content-section {
-    background-color: #111; /* スクロール後の背景色 */
-    padding: 40px 20px;
-    min-height: 100vh;
+    background-color: #000; /* 黒背景 */
+    padding: 60px 20px;
+}
+
+.section-title {
+    border-left: 4px solid #e7211a; /* タイトルの横に赤いライン */
+    padding-left: 15px;
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
 }
 
 .inner {
@@ -116,7 +129,8 @@ body {
     bottom: 20px;
     font-size: 0.7rem;
     letter-spacing: 0.3em;
-    opacity: 0.5;
+    color: #fff;
+    opacity: 0.7;
     animation: bounce 2s infinite;
 }
 
@@ -127,9 +141,9 @@ body {
 }
 
 .main-footer {
-    padding: 40px 0;
+    padding: 60px 0;
     text-align: center;
-    font-size: 0.8rem;
-    color: #555;
-    background-color: #111;
+    font-size: 0.75rem;
+    color: #666;
+    border-top: 1px solid #222;
 }
