@@ -87,8 +87,8 @@ import { showModal } from '../modal/modal.js';
 export { showModal };
 
 // グローバル定数
-export const isTest = location.hostname.includes('streak-navi-test');
-export const globalAppName = isTest ? 'streakNaviTest' : 'streakNavi';
+export const isTest = location.hostname.includes('streak-connect-test');
+export const globalAppName = isTest ? 'streakConnectTest' : 'streakConnect';
 export const globalClientId = '2007808275';
 export const globalBaseUrl = window.location.origin;
 export const globalStrTrue = 'true';
@@ -119,7 +119,7 @@ export const globalGetParamType = globalGetparams.get('type');
 export const globalGetParamSectionId = globalGetparams.get('sectionId');
 
 // 画面名
-export const globalScreenName = document.title || 'Streak Navi';
+export const globalScreenName = document.title || 'Streak Connect';
 
 // データをセッションストレージからクリアする関数
 export function removeSession(key) {
