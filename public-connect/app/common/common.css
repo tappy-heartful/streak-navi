@@ -1,54 +1,56 @@
 /* ベーススタイル */
 html {
-  /* height: 100%; は削除 */
   width: 100%;
-  /* 縦スクロールを常に許可し、メニューバーの挙動を安定させる */
   overflow-y: scroll;
 }
 
 body {
-  /* 画面の高さに合わせつつ、メニューバーの変化に対応させる */
   min-height: 100dvh; 
   width: 100%;
   max-width: 768px;
   margin: 0 auto;
   padding: 0;
-  
-  /* 横揺れ防止 */
   overflow-x: hidden;
-  
-  /* Safariでスクロールが止まる現象（フリーズ）への対策 */
   -webkit-overflow-scrolling: touch;
-  
-  /* 上下の引っ張りすぎ（バウンス）による背景のチラつき防止 */
   overscroll-behavior-y: none;
-
   font-family: Arial, sans-serif;
-  color: #333;
-  background-color: #f4f4f4;
+  color: #fff;             /* ホームに合わせて基本文字色を白に */
+  background-color: #000;  /* ホームに合わせて基本背景を黒に */
 }
 
-/* スピナー表示 */
+/* --- スタイリッシュ・スピナー修正 --- */
 #spinner-overlay {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background: rgba(255,255,255,0.8);
-  z-index: 999;
+  background: rgba(0, 0, 0, 0.9); /* 漆黒の透過背景 */
+  z-index: 9999;
   display: flex;
+  flex-direction: column; /* 垂直に並べる */
   align-items: center;
   justify-content: center;
+  gap: 20px;
 }
 
 .spinner {
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #4caf50;
+  border: 3px solid rgba(255, 255, 255, 0.1); /* 控えめな台座の輪 */
+  border-top: 3px solid #e7211a;               /* 鋭い赤のライン */
   border-radius: 50%;
-  width: 50px;
-  height: 50px;
-  animation: spin 0.8s linear infinite;
+  width: 40px;
+  height: 40px;
+  animation: spin 0.6s cubic-bezier(0.4, 0, 0.2, 1) infinite; /* 少し速く、滑らかに */
+}
+
+/* スピナーの下に文字を出す場合用（任意） */
+#spinner-overlay::after {
+  content: "LOADING";
+  color: #fff;
+  font-family: 'Impact', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  margin-top: 10px;
 }
 
 @keyframes spin {
@@ -56,12 +58,10 @@ body {
   100% { transform: rotate(360deg); }
 }
 
-
 /* 隠し */
 .hidden {
   display: none !important;
 }
-
 
 /* YouTube埋め込みモーダル */
 .youtube-embed {
@@ -91,38 +91,36 @@ body {
   margin-top: 8px;
 }
 
-/* 左側の注意文 */
 .youtube-notice {
   font-size: 14px;
   font-weight: bold;
   color: #888888;
-  margin-right: 8px; /* 左側とのスペース */
+  margin-right: 8px;
 }
 
-/* 右側のリンク */
 .youtube-link-container a {
+  color: #e7211a; /* リンク色もアクセントカラーに */
   font-weight: bold;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-left: auto; /* ←これで常に右寄せ */
+  margin-left: auto;
 }
 
 /* Instagram埋め込み */
 .instagram-embed {
-  background: #fff;
+  background: #111; /* 背景を少し暗めに */
   border: 0;
   border-radius: 16px;
-  box-shadow: 0 0 1px 0 rgba(0,0,0,0.5), 0 1px 10px 0 rgba(0,0,0,0.15);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
   margin: 8px 0;
   padding: 0;
-  width: 100%;          /* コンテナ幅に合わせる */
-  max-width: 100%;      /* はみ出し防止 */
+  width: 100%;
+  max-width: 100%;
   box-sizing: border-box;
 }
 
-/* Instagram 埋め込みの幅をレスポンシブにする */
 .instagram-embed iframe.instagram-media {
   min-width: 0 !important;
   width: 100% !important;
@@ -131,15 +129,13 @@ body {
 }
 
 /* Google Drive埋め込み */
-/* drive-embedはiframe専用ラッパーに */
 .drive-embed-wrapper {
-  margin-bottom: 12px; /* 注意文との間隔 */
+  margin-bottom: 12px;
 }
 
-/* iframeラッパー */
 .drive-embed {
   position: relative;
-  padding-bottom: 56.25%; /* 16:9 */
+  padding-bottom: 56.25%;
   height: 0;
   overflow: hidden;
   border-radius: 16px;
@@ -155,13 +151,12 @@ body {
   border: 0;
 }
 
-/* 注意文 */
 .drive-notice {
   text-align: left;
   font-size: 14px;
   margin-top: 4px;
   font-weight: bold;
-  color: #888888; /* 薄めグレー */
+  color: #888888;
 }
 
 /* --- プレビュー用モーダル修正 --- */
@@ -171,12 +166,12 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.9); /* 背景を少し濃く */
+    background: rgba(0, 0, 0, 0.95); /* より没入感を出すため濃く */
     display: flex;
     justify-content: center;
     align-items: center;
     z-index: 10000;
-    cursor: pointer; /* どこでも閉じれる感 */
+    cursor: pointer;
 }
 
 .image-preview-content {
@@ -189,8 +184,8 @@ body {
 
 .image-preview-content img {
     display: block;
-    max-width: 95%;  /* 左右に少し余白 */
-    max-height: 100%; /* 上下端を画面に合わせる */
-    object-fit: contain; /* アスペクト比を維持して収める */
-    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    max-width: 95%;
+    max-height: 100%;
+    object-fit: contain;
+    box-shadow: 0 0 30px rgba(231, 33, 26, 0.2); /* プレビューにうっすら赤い光を */
 }

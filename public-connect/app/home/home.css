@@ -1,9 +1,3 @@
-/* ベースカラー設定 */
-body {
-    background-color: #000;
-    color: #fff;
-}
-
 /* --- ヒーローセクションの修正 --- */
 .hero {
     position: relative;
