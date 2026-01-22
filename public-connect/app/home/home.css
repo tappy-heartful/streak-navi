@@ -1,367 +1,176 @@
-/* お知らせ */
-.announcement-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 10px;
+/* --- ヒーローセクションの修正 --- */
+.hero {
+    position: relative;
+    width: 100%;
+    /* 領域を広げるため 16/9 から縦長寄りの 1/1.1 等に調整（お好みで） */
+    aspect-ratio: 1 / 1.1; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
 }
 
-.notification-list {
-  list-style: none;
-  padding-left: 0;
-  margin: 0;
+.hero::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url('../../images/background/home.jpg'); 
+    background-size: cover;
+    background-position: center;
+    filter: blur(2px) brightness(0.5); /* ボヤかしを2pxに軽減 */
+    z-index: -1;
 }
 
-.notification-list li {
-  margin-bottom: 10px;
+.hero::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    background: linear-gradient(to bottom, transparent, #000);
+    z-index: 0;
 }
 
-.notification-link {
-  display: block;
-  padding: 12px 16px;
-  border-radius: 8px;
-  background-color: #f9f9f9;
-  transition: background 0.3s ease;
-  font-size: 16px;
-  box-shadow: 1px 1px 5px rgba(0, 0, 0, 0.05);
-  cursor: pointer; /* クリックできることを示す */
-  position: relative;
+
+.hero-content {
+    text-align: center;
+    z-index: 1;
+    /* 重要：ヘッダー(60px)の高さ分＋余白を空けて、バンド名を下げる */
+    padding-top: 80px; 
 }
 
-.notification-link::after {
-  content: '›'; /* 矢印アイコン */
-  position: absolute;
-  right: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 20px;
-  color: #999;
-  transition: transform 0.2s ease;
+/* バンド名：Impactフォント適用 */
+.band-name {
+    font-family: 'Impact', 'Charcoal', sans-serif;
+    font-size: 3.2rem; /* 少し強調 */
+    line-height: 1.1;
+    margin: 0;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
 }
 
-.notification-link:hover {
-  background-color: #e0f5e9;
+.sub-name {
+    font-size: 1.8rem;
+    display: block;
 }
 
-.pending-message {
-  font-weight: bold;
-  color: #ffae9c;
-  padding-left: 16px;
+/* J だけ赤く */
+.accent-j {
+    color: #e7211a;
 }
 
-.empty-message .notification-link {
-  background-color: #f0f0f0;
-  color: #777;
-  font-size: 14px;
-  text-align: center;
-  box-shadow: none;
+.tagline {
+    font-size: 0.9rem;
+    margin-top: 10px;
+    color: #eee;
+    font-weight: bold;
+    letter-spacing: 0.2em;
 }
 
-/* クイックアクセス用の行 */
-.quick-score-row {
-  display: flex;
-  gap: 12px;
-  margin-bottom: 10px;
+/* コンテンツセクション */
+.content-section {
+    background-color: #000; /* 黒背景 */
+    padding: 60px 20px;
 }
 
-/* クイックアクセスのリンク */
-.quick-score-link {
-  flex: 1; /* 2つ並んだとき均等幅 */
-  display: block;
-  padding: 12px;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  text-align: center;
-  font-weight: bold;
-  transition: background-color 0.2s ease;
+.section-title {
+    border-left: 4px solid #e7211a; /* タイトルの横に赤いライン */
+    padding-left: 15px;
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
 }
 
-.quick-score-link:hover {
-  background-color: #e0f5e9;
+.inner {
+    max-width: 600px;
+    margin: 0 auto;
 }
 
-/* 空メッセージ */
-.score-list .empty-message {
-  text-align: center;
-  color: #777;
-  font-size: 14px;
-  padding: 12px;
+.scroll-guide {
+    position: absolute;
+    bottom: 20px;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    color: #fff;
+    opacity: 0.7;
+    animation: bounce 2s infinite;
 }
 
-/* メニューボタン */
-.menu-list {
-  display: grid;
-  grid-template-columns: repeat(2, 1fr); /* 2列にする */
-  gap: 12px; /* ボタン間の余白 */
+@keyframes bounce {
+    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+    40% {transform: translateY(-5px);}
+    60% {transform: translateY(-3px);}
+}
+/* --- Concept --- */
+.concept-lead {
+    font-size: 1.4rem;
+    color: #e7211a;
+    font-weight: bold;
+    line-height: 1.5;
+    margin-bottom: 25px;
 }
 
-.menu-title {
-  grid-column: 1 / -1; /* タイトルは列をまたがせて1行全体を占有 */
-  margin-top: 16px;
-  font-size: 1.1em;
-  font-weight: bold;
+.concept-text {
+    line-height: 1.8;
+    color: #ccc;
+    font-size: 0.95rem;
 }
 
-.menu-button {
-  display: block;
-  padding: 12px;
-  text-align: center;
-
-  background-color: #4caf50;
-  color: white;
-  border-radius: 10px;
-  text-decoration: none;
-  text-align: center;
-  position: relative;
-  overflow: hidden;
-  transition: background 0.3s ease;
-  box-shadow: 2px 2px 8px rgba(0, 0, 0, 0.08);
-  box-sizing: border-box;
+/* --- Live Cards --- */
+.live-card {
+    background: #111;
+    border: 1px solid #333;
+    display: flex;
+    margin-bottom: 15px;
+    padding: 15px;
+    border-radius: 4px;
 }
 
-.player-title {
-  display: block; /* ブロックにする */
-  width: fit-content; /* 下線は文字幅に合わせる */
-  margin: 0 auto 0.5em; /* 自動マージンで中央揃え */
-  font-size: 16px;
-  color: #666;
-  border-bottom: 1px solid #ccc;
-  padding-bottom: 0.2em;
-  text-align: center; /* 念のためテキストも中央 */
+.live-date-box {
+    border-right: 1px solid #e7211a;
+    padding-right: 15px;
+    margin-right: 15px;
+    display: flex;
+    align-items: center;
 }
 
-.player-wrapper {
-  display: block; /* flex をやめる */
-  position: relative;
-  width: 100%;
-  max-width: 560px;
-  margin: 1em auto;
+.l-date {
+    font-family: 'Impact', sans-serif;
+    font-size: 1.1rem;
+    color: #e7211a;
 }
 
-#blue-note-videos {
-  width: 100%; /* 横幅いっぱい */
-  max-width: 800px; /* 任意で最大幅 */
-  aspect-ratio: 16/9;
+.l-title {
+    font-size: 1rem;
+    margin: 0 0 5px 0;
 }
 
-#score-videos {
-  width: 100%; /* 横幅いっぱい */
-  max-width: 800px; /* 任意で最大幅 */
-  aspect-ratio: 16/9;
+.l-venue {
+    font-size: 0.8rem;
+    color: #888;
 }
 
-.player-controls {
-  display: flex;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap; /* 狭い画面では改行 */
-  margin-top: 10px; /* 動画とボタンの間隔 */
+/* --- More Button --- */
+.more-container {
+    text-align: center;
+    margin-top: 30px;
 }
 
-.player-control {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  padding: 10px 20px;
-  font-size: 16px;
-  border: none;
-  border-radius: 8px;
-  background-color: #4caf50;
-  color: white;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  white-space: nowrap; /* ボタン内折返し防止 */
+.btn-more {
+    display: inline-block;
+    padding: 12px 30px;
+    border: 1px solid #e7211a;
+    color: #e7211a;
+    text-decoration: none;
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 0.1em;
+    transition: 0.3s;
 }
 
-.player-control i {
-  font-size: 1.2em;
+.btn-more:hover {
+    background: #e7211a;
+    color: #fff;
 }
 
-.player-control:hover {
-  background-color: #45a049;
-}
-
-/* iframe表示部分はそのまま */
-.video {
-  display: none;
-}
-
-.video.active {
-  display: block;
-  animation: fadeIn 0.5s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* 背景アイコン */
-.menu-button::after {
-  content: '';
-  position: absolute;
-  right: 20px;
-  top: 50%;
-  transform: translateY(-50%);
-  font-size: 40px;
-  color: white; /* 透過は opacity で調整 */
-  opacity: 0.05; /* Safariでも効く */
-  pointer-events: none;
-}
-
-/* 各アイコン例 */
-.menu-button.score::after {
-  content: '🎼';
-}
-
-.menu-button.event::after {
-  content: '🎺';
-}
-
-.menu-button.call::after {
-  content: '🎶';
-}
-
-.menu-button.assign::after {
-  content: '🎵';
-}
-
-.menu-button.studio::after {
-  content: '📍';
-}
-
-.menu-button.vote::after {
-  content: '📊';
-}
-
-.menu-button.collect::after {
-  content: '💰';
-}
-
-.menu-button.user::after {
-  content: '👥';
-}
-
-.menu-button.notice::after {
-  content: '📣';
-}
-
-.menu-button.blue-note::after {
-  content: '🎧';
-}
-
-.menu-button.media::after {
-  content: '🎬';
-}
-
-.menu-button.board::after {
-  content: '📋';
-}
-
-.menu-button:hover {
-  background-color: #45a049;
-}
-
-/* バッジ（右上固定） */
-/* 今日の一曲ボタン用（右上バッジ付き） */
-.menu-button.badge-inline {
-  position: relative; /* バッジをこの中で絶対配置 */
-  display: block; /* ボタン全体が基準になる */
-  text-align: center;
-  padding: 12px;
-  box-sizing: border-box;
-}
-
-/* 右上に浮かせるバッジ */
-.menu-button.badge-inline .badge {
-  position: absolute;
-  top: 2px;
-  right: 2px;
-  background-color: #ff3b30;
-  color: #fff;
-  font-size: 10px;
-  font-weight: bold;
-  padding: 3px 6px;
-  border-radius: 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  white-space: nowrap;
-  animation: pulse 1.5s infinite;
-  pointer-events: none; /* クリック邪魔しない */
-}
-
-/* バッジ点滅アニメーション */
-@keyframes pulse {
-  0%,
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
-  50% {
-    transform: scale(1.2);
-    opacity: 0.8;
-  }
-}
-
-/* コンテンツ一覧 */
-.content-list {
-  display: flex;
-  flex-direction: column;
-  gap: 30px;
-  margin-top: 20px;
-}
-
-/* 各コンテンツ */
-.content-item {
-  box-sizing: border-box;
-  width: 100%;
-}
-
-/* タイトル */
-.content-item h4 {
-  font-weight: bold;
-  text-align: center;
-  font-size: 1.2em;
-  color: #6d6d6d;
-  margin-bottom: 0.25em;
-}
-
-/* 日付 */
-.media-date {
-  text-align: center;
-  font-family: 'Roboto', sans-serif; /* 読みやすいシンプルなフォント */
-  font-size: 0.75em; /* 小さめ */
-  color: #999; /* 薄めグレー */
-  margin-bottom: 2em;
-}
-
-/* iframe（YouTubeなど） */
-.content-item iframe {
-  width: 100%;
-  aspect-ratio: 16/9; /* レスポンシブ対応 */
-  border: none;
-  border-radius: 8px;
-}
-
-/* 外部リンク */
-.content-item .external-link {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  margin-top: 10px;
-  font-weight: bold;
-  color: #4caf50;
-  text-decoration: none;
-}
-
-.content-item .external-link:hover {
-  text-decoration: underline;
-}
-
-/* 外部リンクのアイコン */
-.content-item .external-link i {
-  font-size: 0.9em;
-}
+/* 既存の hero, content-section などのスタイルは維持 */
