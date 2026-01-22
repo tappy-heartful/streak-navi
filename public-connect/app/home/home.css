@@ -1,5 +1,5 @@
 /* --- ヒーローセクションの修正 --- */
-.hero {
+.home-hero {
     position: relative;
     width: 100%;
     /* 領域を広げるため 16/9 から縦長寄りの 1/1.1 等に調整（お好みで） */
@@ -10,7 +10,7 @@
     overflow: hidden;
 }
 
-.hero::before {
+.home-hero::before {
     content: "";
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -21,7 +21,7 @@
     z-index: -1;
 }
 
-.hero::after {
+.home-hero::after {
     content: "";
     position: absolute;
     bottom: 0;
@@ -33,7 +33,7 @@
 }
 
 
-.hero-content {
+.home-hero-content {
     text-align: center;
     z-index: 1;
     /* 重要：ヘッダー(60px)の高さ分＋余白を空けて、バンド名を下げる */
@@ -173,4 +173,4 @@
     color: #fff;
 }
 
-/* 既存の hero, content-section などのスタイルは維持 */
+/* 既存の home-hero, content-section などのスタイルは維持 */
