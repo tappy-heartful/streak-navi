@@ -1,8 +1,8 @@
-/* ヒーローエリア（ホームより少し低め） */
+/* ヒーローエリア */
 .media-hero {
     position: relative;
     width: 100%;
-    aspect-ratio: 16 / 7;
+    aspect-ratio: 16 / 9; /* 少し広げて16:9に */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -14,11 +14,20 @@
     content: "";
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
+    /* パス修正：home.cssと同じ階層なら ../../ で届くはずですが
+       表示されない場合は images/background/home.jpg など階層を再確認してください */
     background-image: url('../../images/background/home.jpg'); 
     background-size: cover;
     background-position: center;
     filter: blur(4px) brightness(0.4);
     z-index: -1;
+}
+
+.hero-content {
+    text-align: center;
+    z-index: 1;
+    padding: 0 20px; /* 左右に余白を追加 */
+    width: 100%;
 }
 
 .page-title {
@@ -28,6 +37,7 @@
     margin: 0;
     color: #fff;
     padding-top: 60px;
+    text-transform: uppercase;
 }
 
 .tagline {
@@ -42,17 +52,23 @@
 .media-grid {
     display: flex;
     flex-direction: column;
-    gap: 50px; /* カード同士の間隔 */
+    gap: 60px; /* カード同士の間隔を少し広めに */
     margin-top: 40px;
 }
 
 .media-card {
     border-bottom: 1px solid #222;
-    padding-bottom: 30px;
+    padding-bottom: 40px;
+    /* スマホで横幅ギリギリにならないよう調整 */
+    padding-left: 10px;
+    padding-right: 10px;
 }
 
 .media-info {
-    margin-bottom: 15px;
+    margin-bottom: 20px;
+    /* 日付とタイトルに左ラインを入れてホームと統一感を出す */
+    border-left: 2px solid #e7211a;
+    padding-left: 15px;
 }
 
 .media-date {
@@ -60,23 +76,27 @@
     color: #e7211a;
     font-size: 1.1rem;
     letter-spacing: 0.05em;
+    display: block;
 }
 
 .media-title {
-    font-size: 1.3rem;
+    font-size: 1.2rem;
     margin: 5px 0 0 0;
     font-weight: bold;
     letter-spacing: 0.02em;
+    color: #fff;
+    line-height: 1.4;
 }
 
 .media-body {
     width: 100%;
+    margin-top: 10px;
 }
 
-/* 読み込み中テキスト */
-.loading-text {
+/* 読み込み中・データなしテキスト */
+.loading-text, .no-data {
     text-align: center;
     color: #666;
     font-style: italic;
-    padding: 40px 0;
+    padding: 60px 0;
 }
