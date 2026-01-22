@@ -1,0 +1,82 @@
+/* ヒーローエリア（ホームより少し低め） */
+.media-hero {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 7;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background: #000;
+}
+
+.media-hero::before {
+    content: "";
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-image: url('../../images/background/home.jpg'); 
+    background-size: cover;
+    background-position: center;
+    filter: blur(4px) brightness(0.4);
+    z-index: -1;
+}
+
+.page-title {
+    font-family: 'Impact', sans-serif;
+    font-size: 3.5rem;
+    letter-spacing: 0.1em;
+    margin: 0;
+    color: #fff;
+    padding-top: 60px;
+}
+
+.tagline {
+    font-size: 0.8rem;
+    color: #e7211a;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+/* メディアリスト */
+.media-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 50px; /* カード同士の間隔 */
+    margin-top: 40px;
+}
+
+.media-card {
+    border-bottom: 1px solid #222;
+    padding-bottom: 30px;
+}
+
+.media-info {
+    margin-bottom: 15px;
+}
+
+.media-date {
+    font-family: 'Impact', sans-serif;
+    color: #e7211a;
+    font-size: 1.1rem;
+    letter-spacing: 0.05em;
+}
+
+.media-title {
+    font-size: 1.3rem;
+    margin: 5px 0 0 0;
+    font-weight: bold;
+    letter-spacing: 0.02em;
+}
+
+.media-body {
+    width: 100%;
+}
+
+/* 読み込み中テキスト */
+.loading-text {
+    text-align: center;
+    color: #666;
+    font-style: italic;
+    padding: 40px 0;
+}
