@@ -6,15 +6,15 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   try {
     // 初期処理
-    // await utils.initDisplay();
-    await loadPendingAnnouncements();
-    await loadQuickScores();
-    await initScorePlayer();
-    await initBlueNotes();
-    await loadMedias();
+    await utils.initDisplay();
+    // await loadPendingAnnouncements();
+    // await loadQuickScores();
+    // await initScorePlayer();
+    // await initBlueNotes();
+    // await loadMedias();
 
-    // イベント登録
-    setupEventHandlers();
+    // // イベント登録
+    // setupEventHandlers();
 
     // スピナー非表示
     utils.hideSpinner();

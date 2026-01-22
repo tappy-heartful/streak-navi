@@ -1,258 +1,35 @@
-.site-header {
-  width: 100%;
-  max-width: 768px;
-  margin: 0 auto;
-  padding: 10px 20px;
-  box-sizing: border-box;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background-color: white;
-  border-bottom: 1px solid #ccc;
+
+/* ヘッダー：固定を解除 */
+.main-header {
+    width: 100%;
+    max-width: 768px;
+    margin: 0 auto;
+    background: #000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
 }
 
-.logo-text {
-  font-family: Impact, sans-serif;
-  font-size: 24px;
-  color: white;
-  background-color: black;
-  padding: 6px 12px;
-  border-radius: 8px;
-  display: inline-block;
-  cursor: pointer;
-  user-select: none;
+.nav-container {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    height: 60px;
 }
 
-.logo-text .logo-n {
-  color: rgb(208, 2, 2);
+.nav-item {
+    color: #fff;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    opacity: 0.8;
+    transition: 0.3s;
 }
 
-.header-right .line-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: 50%; /* 丸型にする */
-  object-fit: cover;
+.nav-item:hover {
+    opacity: 1;
+    color: #e7211a; /* ホバー時にアクセントカラー */
 }
 
-/* === Overlay === */
-.menu-overlay {
-  position: fixed;
-  top: 0; left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0,0,0,0.45);
-  display: none;
-  z-index: 90;
-}
-
-/* === Slide Menu === */
-.slide-menu {
-  position: fixed;
-  top: 0; right: -75%;
-  width: 75%;
-  max-width: 320px;
-  height: 100vh;
-  background: white;
-  box-shadow: 3px 0 10px rgba(0,0,0,0.2);
-  z-index: 100;
-  padding: 16px;
-  box-sizing: border-box;
-  transition: right 0.25s ease;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  max-height: 100dvh;
-}
-
-/* 開いた状態 */
-.slide-menu.open {
-  right: 0;
-}
-
-.menu-header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-bottom: 16px;
-  position: relative;
-}
-
-.menu-user-icon {
-  width: 60px; height: 60px;
-  border-radius: 50%;
-  object-fit: cover;
-}
-
-.menu-user-name {
-  cursor: pointer;
-  font-size: 16px;
-  font-weight: bold;
-}
-
-.close-menu {
-  position: absolute;
-  top: 4px; right: 4px;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 6px;
-}
-.close-menu:hover {
-  background: #f2f2f2;
-}
-
-.slide-menu-section {
-  border-top: 1px solid #ddd;
-  padding-top: 12px;
-  margin-top: 12px;
-
-  /* ▼ 追加（縦→2列レイアウト） */
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px 12px; /* 行、列の余白 */
-}
-
-.slide-menu-section a {
-  font-weight: 600;
-  cursor: pointer;
-  font-size: 16px;
-  color: #222;
-  text-decoration: none;
-  padding: 8px 4px;
-
-  /* ▼ 追加（見た目整える） */
-  text-align: center;
-  background: #f5f5f7;
-  border-radius: 6px;
-}
-
-.slide-menu-section a:hover {
-  opacity: 0.7;
-}
-
-/* 下段（設定・ログアウト） */
-.menu-bottom {
-  margin-top: auto;
-  border-top: 1px solid #ccc;
-  padding-top: 16px;
-  grid-template-columns: 1fr;
-}
-
-.logout-text {
-  color: #c92626 !important;
-}
-
-.header-left {
-  position: relative; /* メニュー位置の基準にする */
-}
-
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  cursor: pointer;
-  position: relative; /* ← これが重要 */
-}
-
-/* ハンバーガー */
-.hamburger-menu {
-  font-size: 28px;
-  cursor: pointer;
-  padding: 8px;
-  border-radius: 6px;
-}
-
-.hamburger-menu:hover {
-  background-color: #f0f0f0;
-}
-
-/* パンくず＋シェアボタンを横並びに */
-.breadcrumb-bar {
-  max-width: 768px;
-  margin: 8px auto;
-  padding: 0 12px;
-  display: flex;
-  justify-content: space-between; /* 左:パンくず / 右:シェア */
-  align-items: center;
-}
-
-.breadcrumb-bar #breadcrumb-container {
-  flex: 1; /* 可能なら広がる */
-}
-
-/* パンくずリスト */
-.breadcrumb {
-  max-width: 768px;
-  margin: 8px auto 8px auto;
-  padding: 8px 12px;
-  font-size: 14px;
-  color: #666;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 6px;
-}
-
-.breadcrumb a {
-  text-decoration: none;
-  font-weight: 500;
-  transition: color 0.2s;
-}
-
-.breadcrumb a:hover {
-  text-decoration: underline;
-}
-
-.breadcrumb .separator {
-  color: #999;
-}
-
-.breadcrumb .current {
-  font-weight: bold;
-  color: #333;
-}
-
-/* スマホで長すぎる場合は省略対応 */
-@media (max-width: 480px) {
-  .breadcrumb {
-    font-size: 12px;
-    overflow-x: auto;
-    white-space: nowrap;
-    scrollbar-width: none; /* Firefox */
-  }
-  .breadcrumb::-webkit-scrollbar {
-    display: none; /* Chrome/Safari */
-  }
-}
-
-/* フッター内のシェアボタン */
-.share-button {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  font-size: 14px;
-  color: #fff;
-  background-color: #4CAF50; /* 緑系 */
-  border: none;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background-color 0.2s, transform 0.1s;
-}
-
-/* アイコン調整 */
-.share-button i {
-  font-size: 14px;
-}
-
-/* ホバー時 */
-.share-button:hover {
-  background-color: #45a049;
-  transform: translateY(-1px);
-}
-
-/* 押下時 */
-.share-button:active {
-  background-color: #1e5c39;
-  transform: translateY(1px);
+.nav-mypage {
+    color: #e7211a; /* マイページをアクセントカラーに */
 }
