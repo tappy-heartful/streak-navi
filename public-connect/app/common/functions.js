@@ -308,11 +308,15 @@ export async function initDisplay(isShowSpinner = true) {
   // 画像プレビュー
   $(document).on('click', '.btn-view-image', function (e) {
     e.preventDefault();
-    const src = $(this).data('src');
+    e.stopPropagation();
+
+    // すでに開いている場合は一旦削除（重複防止）
+    $('.image-preview-overlay').remove();
+    const url = $(this).data('url');
     const overlay = $(`
       <div class="image-preview-overlay">
         <div class="image-preview-content">
-          <img src="${src}">
+          <img src="${url}">
         </div>
       </div>
     `);
