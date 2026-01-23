@@ -43,7 +43,8 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    background-image: url('../../images/background/media.jpg'); 
+    /* デフォルト画像を設定。変数が空ならこれが使われる */
+    background-image: var(--hero-bg, url('../../images/background/default.jpg'));
     background-size: cover;
     background-position: center;
     filter: blur(4px) brightness(0.4);

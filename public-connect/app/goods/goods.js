@@ -4,6 +4,10 @@ $(document).ready(async function () {
   try {
     await utils.initDisplay();
 
+    // heroの画像を差し替え
+    // --hero-bg という変数の値を書き換える
+    $('.hero').css('--hero-bg', 'url("../../images/background/goods.jpg")');
+
     // 商品画像の制御
     renderGoodsItems();
   } catch (e) {
