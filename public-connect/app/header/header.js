@@ -1,18 +1,21 @@
 import * as utils from '../common/functions.js';
 
-////////////////////////////
-// 初期表示
-////////////////////////////
 $(document).ready(async function () {
   try {
     // ヘッダーなどの初期化
     await utils.initDisplay();
 
-    // ★ ここでカレント表示を実行
-    markCurrentPage();
+    // ログイン中のアイコン反映
+    const picUrl = utils.getSession('pictureUrl');
+    if (picUrl) {
+      $('#header-icon-img').attr('src', picUrl);
+    }
 
+    markCurrentPage();
     utils.hideSpinner();
-  } catch (e) {}
+  } catch (e) {
+    console.error('Header initialization error:', e);
+  }
 });
 
 /**
@@ -23,13 +26,10 @@ export function markCurrentPage() {
 
   $('.nav-item').each(function () {
     const href = $(this).attr('href');
-
-    // 1. パスが一致するか、またはHomeの場合でトップディレクトリへの配慮
-    // 2. hrefが未設定（"#"）の場合はスキップ
     if (href && href !== '#') {
-      // リンクのパスが現在のURLに含まれているか判定
-      // (../home/home.html のような相対パスでも判定できるよう endsWith 等を使用)
-      if (currentPath.endsWith(href.replace('../', '/'))) {
+      // パスの一致判定（../home/home.html 等に対応）
+      const normalizedHref = href.replace('../', '/');
+      if (currentPath.endsWith(normalizedHref)) {
         $(this).addClass('selected');
       }
     }
