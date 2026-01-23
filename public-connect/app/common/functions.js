@@ -229,31 +229,33 @@ export async function initDisplay(
     // スピナー表示
     showSpinner();
   }
-
   // チケット予約、マイページはログイン必須
   if (isAuthRequired) {
-    // ログイン必要な画面だった場合の認証チェック
-    // --- 1. Firebase Auth の認証状態が確立されるのを待つ --- // セッションが有効であれば、認証済みユーザー (user) が返される
+    // --- 1. Firebase Auth の認証状態が確立されるのを待つ ---
     const user = await new Promise((resolve) => {
       const unsubscribe = auth.onAuthStateChanged((user) => {
-        unsubscribe(); // 購読を解除
+        unsubscribe();
         resolve(user);
       });
     });
 
     // --- 2. 認証チェック ---
     if (!user) {
-      // セッションクリア
       clearAllAppSession();
 
-      // 認証情報がない場合ログイン実施
       try {
-        // サーバーにリクエストしてLINEログインURLとstateを取得
-        const res = await fetch(`${globalAuthServerRender}/get-line-login-url`);
+        // 【修正ポイント】現在のURLをリダイレクト先として取得
+        const currentUrl = window.location.href;
+
+        // 【修正ポイント】クエリパラメータに redirectAfterLogin を付与してリクエスト
+        const fetchUrl = `${globalAuthServerRender}/get-line-login-url?redirectAfterLogin=${encodeURIComponent(currentUrl)}`;
+
+        const res = await fetch(fetchUrl);
         const { loginUrl } = await res.json();
 
         // LINEログインURLへ遷移
         window.location.href = loginUrl;
+        return; // 遷移するのでここで処理終了
       } catch (err) {
         alert('ログインURL取得失敗: ' + err.message);
       } finally {
@@ -261,23 +263,24 @@ export async function initDisplay(
       }
     }
 
-    // --- 3. アカウント存在チェック (Firestore) --- // 認証された user.uid を使用
+    // --- 3. アカウント存在チェック (Firestore) ---
+    // streak-connect用にコレクション名を 'connectUsers' に修正済み
     const userRef = doc(db, 'connectUsers', user.uid);
     const userSnap = await getWrapDoc(userRef);
+
     if (!userSnap.exists()) {
-      // Firebase Authにはユーザーがいるが、Firestoreからデータが削除されている場合
-      // セッションもクリアし、ログインページへ遷移させる
-      await auth.signOut(); // Firebase Authからもサインアウト
+      await auth.signOut();
       clearAllAppSession();
+      // ユーザーが存在しない場合はトップページ等へ
       window.location.href = window.location.origin;
       hideSpinner();
-      return; // 処理を中断
+      return;
     }
-    // --- 4. ユーザー情報をセッション (カスタムデータ) に更新 --- // Firebase Authのセッションとは別に、アプリ固有のユーザーデータを最新化
+
+    // --- 4. ユーザー情報をセッションに更新 ---
     for (const [key, value] of Object.entries(userSnap.data())) {
       setSession(key, value);
     }
-    // 継続ログインの場合uidだけはセットされていないので、ここでセット
     setSession('uid', user.uid);
   }
 
