@@ -55,9 +55,7 @@ window.handleDeleteReservation = async function (liveId) {
     const reservationId = `${liveId}_${uid}`;
 
     // Firestoreから削除
-    await utils.archiveAndDeleteDoc(
-      utils.doc('liveReservations', reservationId),
-    );
+    await utils.archiveAndDeleteDoc('liveReservations', reservationId);
 
     alert('予約を取り消しました');
     await loadMyTickets(); // 一覧を再読み込み
