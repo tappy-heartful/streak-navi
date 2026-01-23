@@ -108,6 +108,39 @@ body {
     max-width: 600px;
     margin: 0 auto;
 }
+/* ホームに戻るボタンエリア */
+.page-actions {
+    text-align: center;
+    margin: 40px 0 20px; /* 上下に余白 */
+    padding: 0 15px;
+}
+
+.btn-back-home {
+    display: inline-block;
+    color: #e7211a;           /* 赤い文字 */
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: bold;
+    padding: 10px 25px;
+    border: 1px solid #e7211a; /* 赤い細い枠線 */
+    border-radius: 4px;        /* 軽く角を丸める（SSJOの他デザインに合わせる） */
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+/* ホバーした時の反応（お好みで） */
+.btn-back-home:hover {
+    background: rgba(231, 33, 26, 0.05); /* ほんのり赤く */
+    opacity: 0.8;
+}
+
+/* スマホ対応：ボタンが横幅いっぱいに広がらないよう制御 */
+@media screen and (max-width: 600px) {
+    .btn-back-home {
+        width: auto;
+        min-width: 160px;
+    }
+}
 
 /* --- スタイリッシュ・スピナー修正 --- */
 #spinner-overlay {
