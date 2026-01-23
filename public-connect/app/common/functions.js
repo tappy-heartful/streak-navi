@@ -230,6 +230,7 @@ export async function initDisplay(
     showSpinner();
   }
 
+  // チケット予約、マイページはログイン必須
   if (isAuthRequired) {
     // ログイン必要な画面だった場合の認証チェック
     // --- 1. Firebase Auth の認証状態が確立されるのを待つ --- // セッションが有効であれば、認証済みユーザー (user) が返される
@@ -242,9 +243,24 @@ export async function initDisplay(
 
     // --- 2. 認証チェック ---
     if (!user) {
-      // ログイン実施
-      window.location.href = window.location.origin;
+      // セッションクリア
+      clearAllAppSession();
+
+      // 認証情報がない場合ログイン実施
+      try {
+        // サーバーにリクエストしてLINEログインURLとstateを取得
+        const res = await fetch(`${globalAuthServerRender}/get-line-login-url`);
+        const { loginUrl } = await res.json();
+
+        // LINEログインURLへ遷移
+        window.location.href = loginUrl;
+      } catch (err) {
+        alert('ログインURL取得失敗: ' + err.message);
+      } finally {
+        hideSpinner();
+      }
     }
+
     // --- 3. アカウント存在チェック (Firestore) --- // 認証された user.uid を使用
     const userRef = doc(db, 'connectUsers', user.uid);
     const userSnap = await getWrapDoc(userRef);
