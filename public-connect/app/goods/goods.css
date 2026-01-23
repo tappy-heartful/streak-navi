@@ -21,6 +21,7 @@
     flex-shrink: 0;
     scroll-snap-align: start;
     border: 1px solid #333;
+    cursor: pointer;
 }
 
 /* スクロールバーのデザイン */
@@ -48,8 +49,10 @@
 .btn-line {
     background: #06C755; /* LINEカラー */
     color: #fff;
-    margin-top: 15px;
+    /* margin-topはbtn-areaで制御するためリセット */
+    margin: 0; 
 }
+.btn-line:hover { opacity: 0.8; }
 
 /* --- ユヤマメ（縦長画像） --- */
 .coffee-card {
@@ -59,6 +62,7 @@
     background: #111;
     padding: 20px;
     border-radius: 8px;
+    text-align: center; /* 💡 子要素を中央揃えに */
 }
 
 .portrait-img {
