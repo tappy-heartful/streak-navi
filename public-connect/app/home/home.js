@@ -18,6 +18,7 @@ $(document).ready(async function () {
 
     // 並行してデータ取得
     await Promise.all([loadUpcomingLives(), loadLatestMedia()]);
+    setUpEventHandlers();
   } catch (e) {
     console.error(e);
     await utils.writeLog({
@@ -173,4 +174,11 @@ async function loadLatestMedia() {
   if (window.instgrm) {
     window.instgrm.Embeds.process();
   }
+}
+
+function setUpEventHandlers() {
+  // チケットページへ
+  $('.live-card').on('click', function () {
+    window.location.href = '../ticket/ticket.html';
+  });
 }
