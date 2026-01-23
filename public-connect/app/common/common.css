@@ -1,7 +1,7 @@
 /* ベーススタイル */
 html {
   width: 100%;
-  overflow-y: scroll;
+  overflow-y: scroll; /* 常にスクロールバーを表示してガタつきを防止 */
 }
 
 body {
@@ -12,10 +12,14 @@ body {
   padding: 0;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: none;
+  
+  /* 💡 ここを削除、または auto に変更 */
+  /* overscroll-behavior-y: none; */ 
+  overscroll-behavior-y: auto; 
+
   font-family: Arial, sans-serif;
-  color: #fff;             /* ホームに合わせて基本文字色を白に */
-  background-color: #000;  /* ホームに合わせて基本背景を黒に */
+  color: #fff;
+  background-color: #000;
 }
 
 /* ヒーローエリア */
