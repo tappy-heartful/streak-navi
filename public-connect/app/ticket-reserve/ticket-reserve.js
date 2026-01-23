@@ -2,7 +2,7 @@ import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
   try {
-    await utils.initDisplay();
+    await utils.initDisplay(true, true);
 
     // Hero画像設定
     $('.hero').css('--hero-bg', 'url("../../images/background/ticket.jpg")');

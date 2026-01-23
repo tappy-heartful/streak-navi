@@ -162,7 +162,7 @@ export function getSessionArray(key) {
 export function setSessionArray(key, array) {
   sessionStorage.setItem(
     globalAppName + '.' + key,
-    JSON.stringify(array ?? [])
+    JSON.stringify(array ?? []),
   );
 }
 
@@ -187,7 +187,7 @@ export async function loadComponent(
   target,
   isCss = true,
   isHTML = true,
-  isJs = true
+  isJs = true,
 ) {
   const basePath = '../' + target + '/' + target;
 
@@ -221,10 +221,17 @@ export async function loadComponent(
   }
 }
 // 画面共通初期処理 (セキュリティと継続ログインを考慮した完全版)
-export async function initDisplay(isShowSpinner = true) {
+export async function initDisplay(
+  isShowSpinner = true,
+  isAuthRequired = false,
+) {
   if (isShowSpinner) {
     // スピナー表示
     showSpinner();
+  }
+
+  // ログイン必要な画面かチェック
+  if (isAuthRequired) {
   }
 
   // // --- 1. Firebase Auth の認証状態が確立されるのを待つ --- // セッションが有効であれば、認証済みユーザー (user) が返される
@@ -342,7 +349,7 @@ export function renderBreadcrumb(crumbs) {
 
   // 先頭にはホーム
   $nav.append(
-    `<a href="../home/home.html"><i class="fa fa-home"></i> ホーム</a>`
+    `<a href="../home/home.html"><i class="fa fa-home"></i> ホーム</a>`,
   );
 
   crumbs.forEach((c, idx) => {
@@ -571,7 +578,7 @@ function formatDateForId(date = new Date()) {
 export function buildYouTubeHtml(
   youtubeInput,
   showNotice = false,
-  showLink = true
+  showLink = true,
 ) {
   if (!youtubeInput) return '';
 
@@ -713,7 +720,7 @@ export function isInTerm(startDateStr, endDateStr) {
     (!startDateStr ||
       now >=
         new Date(
-          formatDateToYMDHyphen(startDateStr) + 'T00:00:00'
+          formatDateToYMDHyphen(startDateStr) + 'T00:00:00',
         ).getTime()) &&
     (!endDateStr ||
       now <=
@@ -961,7 +968,7 @@ export async function archiveAndDeleteDoc(collectionName, docId) {
 
   if (!docSnap.exists()) {
     console.warn(
-      `Document not found in ${collectionName}/${docId}. Skipping archive and delete.`
+      `Document not found in ${collectionName}/${docId}. Skipping archive and delete.`,
     );
     return;
   }

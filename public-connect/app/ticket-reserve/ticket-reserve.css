@@ -1,0 +1,115 @@
+/* ライブカードのスタイル */
+.ticket-grid {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    margin-top: 40px;
+}
+
+.ticket-card {
+    display: flex;
+    flex-direction: column;
+    background: #111;
+    border: 1px solid #222;
+    overflow: hidden;
+    transition: 0.3s;
+}
+
+@media (min-width: 768px) {
+    .ticket-card {
+        flex-direction: row;
+        min-height: 220px;
+    }
+}
+
+/* 左側：フライヤー/画像エリア */
+.ticket-img-wrapper {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16/9;
+    background: #222;
+    overflow: hidden;
+}
+
+@media (min-width: 768px) {
+    .ticket-img-wrapper {
+        width: 35%;
+        aspect-ratio: auto;
+    }
+}
+
+.ticket-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+}
+
+/* 右側：詳細エリア */
+.ticket-info {
+    padding: 25px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.t-date {
+    font-family: 'Impact', sans-serif;
+    color: #e7211a;
+    font-size: 1.2rem;
+    letter-spacing: 0.1em;
+}
+
+.t-title {
+    color: #fff;
+    font-size: 1.5rem;
+    margin: 10px 0;
+    font-weight: bold;
+}
+
+.t-details {
+    font-size: 0.85rem;
+    color: #aaa;
+    line-height: 1.6;
+}
+
+.t-details i {
+    width: 20px;
+    color: #e7211a;
+}
+
+/* 予約ボタン */
+.btn-reserve {
+    margin-top: 20px;
+    padding: 12px;
+    background: #e7211a;
+    color: #fff;
+    text-align: center;
+    font-weight: bold;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    border: none;
+    transition: 0.3s;
+}
+
+.btn-reserve:hover {
+    background: #b61a15;
+}
+
+.btn-reserved-mark {
+    background: #333;
+    color: #888;
+    cursor: default;
+}
+
+/* 過去のライブ用スタイル */
+.past-lives .ticket-card {
+    opacity: 0.6;
+    filter: grayscale(100%);
+}
+
+.past-lives .btn-reserve {
+    display: none; /* 終了分は予約不可 */
+}
