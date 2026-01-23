@@ -162,7 +162,7 @@ export function getSessionArray(key) {
 export function setSessionArray(key, array) {
   sessionStorage.setItem(
     globalAppName + '.' + key,
-    JSON.stringify(array ?? [])
+    JSON.stringify(array ?? []),
   );
 }
 
@@ -187,7 +187,7 @@ export async function loadComponent(
   target,
   isCss = true,
   isHTML = true,
-  isJs = true
+  isJs = true,
 ) {
   const basePath = '../' + target + '/' + target;
 
@@ -221,80 +221,68 @@ export async function loadComponent(
   }
 }
 // 画面共通初期処理 (セキュリティと継続ログインを考慮した完全版)
-export async function initDisplay(isShowSpinner = true) {
+export async function initDisplay(
+  isShowSpinner = true,
+  isAuthRequired = false,
+) {
   if (isShowSpinner) {
     // スピナー表示
     showSpinner();
   }
+  // チケット予約、マイページはログイン必須
+  if (isAuthRequired) {
+    // --- 1. Firebase Auth の認証状態が確立されるのを待つ ---
+    const user = await new Promise((resolve) => {
+      const unsubscribe = auth.onAuthStateChanged((user) => {
+        unsubscribe();
+        resolve(user);
+      });
+    });
 
-  // // --- 1. Firebase Auth の認証状態が確立されるのを待つ --- // セッションが有効であれば、認証済みユーザー (user) が返される
-  // const user = await new Promise((resolve) => {
-  //   const unsubscribe = auth.onAuthStateChanged((user) => {
-  //     unsubscribe(); // 購読を解除
-  //     resolve(user);
-  //   });
-  // });
+    // --- 2. 認証チェック ---
+    if (!user) {
+      clearAllAppSession();
 
-  // // --- 2. 認証チェック ---
-  // if (!user) {
-  //   // 認証情報がない、またはセッションが完全に期限切れの場合
-  //   // ログイン画面への遷移ではない場合、ログイン後にその画面へ遷移するためのリダイレクト先を保存
-  //   if (!window.location.href.includes('app/login/login.html')) {
-  //     localStorage.setItem('redirectAfterLogin', window.location.href);
-  //   }
-  //   // ログインページへ遷移
-  //   window.location.href = window.location.origin;
-  // }
+      try {
+        // 【修正ポイント】現在のURLをリダイレクト先として取得
+        const currentUrl = window.location.href;
 
-  // // --- 3. アカウント存在チェック (Firestore) --- // 認証された user.uid を使用
-  // const userRef = doc(db, 'users', user.uid);
-  // const userSnap = await getWrapDoc(userRef);
-  // if (!userSnap.exists()) {
-  //   // Firebase Authにはユーザーがいるが、Firestoreからデータが削除されている場合
-  //   // セッションもクリアし、ログインページへ遷移させる
-  //   await auth.signOut(); // Firebase Authからもサインアウト
-  //   clearAllAppSession();
-  //   window.location.href = window.location.origin;
-  //   hideSpinner();
-  //   return; // 処理を中断
-  // }
-  // // --- 4. ユーザー情報をセッション (カスタムデータ) に更新 --- // Firebase Authのセッションとは別に、アプリ固有のユーザーデータを最新化
-  // for (const [key, value] of Object.entries(userSnap.data())) {
-  //   setSession(key, value);
-  // }
-  // // 継続ログインの場合uidだけはセットされていないので、ここでセット
-  // setSession('uid', user.uid);
+        // 【修正ポイント】クエリパラメータに redirectAfterLogin を付与してリクエスト
+        const fetchUrl = `${globalAuthServerRender}/get-line-login-url?redirectAfterLogin=${encodeURIComponent(currentUrl)}`;
 
-  // // --- 5. 編集画面の権限チェックとリダイレクト
-  // const path = window.location.pathname;
+        const res = await fetch(fetchUrl);
+        const { loginUrl } = await res.json();
 
-  // // 権限チェックが必要なモジュール名のリスト
-  // const modules = [
-  //   'call',
-  //   'event',
-  //   'media',
-  //   'notice',
-  //   'score',
-  //   'studio',
-  //   'vote',
-  // ];
+        // LINEログインURLへ遷移
+        window.location.href = loginUrl;
+        return; // 遷移するのでここで処理終了
+      } catch (err) {
+        alert('ログインURL取得失敗: ' + err.message);
+      } finally {
+        hideSpinner();
+      }
+    }
 
-  // for (const moduleName of modules) {
-  //   // 編集画面初期表示時にチェック
-  //   if (path.includes(modules) && path.includes('edit')) {
-  //     const adminKey = moduleName.charAt(0).toUpperCase() + moduleName.slice(1);
-  //     // 編集画面にいて、かつ対応するAdmin権限を持っていない場合
-  //     if (!isAdmin(adminKey)) {
-  //       // 一覧画面へリダイレクト
-  //       alert('この画面を表示する権限がありません。一覧画面に遷移します。');
-  //       const listPath = `../${moduleName}-list/${moduleName}-list.html`;
-  //       window.location.replace(listPath);
-  //       return;
-  //     }
-  //     // 権限がある場合は、他の画面チェックをせずにループを終了
-  //     break;
-  //   }
-  // }
+    // --- 3. アカウント存在チェック (Firestore) ---
+    // streak-connect用にコレクション名を 'connectUsers' に修正済み
+    const userRef = doc(db, 'connectUsers', user.uid);
+    const userSnap = await getWrapDoc(userRef);
+
+    if (!userSnap.exists()) {
+      await auth.signOut();
+      clearAllAppSession();
+      // ユーザーが存在しない場合はトップページ等へ
+      window.location.href = window.location.origin;
+      hideSpinner();
+      return;
+    }
+
+    // --- 4. ユーザー情報をセッションに更新 ---
+    for (const [key, value] of Object.entries(userSnap.data())) {
+      setSession(key, value);
+    }
+    setSession('uid', user.uid);
+  }
 
   // // --- 6. コンポーネント読み込み ---
   await loadComponent('header');
@@ -302,8 +290,27 @@ export async function initDisplay(isShowSpinner = true) {
   await loadComponent('dialog');
   await loadComponent('modal');
 
-  // ウェルカム演出
-  renderWelcomeOverlay();
+  // 画像プレビュー
+  $(document).on('click', '.btn-view-image', function (e) {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // すでに開いている場合は一旦削除（重複防止）
+    $('.image-preview-overlay').remove();
+    const url = $(this).data('url');
+    const overlay = $(`
+      <div class="image-preview-overlay">
+        <div class="image-preview-content">
+          <img src="${url}">
+        </div>
+      </div>
+    `);
+    $('body').append(overlay);
+  });
+
+  $(document).on('click', '.image-preview-overlay', function () {
+    $(this).remove();
+  });
 }
 
 // パンくずリスト取得
@@ -320,7 +327,7 @@ export function renderBreadcrumb(crumbs) {
 
   // 先頭にはホーム
   $nav.append(
-    `<a href="../home/home.html"><i class="fa fa-home"></i> ホーム</a>`
+    `<a href="../home/home.html"><i class="fa fa-home"></i> ホーム</a>`,
   );
 
   crumbs.forEach((c, idx) => {
@@ -341,52 +348,6 @@ export function renderBreadcrumb(crumbs) {
   $container.append($nav);
 }
 
-// ウェルカムオーバーレイ表示
-function renderWelcomeOverlay() {
-  // 挨拶メッセージを取得する関数
-  function getGreetingMessage() {
-    const now = new Date();
-    const hour = now.getHours();
-    if (hour >= 5 && hour < 11) return 'おはようございます☀️';
-    if (hour >= 11 && hour < 17) return 'こんにちは🎵';
-    return 'こんばんは🌙';
-  }
-  const fromLogin = getSession('fromLogin') === 'true';
-  const isInit = getSession('isInit') === 'true';
-
-  // 初回遷移時ウェルカム演出
-  if (fromLogin || isInit) {
-    const lineIconPath = getSession('pictureUrl_decoded');
-    const lineAccountName = getSession('displayName_decoded');
-
-    $('#welcome-line-icon').attr('src', lineIconPath);
-    $('#welcome-line-name').text(lineAccountName);
-
-    // 挨拶メッセージ
-    const greetingMessage = isInit ? 'ようこそ🌸' : getGreetingMessage();
-    $('#greeting-message').text(greetingMessage);
-
-    const $overlay = $('#first-login-overlay');
-    $overlay.removeClass('hidden');
-    // 表示
-    setTimeout(() => {
-      $overlay.addClass('show');
-    }, 10); // 少し遅延させてCSS transitionを確実に動かす
-
-    // 1.5秒表示 → フェードアウト（0.5秒）
-    setTimeout(() => {
-      $overlay.removeClass('show');
-      // 完全に非表示に
-      setTimeout(() => {
-        $overlay.addClass('hidden');
-      }, 500);
-    }, 2000);
-
-    // フラグクリア
-    removeSession('fromLogin');
-    removeSession('isInit');
-  }
-}
 // スピナー表示処理
 export async function showSpinner() {
   if ($('#spinner-overlay').length === 0) {
@@ -549,7 +510,7 @@ function formatDateForId(date = new Date()) {
 export function buildYouTubeHtml(
   youtubeInput,
   showNotice = false,
-  showLink = true
+  showLink = true,
 ) {
   if (!youtubeInput) return '';
 
@@ -691,7 +652,7 @@ export function isInTerm(startDateStr, endDateStr) {
     (!startDateStr ||
       now >=
         new Date(
-          formatDateToYMDHyphen(startDateStr) + 'T00:00:00'
+          formatDateToYMDHyphen(startDateStr) + 'T00:00:00',
         ).getTime()) &&
     (!endDateStr ||
       now <=
@@ -939,7 +900,7 @@ export async function archiveAndDeleteDoc(collectionName, docId) {
 
   if (!docSnap.exists()) {
     console.warn(
-      `Document not found in ${collectionName}/${docId}. Skipping archive and delete.`
+      `Document not found in ${collectionName}/${docId}. Skipping archive and delete.`,
     );
     return;
   }

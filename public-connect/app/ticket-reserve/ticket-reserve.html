@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link
+      rel="apple-touch-icon"
+      href="../../images/favicon.png"
+      type="image/png"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>RESERVE | SSJO</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="ticket-reserve.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <section class="hero">
+        <div class="hero-content">
+          <h1 class="page-title">RESERVE</h1>
+          <p class="tagline">Ticket Reservation</p>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <div class="inner">
+          <nav class="breadcrumb">
+            <a href="../home/home.html">Home</a>
+            <span class="separator">&gt;</span>
+            <span class="current">チケット予約</span>
+          </nav>
+          <div id="live-detail-container">
+            <p class="loading-text">Loading live details...</p>
+          </div>
+
+          <div
+            id="reservation-form-container"
+            class="form-wrapper"
+            style="display: none"
+          >
+            <h2 class="section-title">RESERVATION FORM</h2>
+            <form id="reserve-form">
+              <div class="form-group">
+                <label for="representativeName"
+                  >代表者氏名 <span class="required">必須</span></label
+                >
+                <input
+                  type="text"
+                  id="representativeName"
+                  name="representativeName"
+                  required
+                  placeholder="例：ステレオ 太郎"
+                />
+              </div>
+
+              <div id="companion-inputs-container"></div>
+
+              <div class="form-actions">
+                <button type="submit" id="submit-btn" class="btn-reserve">
+                  予約を確定する / CONFIRM
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </section>
+      <div class="page-actions">
+        <a href="../home/home.html" class="btn-back-home"> ← Homeに戻る </a>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="ticket-reserve.js"></script>
+  </body>
+</html>

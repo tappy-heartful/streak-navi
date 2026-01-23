@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link
+      rel="apple-touch-icon"
+      href="../../images/favicon.png"
+      type="image/png"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+    <title>MY PAGE | SSJO</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="mypage.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <section class="hero">
+        <div class="hero-content">
+          <h1 class="page-title">MY PAGE</h1>
+          <p class="tagline">User Profile & Tickets</p>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <div class="inner">
+          <nav class="breadcrumb">
+            <a href="../home/home.html">Home</a>
+            <span class="separator">&gt;</span>
+            <span class="current">My Page</span>
+          </nav>
+          <div class="profile-card">
+            <div class="profile-icon-wrapper">
+              <img
+                id="user-icon"
+                src="../../images/line-profile-unset.png"
+                alt="icon"
+              />
+            </div>
+            <div class="profile-info">
+              <p class="profile-label">Welcome,</p>
+              <h2 id="user-name" class="profile-name">Loading...</h2>
+              <button class="btn-logout" onclick="handleLogout()">
+                <i class="fa-solid fa-right-from-bracket"></i> ログアウト
+              </button>
+            </div>
+          </div>
+
+          <h2 class="section-title">MY TICKETS</h2>
+          <div id="my-tickets-container">
+            <p class="loading-text">Loading your reservations...</p>
+          </div>
+        </div>
+      </section>
+      <div class="page-actions">
+        <a href="../home/home.html" class="btn-back-home"> ← Homeに戻る </a>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="mypage.js"></script>
+  </body>
+</html>

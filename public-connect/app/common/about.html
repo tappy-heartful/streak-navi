@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
@@ -13,90 +13,130 @@
     <link rel="stylesheet" href="../common/common.css" />
     <style>
       :root {
-        --accent-color: #4caf50;
-        --tab-bg: #e5def0;
-        --tab-active-bg: #ffffff;
+        --accent-color: #e7211a;
+        --tab-bg: #222;
+        --tab-active-bg: #333;
+        --text-color: #ccc;
       }
 
-      h1,
+      /* 見切れ防止の魔法の言葉 */
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        background-color: #000;
+        color: var(--text-color);
+        padding: 20px 15px; /* 左右余白を少し調整 */
+        max-width: 800px;
+        width: 100%;
+        margin: 0 auto;
+        font-family: 'Roboto', sans-serif;
+        overflow-x: hidden; /* 念のため横スクロール禁止 */
+      }
+
+      h1 {
+        text-align: center;
+        font-size: 1.5rem;
+        margin-bottom: 2rem;
+        color: #fff;
+      }
+
       h2,
       h3 {
-        color: var(--accent-color);
-        border-bottom: 1px solid #ccc;
-        padding-bottom: 0.3rem;
-      }
-
-      code {
-        background-color: #f5f5f5;
-        padding: 0.2rem 0.4rem;
-        border-radius: 4px;
+        color: #fff;
+        border-left: 4px solid var(--accent-color);
+        padding-left: 10px;
+        margin-top: 1.5rem;
+        font-size: 1.2rem;
       }
 
       .tabs {
         display: flex;
         flex-wrap: wrap;
-        gap: 0.5rem;
-        border-bottom: 2px solid #ccc;
-        margin-bottom: 1rem;
+        gap: 2px;
+        margin-bottom: 0;
+        width: 100%;
       }
 
       .tab {
         flex: 1 1 auto;
         text-align: center;
-        padding: 0.6rem 1rem;
+        padding: 0.8rem 0.5rem;
         cursor: pointer;
         background: var(--tab-bg);
-        border-radius: 8px 8px 0 0;
-        transition: all 0.2s ease-in-out;
-        font-weight: 500;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        min-width: 120px;
-        white-space: nowrap;
-      }
-
-      .tab:hover {
-        background: #dcd2eb;
+        color: #888;
+        transition: all 0.2s;
+        font-size: 0.85rem;
+        border: 1px solid #333;
       }
 
       .tab.active {
         background: var(--tab-active-bg);
+        color: var(--accent-color);
         font-weight: bold;
-        border-bottom: 2px solid var(--tab-active-bg);
+        border-bottom: 2px solid var(--accent-color);
       }
 
       .tab-content {
         display: none;
-        background: #fff;
+        background: #111;
         padding: 1.5rem;
-        border-radius: 0 0 10px 10px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border: 1px solid #333;
+        border-top: none;
+        line-height: 1.8;
+        width: 100%;
+        word-break: break-all; /* 長い英単語などの改行対策 */
       }
 
       .tab-content.active {
         display: block;
       }
 
-      a {
-        color: var(--accent-color);
-        word-break: break-word;
+      ul {
+        padding-left: 20px;
+      }
+
+      li {
+        margin-bottom: 0.5rem;
+      }
+
+      .page-footer {
+        text-align: center;
+        margin-top: 4rem;
+        margin-bottom: 2rem;
+        width: 100%;
+      }
+
+      .back-link {
+        display: inline-block;
+        color: #fff;
+        text-decoration: none;
+        font-size: 1.1rem;
+        font-weight: bold;
+        padding: 12px 30px;
+        border: 2px solid var(--accent-color);
+        border-radius: 50px;
+        transition: all 0.3s ease;
+        max-width: 100%; /* はみ出し防止 */
+      }
+
+      .back-link:hover {
+        background-color: var(--accent-color);
+        transform: scale(1.05);
       }
 
       @media screen and (max-width: 600px) {
         .tab {
-          flex: 1 1 100%;
-          font-size: 1rem;
+          flex: 1 1 48%; /* スマホで2列 */
+          font-size: 0.8rem;
         }
-
-        h1 {
-          font-size: 1.3rem;
+        .back-link {
+          width: 90%; /* 80%から少し広げて安定感を */
+          padding: 12px 10px;
         }
-
-        h2 {
-          font-size: 1.1rem;
-        }
-
-        p {
-          font-size: 0.95rem;
+        .tab-content {
+          padding: 1rem; /* スマホでは中身の余白を少し削る */
         }
       }
     </style>
@@ -106,114 +146,84 @@
     <h1>サイト情報 | Streak Connect</h1>
 
     <div class="tabs">
-      <div class="tab active" data-tab="about">このサイトについて</div>
-      <div class="tab" data-tab="quote">引用について</div>
+      <div class="tab active" data-tab="about">当サイトについて</div>
+      <div class="tab" data-tab="reserve">予約について</div>
       <div class="tab" data-tab="disclaimer">免責事項</div>
-      <div class="tab" data-tab="privacy">プライバシーポリシー</div>
+      <div class="tab" data-tab="privacy">プライバシー</div>
     </div>
 
     <section id="about" class="tab-content active">
       <h2>このサイトについて</h2>
       <p>
-        本Webアプリは、Swing Streak Jazz
-        Orchestra（以下、当バンド）のメンバー専用に制作された内部ツールです。演奏曲の投票やアンケート、メンバー間の共有などを円滑にするための非公開アプリケーションです。
+        <strong>Streak Connect</strong> は、Swing Streak Jazz
+        Orchestra（SSJO）の活動をより円滑に、より楽しくするためのメンバー・ファン向けポータルサイトです。
       </p>
       <p>
-        サイトにアクセスできるのは、招待を受けたバンドメンバーのみであり、外部の方の利用は想定しておりません。
+        従来、複数のページに分散していたライブ情報、楽団紹介、グッズ案内をHome画面に集約し、スクロールだけで直感的に全ての情報を確認できるよう設計されています。
       </p>
       <p>
-        アカウント識別のため、LINEログインを使用し、ユーザーの基本情報をもとにアカウントを識別・記録します。取得した情報はすべて暗号化・ハッシュ化され、安全にFirestoreデータベースに保存されます。
-      </p>
-      <p>
-        本アプリは営利を目的としておらず、バンド活動の円滑化と楽しさの向上を目的とした非公開ツールです。
+        また、LINEログインと連携することで、個別のチケット予約管理やマイページの利用を可能にしています。
       </p>
     </section>
 
-    <section id="quote" class="tab-content">
-      <h2>引用について</h2>
+    <section id="reserve" class="tab-content">
+      <h2>チケット予約について</h2>
       <p>
-        当サイトでは、演奏予定の楽曲や参考資料として、音源・動画・歌詞・コード譜などの一部を引用する場合があります。
-        これらは
-        <strong>著作権法第32条（引用）</strong>
-        に基づき、バンド内での学習・練習目的に限定して使用しています。
+        本サイトでのチケット予約は、LINEアカウントを利用した事前予約制です。
       </p>
-
-      <h3>引用対象の例</h3>
       <ul>
-        <li>楽曲タイトル・歌詞の一部</li>
-        <li>YouTubeなどに公式公開されている演奏動画</li>
-        <li>演奏指示（コード・構成など）に関する簡単な補足資料</li>
+        <li>
+          <strong>予約の確定:</strong>
+          フォームから送信後、マイページにチケットが表示されることで予約完了となります。
+        </li>
+        <li>
+          <strong>同伴者:</strong>
+          各ライブの設定に基づき、指定の人数まで同時に予約が可能です。
+        </li>
+        <li>
+          <strong>変更・取消:</strong>
+          ライブ当日の指定時間まで、マイページより自由に変更・取り消しが行えます。
+        </li>
       </ul>
-
-      <h3>引用の目的と方針</h3>
-      <ul>
-        <li>バンドメンバーが楽曲の雰囲気や構成をつかむため</li>
-        <li>楽曲への理解を深め、演奏の質を高めるため</li>
-        <li>必要最小限の範囲にとどめ、引用元を明記する</li>
-      </ul>
-
-      <h3>注意とお願い</h3>
-      <p>
-        著作権者の権利を尊重するため、無断での転載や再配布は禁止しています。
-        外部への公開は一切行っておらず、バンド内部のみの利用にとどめています。
-      </p>
+      <p>※満席となった場合、予告なく予約受付を終了することがあります。</p>
     </section>
 
     <section id="disclaimer" class="tab-content">
       <h2>免責事項</h2>
       <p>
-        本サイトは、Swing Streak Jazz
-        Orchestraメンバー専用の非公開アプリです。掲載される情報は、バンド活動の共有・連絡・準備のための内部情報であり、外部に向けた公式なものではありません。
+        当サイトに掲載される情報は、最新の注意を払って管理しておりますが、ライブの日時、会場、料金等の詳細は変更される場合があります。最新の情報はHome画面、または公式Instagramをご確認ください。
       </p>
       <p>
-        アプリ内に表示される情報の正確性や最新性については、できる限りの配慮をしておりますが、すべての内容を保証するものではありません。
-      </p>
-      <p>
-        サービスの内容は予告なく変更・中断・削除される可能性があり、それによって生じた損害について一切の責任を負いません。
+        システム保守や障害、その他の理由により、予告なくサービスの一部を中断・変更することがあります。これにより生じた不利益について、当楽団は一切の責任を負いかねますのでご了承ください。
       </p>
     </section>
 
     <section id="privacy" class="tab-content">
       <h2>プライバシーポリシー</h2>
       <p>
-        当サイトでは、LINEログインを通じて取得した最低限のユーザー情報（LINEのユーザーID、表示名など）を、本人確認およびアカウント識別のために利用します。
+        <strong>1. 情報の取得:</strong>
+        LINEログインを通じて、ユーザーの識別子（UID）、表示名、プロフィール画像を取得します。
       </p>
       <p>
-        これらの情報は、すべて暗号化およびハッシュ化された上で、安全なFirebase
-        Firestoreデータベースに保存され、第三者に開示されることはありません。
+        <strong>2. 利用目的:</strong>
+        取得した情報は、チケット予約の本人確認、マイページへの反映、およびライブ運営（受付名簿作成）のみに利用します。
       </p>
       <p>
-        また、Firebase Authentication や Firestore、Firebase Hosting など Google
-        提供のクラウドサービスを利用しています。各サービスのプライバシーポリシーは、<a
-          href="https://policies.google.com/privacy?hl=ja"
-          target="_blank"
-          >Google プライバシーポリシー</a
-        >
-        をご確認ください。
+        <strong>3. データの管理:</strong> ユーザーデータは Firebase Firestore
+        上で管理され、適切なセキュリティ対策を講じています。
       </p>
       <p>
-        本アプリは非公開で運用されており、取得した情報は、バンド活動の目的以外に使用されることはありません。
+        <strong>4. 第三者提供:</strong>
+        法令に基づく場合を除き、取得した個人情報を第三者に提供することはありません。
       </p>
     </section>
 
     <div class="page-footer">
-      <a href="../login/login.html" class="back-link">← ログインに戻る</a>
+      <a href="../home/home.html" class="back-link">← ホームに戻る</a>
     </div>
 
-    <div id="footer-placeholder"></div>
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
-    />
-    <script src="https://unpkg.com/dompurify@2.4.4/dist/purify.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script type="module" src="../common/functions.js"></script>
     <script type="module">
-      import * as utils from '../common/functions.js';
-      // フッター読み込み(しかしリンクは非表示)
-      await utils.loadComponent('footer');
-      $('.footer-note').addClass('hidden');
-
       const tabs = document.querySelectorAll('.tab');
       const contents = document.querySelectorAll('.tab-content');
       tabs.forEach((tab) => {

@@ -1,7 +1,7 @@
 /* ベーススタイル */
 html {
   width: 100%;
-  overflow-y: scroll;
+  overflow-y: scroll; /* 常にスクロールバーを表示してガタつきを防止 */
 }
 
 body {
@@ -12,10 +12,172 @@ body {
   padding: 0;
   overflow-x: hidden;
   -webkit-overflow-scrolling: touch;
-  overscroll-behavior-y: none;
+  
+  /* 💡 ここを削除、または auto に変更 */
+  /* overscroll-behavior-y: none; */ 
+  overscroll-behavior-y: auto; 
+
   font-family: Arial, sans-serif;
-  color: #fff;             /* ホームに合わせて基本文字色を白に */
-  background-color: #000;  /* ホームに合わせて基本背景を黒に */
+  color: #fff;
+  background-color: #000;
+}
+
+/* ヒーローエリア */
+.hero {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-color: #000;
+    z-index: 0;
+    background-image: var(--hero-bg, none);
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+/* 背景画像 */
+.hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    filter: blur(4px) brightness(0.4);
+    z-index: -2; /* グラデーションよりさらに後ろ */
+}
+
+/* Homeと同じグラデーション効果 */
+.hero::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    background: linear-gradient(to bottom, transparent, #000);
+    z-index: -1; /* 画像の上、テキストの下 */
+}
+
+.hero-content {
+    text-align: center;
+    z-index: 1;
+    padding: 0 20px;
+    width: 100%;
+}
+
+.page-title {
+    font-family: 'Impact', sans-serif;
+    font-size: 3.5rem;
+    letter-spacing: 0.1em;
+    margin: 0;
+    color: #fff;
+    padding-top: 60px;
+    text-transform: uppercase;
+}
+
+.tagline {
+    font-size: 0.8rem;
+    color: #e7211a;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+/* コンテンツセクション */
+.content-section {
+    background-color: #000; /* 黒背景 */
+    padding: 60px 20px;
+}
+
+.section-title {
+    border-left: 4px solid #e7211a; /* タイトルの横に赤いライン */
+    padding-left: 15px;
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.inner {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.breadcrumb {
+    margin-bottom: 2rem;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #888; /* 基本はグレー */
+}
+
+.breadcrumb a {
+    color: #888;
+    transition: color 0.3s;
+}
+
+.breadcrumb a:hover {
+    color: #e7211a; /* ホバーでSSJOレッドに */
+}
+
+.breadcrumb .separator {
+    font-family: serif;
+    font-size: 0.75rem;
+    opacity: 0.5;
+}
+
+.breadcrumb .current {
+    color: #bbb; /* 現在地は少し明るく、リンクなし */
+    font-weight: bold;
+}
+
+/* スマホでの微調整 */
+@media screen and (max-width: 600px) {
+    .breadcrumb {
+        margin-bottom: 1.5rem;
+        padding-left: 5px;
+    }
+}
+
+/* ホームに戻るボタンエリア */
+.page-actions {
+    text-align: center;
+    margin: 40px 0 20px; /* 上下に余白 */
+    padding: 0 15px;
+}
+
+.btn-back-home {
+    display: inline-block;
+    color: #e7211a;           /* 赤い文字 */
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: bold;
+    padding: 10px 25px;
+    border: 1px solid #e7211a; /* 赤い細い枠線 */
+    border-radius: 4px;        /* 軽く角を丸める（SSJOの他デザインに合わせる） */
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+/* ホバーした時の反応（お好みで） */
+.btn-back-home:hover {
+    background: rgba(231, 33, 26, 0.05); /* ほんのり赤く */
+    opacity: 0.8;
+}
+
+/* スマホ対応：ボタンが横幅いっぱいに広がらないよう制御 */
+@media screen and (max-width: 600px) {
+    .btn-back-home {
+        width: auto;
+        min-width: 160px;
+    }
 }
 
 /* --- スタイリッシュ・スピナー修正 --- */

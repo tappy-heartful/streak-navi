@@ -1,0 +1,82 @@
+/* ライブ詳細カードの調整 */
+.ticket-card.detail-mode {
+    background: #1a1a1a;
+    padding: 20px;
+    border-left: 5px solid #e7211a; /* アクセントカラーの縦棒 */
+    margin-bottom: 30px;
+}
+
+.t-details p {
+    margin: 8px 0;
+    font-size: 0.95rem;
+}
+
+/* フォーム関連 */
+.form-wrapper {
+    margin-top: 20px;
+    background: #111;
+    padding: 30px;
+    border: 1px solid #222;
+}
+
+.sub-title {
+    margin: 30px 0 15px;
+    color: #fff;
+    font-size: 1.1rem;
+    border-left: 4px solid #e7211a;
+    padding-left: 10px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    color: #ccc;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    background: #222;
+    border: 1px solid #333;
+    color: #fff;
+    border-radius: 4px;
+    box-sizing: border-box; /* パディングによる幅崩れ防止 */
+}
+
+.form-group input:focus {
+    border-color: #e7211a;
+    outline: none;
+}
+
+.required {
+    color: #e7211a;
+    font-size: 0.7rem;
+    margin-left: 5px;
+}
+
+.form-actions {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.btn-reserve {
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
+    background: #e7211a;
+    color: #fff;
+    border: none;
+    font-weight: bold;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.btn-reserve:hover {
+    background: #b61a15;
+}
