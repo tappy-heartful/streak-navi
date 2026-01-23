@@ -29,46 +29,55 @@ function renderMembers() {
     {
       name: 'Shoei Matsushita',
       role: 'Guitar / Band Master',
+      origin: 'EHIME',
       img: 'member1.jpg',
     },
     {
       name: 'Miku Nozoe',
       role: 'Trumpet / Section Leader',
+      origin: 'EHIME',
       img: 'member2.jpg',
     },
     {
       name: 'Hiroto Murakami',
       role: 'Trombone / Section Leader',
+      origin: 'EHIME',
       img: 'member3.jpg',
     },
     {
       name: 'Kana Asahiro',
       role: 'Trombone / Lead Trombone',
+      origin: 'Osaka',
       img: 'member4.jpg',
     },
     {
       name: 'Shunta Yabu',
       role: 'Saxophne / Section Leader',
+      origin: 'Hiroshima',
       img: 'member5.jpg',
     },
     {
       name: 'Takumi Fujimoto',
       role: 'Saxophne / Lead Alto Sax',
+      origin: 'Hiroshima',
       img: 'member6.jpg',
     },
     {
       name: 'Taisei Yuyama',
       role: 'Saxophne / Lead Tenor Sax',
+      origin: 'EHIME',
       img: 'member7.jpg',
     },
     {
       name: 'Akito Kimura',
       role: 'Drums',
+      origin: 'Okayama',
       img: 'member8.jpg',
     },
     {
       name: 'Yojiro Nakagawa',
       role: 'Bass',
+      origin: 'Hiroshima',
       img: 'member9.jpg',
     },
   ];
@@ -80,8 +89,11 @@ function renderMembers() {
         <div class="member-img-wrapper">
           <img src="../../images/members/${m.img}" alt="${m.name}" class="member-img">
         </div>
-        <div class="member-name">${m.name}</div>
-        <div class="member-role">${m.role}</div>
+        <div class="member-info-content">
+          <div class="member-role">${m.role}</div>
+          <div class="member-name">${m.name.replace(/ /g, '<br>')}</div>
+          <div class="member-origin">from ${m.origin}</div>
+        </div>
       </div>
     `);
   });
@@ -95,7 +107,7 @@ async function loadMedias() {
   const q = utils.query(
     utils.collection(utils.db, 'medias'),
     utils.orderBy('date', 'desc'),
-    utils.limit(5), // Aboutページなので直近5件程度に絞るのがスマート
+    utils.limit(5),
   );
 
   const snapshot = await utils.getWrapDocs(q);
