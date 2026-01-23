@@ -15,51 +15,92 @@
     text-transform: uppercase;
 }
 
-/* --- MEMBER GRID --- */
+/* --- MEMBER LIST (Horizontal Style) --- */
 .member-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr); /* モバイルは2列 */
-    gap: 30px 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
     margin-top: 40px;
 }
 
 .member-card {
-    text-align: center;
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 200px;
+    background: #000;
+    overflow: hidden;
+    border-bottom: 1px solid #1a1a1a;
 }
 
+/* 左側の画像エリア */
 .member-img-wrapper {
-    width: 100%;
-    aspect-ratio: 1 / 1;
-    overflow: hidden;
-    margin-bottom: 15px;
-    border: 1px solid #222;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 70%; /* 画像の表示領域 */
+    height: 100%;
+    z-index: 1;
 }
 
 .member-img {
     width: 100%;
     height: 100%;
     object-fit: cover;
-    filter: grayscale(100%); /* モノトーン */
-    transition: 0.5s;
+    filter: grayscale(100%) contrast(1.1);
+    transition: 0.8s ease;
 }
 
-.member-card:hover .member-img {
-    filter: grayscale(0%); /* ホバーで色を出す */
-    transform: scale(1.05);
+/* 画像から右へのグラデーションマスク */
+.member-img-wrapper::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(to right, transparent 0%, #000 80%);
+    z-index: 2;
 }
 
-.member-name {
-    font-size: 1rem;
-    font-weight: bold;
-    color: #fff;
-    margin-bottom: 4px;
+/* 情報エリア */
+.member-info-content {
+    position: relative;
+    z-index: 3;
+    margin-left: auto; /* 右側に寄せる */
+    width: 60%;
+    padding: 20px 20px 20px 0;
+    text-align: right;
 }
 
 .member-role {
-    font-size: 0.75rem;
-    color: #e7211a;
     font-family: 'Impact', sans-serif;
+    color: #e7211a;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    margin-bottom: 5px;
+}
+
+.member-name {
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #fff;
+    margin-bottom: 4px;
     letter-spacing: 0.05em;
+}
+
+.member-origin {
+    font-size: 0.75rem;
+    color: #888;
+    letter-spacing: 0.05em;
+}
+
+/* ホバー演出 */
+.member-card:hover .member-img {
+    filter: grayscale(0%) contrast(1.0);
+    transform: scale(1.05);
 }
 
 /* --- HISTORY (MEDIA) --- */
@@ -96,7 +137,13 @@
 
 /* タブレット・PC向け調整 */
 @media (min-width: 768px) {
-    .member-grid {
-        grid-template-columns: repeat(5, 1fr); /* 5人横並び */
+    .member-card {
+        min-height: 250px;
+    }
+    .member-name {
+        font-size: 2rem;
+    }
+    .member-img-wrapper {
+        width: 60%;
     }
 }
