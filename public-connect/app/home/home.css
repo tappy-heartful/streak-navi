@@ -1,8 +1,7 @@
-/* --- ヒーローセクションの修正 --- */
+/* --- ヒーローセクション --- */
 .home-hero {
     position: relative;
     width: 100%;
-    /* 領域を広げるため 16/9 から縦長寄りの 1/1.1 等に調整（お好みで） */
     aspect-ratio: 1 / 1.1; 
     display: flex;
     justify-content: center;
@@ -17,7 +16,7 @@
     background-image: url('../../images/background/home.jpg'); 
     background-size: cover;
     background-position: center;
-    filter: blur(2px) brightness(0.5); /* ボヤかしを2pxに軽減 */
+    filter: blur(2px) brightness(0.5);
     z-index: -1;
 }
 
@@ -32,18 +31,15 @@
     z-index: 0;
 }
 
-
 .home-hero-content {
     text-align: center;
     z-index: 1;
-    /* 重要：ヘッダー(60px)の高さ分＋余白を空けて、バンド名を下げる */
     padding-top: 80px; 
 }
 
-/* バンド名：Impactフォント適用 */
 .band-name {
     font-family: 'Impact', 'Charcoal', sans-serif;
-    font-size: 3.2rem; /* 少し強調 */
+    font-size: 3.2rem;
     line-height: 1.1;
     margin: 0;
     letter-spacing: 0.05em;
@@ -55,7 +51,6 @@
     display: block;
 }
 
-/* J だけ赤く */
 .accent-j {
     color: #e7211a;
 }
@@ -83,6 +78,7 @@
     40% {transform: translateY(-5px);}
     60% {transform: translateY(-3px);}
 }
+
 /* --- Concept --- */
 .concept-lead {
     font-size: 1.4rem;
@@ -130,6 +126,25 @@
 .l-venue {
     font-size: 0.8rem;
     color: #888;
+}
+
+/* --- 最新メディア（Instagram）グリッド --- */
+.home-media-grid {
+    display: grid;
+    grid-template-columns: 1fr; /* スマホは1列 */
+    gap: 20px;
+}
+
+@media (min-width: 768px) {
+    .home-media-grid {
+        grid-template-columns: repeat(2, 1fr); /* PCは2列 */
+    }
+}
+
+/* 埋め込みのサイズを調整 */
+.home-media-grid blockquote {
+    margin: 0 !important;
+    width: 100% !important;
 }
 
 /* --- More Button --- */

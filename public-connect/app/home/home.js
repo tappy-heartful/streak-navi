@@ -21,11 +21,10 @@ $(document).ready(async function () {
 
 async function loadUpcomingLives() {
   const container = $('#live-list');
-  // 未来の日付のもの、または最新のものを取得するクエリ
   const q = utils.query(
     utils.collection(utils.db, 'lives'),
     utils.orderBy('date', 'asc'),
-    utils.limit(3)
+    utils.limit(3),
   );
 
   const snapshot = await utils.getWrapDocs(q);
@@ -55,18 +54,26 @@ async function loadUpcomingLives() {
 
 async function loadLatestMedia() {
   const container = $('#media-preview');
+  // 💡 limit(4) に変更
   const q = utils.query(
     utils.collection(utils.db, 'medias'),
     utils.orderBy('date', 'desc'),
-    utils.limit(1)
+    utils.limit(4),
   );
 
   const snapshot = await utils.getWrapDocs(q);
   if (snapshot.empty) return;
 
-  const data = snapshot.docs[0].data();
-  container.html(utils.buildInstagramHtml(data.instagramUrl));
+  container.empty();
 
-  // Instagramの再スキャン
-  if (window.instgrm) window.instgrm.Embeds.process();
+  // 💡 ループですべてのドキュメントをappend
+  snapshot.docs.forEach((docSnap) => {
+    const data = docSnap.data();
+    container.append(utils.buildInstagramHtml(data.instagramUrl));
+  });
+
+  // Instagramの再スキャン（これをしないと埋め込みが表示されない）
+  if (window.instgrm) {
+    window.instgrm.Embeds.process();
+  }
 }
