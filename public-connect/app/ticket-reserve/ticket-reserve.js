@@ -44,19 +44,16 @@ async function loadLiveDetail() {
   const data = liveSnap.data();
   maxCompanions = data.maxCompanions || 0;
 
-  // 1. ライブ詳細の表示
+  // 1. ライブ詳細の表示 (フライヤー画像を削除)
   container.html(`
     <div class="ticket-card detail-mode">
-      <div class="ticket-img-wrapper">
-        <img src="${data.flyerUrl || '../../images/common/no-image.jpg'}" class="ticket-img" alt="flyer">
-      </div>
       <div class="ticket-info">
         <div class="t-date">${data.date}</div>
         <h3 class="t-title">${data.title}</h3>
         <div class="t-details">
-          <div><i class="fa-solid fa-location-dot"></i> ${data.venue}</div>
-          <div><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</div>
-          <div><i class="fa-solid fa-link"></i> <a href="${data.venueUrl}" target="_blank" style="color:#aaa">Venue Website</a></div>
+          <p><i class="fa-solid fa-location-dot"></i> ${data.venue}</p>
+          <p><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</p>
+          <p><i class="fa-solid fa-link"></i> <a href="${data.venueUrl}" target="_blank" style="color:#aaa">Venue Website</a></p>
         </div>
       </div>
     </div>
@@ -71,7 +68,7 @@ async function loadLiveDetail() {
       companionContainer.append(`
         <div class="form-group">
           <label for="companionName${i}">同伴者 ${i}</label>
-          <input type="text" id="companionName${i}" name="companionName" class="companion-input" placeholder="同伴者のお名前">
+          <input type="text" id="companionName${i}" name="companionName" class="companion-input" placeholder="同伴者のお名前を入力">
         </div>
       `);
     }
