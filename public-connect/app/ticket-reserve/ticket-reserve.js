@@ -150,7 +150,7 @@ $('#reserve-form').on('submit', async function (e) {
     await utils.setDoc(resRef, reservationData, { merge: true });
 
     alert('予約が完了しました！');
-    window.location.href = '../home/home.html';
+    window.location.href = '../mypage/mypage.html';
   } catch (err) {
     console.error(err);
     alert('予約処理中にエラーが発生しました: ' + err.message);
