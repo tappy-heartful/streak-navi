@@ -49,7 +49,7 @@ async function loadTickets() {
     const cardHtml = `
             <div class="ticket-card" data-id="${liveId}">
                 <div class="ticket-img-wrapper">
-                    <img src="${data.flyerUrl || '../../images/common/no-image.jpg'}" class="ticket-img" alt="flyer">
+                    <img src="${data.flyerUrl || '../../images/favicon.png'}" class="ticket-img" alt="flyer">
                 </div>
                 <div class="ticket-info">
                     <div class="t-date">${data.date}</div>
