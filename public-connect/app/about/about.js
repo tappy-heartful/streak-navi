@@ -43,7 +43,7 @@ function renderMembers() {
     },
     {
       name: 'Kana Asahiro',
-      role: 'Trombone',
+      role: 'Trombone / Lead Trombone',
       img: 'member4.jpg',
     },
     {
