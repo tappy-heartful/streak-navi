@@ -26,11 +26,51 @@ $(document).ready(async function () {
  */
 function renderMembers() {
   const members = [
-    { name: 'Taisei Yuyama', role: 'Drums / Producer', img: 'member1.jpg' },
-    { name: 'Member Name', role: 'Saxophone', img: 'member2.jpg' },
-    { name: 'Member Name', role: 'Trumpet', img: 'member3.jpg' },
-    { name: 'Member Name', role: 'Piano', img: 'member4.jpg' },
-    { name: 'Member Name', role: 'Bass', img: 'member5.jpg' },
+    {
+      name: 'Shoei Matsushita',
+      role: 'Guitar / Band Master',
+      img: 'member1.jpg',
+    },
+    {
+      name: 'Miku Nozoe',
+      role: 'Trumpet / Section Leader',
+      img: 'member2.jpg',
+    },
+    {
+      name: 'Hiroto Murakami',
+      role: 'Trombone / Section Leader',
+      img: 'member3.jpg',
+    },
+    {
+      name: 'Kana Asahiro',
+      role: 'Trombone',
+      img: 'member4.jpg',
+    },
+    {
+      name: 'Shunta Yabu',
+      role: 'Saxophne / Section Leader',
+      img: 'member5.jpg',
+    },
+    {
+      name: 'Takumi Fujimoto',
+      role: 'Saxophne / Lead Alto Sax',
+      img: 'member6.jpg',
+    },
+    {
+      name: 'Taisei Yuyama',
+      role: 'Saxophne / Lead Tenor Sax',
+      img: 'member7.jpg',
+    },
+    {
+      name: 'Akito Kimura',
+      role: 'Drums',
+      img: 'member8.jpg',
+    },
+    {
+      name: 'Yojiro Nakagawa',
+      role: 'Bass',
+      img: 'member9.jpg',
+    },
   ];
 
   const $grid = $('#member-grid');
