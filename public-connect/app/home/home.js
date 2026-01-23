@@ -17,8 +17,12 @@ $(document).ready(async function () {
     await utils.initDisplay();
 
     // 並行してデータ取得
-    await Promise.all([loadTickets(), loadUpcomingLives(), loadLatestMedia()]);
-    setUpEventHandlers();
+    await Promise.all([loadTickets(), renderMembers(), loadMedias()]);
+
+    // Instagram再スキャン
+    if (window.instgrm) {
+      window.instgrm.Embeds.process();
+    }
   } catch (e) {
     console.error(e);
     await utils.writeLog({
@@ -98,6 +102,120 @@ async function loadTickets() {
 window.handleReserve = async function (liveId) {
   location.href = `../ticket-reserve/ticket-reserve.html?liveId=${liveId}`;
 };
+
+/**
+ * メンバー表示
+ */
+async function renderMembers() {
+  const members = [
+    {
+      name: 'Shoei Matsushita',
+      role: 'Guitar / Band Master',
+      origin: 'Ehime',
+      img: 'member1.jpg',
+    },
+    {
+      name: 'Miku Nozoe',
+      role: 'Trumpet / Section Leader',
+      origin: 'Ehime',
+      img: 'member2.jpg',
+    },
+    {
+      name: 'Hiroto Murakami',
+      role: 'Trombone / Section Leader',
+      origin: 'Ehime',
+      img: 'member3.jpg',
+    },
+    {
+      name: 'Kana Asahiro',
+      role: 'Trombone / Lead Trombone',
+      origin: 'Osaka',
+      img: 'member4.jpg',
+    },
+    {
+      name: 'Shunta Yabu',
+      role: 'Saxophne / Section Leader',
+      origin: 'Hiroshima',
+      img: 'member5.jpg',
+    },
+    {
+      name: 'Takumi Fujimoto',
+      role: 'Saxophne / Lead Alto Sax',
+      origin: 'Hiroshima',
+      img: 'member6.jpg',
+    },
+    {
+      name: 'Taisei Yuyama',
+      role: 'Saxophne / Lead Tenor Sax',
+      origin: 'Ehime',
+      img: 'member7.jpg',
+    },
+    {
+      name: 'Akito Kimura',
+      role: 'Drums',
+      origin: 'Okayama',
+      img: 'member8.jpg',
+    },
+    {
+      name: 'Yojiro Nakagawa',
+      role: 'Bass',
+      origin: 'Hiroshima',
+      img: 'member9.jpg',
+    },
+  ];
+
+  const $grid = $('#member-grid');
+  members.forEach((m) => {
+    $grid.append(`
+      <div class="member-card">
+        <div class="member-img-wrapper">
+          <img src="../../images/members/${m.img}" alt="${m.name}" class="member-img">
+        </div>
+        <div class="member-info-content">
+          <div class="member-role">${m.role}</div>
+          <div class="member-name">${m.name.replace(/ /g, '<br>')}</div>
+          <div class="member-origin">from ${m.origin}</div>
+        </div>
+      </div>
+    `);
+  });
+}
+
+/**
+ * Instagram投稿取得
+ */
+async function loadMedias() {
+  const mediaList = $('#media-list');
+  const q = utils.query(
+    utils.collection(utils.db, 'medias'),
+    utils.orderBy('date', 'desc'),
+    utils.limit(5),
+  );
+
+  const snapshot = await utils.getWrapDocs(q);
+
+  if (snapshot.empty) {
+    mediaList.html('<p class="no-data">No history found.</p>');
+    return;
+  }
+
+  mediaList.empty();
+  snapshot.docs.forEach((docSnap) => {
+    const data = docSnap.data();
+    const html = `
+      <div class="media-card">
+        <div class="media-info">
+          <span class="media-date">${data.date}</span>
+          <h3 class="media-title">${data.title_decoded || data.title}</h3>
+        </div>
+        <div class="media-body">
+          ${utils.buildInstagramHtml(data.instagramUrl)}
+        </div>
+      </div>
+    `;
+    mediaList.append(html);
+  });
+}
 
 /**
  * LINEコールバック処理
@@ -182,70 +300,4 @@ async function handleLineLoginCallback(code, state, error) {
   } finally {
     utils.hideSpinner();
   }
-}
-
-async function loadUpcomingLives() {
-  const container = $('#live-list');
-  const q = utils.query(
-    utils.collection(utils.db, 'lives'),
-    utils.orderBy('date', 'asc'),
-    utils.limit(3),
-  );
-
-  const snapshot = await utils.getWrapDocs(q);
-  if (snapshot.empty) {
-    container.html('<p class="no-data">Stay tuned for upcoming schedules.</p>');
-    return;
-  }
-
-  container.empty();
-  snapshot.docs.forEach((docSnap) => {
-    const data = docSnap.data();
-    container.append(`
-      <div class="live-card">
-        <div class="live-date-box">
-          <span class="l-date">${data.date}</span>
-        </div>
-        <div class="live-info">
-          <h3 class="l-title">${data.title}</h3>
-          <p class="l-venue"><i class="fa-solid fa-location-dot"></i> ${
-            data.venue || 'TBA'
-          }</p>
-        </div>
-      </div>
-    `);
-  });
-}
-
-async function loadLatestMedia() {
-  const container = $('#media-preview');
-  // 💡 limit(4) に変更
-  const q = utils.query(
-    utils.collection(utils.db, 'medias'),
-    utils.orderBy('date', 'desc'),
-    utils.limit(4),
-  );
-
-  const snapshot = await utils.getWrapDocs(q);
-  if (snapshot.empty) return;
-
-  container.empty();
-
-  // 💡 ループですべてのドキュメントをappend
-  snapshot.docs.forEach((docSnap) => {
-    const data = docSnap.data();
-    container.append(utils.buildInstagramHtml(data.instagramUrl));
-  });
-
-  // Instagramの再スキャン（これをしないと埋め込みが表示されない）
-  if (window.instgrm) {
-    window.instgrm.Embeds.process();
-  }
-}
-
-function setUpEventHandlers() {
-  // チケットページへ
-  $('.live-card').on('click', function () {
-    window.location.href = '../ticket/ticket.html';
-  });
 }
