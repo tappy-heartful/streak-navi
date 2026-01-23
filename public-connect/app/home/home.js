@@ -17,7 +17,12 @@ $(document).ready(async function () {
     await utils.initDisplay();
 
     // 並行してデータ取得
-    await Promise.all([loadTickets(), renderMembers(), loadMedias()]);
+    await Promise.all([
+      loadTickets(),
+      renderMembers(),
+      loadMedias(),
+      renderGoodsItems(),
+    ]);
 
     // Instagram再スキャン
     if (window.instgrm) {
@@ -178,6 +183,37 @@ async function renderMembers() {
         </div>
       </div>
     `);
+  });
+}
+
+/**
+ * BOOTHの商品画像を配列に基づいて生成する
+ */
+async function renderGoodsItems() {
+  // 表示したい画像のファイル名を配列で定義
+  const items = [
+    'item1.jpg',
+    'item2.jpg',
+    'item3.jpg',
+    'item4.jpg',
+    // 'item5.jpg' など、追加があればここに足すだけ
+  ];
+
+  const $container = $('#goods-list');
+  const basePath = '../../images/goods/';
+
+  // 配列をループしてHTMLを生成
+  items.forEach((fileName, index) => {
+    const fullPath = `${basePath}${fileName}`;
+    const imgHtml = `
+      <img
+        src="${fullPath}"
+        alt="Goods ${index + 1}"
+        class="square-img btn-view-image"
+        data-url="${fullPath}"
+      />
+    `;
+    $container.append(imgHtml);
   });
 }
 
