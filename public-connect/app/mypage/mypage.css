@@ -24,16 +24,27 @@
     object-fit: cover;
 }
 
-.profile-label {
-    font-size: 0.8rem;
-    color: #888;
-    margin-bottom: 5px;
-}
-
 .profile-name {
     font-size: 1.5rem;
     color: #fff;
     font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.btn-logout {
+    background: transparent;
+    border: 1px solid #444;
+    color: #888;
+    padding: 5px 12px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.3s;
+}
+
+.btn-logout:hover {
+    color: #fff;
+    border-color: #fff;
 }
 
 /* チケットカード追加分 */
@@ -45,39 +56,46 @@
     margin-bottom: 20px;
 }
 
-.t-status-badge {
-    position: absolute;
-    top: 20px;
-    right: 20px;
-    background: #e7211a;
-    color: #fff;
-    font-size: 0.7rem;
-    padding: 4px 10px;
-    font-weight: bold;
-    border-radius: 4px;
-}
-
 .ticket-actions {
     margin-top: 20px;
     border-top: 1px solid #333;
     padding-top: 15px;
+    display: flex;
+    gap: 10px;
+}
+
+.btn-edit, .btn-delete {
+    padding: 8px 15px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
 }
 
 .btn-edit {
     background: transparent;
     border: 1px solid #555;
     color: #ccc;
-    padding: 8px 15px;
-    font-size: 0.85rem;
-    cursor: pointer;
-    transition: 0.3s;
-    border-radius: 4px;
 }
 
 .btn-edit:hover {
+    background: #e7211a;
     border-color: #e7211a;
     color: #fff;
-    background: #e7211a;
+}
+
+.btn-delete {
+    background: transparent;
+    border: 1px solid #555;
+    color: #888;
+}
+
+.btn-delete:hover {
+    background: #444;
+    color: #fff;
 }
 
 .t-details p {

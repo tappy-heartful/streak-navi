@@ -5,12 +5,13 @@ $(document).ready(async function () {
     // ログイン必須
     await utils.initDisplay(true, true);
 
-    // プロフィール反映
+    // プロフィール反映（「様」を追加）
     $('#user-icon').attr(
       'src',
       utils.getSession('pictureUrl') || '../../images/line-profile-unset.png',
     );
-    $('#user-name').text(utils.getSession('displayName') || 'Guest');
+    const displayName = utils.getSession('displayName') || 'Guest';
+    $('#user-name').text(`${displayName} 様`);
 
     // Hero画像設定
     $('.hero').css('--hero-bg', 'url("../../images/background/mypage.jpg")');
@@ -24,13 +25,57 @@ $(document).ready(async function () {
 });
 
 /**
+ * ログアウト処理
+ */
+window.handleLogout = async function () {
+  if (!confirm('ログアウトしますか？')) return;
+
+  try {
+    utils.showSpinner();
+    await utils.auth.signOut();
+    utils.clearAllAppSession();
+    window.location.href = '../home/home.html';
+  } catch (e) {
+    alert('ログアウトに失敗しました');
+  } finally {
+    utils.hideSpinner();
+  }
+};
+
+/**
+ * 予約取り消し処理
+ */
+window.handleDeleteReservation = async function (liveId) {
+  if (!confirm('この予約を取り消しますか？\n（この操作は元に戻せません）'))
+    return;
+
+  try {
+    utils.showSpinner();
+    const uid = utils.getSession('uid');
+    const reservationId = `${liveId}_${uid}`;
+
+    // Firestoreから削除
+    await utils.archiveAndDeleteDoc(
+      utils.doc('liveReservations', reservationId),
+    );
+
+    alert('予約を取り消しました');
+    await loadMyTickets(); // 一覧を再読み込み
+  } catch (e) {
+    console.error(e);
+    alert('エラーが発生しました: ' + e.message);
+  } finally {
+    utils.hideSpinner();
+  }
+};
+
+/**
  * 自分の予約情報を取得して表示
  */
 async function loadMyTickets() {
   const container = $('#my-tickets-container');
   const uid = utils.getSession('uid');
 
-  // 1. 自分の予約を全件取得
   const q = utils.query(
     utils.collection(utils.db, 'liveReservations'),
     utils.where('uid', '==', uid),
@@ -46,11 +91,8 @@ async function loadMyTickets() {
 
   container.empty();
 
-  // 2. 予約情報ごとにライブ詳細を紐付けて表示
   for (const resDoc of resSnapshot.docs) {
     const resData = resDoc.data();
-
-    // livesコレクションからライブ詳細を取得
     const liveRef = utils.doc(utils.db, 'lives', resData.liveId);
     const liveSnap = await utils.getWrapDoc(liveRef);
 
@@ -77,7 +119,10 @@ async function loadMyTickets() {
           
           <div class="ticket-actions">
             <button class="btn-edit" onclick="location.href='../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}'">
-              <i class="fa-solid fa-pen-to-square"></i> 変更する
+              <i class="fa-solid fa-pen-to-square"></i> 変更
+            </button>
+            <button class="btn-delete" onclick="handleDeleteReservation('${resData.liveId}')">
+              <i class="fa-solid fa-trash-can"></i> 取消
             </button>
           </div>
         </div>
