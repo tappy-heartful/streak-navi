@@ -7,16 +7,13 @@ $(document).ready(async function () {
     const state = urlParams.get('state');
     const error = urlParams.get('error');
 
-    // 1. LINEログインからの戻り時
     if (code || state || error) {
       await handleLineLoginCallback(code, state, error);
-      return; // リダイレクトが発生するためここで終了
+      return;
     }
 
-    // 2. 通常表示時の初期処理
     await utils.initDisplay();
 
-    // 並行してデータ取得
     await Promise.all([
       loadTickets(),
       renderMembers(),
@@ -24,7 +21,6 @@ $(document).ready(async function () {
       renderGoodsItems(),
     ]);
 
-    // Instagram再スキャン
     if (window.instgrm) {
       window.instgrm.Embeds.process();
     }
@@ -41,71 +37,112 @@ $(document).ready(async function () {
   }
 });
 
-// チケット情報の読み込み
+// チケット情報の読み込み（予約状態の判定付き）
 async function loadTickets() {
   const upcomingContainer = $('#upcoming-list');
+  const uid = utils.getSession('uid');
 
-  // 全ライブを取得（日付順）
   const q = utils.query(
     utils.collection(utils.db, 'lives'),
     utils.orderBy('date', 'desc'),
   );
 
   const snapshot = await utils.getWrapDocs(q);
-
   if (snapshot.empty) {
     $('.ticket-grid').html('<p class="no-data">No information available.</p>');
     return;
   }
 
   upcomingContainer.empty();
-
-  // 本日の日付（比較用 YYYY.MM.DD形式）
   const now = new Date();
   const todayStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+
+  // ログイン中なら予約済みリストを取得
+  let myReservations = [];
+  if (uid) {
+    const resQ = utils.query(
+      utils.collection(utils.db, 'liveReservations'),
+      utils.where('uid', '==', uid),
+    );
+    const resSnap = await utils.getWrapDocs(resQ);
+    myReservations = resSnap.docs.map((doc) => doc.data().liveId);
+  }
 
   snapshot.docs.forEach((docSnap) => {
     const data = docSnap.data();
     const liveId = docSnap.id;
-
-    // 日付比較でコンテナを振り分け
     const isPast = data.date < todayStr;
+    const isReserved = myReservations.includes(liveId);
+
+    // ボタン部分の動的生成
+    let actionButtons = '';
+    if (!isPast) {
+      if (isReserved) {
+        actionButtons = `
+          <div class="reserved-actions">
+            <button class="btn-reserve btn-edit" onclick="handleReserve('${liveId}')">予約を変更</button>
+            <button class="btn-reserve btn-delete" onclick="handleDeleteReservation('${liveId}')">予約を取り消す</button>
+          </div>
+        `;
+      } else {
+        actionButtons = `<button class="btn-reserve" onclick="handleReserve('${liveId}')">予約する / RESERVE</button>`;
+      }
+    }
 
     const cardHtml = `
-            <div class="ticket-card" data-id="${liveId}">
-                <div class="ticket-img-wrapper">
-                    <img src="${data.flyerUrl || '../../images/favicon.png'}" class="ticket-img" alt="flyer">
-                </div>
-                <div class="ticket-info">
-                    <div class="t-date">${data.date}</div>
-                    <h3 class="t-title">${data.title}</h3>
-                    <div class="t-details">
-                        <div><i class="fa-solid fa-location-dot"></i> ${data.venue}</div>
-                        <div><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</div>
-                        <div><i class="fa-solid fa-link"></i> <a href="${data.venueUrl}" target="_blank" style="color:#aaa">Venue Website</a></div>
-                    </div>
-                    ${!isPast ? `<button class="btn-reserve" onclick="handleReserve('${liveId}')">予約する / RESERVE</button>` : ''}
-                </div>
-            </div>
-        `;
+      <div class="ticket-card" data-id="${liveId}">
+        <div class="ticket-img-wrapper">
+          <img src="${data.flyerUrl || '../../images/favicon.png'}" class="ticket-img" alt="flyer">
+        </div>
+        <div class="ticket-info">
+          <div class="t-date">${isReserved ? '<span class="reserved-label">予約済み</span> ' : ''}${data.date}</div>
+          <h3 class="t-title">${data.title}</h3>
+          <div class="t-details">
+            <div><i class="fa-solid fa-location-dot"></i> ${data.venue}</div>
+            <div><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</div>
+          </div>
+          ${actionButtons}
+        </div>
+      </div>
+    `;
 
-    if (!isPast) {
-      // 今後のライブは日付が近い順に上にしたいので prepend または sortの工夫が必要
-      // orderBy(desc) なので append でOK
-      upcomingContainer.append(cardHtml);
-    }
+    if (!isPast) upcomingContainer.append(cardHtml);
   });
-
-  if (upcomingContainer.children().length === 0) {
-    upcomingContainer.html(
-      '<p class="no-data">現在、予約受付中のライブはありません。</p>',
-    );
-  }
 }
 
-// 予約ボタンクリック時
-window.handleReserve = async function (liveId) {
+// 予約変更（既存の予約画面へ）
+window.handleReserve = function (liveId) {
   location.href = `../ticket-reserve/ticket-reserve.html?liveId=${liveId}`;
+};
+
+// 予約取り消し（削除機能）
+window.handleDeleteReservation = async function (liveId) {
+  const uid = utils.getSession('uid');
+  if (!uid) return;
+
+  if (!confirm('予約を取り消してもよろしいですか？')) return;
+
+  try {
+    utils.showSpinner();
+    // liveId と uid が一致するドキュメントを探す
+    const q = utils.query(
+      utils.collection(utils.db, 'liveReservations'),
+      utils.where('liveId', '==', liveId),
+      utils.where('uid', '==', uid),
+    );
+
+    const snap = await utils.getWrapDocs(q);
+    const deletePromises = snap.docs.map((doc) => utils.deleteDoc(doc.ref));
+    await Promise.all(deletePromises);
+
+    alert('予約を取り消しました。');
+    await loadTickets(); // 表示を更新
+  } catch (e) {
+    alert('エラーが発生しました。');
+    console.error(e);
+  } finally {
+    utils.hideSpinner();
+  }
 };
 
 /**
