@@ -1,115 +1,61 @@
-/* ライブカードのスタイル */
-.ticket-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
+.form-wrapper {
     margin-top: 40px;
-}
-
-.ticket-card {
-    display: flex;
-    flex-direction: column;
     background: #111;
+    padding: 30px;
     border: 1px solid #222;
-    overflow: hidden;
-    transition: 0.3s;
 }
 
-@media (min-width: 768px) {
-    .ticket-card {
-        flex-direction: row;
-        min-height: 220px;
-    }
-}
-
-/* 左側：フライヤー/画像エリア */
-.ticket-img-wrapper {
-    position: relative;
-    width: 100%;
-    aspect-ratio: 16/9;
-    background: #222;
-    overflow: hidden;
-}
-
-@media (min-width: 768px) {
-    .ticket-img-wrapper {
-        width: 35%;
-        aspect-ratio: auto;
-    }
-}
-
-.ticket-img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    opacity: 0.8;
-}
-
-/* 右側：詳細エリア */
-.ticket-info {
-    padding: 25px;
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-}
-
-.t-date {
-    font-family: 'Impact', sans-serif;
-    color: #e7211a;
-    font-size: 1.2rem;
-    letter-spacing: 0.1em;
-}
-
-.t-title {
+.sub-title {
+    margin: 30px 0 15px;
     color: #fff;
-    font-size: 1.5rem;
-    margin: 10px 0;
-    font-weight: bold;
+    font-size: 1.1rem;
+    border-left: 4px solid #e7211a;
+    padding-left: 10px;
 }
 
-.t-details {
-    font-size: 0.85rem;
-    color: #aaa;
-    line-height: 1.6;
+.form-group {
+    margin-bottom: 20px;
 }
 
-.t-details i {
-    width: 20px;
-    color: #e7211a;
+.form-group label {
+    display: block;
+    color: #ccc;
+    margin-bottom: 8px;
+    font-size: 0.9rem;
 }
 
-/* 予約ボタン */
-.btn-reserve {
-    margin-top: 20px;
+.form-group input {
+    width: 100%;
     padding: 12px;
-    background: #e7211a;
+    background: #222;
+    border: 1px solid #333;
     color: #fff;
+    border-radius: 4px;
+}
+
+.form-group input:focus {
+    border-color: #e7211a;
+    outline: none;
+}
+
+.required {
+    color: #e7211a;
+    font-size: 0.7rem;
+    vertical-align: middle;
+}
+
+.detail-mode {
+    border-bottom: 2px solid #e7211a;
+}
+
+.form-actions {
+    margin-top: 40px;
     text-align: center;
-    font-weight: bold;
-    text-transform: uppercase;
-    letter-spacing: 0.1em;
-    cursor: pointer;
-    border: none;
-    transition: 0.3s;
 }
 
-.btn-reserve:hover {
-    background: #b61a15;
-}
-
-.btn-reserved-mark {
-    background: #333;
-    color: #888;
-    cursor: default;
-}
-
-/* 過去のライブ用スタイル */
-.past-lives .ticket-card {
-    opacity: 0.6;
-    filter: grayscale(100%);
-}
-
-.past-lives .btn-reserve {
-    display: none; /* 終了分は予約不可 */
+.btn-reserve {
+    width: 100%;
+    max-width: 400px;
+    padding: 15px;
+    font-size: 1.1rem;
 }

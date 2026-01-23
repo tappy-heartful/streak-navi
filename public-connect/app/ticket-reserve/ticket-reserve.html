@@ -13,7 +13,7 @@
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
       rel="stylesheet"
     />
-    <title>TICKET | SSJO</title>
+    <title>RESERVE | SSJO</title>
     <link rel="stylesheet" href="../common/common.css" />
     <link rel="stylesheet" href="ticket-reserve.css" />
   </head>
@@ -23,26 +23,45 @@
     <main>
       <section class="hero">
         <div class="hero-content">
-          <h1 class="page-title">TICKET</h1>
-          <p class="tagline">Reservation & Archives</p>
+          <h1 class="page-title">RESERVE</h1>
+          <p class="tagline">Ticket Reservation</p>
         </div>
       </section>
 
       <section class="content-section">
         <div class="inner">
-          <h2 class="section-title">UPCOMING LIVES</h2>
-          <div id="upcoming-list" class="ticket-grid">
-            <p class="loading-text">Checking for upcoming lives...</p>
+          <div id="live-detail-container">
+            <p class="loading-text">Loading live details...</p>
           </div>
-        </div>
-      </section>
 
-      <section class="content-section bg-darker">
-        <div class="inner">
-          <h2 class="section-title">PAST LIVES</h2>
-          <p class="sub-section-title">Archive of performances</p>
-          <div id="past-list" class="ticket-grid past-lives">
-            <p class="loading-text">Loading past archives...</p>
+          <div
+            id="reservation-form-container"
+            class="form-wrapper"
+            style="display: none"
+          >
+            <h2 class="section-title">RESERVATION FORM</h2>
+            <form id="reserve-form">
+              <div class="form-group">
+                <label for="representativeName"
+                  >代表者氏名 <span class="required">必須</span></label
+                >
+                <input
+                  type="text"
+                  id="representativeName"
+                  name="representativeName"
+                  required
+                  placeholder="例：ステレオ 太郎"
+                />
+              </div>
+
+              <div id="companion-inputs-container"></div>
+
+              <div class="form-actions">
+                <button type="submit" id="submit-btn" class="btn-reserve">
+                  予約を確定する / CONFIRM
+                </button>
+              </div>
+            </form>
           </div>
         </div>
       </section>
