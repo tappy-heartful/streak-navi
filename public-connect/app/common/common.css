@@ -108,6 +108,44 @@ body {
     max-width: 600px;
     margin: 0 auto;
 }
+
+.breadcrumb {
+    margin-bottom: 2rem;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #888; /* 基本はグレー */
+}
+
+.breadcrumb a {
+    color: #888;
+    transition: color 0.3s;
+}
+
+.breadcrumb a:hover {
+    color: #e7211a; /* ホバーでSSJOレッドに */
+}
+
+.breadcrumb .separator {
+    font-family: serif;
+    font-size: 0.75rem;
+    opacity: 0.5;
+}
+
+.breadcrumb .current {
+    color: #bbb; /* 現在地は少し明るく、リンクなし */
+    font-weight: bold;
+}
+
+/* スマホでの微調整 */
+@media screen and (max-width: 600px) {
+    .breadcrumb {
+        margin-bottom: 1.5rem;
+        padding-left: 5px;
+    }
+}
+
 /* ホームに戻るボタンエリア */
 .page-actions {
     text-align: center;
