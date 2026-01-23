@@ -29,19 +29,19 @@ function renderMembers() {
     {
       name: 'Shoei Matsushita',
       role: 'Guitar / Band Master',
-      origin: 'EHIME',
+      origin: 'Ehime',
       img: 'member1.jpg',
     },
     {
       name: 'Miku Nozoe',
       role: 'Trumpet / Section Leader',
-      origin: 'EHIME',
+      origin: 'Ehime',
       img: 'member2.jpg',
     },
     {
       name: 'Hiroto Murakami',
       role: 'Trombone / Section Leader',
-      origin: 'EHIME',
+      origin: 'Ehime',
       img: 'member3.jpg',
     },
     {
@@ -65,7 +65,7 @@ function renderMembers() {
     {
       name: 'Taisei Yuyama',
       role: 'Saxophne / Lead Tenor Sax',
-      origin: 'EHIME',
+      origin: 'Ehime',
       img: 'member7.jpg',
     },
     {
