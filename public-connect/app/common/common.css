@@ -33,6 +33,10 @@ body {
     overflow: hidden;
     background-color: #000;
     z-index: 0;
+    background-image: var(--hero-bg, none);
+    background-size: cover;
+    background-position: center;
+    position: relative;
 }
 
 /* 背景画像 */

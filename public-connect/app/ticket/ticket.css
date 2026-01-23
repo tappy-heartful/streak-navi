@@ -1,12 +1,3 @@
-/* Hero画像の動的設定用 */
-.hero {
-    background-image: var(--hero-bg, none);
-    background-size: cover;
-    background-position: center;
-    position: relative;
-    /* 擬似要素で暗くする等の処理は common.css 準拠を想定 */
-}
-
 /* ライブカードのスタイル */
 .ticket-grid {
     display: flex;
