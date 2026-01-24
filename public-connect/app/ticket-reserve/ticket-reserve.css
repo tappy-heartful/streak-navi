@@ -2,7 +2,7 @@
 .ticket-card.detail-mode {
     background: #1a1a1a;
     padding: 20px;
-    border-left: 5px solid #e7211a; /* アクセントカラーの縦棒 */
+    border-left: 5px solid #e7211a;
     margin-bottom: 30px;
 }
 
@@ -45,12 +45,36 @@
     border: 1px solid #333;
     color: #fff;
     border-radius: 4px;
-    box-sizing: border-box; /* パディングによる幅崩れ防止 */
+    box-sizing: border-box;
 }
 
 .form-group input:focus {
     border-color: #e7211a;
     outline: none;
+}
+
+/* ラジオボタンの調整 */
+.radio-group {
+    display: flex;
+    gap: 20px;
+    margin-top: 10px;
+    background: #1a1a1a;
+    padding: 15px;
+    border-radius: 4px;
+}
+
+.radio-label {
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+}
+
+.radio-label input[type="radio"] {
+    width: auto;
+    accent-color: #e7211a;
 }
 
 .required {
