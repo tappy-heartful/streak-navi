@@ -5,7 +5,7 @@ $(document).ready(async function () {
     // ログイン必須
     await utils.initDisplay(true, true);
 
-    // プロフィール反映（「様」を追加）
+    // プロフィール反映
     $('#user-icon').attr(
       'src',
       utils.getSession('pictureUrl') ||
@@ -27,6 +27,34 @@ $(document).ready(async function () {
     utils.hideSpinner();
   }
 });
+
+/**
+ * 共有処理 (Web Share API)
+ */
+window.handleShareTicket = async function (title, url) {
+  const shareData = {
+    title: `SSJO Digital Ticket: ${title}`,
+    url: url,
+  };
+
+  try {
+    if (navigator.share) {
+      // OS標準の共有メニューを呼び出し
+      await navigator.share(shareData);
+    } else {
+      // 非対応ブラウザ（PCなど）の場合はクリップボードへコピー
+      await navigator.clipboard.writeText(url);
+      await utils.showDialog(
+        'URLをクリップボードにコピーしました。\n同伴者の方へお送りください。',
+        true,
+      );
+    }
+  } catch (err) {
+    if (err.name !== 'AbortError') {
+      console.error('Share failed:', err);
+    }
+  }
+};
 
 /**
  * ログアウト処理
@@ -62,12 +90,11 @@ window.handleDeleteReservation = async function (liveId) {
     const uid = utils.getSession('uid');
     const reservationId = `${liveId}_${uid}`;
 
-    // Firestoreから削除
     await utils.archiveAndDeleteDoc('liveReservations', reservationId);
 
     utils.hideSpinner();
     await utils.showDialog('予約を取り消しました', true);
-    await loadMyTickets(); // 一覧を再読み込み
+    await loadMyTickets();
   } catch (e) {
     console.error(e);
     alert('エラーが発生しました: ' + e.message);
@@ -106,7 +133,6 @@ async function loadMyTickets() {
     if (!liveSnap.exists()) continue;
     const liveData = liveSnap.data();
 
-    // 予約種別に応じた文言設定
     const isInvite = resData.resType === 'invite';
     const typeName = isInvite ? '招待予約' : '一般予約';
     const repLabel = isInvite ? '予約担当' : '代表者';
@@ -117,8 +143,8 @@ async function loadMyTickets() {
         ? resData.companions.join(' 様、') + ' 様'
         : 'なし';
 
-    // チケット詳細画面へのURL作成
-    const reservationId = resDoc.id; // liveId_uid
+    const reservationId = resDoc.id;
+    // URL作成（/app/ticket-detail/... とのことなので調整）
     const detailUrl = `${window.location.origin}/app/ticket-detail/ticket-detail.html?liveReservationId=${reservationId}`;
 
     container.append(`
@@ -132,7 +158,7 @@ async function loadMyTickets() {
           <div class="t-details">
             <p><i class="fa-solid fa-location-dot"></i> 会場: ${liveData.venue}</p>
             <p><i class="fa-solid fa-clock"></i> 開演: ${liveData.start} (開場 ${liveData.open})</p>
-            <p><i class="fa-solid fa-yen"></i> 前売:${liveData.advance}</p>
+            <p><i class="fa-solid fa-yen"></i> 前売: ${liveData.advance}</p>
             <p><i class="fa-solid fa-user"></i> ${repLabel}: ${resData.representativeName} 様</p>
             <p><i class="fa-solid fa-users"></i> ${companionLabel}: ${companionText}</p>
           </div>
@@ -144,8 +170,8 @@ async function loadMyTickets() {
             <button class="btn-delete" onclick="handleDeleteReservation('${resData.liveId}')">
               <i class="fa-solid fa-trash-can"></i> 取消
             </button>
-            <button class="btn-view" onclick="window.open('${detailUrl}', '_blank')">
-              <i class="fa-solid fa-ticket"></i> 共有
+            <button class="btn-view" onclick="handleShareTicket('${liveData.title}', '${detailUrl}')">
+              <i class="fa-solid fa-share-nodes"></i> 共有
             </button>
           </div>
         </div>
