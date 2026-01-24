@@ -161,6 +161,9 @@ async function loadMyTickets() {
             <button class="btn-delete" onclick="handleDeleteReservation('${resData.liveId}')">
               <i class="fa-solid fa-trash-can"></i> 取消
             </button>
+            <button class="btn-ticket" onclick="location.href='../ticket-detail/ticket-detail.html?liveReservationId=${reservationId}'">
+              <i class="fa-solid fa-ticket"></i> 表示
+            </button>
             <button class="btn-view" onclick="handleCopyTicketUrl('${resData.resType}', '${detailUrl}')">
               <i class="fa-solid fa-copy"></i> チケットURLをコピー
             </button>
