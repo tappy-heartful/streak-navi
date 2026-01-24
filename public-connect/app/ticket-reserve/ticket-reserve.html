@@ -74,13 +74,16 @@
                 <label id="rep-label" for="representativeName"
                   >代表者氏名 <span class="required">必須</span></label
                 >
-                <input
-                  type="text"
-                  id="representativeName"
-                  name="representativeName"
-                  required
-                  placeholder="例：ステレオ 太郎"
-                />
+                <div class="input-row">
+                  <input
+                    type="text"
+                    id="representativeName"
+                    name="representativeName"
+                    required
+                    placeholder="例：ステレオ 太郎"
+                  />
+                  <span class="honorific">様</span>
+                </div>
               </div>
 
               <div
@@ -89,12 +92,15 @@
                 style="display: none"
               >
                 <label>予約担当（出演メンバー）</label>
-                <input
-                  type="text"
-                  id="memberNameDisplay"
-                  readonly
-                  style="background: #333; color: #888; border-color: #444"
-                />
+                <div class="input-row">
+                  <input
+                    type="text"
+                    id="memberNameDisplay"
+                    readonly
+                    style="background: #333; color: #888; border-color: #444"
+                  />
+                  <span class="honorific">様</span>
+                </div>
               </div>
 
               <div id="companion-inputs-container"></div>

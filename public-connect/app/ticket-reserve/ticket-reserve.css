@@ -6,6 +6,15 @@
     margin-bottom: 30px;
 }
 
+.sub-title {
+    margin: 35px 0 15px;
+    color: #fff;
+    font-size: 1.3rem; /* タイトルも強調 */
+    border-left: 5px solid #e7211a;
+    padding-left: 12px;
+    font-family: 'Impact', sans-serif;
+}
+
 .t-details p {
     margin: 8px 0;
     font-size: 0.95rem;
@@ -31,22 +40,38 @@
     margin-bottom: 20px;
 }
 
+/* フォーム関連の強化 */
 .form-group label {
     display: block;
     color: #ccc;
     margin-bottom: 8px;
-    font-size: 0.9rem;
+    font-size: 1.1rem; /* 大きくした */
+}
+
+/* 入力欄と「様」を横並びにするコンテナ */
+.input-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
 }
 
 .form-group input {
-    width: 100%;
-    padding: 12px;
+    flex: 1; /* 入力欄を広げる */
+    padding: 14px; /* 少し太く */
     background: #222;
     border: 1px solid #333;
     color: #fff;
     border-radius: 4px;
-    box-sizing: border-box;
+    font-size: 1.1rem; /* 入力文字も大きく */
 }
+
+.honorific {
+    color: #fff;
+    font-size: 1.1rem;
+    white-space: nowrap;
+}
+
 
 .form-group input:focus {
     border-color: #e7211a;

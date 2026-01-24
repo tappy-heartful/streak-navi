@@ -110,7 +110,10 @@ async function loadLiveDetail() {
       companionContainer.append(`
         <div class="form-group">
           <label for="companionName${i}">ゲスト ${i}</label>
-          <input type="text" id="companionName${i}" name="companionName" class="companion-input" placeholder="お名前を入力">
+          <div class="input-row">
+            <input type="text" id="companionName${i}" name="companionName" class="companion-input" placeholder="お名前を入力">
+            <span class="honorific">様</span>
+          </div>
         </div>
       `);
     }
@@ -162,6 +165,7 @@ async function fetchExistingReservation() {
 /**
  * フォーム送信処理
  */
+/* --- フォーム送信処理（トランザクション実装） --- */
 $('#reserve-form').on('submit', async function (e) {
   e.preventDefault();
   utils.showSpinner();
@@ -171,8 +175,6 @@ $('#reserve-form').on('submit', async function (e) {
     const resType = isMember
       ? $('input[name="resType"]:checked').val()
       : 'general';
-
-    // 招待モードなら代表者名は自分の名前（displayName）にする
     const representativeName =
       resType === 'invite'
         ? utils.getSession('displayName')
@@ -184,35 +186,66 @@ $('#reserve-form').on('submit', async function (e) {
       if (val) companions.push(val);
     });
 
+    const newTotalCount =
+      resType === 'invite' ? companions.length : companions.length + 1;
     const reservationId = `${currentLiveId}_${uid}`;
-    const resRef = utils.doc(utils.db, 'liveReservations', reservationId);
 
-    const reservationData = {
-      liveId: currentLiveId,
-      uid: uid,
-      resType: resType,
-      representativeName: representativeName,
-      companions: companions,
-      companionCount: companions.length,
-      totalCount:
-        resType === 'invite' ? companions.length : companions.length + 1,
-      updatedAt: utils.serverTimestamp(),
-    };
+    // トランザクション処理開始
+    await utils.runTransaction(utils.db, async (transaction) => {
+      const liveRef = utils.doc(utils.db, 'lives', currentLiveId);
+      const resRef = utils.doc(utils.db, 'liveReservations', reservationId);
 
-    const docSnap = await utils.getWrapDoc(resRef);
-    if (!docSnap.exists()) {
-      reservationData.createdAt = utils.serverTimestamp();
-    }
+      const liveSnap = await transaction.get(liveRef);
+      const oldResSnap = await transaction.get(resRef);
 
-    await utils.setDoc(resRef, reservationData, { merge: true });
+      if (!liveSnap.exists()) throw new Error('ライブ情報が存在しません。');
+
+      const liveData = liveSnap.data();
+      const ticketStock = liveData.ticketStock || 0;
+      const currentTotalSold = liveData.totalReserved || 0; // すでに予約済みの総数
+
+      // 今回の更新による増分を計算
+      const oldResCount = oldResSnap.exists()
+        ? oldResSnap.data().totalCount || 0
+        : 0;
+      const diff = newTotalCount - oldResCount;
+
+      // 在庫チェック
+      if (currentTotalSold + diff > ticketStock) {
+        throw new Error(
+          `完売または残席不足です。 (残：${ticketStock - currentTotalSold}枚)`,
+        );
+      }
+
+      // 予約データの作成/更新
+      const reservationData = {
+        liveId: currentLiveId,
+        uid: uid,
+        resType: resType,
+        representativeName: representativeName,
+        companions: companions,
+        companionCount: companions.length,
+        totalCount: newTotalCount,
+        updatedAt: utils.serverTimestamp(),
+      };
+      if (!oldResSnap.exists())
+        reservationData.createdAt = utils.serverTimestamp();
+
+      transaction.set(resRef, reservationData, { merge: true });
+
+      // ライブ側の総予約数を更新
+      transaction.update(liveRef, {
+        totalReserved: currentTotalSold + diff,
+      });
+    });
 
     utils.hideSpinner();
     await utils.showDialog('予約が完了しました！', true);
     window.location.href = '../mypage/mypage.html';
   } catch (err) {
     console.error(err);
-    alert('エラーが発生しました: ' + err.message);
-  } finally {
     utils.hideSpinner();
+    // ダイアログでエラーを表示
+    await utils.showDialog(err.message, true);
   }
 });
