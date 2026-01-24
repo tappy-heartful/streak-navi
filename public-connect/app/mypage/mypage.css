@@ -91,16 +91,20 @@
     gap: 15px;
 }
 
+
 .btn-view, .btn-edit, .btn-delete, .btn-ticket {
-    padding: 10px 16px;
-    font-size: 0.85rem;
+    flex: 1; /* 全てのボタンを均等幅に */
+    justify-content: center; /* 中央揃え */
+    padding: 10px 4px; /* 横パディングを最小限に */
+    font-size: 0.8rem; /* モバイル対応で少し小さめに */
     font-weight: bold;
     cursor: pointer;
     transition: 0.3s;
     border-radius: 4px;
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 4px;
+    white-space: nowrap; /* 改行させない */
 }
 
 /* チケット表示ボタン: 白背景/黒文字 */
