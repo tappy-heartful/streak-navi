@@ -36,6 +36,12 @@ $(document).ready(async function () {
     $('input[name="resType"]').on('change', function () {
       toggleFormUI(this.value);
     });
+
+    // Hero画像設定
+    $('.hero').css(
+      '--hero-bg',
+      'url("https://tappy-heartful.github.io/streak-connect-images/background/ticket-reserve.jpg")',
+    );
   } catch (e) {
     console.error(e);
   } finally {
