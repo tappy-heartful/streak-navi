@@ -2,9 +2,6 @@ import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
   try {
-    // ヘッダーなどの初期化
-    await utils.initDisplay();
-
     // ログイン中のアイコン反映
     const picUrl = utils.getSession('pictureUrl');
     if (picUrl) {
