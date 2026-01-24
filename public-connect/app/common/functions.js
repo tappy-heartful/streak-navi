@@ -36,9 +36,10 @@ import {
   serverTimestamp,
   limit,
   writeBatch,
+  runTransaction, // ← 追記
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js';
 
-// Storage のインポート (バージョンを10.7.1に統一)
+// Storage のインポート
 import {
   getStorage,
   ref,
@@ -47,7 +48,7 @@ import {
   deleteObject,
 } from 'https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js';
 
-// 2. 各サービスの初期化（必ず app を引数に入れる）
+// 2. 各サービスの初期化
 const db = getFirestore(app);
 const storage = getStorage(app, 'streak-navi.firebasestorage.app');
 
@@ -75,6 +76,7 @@ export {
   serverTimestamp,
   limit,
   writeBatch,
+  runTransaction, // ← 追記
   deleteObject,
 };
 

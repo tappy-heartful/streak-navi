@@ -163,31 +163,42 @@ async function fetchExistingReservation() {
 }
 
 /**
- * フォーム送信処理
+ * フォーム送信処理（トランザクション実装）
  */
-/* --- フォーム送信処理（トランザクション実装） --- */
 $('#reserve-form').on('submit', async function (e) {
   e.preventDefault();
   utils.showSpinner();
 
   try {
     const uid = utils.getSession('uid');
+    // メンバーなら選択した種別、一般なら'general'
     const resType = isMember
       ? $('input[name="resType"]:checked').val()
       : 'general';
+
+    // 招待モードなら代表者は自分（メンバー名）、一般なら入力された名前
     const representativeName =
       resType === 'invite'
         ? utils.getSession('displayName')
-        : $('#representativeName').val();
+        : $('#representativeName').val().trim();
 
+    // 同伴者リストの取得
     const companions = [];
     $('.companion-input').each(function () {
       const val = $(this).val().trim();
       if (val) companions.push(val);
     });
 
+    // 予約合計人数の計算
+    // 一般予約: 代表者(1) + 同伴者数
+    // 招待予約: 同伴者（招待客）数のみ（※仕様に合わせて調整。自分を含めるなら+1してください）
     const newTotalCount =
       resType === 'invite' ? companions.length : companions.length + 1;
+
+    if (newTotalCount === 0) {
+      throw new Error('予約人数が0名です。お名前を入力してください。');
+    }
+
     const reservationId = `${currentLiveId}_${uid}`;
 
     // トランザクション処理開始
@@ -201,10 +212,23 @@ $('#reserve-form').on('submit', async function (e) {
       if (!liveSnap.exists()) throw new Error('ライブ情報が存在しません。');
 
       const liveData = liveSnap.data();
+
+      // --- 追加機能: 受付期間のチェック (任意) ---
+      const nowStr = new Date().toISOString().split('T')[0].replace(/-/g, '.'); // "2026.01.25"形式
+      if (liveData.acceptStartDate && nowStr < liveData.acceptStartDate) {
+        throw new Error(`予約受付は ${liveData.acceptStartDate} からです。`);
+      }
+      if (liveData.acceptEndDate && nowStr > liveData.acceptEndDate) {
+        throw new Error(
+          `予約受付は ${liveData.acceptEndDate} で終了しました。`,
+        );
+      }
+
+      // 在庫管理用変数の取得
       const ticketStock = liveData.ticketStock || 0;
       const currentTotalSold = liveData.totalReserved || 0; // すでに予約済みの総数
 
-      // 今回の更新による増分を計算
+      // 今回の更新による増分を計算 (新規なら oldResCount は 0)
       const oldResCount = oldResSnap.exists()
         ? oldResSnap.data().totalCount || 0
         : 0;
@@ -212,12 +236,13 @@ $('#reserve-form').on('submit', async function (e) {
 
       // 在庫チェック
       if (currentTotalSold + diff > ticketStock) {
+        const remaining = ticketStock - currentTotalSold;
         throw new Error(
-          `完売または残席不足です。 (残：${ticketStock - currentTotalSold}枚)`,
+          `完売または残席不足です。 (現在の残り：${remaining > 0 ? remaining : 0}枚)`,
         );
       }
 
-      // 予約データの作成/更新
+      // 1. 予約データの作成/更新
       const reservationData = {
         liveId: currentLiveId,
         uid: uid,
@@ -228,24 +253,27 @@ $('#reserve-form').on('submit', async function (e) {
         totalCount: newTotalCount,
         updatedAt: utils.serverTimestamp(),
       };
-      if (!oldResSnap.exists())
+
+      if (!oldResSnap.exists()) {
         reservationData.createdAt = utils.serverTimestamp();
+        transaction.set(resRef, reservationData); // 新規作成
+      } else {
+        transaction.update(resRef, reservationData); // 更新
+      }
 
-      transaction.set(resRef, reservationData, { merge: true });
-
-      // ライブ側の総予約数を更新
+      // 2. ライブ側の総予約数を更新
       transaction.update(liveRef, {
         totalReserved: currentTotalSold + diff,
       });
     });
 
     utils.hideSpinner();
-    await utils.showDialog('予約が完了しました！', true);
+    await utils.showDialog('予約を確定しました！', true);
     window.location.href = '../mypage/mypage.html';
   } catch (err) {
-    console.error(err);
+    console.error('Transaction failed: ', err);
     utils.hideSpinner();
-    // ダイアログでエラーを表示
+    // カスタムダイアログでエラーメッセージを表示
     await utils.showDialog(err.message, true);
   }
 });
