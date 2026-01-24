@@ -58,14 +58,24 @@
             >
               <label>予約種別 <span class="required">必須</span></label>
               <div class="radio-group">
-                <label class="radio-label">
-                  <input type="radio" name="resType" value="invite" checked />
-                  知人を招待する
-                </label>
-                <label class="radio-label">
-                  <input type="radio" name="resType" value="general" />
-                  一般客として予約
-                </label>
+                <div class="radio-item">
+                  <label class="radio-label">
+                    <input type="radio" name="resType" value="invite" checked />
+                    招待予約
+                  </label>
+                  <span class="radio-description"
+                    >家族や知人の方をライブに招待します</span
+                  >
+                </div>
+                <div class="radio-item">
+                  <label class="radio-label">
+                    <input type="radio" name="resType" value="general" />
+                    一般予約
+                  </label>
+                  <span class="radio-description"
+                    >お客さんとしてライブを見に行きます</span
+                  >
+                </div>
               </div>
             </div>
 

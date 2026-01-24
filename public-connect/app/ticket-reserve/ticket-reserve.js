@@ -92,6 +92,7 @@ async function loadLiveDetail() {
         <div class="t-details">
           <p><i class="fa-solid fa-location-dot"></i> ${data.venue}</p>
           <p><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</p>
+          <p><i class="fa-solid fa-ticket"></i>${data.advance}</p>
         </div>
       </div>
     </div>
@@ -101,6 +102,7 @@ async function loadLiveDetail() {
   companionContainer.empty();
 
   if (maxCompanions > 0) {
+    // 招待予約が初期値(invite)なので「招待するお客様〜」をデフォルトに
     const titleText = isMember ? '招待するお客様のお名前' : '同伴者様';
     companionContainer.append(
       `<h3 class="sub-title companion-title">${titleText}</h3>`,
@@ -121,9 +123,9 @@ async function loadLiveDetail() {
 
   await fetchExistingReservation();
 
-  // メンバーの場合は初期UIを「招待」に合わせる
   if (isMember) {
-    toggleFormUI('invite');
+    // 画面ロード時に選択されている radio の値で UI を初期化
+    toggleFormUI($('input[name="resType"]:checked').val());
   }
 
   $('#reservation-form-container').fadeIn();
