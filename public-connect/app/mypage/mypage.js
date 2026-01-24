@@ -69,7 +69,7 @@ window.handleLogout = async function () {
 /**
  * 予約取り消し処理
  */
-window.handleDeleteReservation = async function (liveId) {
+window.handleDeleteTicket = async function (liveId) {
   if (
     !(await utils.showDialog(
       'この予約を取り消しますか？\n（この操作は元に戻せません）',
@@ -80,9 +80,9 @@ window.handleDeleteReservation = async function (liveId) {
   try {
     utils.showSpinner();
     const uid = utils.getSession('uid');
-    const reservationId = `${liveId}_${uid}`;
+    const ticketId = `${liveId}_${uid}`;
 
-    await utils.archiveAndDeleteDoc('liveReservations', reservationId);
+    await utils.archiveAndDeleteDoc('tickets', ticketId);
 
     utils.hideSpinner();
     await utils.showDialog('予約を取り消しました', true);
@@ -103,7 +103,7 @@ async function loadMyTickets() {
   const uid = utils.getSession('uid');
 
   const q = utils.query(
-    utils.collection(utils.db, 'liveReservations'),
+    utils.collection(utils.db, 'tickets'),
     utils.where('uid', '==', uid),
     utils.orderBy('updatedAt', 'desc'),
   );
@@ -135,8 +135,8 @@ async function loadMyTickets() {
         ? resData.companions.join(' 様、') + ' 様'
         : 'なし';
 
-    const reservationId = resDoc.id;
-    const detailUrl = `${window.location.origin}/app/ticket-detail/ticket-detail.html?liveReservationId=${reservationId}`;
+    const ticketId = resDoc.id;
+    const detailUrl = `${window.location.origin}/app/ticket-detail/ticket-detail.html?ticketId=${ticketId}`;
 
     container.append(`
       <div class="ticket-card detail-mode">
@@ -158,10 +158,10 @@ async function loadMyTickets() {
             <button class="btn-edit" onclick="location.href='../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}'">
               <i class="fa-solid fa-pen-to-square"></i> 変更
             </button>
-            <button class="btn-delete" onclick="handleDeleteReservation('${resData.liveId}')">
+            <button class="btn-delete" onclick="handleDeleteTicket('${resData.liveId}')">
               <i class="fa-solid fa-trash-can"></i> 取消
             </button>
-            <button class="btn-ticket" onclick="location.href='../ticket-detail/ticket-detail.html?liveReservationId=${reservationId}'">
+            <button class="btn-ticket" onclick="location.href='../ticket-detail/ticket-detail.html?ticketId=${ticketId}'">
               <i class="fa-solid fa-ticket"></i> 表示
             </button>
             <button class="btn-view" onclick="handleCopyTicketUrl('${resData.resType}', '${detailUrl}')">

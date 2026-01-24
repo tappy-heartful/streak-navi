@@ -121,23 +121,23 @@ async function loadLiveDetail() {
     }
   }
 
-  await fetchExistingReservation();
+  await fetchExistingTicket();
 
   if (isMember) {
     // 画面ロード時に選択されている radio の値で UI を初期化
     toggleFormUI($('input[name="resType"]:checked').val());
   }
 
-  $('#reservation-form-container').fadeIn();
+  $('#ticket-form-container').fadeIn();
 }
 
 /**
  * 既存予約の取得
  */
-async function fetchExistingReservation() {
+async function fetchExistingTicket() {
   const uid = utils.getSession('uid');
-  const reservationId = `${currentLiveId}_${uid}`;
-  const resRef = utils.doc(utils.db, 'liveReservations', reservationId);
+  const ticketId = `${currentLiveId}_${uid}`;
+  const resRef = utils.doc(utils.db, 'tickets', ticketId);
   const resSnap = await utils.getWrapDoc(resRef);
 
   if (resSnap.exists()) {
@@ -201,12 +201,12 @@ $('#reserve-form').on('submit', async function (e) {
       throw new Error('予約人数が0名です。お名前を入力してください。');
     }
 
-    const reservationId = `${currentLiveId}_${uid}`;
+    const ticketId = `${currentLiveId}_${uid}`;
 
     // トランザクション処理開始
     await utils.runTransaction(utils.db, async (transaction) => {
       const liveRef = utils.doc(utils.db, 'lives', currentLiveId);
-      const resRef = utils.doc(utils.db, 'liveReservations', reservationId);
+      const resRef = utils.doc(utils.db, 'tickets', ticketId);
 
       const liveSnap = await transaction.get(liveRef);
       const oldResSnap = await transaction.get(resRef);
@@ -245,7 +245,7 @@ $('#reserve-form').on('submit', async function (e) {
       }
 
       // 1. 予約データの作成/更新
-      const reservationData = {
+      const ticketData = {
         liveId: currentLiveId,
         uid: uid,
         resType: resType,
@@ -257,10 +257,10 @@ $('#reserve-form').on('submit', async function (e) {
       };
 
       if (!oldResSnap.exists()) {
-        reservationData.createdAt = utils.serverTimestamp();
-        transaction.set(resRef, reservationData); // 新規作成
+        ticketData.createdAt = utils.serverTimestamp();
+        transaction.set(resRef, ticketData); // 新規作成
       } else {
-        transaction.update(resRef, reservationData); // 更新
+        transaction.update(resRef, ticketData); // 更新
       }
 
       // 2. ライブ側の総予約数を更新

@@ -6,13 +6,13 @@ $(document).ready(async function () {
     await utils.initDisplay(false);
 
     const urlParams = new URLSearchParams(window.location.search);
-    const reservationId = urlParams.get('liveReservationId');
+    const ticketId = urlParams.get('ticketId');
 
-    if (!reservationId) {
+    if (!ticketId) {
       throw new Error('有効なチケットIDが見つかりません。');
     }
 
-    await loadTicketInfo(reservationId);
+    await loadTicketInfo(ticketId);
 
     // Hero画像
     $('.hero').css(
@@ -29,11 +29,11 @@ $(document).ready(async function () {
 /**
  * 予約情報の取得と表示
  */
-async function loadTicketInfo(reservationId) {
+async function loadTicketInfo(ticketId) {
   const container = $('#ticket-content-area');
 
   // 1. 予約データの取得
-  const resRef = utils.doc(utils.db, 'liveReservations', reservationId);
+  const resRef = utils.doc(utils.db, 'tickets', ticketId);
   const resSnap = await utils.getWrapDoc(resRef);
 
   if (!resSnap.exists()) {
