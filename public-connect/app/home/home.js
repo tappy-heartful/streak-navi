@@ -120,7 +120,7 @@ window.handleDeleteReservation = async function (liveId) {
   const uid = utils.getSession('uid');
   if (!uid) return;
 
-  if (!confirm('予約を取り消してもよろしいですか？')) return;
+  if (!(await utils.showDialog('予約を取り消してもよろしいですか？'))) return;
 
   try {
     utils.showSpinner();
@@ -135,7 +135,8 @@ window.handleDeleteReservation = async function (liveId) {
     const deletePromises = snap.docs.map((doc) => utils.deleteDoc(doc.ref));
     await Promise.all(deletePromises);
 
-    alert('予約を取り消しました。');
+    utils.hideSpinner();
+    await utils.showDialog('予約を取り消しました。', true);
     await loadTickets(); // 表示を更新
   } catch (e) {
     alert('エラーが発生しました。');

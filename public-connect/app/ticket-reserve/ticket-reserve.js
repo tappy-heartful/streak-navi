@@ -13,7 +13,7 @@ $(document).ready(async function () {
     currentLiveId = urlParams.get('liveId');
 
     if (!currentLiveId) {
-      alert('ライブIDが見つかりません。');
+      await utils.showDialog('ライブIDが見つかりません。', true);
       window.location.href = '../home/home.html';
       return;
     }
@@ -206,7 +206,8 @@ $('#reserve-form').on('submit', async function (e) {
 
     await utils.setDoc(resRef, reservationData, { merge: true });
 
-    alert('予約が完了しました！');
+    utils.hideSpinner();
+    await utils.showDialog('予約が完了しました！', true);
     window.location.href = '../mypage/mypage.html';
   } catch (err) {
     console.error(err);

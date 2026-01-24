@@ -32,7 +32,7 @@ $(document).ready(async function () {
  * ログアウト処理
  */
 window.handleLogout = async function () {
-  if (!confirm('ログアウトしますか？')) return;
+  if (!(await utils.showDialog('ログアウトしますか？'))) return;
 
   try {
     utils.showSpinner();
@@ -50,7 +50,11 @@ window.handleLogout = async function () {
  * 予約取り消し処理
  */
 window.handleDeleteReservation = async function (liveId) {
-  if (!confirm('この予約を取り消しますか？\n（この操作は元に戻せません）'))
+  if (
+    !(await utils.showDialog(
+      'この予約を取り消しますか？\n（この操作は元に戻せません）',
+    ))
+  )
     return;
 
   try {
@@ -61,7 +65,8 @@ window.handleDeleteReservation = async function (liveId) {
     // Firestoreから削除
     await utils.archiveAndDeleteDoc('liveReservations', reservationId);
 
-    alert('予約を取り消しました');
+    utils.hideSpinner();
+    await utils.showDialog('予約を取り消しました', true);
     await loadMyTickets(); // 一覧を再読み込み
   } catch (e) {
     console.error(e);
