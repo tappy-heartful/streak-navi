@@ -51,15 +51,14 @@ async function loadTicketInfo(reservationId) {
   }
 
   const liveData = liveSnap.data();
-  const priceDisplay = liveData.advance
-    ? `¥${Number(liveData.advance).toLocaleString()}`
-    : '未設定';
 
   // 3. UI構築
   const isInvite = resData.resType === 'invite';
-  const typeLabel = isInvite ? 'INVITATION (招待枠)' : 'GENERAL RESERVATION';
-  const repLabel = isInvite ? '予約担当' : '代表者';
-  const guestLabel = isInvite ? '招待客' : '同伴者';
+  const typeLabel = isInvite
+    ? 'INVITATION (招待枠)'
+    : 'GENERAL RESERVATION (一般予約)';
+  const repLabel = isInvite ? '予約担当' : '代表者様';
+  const guestLabel = isInvite ? 'ご招待' : '同伴者様';
 
   let html = `
     <div class="res-status-badge">CONFIRMED</div>
@@ -70,20 +69,20 @@ async function loadTicketInfo(reservationId) {
         <div class="t-details">
           <p><i class="fa-solid fa-location-dot"></i> 会場: ${liveData.venue}</p>
           <p><i class="fa-solid fa-clock"></i> Open ${liveData.open} / Start ${liveData.start}</p>
-          <p class="t-price"><i class="fa-solid fa-ticket"></i> 前売料金: <span>${priceDisplay}</span></p>
+          <p><i class="fa-solid fa-ticket"></i> 前売料金:${liveData.advance}</p>
         </div>
       </div>
     </div>
 
     <div class="share-info-wrapper">
       <p style="color:#888; font-size:0.8rem; margin-bottom:5px;">${typeLabel}</p>
-      <h3 class="sub-title" style="margin-top:0;">RESERVATION INFO</h3>
+      <h3 class="sub-title" style="margin-top:0;">ご予約情報</h3>
       
       <div class="t-details">
         <p><i class="fa-solid fa-user-check"></i> ${repLabel}: ${resData.representativeName} 様</p>
       </div>
 
-      <h3 class="sub-title">${guestLabel} LIST</h3>
+      <h3 class="sub-title">${guestLabel}</h3>
       <ul class="guest-list">
   `;
 

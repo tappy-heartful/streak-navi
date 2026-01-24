@@ -117,6 +117,10 @@ async function loadMyTickets() {
         ? resData.companions.join(' 様、') + ' 様'
         : 'なし';
 
+    // チケット詳細画面へのURL作成
+    const reservationId = resDoc.id; // liveId_uid
+    const detailUrl = `${window.location.origin}/app/ticket-detail/ticket-detail.html?liveReservationId=${reservationId}`;
+
     container.append(`
       <div class="ticket-card detail-mode">
         <div class="t-status-badge">RESERVED</div>
@@ -134,6 +138,9 @@ async function loadMyTickets() {
           </div>
           
           <div class="ticket-actions">
+            <button class="btn-view" onclick="window.open('${detailUrl}', '_blank')">
+              <i class="fa-solid fa-ticket"></i> 表示
+            </button>
             <button class="btn-edit" onclick="location.href='../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}'">
               <i class="fa-solid fa-pen-to-square"></i> 変更
             </button>
