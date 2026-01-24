@@ -229,40 +229,39 @@ export async function initDisplay(
     // スピナー表示
     showSpinner();
   }
-  // チケット予約、マイページはログイン必須
-  if (isAuthRequired) {
-    // --- 1. Firebase Auth の認証状態が確立されるのを待つ ---
-    const user = await new Promise((resolve) => {
-      const unsubscribe = auth.onAuthStateChanged((user) => {
-        unsubscribe();
-        resolve(user);
-      });
+  // --- 1. Firebase Auth の認証状態が確立されるのを待つ ---
+  const user = await new Promise((resolve) => {
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      unsubscribe();
+      resolve(user);
     });
+  });
 
-    // --- 2. 認証チェック ---
-    if (!user) {
-      clearAllAppSession();
+  // チケット予約、マイページはログイン必須
+  // --- 2. 認証チェック ---
+  if (isAuthRequired && !user) {
+    clearAllAppSession();
 
-      try {
-        // 【修正ポイント】現在のURLをリダイレクト先として取得
-        const currentUrl = window.location.href;
+    // ログイン必須でかつログイン情報がない場合
+    try {
+      // 【修正ポイント】現在のURLをリダイレクト先として取得
+      const currentUrl = window.location.href;
 
-        // 【修正ポイント】クエリパラメータに redirectAfterLogin を付与してリクエスト
-        const fetchUrl = `${globalAuthServerRender}/get-line-login-url?redirectAfterLogin=${encodeURIComponent(currentUrl)}`;
+      // 【修正ポイント】クエリパラメータに redirectAfterLogin を付与してリクエスト
+      const fetchUrl = `${globalAuthServerRender}/get-line-login-url?redirectAfterLogin=${encodeURIComponent(currentUrl)}`;
 
-        const res = await fetch(fetchUrl);
-        const { loginUrl } = await res.json();
+      const res = await fetch(fetchUrl);
+      const { loginUrl } = await res.json();
 
-        // LINEログインURLへ遷移
-        window.location.href = loginUrl;
-        return; // 遷移するのでここで処理終了
-      } catch (err) {
-        alert('ログインURL取得失敗: ' + err.message);
-      } finally {
-        hideSpinner();
-      }
+      // LINEログインURLへ遷移
+      window.location.href = loginUrl;
+      return; // 遷移するのでここで処理終了
+    } catch (err) {
+      alert('ログインURL取得失敗: ' + err.message);
+    } finally {
+      hideSpinner();
     }
-
+  } else if (user) {
     // --- 3. アカウント存在チェック (Firestore) ---
     // streak-connect用にコレクション名を 'connectUsers' に修正済み
     const userRef = doc(db, 'connectUsers', user.uid);
