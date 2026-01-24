@@ -138,14 +138,14 @@ async function loadMyTickets() {
           </div>
           
           <div class="ticket-actions">
-            <button class="btn-view" onclick="window.open('${detailUrl}', '_blank')">
-              <i class="fa-solid fa-ticket"></i> 表示
-            </button>
             <button class="btn-edit" onclick="location.href='../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}'">
               <i class="fa-solid fa-pen-to-square"></i> 変更
             </button>
             <button class="btn-delete" onclick="handleDeleteReservation('${resData.liveId}')">
               <i class="fa-solid fa-trash-can"></i> 取消
+            </button>
+            <button class="btn-view" onclick="window.open('${detailUrl}', '_blank')">
+              <i class="fa-solid fa-ticket"></i> 共有
             </button>
           </div>
         </div>

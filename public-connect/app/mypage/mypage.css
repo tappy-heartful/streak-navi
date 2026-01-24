@@ -48,7 +48,6 @@
 }
 
 /* チケットカード追加分 */
-/* チケットカードのステータスバッジ調整 */
 .ticket-card.detail-mode {
     position: relative;
     background: #1a1a1a;
@@ -72,7 +71,6 @@
     border-radius: 20px;
 }
 
-/* 予約種別ラベル */
 .res-type-label {
     display: inline-block;
     font-size: 0.7rem;
@@ -84,18 +82,18 @@
     font-weight: bold;
 }
 
-/* ボタン関連 */
 .ticket-actions {
     margin-top: 20px;
     border-top: 1px solid #333;
     padding-top: 15px;
     display: flex;
-    gap: 15px;
+    flex-wrap: wrap; /* スマホ等で折り返せるように */
+    gap: 10px;
 }
 
-.btn-edit, .btn-delete {
-    padding: 10px 20px;
-    font-size: 0.9rem;
+.btn-view, .btn-edit, .btn-delete {
+    padding: 10px 16px;
+    font-size: 0.85rem;
     font-weight: bold;
     cursor: pointer;
     transition: 0.3s;
@@ -105,15 +103,28 @@
     gap: 8px;
 }
 
+/* チケット表示ボタン: 白枠/黒背景 */
+.btn-view {
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+}
+
+.btn-view:hover {
+    background: #fff;
+    color: #000;
+}
+
 /* 変更ボタン: 赤背景/白文字 */
 .btn-edit {
     background: #e7211a;
-    border: none;
+    border: 1px solid #e7211a;
     color: #fff;
 }
 
 .btn-edit:hover {
     background: #b61a15;
+    border-color: #b61a15;
 }
 
 /* 取消ボタン: 赤枠黒背景/赤文字 */
@@ -129,7 +140,7 @@
 
 .t-details p {
     margin: 12px 0;
-    font-size: 0.95rem; /* 少し大きく */
+    font-size: 0.95rem;
     color: #fff;
 }
 
