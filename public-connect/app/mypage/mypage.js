@@ -110,7 +110,7 @@ async function loadMyTickets() {
     const isInvite = resData.resType === 'invite';
     const typeName = isInvite ? '招待予約' : '一般予約';
     const repLabel = isInvite ? '予約担当' : '代表者';
-    const companionLabel = isInvite ? 'お客様' : '同伴者';
+    const companionLabel = isInvite ? 'ご招待' : '同伴者';
 
     const companionText =
       resData.companions && resData.companions.length > 0
