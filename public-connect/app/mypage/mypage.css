@@ -129,7 +129,7 @@
 
 /* 取消ボタン: 赤枠黒背景/赤文字 */
 .btn-delete {
-    background: #000;
+    background: transparent;
     border: 1px solid #e7211a;
     color: #e7211a;
 }

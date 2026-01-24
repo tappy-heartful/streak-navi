@@ -17,7 +17,7 @@ $(document).ready(async function () {
     // Hero画像
     $('.hero').css(
       '--hero-bg',
-      'url("https://tappy-heartful.github.io/streak-connect-images/background/ticket-reserve.jpg")',
+      'url("https://tappy-heartful.github.io/streak-connect-images/background/ticket-detail.jpg")',
     );
   } catch (e) {
     $('#ticket-content-area').html(`<p class="no-data">${e.message}</p>`);
