@@ -100,27 +100,6 @@ export const globalAuthServerRailway =
   'https://streak-navi-auth-server-production.up.railway.app'; // railwayの認証サーバーURL
 export const globalAuthServerRender =
   'https://streak-navi-auth-server-kz3v.onrender.com'; // 新しい Render の認証サーバーURL
-export const imgBase =
-  'https://raw.githubusercontent.com/user/repo/main/images/';
-
-// GETパラメータたち
-export const globalGetparams = new URLSearchParams(window.location.search);
-export const globalGetParamCode = globalGetparams.get('code');
-export const globalGetParamState = globalGetparams.get('state');
-export const globalGetParamError = globalGetparams.get('error');
-export const globalGetParamUid = globalGetparams.get('uid');
-export const globalGetParamIsInit = globalGetparams.get('isInit');
-export const globalGetParamMode = globalGetparams.get('mode');
-export const globalGetParamScoreId = globalGetparams.get('scoreId');
-export const globalGetParamEventId = globalGetparams.get('eventId');
-export const globalGetParamVoteId = globalGetparams.get('voteId');
-export const globalGetParamMediaId = globalGetparams.get('mediaId');
-export const globalGetParamCallId = globalGetparams.get('callId');
-export const globalGetParamStudioId = globalGetparams.get('studioId');
-export const globalGetParamCollectId = globalGetparams.get('collectId');
-export const globalGetParamBoardId = globalGetparams.get('boardId');
-export const globalGetParamType = globalGetparams.get('type');
-export const globalGetParamSectionId = globalGetparams.get('sectionId');
 
 // 画面名
 export const globalScreenName = document.title || 'Streak Connect';
