@@ -2,6 +2,7 @@ import * as utils from '../common/functions.js';
 
 let currentLiveId = null;
 let maxCompanions = 0;
+let isMember = false;
 
 $(document).ready(async function () {
   try {
@@ -12,21 +13,54 @@ $(document).ready(async function () {
     currentLiveId = urlParams.get('liveId');
 
     if (!currentLiveId) {
-      alert('ライブIDが見つかりません。一覧に戻ります。');
-      window.location.href = './ticket.html'; // 一覧画面の名称に合わせて変更してください
+      alert('ライブIDが見つかりません。');
+      window.location.href = '../home/home.html';
       return;
     }
 
-    // Hero画像設定
-    $('.hero').css('--hero-bg', 'url("../../images/background/ticket.jpg")');
+    // streak-navi（usersコレクション）に存在するかチェック
+    const uid = utils.getSession('uid');
+    const userRef = utils.doc(utils.db, 'users', uid);
+    const userSnap = await utils.getWrapDoc(userRef);
+    isMember = userSnap.exists();
+
+    // UI初期化
+    if (isMember) {
+      $('#res-type-container').show();
+      $('#memberNameDisplay').val(utils.getSession('displayName'));
+    }
 
     await loadLiveDetail();
+
+    // 予約種別切り替え時のイベント
+    $('input[name="resType"]').on('change', function () {
+      toggleFormUI(this.value);
+    });
   } catch (e) {
     console.error(e);
   } finally {
     utils.hideSpinner();
   }
 });
+
+/**
+ * UIの表示切り替えロジック
+ */
+function toggleFormUI(type) {
+  if (type === 'invite') {
+    // 知人を招待モード
+    $('#representative-area').hide();
+    $('#representativeName').prop('required', false);
+    $('#member-info-area').show();
+    $('.companion-title').text('招待するお客様のお名前');
+  } else {
+    // 一般予約モード
+    $('#representative-area').show();
+    $('#representativeName').prop('required', true);
+    $('#member-info-area').hide();
+    $('.companion-title').text('同伴者様');
+  }
+}
 
 /**
  * ライブ詳細情報の読み込みとフォーム生成
@@ -44,7 +78,6 @@ async function loadLiveDetail() {
   const data = liveSnap.data();
   maxCompanions = data.maxCompanions || 0;
 
-  // 1. ライブ詳細の表示 (フライヤー画像を削除)
   container.html(`
     <div class="ticket-card detail-mode">
       <div class="ticket-info">
@@ -53,50 +86,62 @@ async function loadLiveDetail() {
         <div class="t-details">
           <p><i class="fa-solid fa-location-dot"></i> ${data.venue}</p>
           <p><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</p>
-          <p><i class="fa-solid fa-link"></i> <a href="${data.venueUrl}" target="_blank" style="color:#aaa">Venue Website</a></p>
         </div>
       </div>
     </div>
   `);
 
-  // 2. 同伴者入力欄の動的生成
   const companionContainer = $('#companion-inputs-container');
   companionContainer.empty();
+
   if (maxCompanions > 0) {
-    companionContainer.append('<h3 class="sub-title">同伴者様</h3>');
+    const titleText = isMember ? '招待するお客様のお名前' : '同伴者様';
+    companionContainer.append(
+      `<h3 class="sub-title companion-title">${titleText}</h3>`,
+    );
+
     for (let i = 1; i <= maxCompanions; i++) {
       companionContainer.append(`
         <div class="form-group">
-          <label for="companionName${i}">同伴者 ${i}</label>
-          <input type="text" id="companionName${i}" name="companionName" class="companion-input" placeholder="同伴者のお名前を入力">
+          <label for="companionName${i}">ゲスト ${i}</label>
+          <input type="text" id="companionName${i}" name="companionName" class="companion-input" placeholder="お名前を入力">
         </div>
       `);
     }
   }
 
-  // 3. 既存の予約があればデータをセット
   await fetchExistingReservation();
+
+  // メンバーの場合は初期UIを「招待」に合わせる
+  if (isMember) {
+    toggleFormUI('invite');
+  }
 
   $('#reservation-form-container').fadeIn();
 }
 
 /**
- * 既存予約の取得（更新モード用）
+ * 既存予約の取得
  */
 async function fetchExistingReservation() {
   const uid = utils.getSession('uid');
-  // liveId と uid を使って予約を探す
-  const q = utils.query(
-    utils.collection(utils.db, 'liveReservations'),
-    utils.where('liveId', '==', currentLiveId),
-    utils.where('uid', '==', uid),
-  );
+  const reservationId = `${currentLiveId}_${uid}`;
+  const resRef = utils.doc(utils.db, 'liveReservations', reservationId);
+  const resSnap = await utils.getWrapDoc(resRef);
 
-  const snapshot = await utils.getWrapDocs(q);
-  if (!snapshot.empty) {
-    const resData = snapshot.docs[0].data();
+  if (resSnap.exists()) {
+    const resData = resSnap.data();
+
+    // 予約種別の復元
+    if (resData.resType) {
+      $(`input[name="resType"][value="${resData.resType}"]`).prop(
+        'checked',
+        true,
+      );
+      toggleFormUI(resData.resType);
+    }
+
     $('#representativeName').val(resData.representativeName || '');
-
     const companions = resData.companions || [];
     companions.forEach((name, index) => {
       $(`#companionName${index + 1}`).val(name);
@@ -104,7 +149,6 @@ async function fetchExistingReservation() {
 
     $('#submit-btn').text('予約内容を更新する / UPDATE');
   } else {
-    // 予約がない場合は、代表者名にLINEの表示名をデフォルトセット
     $('#representativeName').val(utils.getSession('displayName') || '');
   }
 }
@@ -118,30 +162,37 @@ $('#reserve-form').on('submit', async function (e) {
 
   try {
     const uid = utils.getSession('uid');
-    const representativeName = $('#representativeName').val();
+    const resType = isMember
+      ? $('input[name="resType"]:checked').val()
+      : 'general';
 
-    // 同伴者名を配列にまとめる（空文字は除外）
+    // 招待モードなら代表者名は自分の名前（displayName）にする
+    const representativeName =
+      resType === 'invite'
+        ? utils.getSession('displayName')
+        : $('#representativeName').val();
+
     const companions = [];
     $('.companion-input').each(function () {
       const val = $(this).val().trim();
       if (val) companions.push(val);
     });
 
-    // ドキュメントIDは「liveId_uid」で固定（1人1予約に限定）
     const reservationId = `${currentLiveId}_${uid}`;
     const resRef = utils.doc(utils.db, 'liveReservations', reservationId);
 
     const reservationData = {
       liveId: currentLiveId,
       uid: uid,
+      resType: resType,
       representativeName: representativeName,
       companions: companions,
       companionCount: companions.length,
-      totalCount: companions.length + 1, // 本人 + 同伴者
+      totalCount:
+        resType === 'invite' ? companions.length : companions.length + 1,
       updatedAt: utils.serverTimestamp(),
     };
 
-    // 新規作成時のみ createdAt を設定
     const docSnap = await utils.getWrapDoc(resRef);
     if (!docSnap.exists()) {
       reservationData.createdAt = utils.serverTimestamp();
@@ -153,7 +204,7 @@ $('#reserve-form').on('submit', async function (e) {
     window.location.href = '../mypage/mypage.html';
   } catch (err) {
     console.error(err);
-    alert('予約処理中にエラーが発生しました: ' + err.message);
+    alert('エラーが発生しました: ' + err.message);
   } finally {
     utils.hideSpinner();
   }

@@ -3,10 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link
+      rel="icon"
+      href="https://tappy-heartful.github.io/streak-connect-images/favicon.png"
+      type="image/png"
+    />
     <link
       rel="apple-touch-icon"
-      href="../../images/favicon.png"
+      href="https://tappy-heartful.github.io/streak-connect-images/favicon.png"
       type="image/png"
     />
     <link
@@ -35,6 +39,7 @@
             <span class="separator">&gt;</span>
             <span class="current">チケット予約</span>
           </nav>
+
           <div id="live-detail-container">
             <p class="loading-text">Loading live details...</p>
           </div>
@@ -45,9 +50,28 @@
             style="display: none"
           >
             <h2 class="section-title">RESERVATION FORM</h2>
+
+            <div
+              id="res-type-container"
+              class="form-group"
+              style="display: none"
+            >
+              <label>予約種別 <span class="required">必須</span></label>
+              <div class="radio-group">
+                <label class="radio-label">
+                  <input type="radio" name="resType" value="invite" checked />
+                  知人を招待する
+                </label>
+                <label class="radio-label">
+                  <input type="radio" name="resType" value="general" />
+                  一般客として予約
+                </label>
+              </div>
+            </div>
+
             <form id="reserve-form">
-              <div class="form-group">
-                <label for="representativeName"
+              <div id="representative-area" class="form-group">
+                <label id="rep-label" for="representativeName"
                   >代表者氏名 <span class="required">必須</span></label
                 >
                 <input
@@ -56,6 +80,20 @@
                   name="representativeName"
                   required
                   placeholder="例：ステレオ 太郎"
+                />
+              </div>
+
+              <div
+                id="member-info-area"
+                class="form-group"
+                style="display: none"
+              >
+                <label>予約担当（出演メンバー）</label>
+                <input
+                  type="text"
+                  id="memberNameDisplay"
+                  readonly
+                  style="background: #333; color: #888; border-color: #444"
                 />
               </div>
 
@@ -70,6 +108,7 @@
           </div>
         </div>
       </section>
+
       <div class="page-actions">
         <a href="../home/home.html" class="btn-back-home"> ← Homeに戻る </a>
       </div>

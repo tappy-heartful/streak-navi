@@ -13,7 +13,7 @@
     content: "";
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
-    background-image: url('../../images/background/home.jpg'); 
+    background-image: url('https://tappy-heartful.github.io/streak-connect-images/background/home.jpg'); 
     background-size: cover;
     background-position: center;
     filter: blur(2px) brightness(0.5);

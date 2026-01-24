@@ -92,7 +92,7 @@ async function loadTickets() {
     const cardHtml = `
       <div class="ticket-card" data-id="${liveId}">
         <div class="ticket-img-wrapper">
-          <img src="${data.flyerUrl || '../../images/favicon.png'}" class="ticket-img" alt="flyer">
+          <img src="${data.flyerUrl || 'https://tappy-heartful.github.io/streak-connect-images/favicon.png'}" class="ticket-img" alt="flyer">
         </div>
         <div class="ticket-info">
           <div class="t-date">${isReserved ? '<span class="reserved-label">予約済み</span> ' : ''}${data.date}</div>
@@ -211,7 +211,7 @@ async function renderMembers() {
     $grid.append(`
       <div class="member-card">
         <div class="member-img-wrapper">
-          <img src="../../images/members/${m.img}" alt="${m.name}" class="member-img">
+          <img src="https://tappy-heartful.github.io/streak-connect-images/members/${m.img}" alt="${m.name}" class="member-img">
         </div>
         <div class="member-info-content">
           <div class="member-role">${m.role}</div>
@@ -237,7 +237,8 @@ async function renderGoodsItems() {
   ];
 
   const $container = $('#goods-list');
-  const basePath = '../../images/goods/';
+  const basePath =
+    'https://tappy-heartful.github.io/streak-connect-images/goods/';
 
   // 配列をループしてHTMLを生成
   items.forEach((fileName, index) => {
