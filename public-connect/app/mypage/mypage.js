@@ -106,22 +106,30 @@ async function loadMyTickets() {
     if (!liveSnap.exists()) continue;
     const liveData = liveSnap.data();
 
+    // 予約種別に応じた文言設定
+    const isInvite = resData.resType === 'invite';
+    const typeName = isInvite ? '招待予約' : '一般予約';
+    const repLabel = isInvite ? '予約担当' : '代表者';
+    const companionLabel = isInvite ? 'お客様' : '同伴者';
+
     const companionText =
       resData.companions && resData.companions.length > 0
-        ? resData.companions.join(', ')
+        ? resData.companions.join(' 様、') + ' 様'
         : 'なし';
 
     container.append(`
       <div class="ticket-card detail-mode">
+        <div class="t-status-badge">RESERVED</div>
         <div class="ticket-info">
-          <div class="t-status-badge">RESERVED</div>
+          <span class="res-type-label">${typeName}</span>
           <div class="t-date">${liveData.date}</div>
-          <h3 class="t-title">${liveData.title}</h3>
+          <h3 class="t-title" style="margin: 5px 0 15px;">${liveData.title}</h3>
           
           <div class="t-details">
-            <p><i class="fa-solid fa-location-dot"></i> ${liveData.venue}</p>
-            <p><i class="fa-solid fa-user"></i> 代表者: ${resData.representativeName}</p>
-            <p><i class="fa-solid fa-users"></i> 同伴者: ${companionText}</p>
+            <p><i class="fa-solid fa-location-dot"></i> 会場: ${liveData.venue}</p>
+            <p><i class="fa-solid fa-clock"></i> 開演: ${liveData.start} (Open ${liveData.open})</p>
+            <p><i class="fa-solid fa-user"></i> ${repLabel}: ${resData.representativeName} 様</p>
+            <p><i class="fa-solid fa-users"></i> ${companionLabel}: ${companionText}</p>
           </div>
           
           <div class="ticket-actions">
