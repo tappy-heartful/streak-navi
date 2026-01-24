@@ -87,8 +87,8 @@
     border-top: 1px solid #333;
     padding-top: 15px;
     display: flex;
-    flex-wrap: wrap; /* スマホ等で折り返せるように */
-    gap: 10px;
+    flex-wrap: wrap; 
+    gap: 15px;
 }
 
 .btn-view, .btn-edit, .btn-delete {
@@ -103,11 +103,13 @@
     gap: 8px;
 }
 
-/* チケット表示ボタン: 白枠/黒背景 */
+/* コピーボタン: 白枠/黒背景 */
 .btn-view {
     background: transparent;
     border: 1px solid #fff;
     color: #fff;
+    flex-grow: 1; /* コピーボタンを目立たせる */
+    justify-content: center;
 }
 
 .btn-view:hover {

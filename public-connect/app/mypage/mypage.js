@@ -29,30 +29,22 @@ $(document).ready(async function () {
 });
 
 /**
- * 共有処理 (Web Share API)
+ * チケットURLをクリップボードにコピー
  */
-window.handleShareTicket = async function (title, url) {
-  const shareData = {
-    title: `SSJO Digital Ticket: ${title}`,
-    url: url,
-  };
-
+window.handleCopyTicketUrl = async function (resType, url) {
   try {
-    if (navigator.share) {
-      // OS標準の共有メニューを呼び出し
-      await navigator.share(shareData);
-    } else {
-      // 非対応ブラウザ（PCなど）の場合はクリップボードへコピー
-      await navigator.clipboard.writeText(url);
-      await utils.showDialog(
-        'URLをクリップボードにコピーしました。\n同伴者の方へお送りください。',
-        true,
-      );
-    }
+    await navigator.clipboard.writeText(url);
+
+    // 予約種別によってメッセージを出し分け
+    const message =
+      resType === 'invite'
+        ? 'チケットURLをコピーしました。\nご招待する人に共有してください。'
+        : 'チケットURLをコピーしました。\n同伴者様に共有してください。';
+
+    await utils.showDialog(message, true);
   } catch (err) {
-    if (err.name !== 'AbortError') {
-      console.error('Share failed:', err);
-    }
+    console.error('Copy failed:', err);
+    alert('URLのコピーに失敗しました。');
   }
 };
 
@@ -144,7 +136,6 @@ async function loadMyTickets() {
         : 'なし';
 
     const reservationId = resDoc.id;
-    // URL作成（/app/ticket-detail/... とのことなので調整）
     const detailUrl = `${window.location.origin}/app/ticket-detail/ticket-detail.html?liveReservationId=${reservationId}`;
 
     container.append(`
@@ -170,8 +161,8 @@ async function loadMyTickets() {
             <button class="btn-delete" onclick="handleDeleteReservation('${resData.liveId}')">
               <i class="fa-solid fa-trash-can"></i> 取消
             </button>
-            <button class="btn-view" onclick="handleShareTicket('${liveData.title}', '${detailUrl}')">
-              <i class="fa-solid fa-share-nodes"></i> 共有
+            <button class="btn-view" onclick="handleCopyTicketUrl('${resData.resType}', '${detailUrl}')">
+              <i class="fa-solid fa-copy"></i> チケットURLをコピー
             </button>
           </div>
         </div>
