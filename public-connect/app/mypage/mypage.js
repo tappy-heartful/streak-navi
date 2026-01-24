@@ -127,7 +127,8 @@ async function loadMyTickets() {
           
           <div class="t-details">
             <p><i class="fa-solid fa-location-dot"></i> 会場: ${liveData.venue}</p>
-            <p><i class="fa-solid fa-clock"></i> 開演: ${liveData.start} (Open ${liveData.open})</p>
+            <p><i class="fa-solid fa-clock"></i> 開演: ${liveData.start} (開場 ${liveData.open})</p>
+            <p><i class="fa-solid fa-yen"></i> 前売:${liveData.advance}</p>
             <p><i class="fa-solid fa-user"></i> ${repLabel}: ${resData.representativeName} 様</p>
             <p><i class="fa-solid fa-users"></i> ${companionLabel}: ${companionText}</p>
           </div>
