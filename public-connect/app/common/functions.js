@@ -92,12 +92,16 @@ export const globalAppName = isTest ? 'streakConnectTest' : 'streakConnect';
 export const globalClientId = '2007808275';
 export const globalBaseUrl = window.location.origin;
 export const globalStrTrue = 'true';
-export const globalLineDefaultImage = '../../images/line-profile-unset.png';
-export const globalBandLogoImage = '../../images/favicon.png';
+export const globalLineDefaultImage =
+  'https://tappy-heartful.github.io/streak-connect-images/line-profile-unset.png';
+export const globalBandLogoImage =
+  'https://tappy-heartful.github.io/streak-connect-images/favicon.png';
 export const globalAuthServerRailway =
   'https://streak-navi-auth-server-production.up.railway.app'; // railwayの認証サーバーURL
 export const globalAuthServerRender =
   'https://streak-navi-auth-server-kz3v.onrender.com'; // 新しい Render の認証サーバーURL
+export const imgBase =
+  'https://raw.githubusercontent.com/user/repo/main/images/';
 
 // GETパラメータたち
 export const globalGetparams = new URLSearchParams(window.location.search);

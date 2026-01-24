@@ -8,13 +8,17 @@ $(document).ready(async function () {
     // プロフィール反映（「様」を追加）
     $('#user-icon').attr(
       'src',
-      utils.getSession('pictureUrl') || '../../images/line-profile-unset.png',
+      utils.getSession('pictureUrl') ||
+        'https://tappy-heartful.github.io/streak-connect-images/line-profile-unset.png',
     );
     const displayName = utils.getSession('displayName') || 'Guest';
     $('#user-name').text(`${displayName} 様`);
 
     // Hero画像設定
-    $('.hero').css('--hero-bg', 'url("../../images/background/mypage.jpg")');
+    $('.hero').css(
+      '--hero-bg',
+      'url("https://tappy-heartful.github.io/streak-connect-images/background/mypage.jpg")',
+    );
 
     await loadMyTickets();
   } catch (e) {
