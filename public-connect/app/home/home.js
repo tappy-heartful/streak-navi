@@ -291,7 +291,7 @@ async function loadMedias() {
       <div class="media-card">
         <div class="media-info">
           <span class="media-date">${data.date}</span>
-          <h3 class="media-title">${data.title_decoded || data.title}</h3>
+          <h3 class="media-title">${data.title || data.title}</h3>
         </div>
         <div class="media-body">
           ${utils.buildInstagramHtml(data.instagramUrl)}

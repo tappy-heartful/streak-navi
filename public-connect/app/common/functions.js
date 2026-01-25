@@ -151,22 +151,6 @@ export function setSessionArray(key, array) {
   );
 }
 
-// 権限チェック(システム管理者は無条件にOK)
-export function isAdmin(type) {
-  return (
-    getSession('isSystemAdmin') === globalStrTrue ||
-    getSession('is' + type + 'Admin') === globalStrTrue
-  );
-}
-
-export function scrollToTop() {
-  // 一番上にスクロール
-  window.scrollTo({
-    top: 0,
-    behavior: 'smooth',
-  });
-}
-
 // HTML読み込み
 export async function loadComponent(
   target,

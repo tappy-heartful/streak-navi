@@ -78,7 +78,7 @@ async function loadTicketInfo(ticketId) {
     <p style="margin-top:25px; font-size:0.8rem; color:#888; text-align:center;">
       ${
         isInvite && currentUid && resData.uid === currentUid
-          ? 'ご招待する人にこのページを共有してください。'
+          ? '招待する人にこのページを共有してください。'
           : '当日はこの画面を会場受付にてご提示ください。'
       }
     </p>
