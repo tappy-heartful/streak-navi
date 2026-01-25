@@ -115,6 +115,7 @@ async function loadMyTickets() {
 
     const ticketId = resDoc.id;
     const detailUrl = `${window.location.origin}/app/ticket-detail/ticket-detail.html?ticketId=${ticketId}`;
+    const internalDetailUrl = `../live-detail/live-detail.html?liveId=${resData.liveId}&fromPage=mypage`;
 
     container.append(`
       <div class="ticket-card detail-mode">
@@ -126,7 +127,9 @@ async function loadMyTickets() {
         <div class="ticket-info">
           <span class="res-type-label">${typeName}</span>
           <div class="t-date">${liveData.date}</div>
-          <h3 class="t-title" style="margin: 5px 0 15px;">${liveData.title}</h3>
+          <a href="${internalDetailUrl}" class="t-title-link">
+            <h3 class="t-title">${liveData.title}</h3>
+          </a>
           
           <div class="t-details">
             <p><i class="fa-solid fa-location-dot"></i> 会場: ${liveData.venue}</p>
@@ -144,7 +147,7 @@ async function loadMyTickets() {
             </button>
           </div>
           <div class="ticket-actions">
-            <button class="btn-ticket" onclick="location.href='../ticket-detail/ticket-detail.html?ticketId=${ticketId}&fromPage=mypage'">
+            <button class="btn-ticket" onclick="location.href='${internalDetailUrl}'">
               <i class="fa-solid fa-ticket"></i> チケットを表示
             </button>
           </div>

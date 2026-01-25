@@ -187,6 +187,17 @@
     font-weight: bold;
 }
 
+/* タイトルリンク設定（下線排除） */
+.t-title-link {
+    color: inherit;
+    display: block;
+}
+
+.t-title-link:hover .t-title {
+    color: #e7211a;
+    transition: 0.2s;
+}
+
 .t-details {
     font-size: 0.85rem;
     color: #aaa;

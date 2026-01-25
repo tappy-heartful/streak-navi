@@ -76,6 +76,8 @@ async function loadLiveDetail() {
   const liveRef = utils.doc(utils.db, 'lives', currentLiveId);
   const liveSnap = await utils.getWrapDoc(liveRef);
 
+  const internalDetailUrl = `../live-detail/live-detail.html?liveId=${currentLiveId}&fromPage=home`;
+
   if (!liveSnap.exists()) {
     container.html('<p class="no-data">ライブ情報が見つかりませんでした。</p>');
     return;
@@ -88,7 +90,9 @@ async function loadLiveDetail() {
     <div class="ticket-card detail-mode">
       <div class="ticket-info">
         <div class="t-date">${data.date}</div>
-        <h3 class="t-title">${data.title}</h3>
+          <a href="${internalDetailUrl}" class="t-title-link">
+            <h3 class="t-title">${data.title}</h3>
+          </a>
         <div class="t-details">
           <p><i class="fa-solid fa-location-dot"></i> ${data.venue}</p>
           <p><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</p>
