@@ -17,9 +17,9 @@
       href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap"
       rel="stylesheet"
     />
-    <title>MY PAGE | SSJO</title>
+    <title>TICKET | SSJO</title>
     <link rel="stylesheet" href="../common/common.css" />
-    <link rel="stylesheet" href="mypage.css" />
+    <link rel="stylesheet" href="ticket-detail.css" />
   </head>
   <body>
     <div id="header-placeholder"></div>
@@ -27,8 +27,8 @@
     <main>
       <section class="hero">
         <div class="hero-content">
-          <h1 class="page-title">MY PAGE</h1>
-          <p class="tagline">User Profile & Tickets</p>
+          <h1 class="page-title">TICKET</h1>
+          <p class="tagline">Confirmation for Guests</p>
         </div>
       </section>
 
@@ -37,31 +37,14 @@
           <nav class="breadcrumb">
             <a href="../home/home.html">Home</a>
             <span class="separator">&gt;</span>
-            <span class="current">My Page</span>
+            <span class="current">Ticket</span>
           </nav>
-          <div class="profile-card">
-            <div class="profile-icon-wrapper">
-              <img
-                id="user-icon"
-                src="https://tappy-heartful.github.io/streak-connect-images/line-profile-unset.png"
-                alt="icon"
-              />
-            </div>
-            <div class="profile-info">
-              <p class="profile-label">ようこそ</p>
-              <h2 id="user-name" class="profile-name">Loading...</h2>
-              <button class="btn-logout" onclick="handleLogout()">
-                <i class="fa-solid fa-right-from-bracket"></i> ログアウト
-              </button>
-            </div>
-          </div>
-
-          <h2 class="section-title">MY TICKETS</h2>
-          <div id="my-tickets-container">
-            <p class="loading-text">Loading your tickets...</p>
+          <div id="ticket-content-area">
+            <p class="loading-text">チケット情報を照合中...</p>
           </div>
         </div>
       </section>
+
       <div class="page-actions">
         <a href="../home/home.html" class="btn-back-home"> ← Homeに戻る </a>
       </div>
@@ -76,6 +59,6 @@
       href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
     />
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script type="module" src="mypage.js"></script>
+    <script type="module" src="ticket-detail.js"></script>
   </body>
 </html>

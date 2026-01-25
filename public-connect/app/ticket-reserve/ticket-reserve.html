@@ -45,7 +45,7 @@
           </div>
 
           <div
-            id="reservation-form-container"
+            id="ticket-form-container"
             class="form-wrapper"
             style="display: none"
           >
@@ -58,14 +58,24 @@
             >
               <label>予約種別 <span class="required">必須</span></label>
               <div class="radio-group">
-                <label class="radio-label">
-                  <input type="radio" name="resType" value="invite" checked />
-                  知人を招待する
-                </label>
-                <label class="radio-label">
-                  <input type="radio" name="resType" value="general" />
-                  一般客として予約
-                </label>
+                <div class="radio-item">
+                  <label class="radio-label">
+                    <input type="radio" name="resType" value="invite" checked />
+                    招待予約
+                  </label>
+                  <span class="radio-description"
+                    >家族や知人の方をライブに招待します</span
+                  >
+                </div>
+                <div class="radio-item">
+                  <label class="radio-label">
+                    <input type="radio" name="resType" value="general" />
+                    一般予約
+                  </label>
+                  <span class="radio-description"
+                    >お客さんとしてライブを見に行きます</span
+                  >
+                </div>
               </div>
             </div>
 
@@ -74,13 +84,16 @@
                 <label id="rep-label" for="representativeName"
                   >代表者氏名 <span class="required">必須</span></label
                 >
-                <input
-                  type="text"
-                  id="representativeName"
-                  name="representativeName"
-                  required
-                  placeholder="例：ステレオ 太郎"
-                />
+                <div class="input-row">
+                  <input
+                    type="text"
+                    id="representativeName"
+                    name="representativeName"
+                    required
+                    placeholder="例：ステレオ 太郎"
+                  />
+                  <span class="honorific">様</span>
+                </div>
               </div>
 
               <div
@@ -89,12 +102,15 @@
                 style="display: none"
               >
                 <label>予約担当（出演メンバー）</label>
-                <input
-                  type="text"
-                  id="memberNameDisplay"
-                  readonly
-                  style="background: #333; color: #888; border-color: #444"
-                />
+                <div class="input-row">
+                  <input
+                    type="text"
+                    id="memberNameDisplay"
+                    readonly
+                    style="background: #333; color: #888; border-color: #444"
+                  />
+                  <span class="honorific">様</span>
+                </div>
               </div>
 
               <div id="companion-inputs-container"></div>

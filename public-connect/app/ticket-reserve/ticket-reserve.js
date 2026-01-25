@@ -13,7 +13,7 @@ $(document).ready(async function () {
     currentLiveId = urlParams.get('liveId');
 
     if (!currentLiveId) {
-      alert('ライブIDが見つかりません。');
+      await utils.showDialog('ライブIDが見つかりません。', true);
       window.location.href = '../home/home.html';
       return;
     }
@@ -36,6 +36,12 @@ $(document).ready(async function () {
     $('input[name="resType"]').on('change', function () {
       toggleFormUI(this.value);
     });
+
+    // Hero画像設定
+    $('.hero').css(
+      '--hero-bg',
+      'url("https://tappy-heartful.github.io/streak-connect-images/background/ticket-reserve.jpg")',
+    );
   } catch (e) {
     console.error(e);
   } finally {
@@ -86,6 +92,7 @@ async function loadLiveDetail() {
         <div class="t-details">
           <p><i class="fa-solid fa-location-dot"></i> ${data.venue}</p>
           <p><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</p>
+          <p><i class="fa-solid fa-ticket"></i>${data.advance}</p>
         </div>
       </div>
     </div>
@@ -95,6 +102,7 @@ async function loadLiveDetail() {
   companionContainer.empty();
 
   if (maxCompanions > 0) {
+    // 招待予約が初期値(invite)なので「招待するお客様〜」をデフォルトに
     const titleText = isMember ? '招待するお客様のお名前' : '同伴者様';
     companionContainer.append(
       `<h3 class="sub-title companion-title">${titleText}</h3>`,
@@ -104,29 +112,32 @@ async function loadLiveDetail() {
       companionContainer.append(`
         <div class="form-group">
           <label for="companionName${i}">ゲスト ${i}</label>
-          <input type="text" id="companionName${i}" name="companionName" class="companion-input" placeholder="お名前を入力">
+          <div class="input-row">
+            <input type="text" id="companionName${i}" name="companionName" class="companion-input" placeholder="お名前を入力">
+            <span class="honorific">様</span>
+          </div>
         </div>
       `);
     }
   }
 
-  await fetchExistingReservation();
+  await fetchExistingTicket();
 
-  // メンバーの場合は初期UIを「招待」に合わせる
   if (isMember) {
-    toggleFormUI('invite');
+    // 画面ロード時に選択されている radio の値で UI を初期化
+    toggleFormUI($('input[name="resType"]:checked').val());
   }
 
-  $('#reservation-form-container').fadeIn();
+  $('#ticket-form-container').fadeIn();
 }
 
 /**
  * 既存予約の取得
  */
-async function fetchExistingReservation() {
+async function fetchExistingTicket() {
   const uid = utils.getSession('uid');
-  const reservationId = `${currentLiveId}_${uid}`;
-  const resRef = utils.doc(utils.db, 'liveReservations', reservationId);
+  const ticketId = `${currentLiveId}_${uid}`;
+  const resRef = utils.doc(utils.db, 'tickets', ticketId);
   const resSnap = await utils.getWrapDoc(resRef);
 
   if (resSnap.exists()) {
@@ -154,7 +165,7 @@ async function fetchExistingReservation() {
 }
 
 /**
- * フォーム送信処理
+ * フォーム送信処理（トランザクション実装）
  */
 $('#reserve-form').on('submit', async function (e) {
   e.preventDefault();
@@ -162,50 +173,112 @@ $('#reserve-form').on('submit', async function (e) {
 
   try {
     const uid = utils.getSession('uid');
+    // メンバーなら選択した種別、一般なら'general'
     const resType = isMember
       ? $('input[name="resType"]:checked').val()
       : 'general';
 
-    // 招待モードなら代表者名は自分の名前（displayName）にする
+    // 招待モードなら代表者は自分（メンバー名）、一般なら入力された名前
     const representativeName =
       resType === 'invite'
         ? utils.getSession('displayName')
-        : $('#representativeName').val();
+        : $('#representativeName').val().trim();
 
+    // 同伴者リストの取得
     const companions = [];
     $('.companion-input').each(function () {
       const val = $(this).val().trim();
       if (val) companions.push(val);
     });
 
-    const reservationId = `${currentLiveId}_${uid}`;
-    const resRef = utils.doc(utils.db, 'liveReservations', reservationId);
+    // 予約合計人数の計算
+    // 一般予約: 代表者(1) + 同伴者数
+    // 招待予約: 同伴者（招待客）数のみ（※仕様に合わせて調整。自分を含めるなら+1してください）
+    const newTotalCount =
+      resType === 'invite' ? companions.length : companions.length + 1;
 
-    const reservationData = {
-      liveId: currentLiveId,
-      uid: uid,
-      resType: resType,
-      representativeName: representativeName,
-      companions: companions,
-      companionCount: companions.length,
-      totalCount:
-        resType === 'invite' ? companions.length : companions.length + 1,
-      updatedAt: utils.serverTimestamp(),
-    };
-
-    const docSnap = await utils.getWrapDoc(resRef);
-    if (!docSnap.exists()) {
-      reservationData.createdAt = utils.serverTimestamp();
+    if (newTotalCount === 0) {
+      throw new Error('予約人数が0名です。お名前を入力してください。');
     }
 
-    await utils.setDoc(resRef, reservationData, { merge: true });
+    const ticketId = `${currentLiveId}_${uid}`;
 
-    alert('予約が完了しました！');
+    // トランザクション処理開始
+    await utils.runTransaction(utils.db, async (transaction) => {
+      const liveRef = utils.doc(utils.db, 'lives', currentLiveId);
+      const resRef = utils.doc(utils.db, 'tickets', ticketId);
+
+      const liveSnap = await transaction.get(liveRef);
+      const oldResSnap = await transaction.get(resRef);
+
+      if (!liveSnap.exists()) throw new Error('ライブ情報が存在しません。');
+
+      const liveData = liveSnap.data();
+
+      // --- 追加機能: 受付期間のチェック (任意) ---
+
+      // 日本時間(Asia/Tokyo)で yyyy.mm.dd 形式を取得
+      const nowStr = utils.format(new Date(), 'yyyy.MM.dd');
+
+      if (liveData.acceptStartDate && nowStr < liveData.acceptStartDate) {
+        throw new Error(`予約受付は ${liveData.acceptStartDate} からです。`);
+      }
+      if (liveData.acceptEndDate && nowStr > liveData.acceptEndDate) {
+        throw new Error(
+          `予約受付は ${liveData.acceptEndDate} で終了しました。`,
+        );
+      }
+
+      // 在庫管理用変数の取得
+      const ticketStock = liveData.ticketStock || 0;
+      const currentTotalSold = liveData.totalReserved || 0; // すでに予約済みの総数
+
+      // 今回の更新による増分を計算 (新規なら oldResCount は 0)
+      const oldResCount = oldResSnap.exists()
+        ? oldResSnap.data().totalCount || 0
+        : 0;
+      const diff = newTotalCount - oldResCount;
+
+      // 在庫チェック
+      if (currentTotalSold + diff > ticketStock) {
+        const remaining = ticketStock - currentTotalSold;
+        throw new Error(
+          `完売または残席不足です。 (現在の残り：${remaining > 0 ? remaining : 0}枚)`,
+        );
+      }
+
+      // 1. 予約データの作成/更新
+      const ticketData = {
+        liveId: currentLiveId,
+        uid: uid,
+        resType: resType,
+        representativeName: representativeName,
+        companions: companions,
+        companionCount: companions.length,
+        totalCount: newTotalCount,
+        updatedAt: utils.serverTimestamp(),
+      };
+
+      if (!oldResSnap.exists()) {
+        ticketData.createdAt = utils.serverTimestamp();
+        transaction.set(resRef, ticketData); // 新規作成
+      } else {
+        transaction.update(resRef, ticketData); // 更新
+      }
+
+      // 2. ライブ側の総予約数を更新
+      transaction.update(liveRef, {
+        totalReserved: currentTotalSold + diff,
+      });
+    });
+
+    utils.hideSpinner();
+    await utils.showDialog('予約を確定しました！', true);
     window.location.href = '../mypage/mypage.html';
   } catch (err) {
-    console.error(err);
-    alert('エラーが発生しました: ' + err.message);
-  } finally {
+    console.error('Transaction failed: ', err);
     utils.hideSpinner();
+    // カスタムダイアログでエラーメッセージを表示
+    await utils.showDialog(err.message, true);
   }
 });

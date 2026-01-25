@@ -54,6 +54,32 @@
     padding: 25px;
     border-left: 5px solid #e7211a;
     margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.t-status-badge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(231, 33, 26, 0.1);
+    color: #e7211a;
+    border: 1px solid #e7211a;
+    padding: 4px 12px;
+    font-size: 0.75rem;
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 0.1em;
+    border-radius: 20px;
+}
+
+.res-type-label {
+    display: inline-block;
+    font-size: 0.7rem;
+    background: #333;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-weight: bold;
 }
 
 .ticket-actions {
@@ -61,50 +87,96 @@
     border-top: 1px solid #333;
     padding-top: 15px;
     display: flex;
-    gap: 10px;
+    flex-wrap: wrap; 
+    gap: 15px;
 }
 
-.btn-edit, .btn-delete {
-    padding: 8px 15px;
-    font-size: 0.85rem;
+
+.btn-view, .btn-edit, .btn-delete, .btn-ticket {
+    flex: 1; /* 全てのボタンを均等幅に */
+    justify-content: center; /* 中央揃え */
+    padding: 10px 4px; /* 横パディングを最小限に */
+    font-size: 0.8rem; /* モバイル対応で少し小さめに */
+    font-weight: bold;
     cursor: pointer;
     transition: 0.3s;
     border-radius: 4px;
     display: flex;
     align-items: center;
-    gap: 5px;
+    gap: 4px;
+    white-space: nowrap; /* 改行させない */
 }
 
-.btn-edit {
-    background: transparent;
-    border: 1px solid #555;
-    color: #ccc;
+/* チケット表示ボタン: 白背景/黒文字 */
+.btn-ticket {
+    background: #fff;
+    border: 1px solid #fff;
+    color: #000;
 }
 
 .btn-edit:hover {
+    background: #e9e9e9;
+    border-color: #e9e9e9;
+}
+
+/* コピーボタン: 白枠/黒背景 */
+.btn-view {
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
+    flex-grow: 1; /* コピーボタンを目立たせる */
+    justify-content: center;
+}
+
+.btn-view:hover {
+    background: #fff;
+    color: #000;
+}
+
+/* 変更ボタン: 赤背景/白文字 */
+.btn-edit {
     background: #e7211a;
-    border-color: #e7211a;
+    border: 1px solid #e7211a;
     color: #fff;
 }
 
+.btn-edit:hover {
+    background: #b61a15;
+    border-color: #b61a15;
+}
+
+/* 取消ボタン: 赤枠黒背景/赤文字 */
 .btn-delete {
     background: transparent;
-    border: 1px solid #555;
-    color: #888;
+    border: 1px solid #e7211a;
+    color: #e7211a;
 }
 
 .btn-delete:hover {
-    background: #444;
-    color: #fff;
+    background: rgba(231, 33, 26, 0.1);
 }
 
 .t-details p {
-    margin: 10px 0;
-    font-size: 0.9rem;
-    color: #bbb;
+    margin: 12px 0;
+    font-size: 0.95rem;
+    color: #fff;
 }
 
 .t-details i {
     width: 20px;
     color: #e7211a;
+    text-align: center;
+}
+/* 下部注釈テキスト */
+.note-text {
+    margin-top: 15px;
+    font-size: 0.75rem;
+    color: #bbb;
+    text-align: center;
+    font-weight: 500;
+}
+
+.note-text::before {
+    content: "※";
+    margin-right: 2px;
 }

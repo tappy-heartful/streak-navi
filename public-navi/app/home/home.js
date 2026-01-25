@@ -55,7 +55,7 @@ async function loadPendingAnnouncements() {
 
     if (!hasPendingVotes) {
       $announcementList.append(
-        `<li class="pending-message">📌投票、受付中です！</li>`
+        `<li class="pending-message">📌投票、受付中です！</li>`,
       );
       hasPendingVotes = true;
       hasPending = true;
@@ -84,7 +84,7 @@ async function loadPendingAnnouncements() {
 
     if (!hasPendingCalls) {
       $announcementList.append(
-        `<li class="pending-message">📌候補曲、募集中です！</li>`
+        `<li class="pending-message">📌候補曲、募集中です！</li>`,
       );
       hasPendingCalls = true;
       hasPending = true;
@@ -126,7 +126,7 @@ async function loadPendingAnnouncements() {
       'collects',
       collectDoc.id,
       'responses',
-      uid
+      uid,
     );
     const responseSnap = await utils.getWrapDoc(responseRef);
 
@@ -134,7 +134,7 @@ async function loadPendingAnnouncements() {
     if (!responseSnap.exists()) {
       if (!hasPendingCollects) {
         $announcementList.append(
-          `<li class="pending-message">📌集金、受付中です！</li>`
+          `<li class="pending-message">📌集金、受付中です！</li>`,
         );
         hasPendingCollects = true;
         hasPending = true;
@@ -156,7 +156,8 @@ async function loadPendingAnnouncements() {
   const qEvents = utils.query(eventsRef, utils.orderBy('date', 'asc'));
   const eventsSnap = await utils.getWrapDocs(qEvents);
 
-  const todayStr = new Date().toISOString().split('T')[0].replace(/-/g, '.');
+  // 日本時間(Asia/Tokyo)で yyyy.mm.dd 形式を取得
+  const todayStr = utils.format(new Date(), 'yyyy.MM.dd');
 
   const allEvents = await Promise.all(
     eventsSnap.docs.map(async (doc) => {
@@ -180,7 +181,7 @@ async function loadPendingAnnouncements() {
           ? 'eventAdjustAnswers'
           : 'eventAttendanceAnswers';
         const answerSnap = await utils.getWrapDoc(
-          utils.doc(utils.db, coll, `${eventId}_${uid}`)
+          utils.doc(utils.db, coll, `${eventId}_${uid}`),
         );
         res.isUnanswered = !answerSnap.exists();
       }
@@ -191,7 +192,7 @@ async function loadPendingAnnouncements() {
         res.diffDays = Math.ceil((eventDate - today) / (1000 * 60 * 60 * 24));
       }
       return res;
-    })
+    }),
   );
 
   const upcomingEvents = allEvents.filter((e) => !e.isPast);
@@ -202,12 +203,12 @@ async function loadPendingAnnouncements() {
 
   // --- 5.1. 未回答の日程調整 (🗓️) ---
   const schedulePending = upcomingEvents.filter(
-    (e) => e.isSchedule && e.isUnanswered
+    (e) => e.isSchedule && e.isUnanswered,
   );
   if (schedulePending.length > 0) {
     hasPending = true;
     $announcementList.append(
-      `<li class="pending-message">📌日程調整、受付中です！</li>`
+      `<li class="pending-message">📌日程調整、受付中です！</li>`,
     );
     schedulePending.forEach((e) => {
       $announcementList.append(`
@@ -218,7 +219,7 @@ async function loadPendingAnnouncements() {
 
   // --- 5.2. 直近の確定イベントを1つだけ表示 ---
   let targetEvent = upcomingEvents.find(
-    (e) => e.isAttendance && e.isUnanswered
+    (e) => e.isAttendance && e.isUnanswered,
   );
   if (!targetEvent) {
     targetEvent = upcomingEvents.find((e) => e.date);
@@ -246,7 +247,7 @@ async function loadPendingAnnouncements() {
   if (assignPending.length > 0) {
     hasPending = true;
     $announcementList.append(
-      `<li class="pending-message">📌譜割り、受付中です！</li>`
+      `<li class="pending-message">📌譜割り、受付中です！</li>`,
     );
     assignPending.forEach((e) => {
       $announcementList.append(`
@@ -288,7 +289,7 @@ async function loadQuickScores() {
 
   // --- isDispTop === true のみ抽出 ---
   const filteredDocs = allSnap.docs.filter(
-    (doc) => doc.data().isDispTop === true
+    (doc) => doc.data().isDispTop === true,
   );
 
   // 全曲プレイリストリンク生成（isDispTop=true のみ）
@@ -306,7 +307,7 @@ async function loadQuickScores() {
     $('#playlist-link-score')
       .attr(
         'href',
-        `https://www.youtube.com/watch_videos?video_ids=${allWatchIds}`
+        `https://www.youtube.com/watch_videos?video_ids=${allWatchIds}`,
       )
       .show();
   } else {
@@ -318,7 +319,7 @@ async function loadQuickScores() {
 
   if (limitedDocs.length === 0) {
     $scoreList.append(
-      '<div class="empty-message">譜面はまだ登録されていません🍀</div>'
+      '<div class="empty-message">譜面はまだ登録されていません🍀</div>',
     );
     return;
   }
@@ -349,8 +350,8 @@ async function initScorePlayer() {
   const snapshot = await utils.getWrapDocs(
     utils.query(
       utils.collection(utils.db, 'scores'),
-      utils.orderBy('createdAt', 'desc')
-    )
+      utils.orderBy('createdAt', 'desc'),
+    ),
   );
 
   // --- isDispTop === true のみ抽出 ---
@@ -420,7 +421,7 @@ let currentIndex = 0;
 
 async function initBlueNotes() {
   const snapshot = await utils.getWrapDocs(
-    utils.collection(utils.db, 'blueNotes')
+    utils.collection(utils.db, 'blueNotes'),
   );
   blueNotes = snapshot.docs.map((doc) => ({
     id: doc.id,
@@ -494,7 +495,7 @@ function updateBlueNoteLink(watchIds) {
     $('#playlist-link-blue-note')
       .attr(
         'href',
-        `https://www.youtube.com/watch_videos?video_ids=${watchIds.join(',')}`
+        `https://www.youtube.com/watch_videos?video_ids=${watchIds.join(',')}`,
       )
       .show();
   } else {
@@ -561,7 +562,7 @@ async function loadMedias() {
   const q = utils.query(
     mediasRef,
     utils.orderBy('date', 'desc'),
-    utils.limit(4)
+    utils.limit(4),
   );
   const snap = await utils.getWrapDocs(q);
   let isExist = false;
@@ -609,7 +610,7 @@ async function loadMedias() {
 
   if (!isExist) {
     $contentList.append(
-      `<div class="content-item">メディアはまだ登録されていません🍀</div>`
+      `<div class="content-item">メディアはまだ登録されていません🍀</div>`,
     );
   }
 }

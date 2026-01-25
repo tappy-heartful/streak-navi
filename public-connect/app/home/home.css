@@ -218,14 +218,6 @@
     font-size: 0.8rem;
 }
 
-/* 変更ボタンは少し落ち着いた色に */
-.btn-edit {
-    background: #444;
-}
-.btn-edit:hover {
-    background: #555;
-}
-
 /* 取り消しボタン（枠線のみのスタイル） */
 .btn-delete {
     background: transparent;

@@ -58,21 +58,21 @@ async function loadTickets() {
   const todayStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
 
   // ログイン中なら予約済みリストを取得
-  let myReservations = [];
+  let myTickets = [];
   if (uid) {
     const resQ = utils.query(
-      utils.collection(utils.db, 'liveReservations'),
+      utils.collection(utils.db, 'tickets'),
       utils.where('uid', '==', uid),
     );
     const resSnap = await utils.getWrapDocs(resQ);
-    myReservations = resSnap.docs.map((doc) => doc.data().liveId);
+    myTickets = resSnap.docs.map((doc) => doc.data().liveId);
   }
 
   snapshot.docs.forEach((docSnap) => {
     const data = docSnap.data();
     const liveId = docSnap.id;
     const isPast = data.date < todayStr;
-    const isReserved = myReservations.includes(liveId);
+    const isReserved = myTickets.includes(liveId);
 
     // ボタン部分の動的生成
     let actionButtons = '';
@@ -80,8 +80,8 @@ async function loadTickets() {
       if (isReserved) {
         actionButtons = `
           <div class="reserved-actions">
-            <button class="btn-reserve btn-edit" onclick="handleReserve('${liveId}')">予約を変更</button>
-            <button class="btn-reserve btn-delete" onclick="handleDeleteReservation('${liveId}')">予約を取り消す</button>
+            <button class="btn-reserve" onclick="handleReserve('${liveId}')">予約を変更</button>
+            <button class="btn-reserve btn-delete" onclick="handleDeleteTicket('${liveId}')">予約を取り消す</button>
           </div>
         `;
       } else {
@@ -100,6 +100,8 @@ async function loadTickets() {
           <div class="t-details">
             <div><i class="fa-solid fa-location-dot"></i> ${data.venue}</div>
             <div><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</div>
+            <div><i class="fa-solid fa-ticket"></i>前売：${data.advance}</div>
+            <div><i class="fa-solid fa-ticket"></i>当日：${data.door}</div>
           </div>
           ${actionButtons}
         </div>
@@ -116,17 +118,17 @@ window.handleReserve = function (liveId) {
 };
 
 // 予約取り消し（削除機能）
-window.handleDeleteReservation = async function (liveId) {
+window.handleDeleteTicket = async function (liveId) {
   const uid = utils.getSession('uid');
   if (!uid) return;
 
-  if (!confirm('予約を取り消してもよろしいですか？')) return;
+  if (!(await utils.showDialog('予約を取り消してもよろしいですか？'))) return;
 
   try {
     utils.showSpinner();
     // liveId と uid が一致するドキュメントを探す
     const q = utils.query(
-      utils.collection(utils.db, 'liveReservations'),
+      utils.collection(utils.db, 'tickets'),
       utils.where('liveId', '==', liveId),
       utils.where('uid', '==', uid),
     );
@@ -135,7 +137,8 @@ window.handleDeleteReservation = async function (liveId) {
     const deletePromises = snap.docs.map((doc) => utils.deleteDoc(doc.ref));
     await Promise.all(deletePromises);
 
-    alert('予約を取り消しました。');
+    utils.hideSpinner();
+    await utils.showDialog('予約を取り消しました。', true);
     await loadTickets(); // 表示を更新
   } catch (e) {
     alert('エラーが発生しました。');

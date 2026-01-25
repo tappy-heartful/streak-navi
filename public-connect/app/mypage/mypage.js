@@ -5,7 +5,7 @@ $(document).ready(async function () {
     // ログイン必須
     await utils.initDisplay(true, true);
 
-    // プロフィール反映（「様」を追加）
+    // プロフィール反映
     $('#user-icon').attr(
       'src',
       utils.getSession('pictureUrl') ||
@@ -29,10 +29,30 @@ $(document).ready(async function () {
 });
 
 /**
+ * チケットURLをクリップボードにコピー
+ */
+window.handleCopyTicketUrl = async function (resType, url) {
+  try {
+    await navigator.clipboard.writeText(url);
+
+    // 予約種別によってメッセージを出し分け
+    const message =
+      resType === 'invite'
+        ? 'チケットURLをコピーしました。\nご招待する人に共有してください。'
+        : 'チケットURLをコピーしました。\n同伴者様に共有してください。';
+
+    await utils.showDialog(message, true);
+  } catch (err) {
+    console.error('Copy failed:', err);
+    alert('URLのコピーに失敗しました。');
+  }
+};
+
+/**
  * ログアウト処理
  */
 window.handleLogout = async function () {
-  if (!confirm('ログアウトしますか？')) return;
+  if (!(await utils.showDialog('ログアウトしますか？'))) return;
 
   try {
     utils.showSpinner();
@@ -49,20 +69,24 @@ window.handleLogout = async function () {
 /**
  * 予約取り消し処理
  */
-window.handleDeleteReservation = async function (liveId) {
-  if (!confirm('この予約を取り消しますか？\n（この操作は元に戻せません）'))
+window.handleDeleteTicket = async function (liveId) {
+  if (
+    !(await utils.showDialog(
+      'この予約を取り消しますか？\n（この操作は元に戻せません）',
+    ))
+  )
     return;
 
   try {
     utils.showSpinner();
     const uid = utils.getSession('uid');
-    const reservationId = `${liveId}_${uid}`;
+    const ticketId = `${liveId}_${uid}`;
 
-    // Firestoreから削除
-    await utils.archiveAndDeleteDoc('liveReservations', reservationId);
+    await utils.archiveAndDeleteDoc('tickets', ticketId);
 
-    alert('予約を取り消しました');
-    await loadMyTickets(); // 一覧を再読み込み
+    utils.hideSpinner();
+    await utils.showDialog('予約を取り消しました', true);
+    await loadMyTickets();
   } catch (e) {
     console.error(e);
     alert('エラーが発生しました: ' + e.message);
@@ -79,7 +103,7 @@ async function loadMyTickets() {
   const uid = utils.getSession('uid');
 
   const q = utils.query(
-    utils.collection(utils.db, 'liveReservations'),
+    utils.collection(utils.db, 'tickets'),
     utils.where('uid', '==', uid),
     utils.orderBy('updatedAt', 'desc'),
   );
@@ -101,32 +125,51 @@ async function loadMyTickets() {
     if (!liveSnap.exists()) continue;
     const liveData = liveSnap.data();
 
+    const isInvite = resData.resType === 'invite';
+    const typeName = isInvite ? '招待予約' : '一般予約';
+    const repLabel = isInvite ? '予約担当' : '代表者';
+    const companionLabel = isInvite ? 'ご招待' : '同伴者';
+    const msgTarget = isInvite ? '招待するお客様' : '同伴者様';
+
     const companionText =
       resData.companions && resData.companions.length > 0
-        ? resData.companions.join(', ')
+        ? resData.companions.join(' 様、') + ' 様'
         : 'なし';
+
+    const ticketId = resDoc.id;
+    const detailUrl = `${window.location.origin}/app/ticket-detail/ticket-detail.html?ticketId=${ticketId}`;
 
     container.append(`
       <div class="ticket-card detail-mode">
+        <div class="t-status-badge">RESERVED</div>
         <div class="ticket-info">
-          <div class="t-status-badge">RESERVED</div>
+          <span class="res-type-label">${typeName}</span>
           <div class="t-date">${liveData.date}</div>
-          <h3 class="t-title">${liveData.title}</h3>
+          <h3 class="t-title" style="margin: 5px 0 15px;">${liveData.title}</h3>
           
           <div class="t-details">
-            <p><i class="fa-solid fa-location-dot"></i> ${liveData.venue}</p>
-            <p><i class="fa-solid fa-user"></i> 代表者: ${resData.representativeName}</p>
-            <p><i class="fa-solid fa-users"></i> 同伴者: ${companionText}</p>
+            <p><i class="fa-solid fa-location-dot"></i> 会場: ${liveData.venue}</p>
+            <p><i class="fa-solid fa-clock"></i> 開演: ${liveData.start} (開場 ${liveData.open})</p>
+            <p><i class="fa-solid fa-yen"></i> 前売: ${liveData.advance}</p>
+            <p><i class="fa-solid fa-user"></i> ${repLabel}: ${resData.representativeName} 様</p>
+            <p><i class="fa-solid fa-users"></i> ${companionLabel}: ${companionText}</p>
           </div>
           
           <div class="ticket-actions">
             <button class="btn-edit" onclick="location.href='../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}'">
               <i class="fa-solid fa-pen-to-square"></i> 変更
             </button>
-            <button class="btn-delete" onclick="handleDeleteReservation('${resData.liveId}')">
+            <button class="btn-delete" onclick="handleDeleteTicket('${resData.liveId}')">
               <i class="fa-solid fa-trash-can"></i> 取消
             </button>
+            <button class="btn-ticket" onclick="location.href='../ticket-detail/ticket-detail.html?ticketId=${ticketId}'">
+              <i class="fa-solid fa-ticket"></i> 表示
+            </button>
+            <button class="btn-view" onclick="handleCopyTicketUrl('${resData.resType}', '${detailUrl}')">
+              <i class="fa-solid fa-copy"></i> チケットURLをコピー
+            </button>
           </div>
+          <p class="note-text">${msgTarget}にチケットURLを共有してください</p>
         </div>
       </div>
     `);

@@ -1,0 +1,77 @@
+/* ライブ詳細カードの調整 */
+.ticket-card.detail-mode {
+    background: #1a1a1a;
+    padding: 20px;
+    border-left: 5px solid #e7211a;
+    margin-bottom: 30px;
+}
+
+.sub-title {
+    margin: 35px 0 15px;
+    color: #fff;
+    font-size: 1.3rem; 
+    border-left: 5px solid #e7211a;
+    padding-left: 12px;
+    font-family: 'Impact', sans-serif;
+}
+
+.t-details p {
+    margin: 12px 0;
+    font-size: 1rem;
+    color: #fff;
+}
+
+.t-details i {
+    width: 25px;
+    color: #e7211a;
+    text-align: center;
+}
+
+/* 共有用画面専用スタイル */
+.share-info-wrapper {
+    margin-top: 20px;
+    background: #111;
+    padding: 30px;
+    border: 1px solid #222;
+    border-radius: 8px;
+}
+
+.res-status-badge {
+    display: inline-block;
+    background: #e7211a;
+    color: #fff;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    margin-bottom: 15px;
+}
+
+.guest-list {
+    list-style: none;
+    padding: 0;
+}
+
+.guest-item {
+    padding: 15px;
+    background: #222;
+    border-bottom: 1px solid #333;
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.guest-item:last-child {
+    border-bottom: none;
+}
+
+.t-price span {
+    color: #e7211a;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+.loading-text {
+    text-align: center;
+    color: #888;
+    padding: 50px 0;
+}

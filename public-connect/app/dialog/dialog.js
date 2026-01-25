@@ -8,7 +8,7 @@ export function showDialog(message, isOKOnly = false) {
     // メッセージ更新
     msg.textContent = message;
 
-    // ボタン表示を毎回リセット
+    // ボタン表示をリセット
     if (isOKOnly) {
       okBtn.textContent = 'OK';
       cancelBtn.classList.add('hidden');
