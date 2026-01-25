@@ -2,7 +2,7 @@ import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
   try {
-    // ログイン不要で表示
+    // ログイン不要
     await utils.initDisplay();
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -12,69 +12,118 @@ $(document).ready(async function () {
       throw new Error('ライブ情報が見つかりません。');
     }
 
-    // パンくず
+    // パンくずリスト
     const breadcrumb = $('#breadcrumb');
     breadcrumb.append(
       `<a href="../home/home.html">Home</a>
-       <span class="separator">&gt;</span>
+       <span class="separator">></span>
        <span class="current">Live Detail</span>`,
     );
 
-    await loadLiveInfo(liveId);
+    await loadLiveDetail(liveId);
 
-    // Hero画像（あれば）
+    // Hero画像
     $('.hero').css(
       '--hero-bg',
-      'url("https://tappy-heartful.github.io/streak-connect-images/background/mypage.jpg")',
+      'url("https://tappy-heartful.github.io/streak-connect-images/background/live-detail.jpg")',
     );
   } catch (e) {
+    console.error(e);
     $('#live-content-area').html(`<p class="no-data">${e.message}</p>`);
   } finally {
     utils.hideSpinner();
   }
 });
 
-/**
- * ライブ詳細情報の表示
- */
-async function loadLiveInfo(liveId) {
+async function loadLiveDetail(liveId) {
   const container = $('#live-content-area');
+  const actionArea = $('.live-actions');
 
-  // 1. ライブデータの取得
   const liveRef = utils.doc(utils.db, 'lives', liveId);
   const liveSnap = await utils.getWrapDoc(liveRef);
 
   if (!liveSnap.exists()) {
-    throw new Error('指定されたライブは存在しないか、終了しました。');
+    throw new Error('ライブ情報が存在しません。');
   }
 
-  const liveData = liveSnap.data();
+  const data = liveSnap.data();
 
-  // 2. UI構築
-  const html = `
-    <div class="ticket-card detail-mode">
-      <div class="ticket-info">
-        <div class="t-date">${liveData.date}</div>
-        <h3 class="t-title">${liveData.title}</h3>
-        
-        <div class="t-details">
-          <p><i class="fa-solid fa-location-dot"></i> <span>会場: ${liveData.venue}</span></p>
-          <p><i class="fa-solid fa-clock"></i> <span>Open ${liveData.open} / Start ${liveData.start}</span></p>
-          <p><i class="fa-solid fa-yen-sign"></i> <span>前売: ${liveData.advance} / 当日: ${liveData.door || '未定'}</span></p>
+  // HTML構築
+  let html = `
+    ${
+      data.flyerUrl
+        ? `
+      <div class="flyer-wrapper">
+        <img src="${data.flyerUrl}" alt="Flyer">
+      </div>
+    `
+        : ''
+    }
+
+    <div class="live-info-card">
+      <div class="l-date">${data.date}</div>
+      <h2 class="l-title">${data.title}</h2>
+      
+      <div class="info-list">
+        <div class="info-item">
+          <i class="fa-solid fa-location-dot"></i>
+          <div>
+            <div class="label">会場</div>
+            <div class="val">
+              ${data.venue}<br>
+              <a href="${data.venueUrl}" target="_blank" style="font-size:0.8rem;">公式サイト</a> / 
+              <a href="${data.venueGoogleMap}" target="_blank" style="font-size:0.8rem;">地図を見る</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <i class="fa-solid fa-clock"></i>
+          <div>
+            <div class="label">時間</div>
+            <div class="val">Open ${data.open} / Start ${data.start}</div>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <i class="fa-solid fa-ticket"></i>
+          <div>
+            <div class="label">料金</div>
+            <div class="val">
+              前売: ${data.advance}<br>
+              当日: ${data.door}
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <h3 class="sub-title">DESCRIPTION</h3>
-    <div style="color:#ccc; line-height:1.8; margin-bottom:30px; white-space:pre-wrap;">${liveData.description || 'ライブの詳細情報は準備中です。'}</div>
+    <h3 class="sub-title">注意事項</h3>
+    <div class="t-details" style="padding-left:15px; border-left: 2px solid #333;">
+      <p><i class="fa-solid fa-users"></i> お一人様 ${data.maxCompanions}名様まで同伴可能</p>
+      <p><i class="fa-solid fa-circle-info"></i> チケット残数: あと ${data.ticketStock - (data.totalReserved || 0)} 枚</p>
+    </div>
   `;
 
   container.html(html);
 
-  // 予約アクションエリアを表示し、イベント登録
-  $('#reservation-action-area').show();
-  $('#btn-go-reserve').on('click', () => {
-    // 予約画面へ遷移（liveIdを渡す）
-    window.location.href = `../ticket-reserve/ticket-reserve.html?liveId=${liveId}`;
-  });
+  // 予約ボタンの制御
+  const nowStr = utils.format(new Date(), 'yyyy.MM.dd');
+  let btnHtml = '';
+
+  if (data.acceptEndDate && nowStr > data.acceptEndDate) {
+    btnHtml = `<button class="btn-reserve-now" disabled style="background:#444;">予約受付終了</button>`;
+  } else if (data.acceptStartDate && nowStr < data.acceptStartDate) {
+    btnHtml = `<button class="btn-reserve-now" disabled style="background:#444;">予約受付前</button>
+               <p class="accept-period">受付開始: ${data.acceptStartDate}</p>`;
+  } else {
+    btnHtml = `
+      <a href="../ticket-reserve/ticket-reserve.html?liveId=${liveId}" class="btn-reserve-now">
+        <i class="fa-solid fa-paper-plane"></i> このライブを予約する
+      </a>
+      <p class="accept-period">受付期間: ${data.acceptStartDate} ～ ${data.acceptEndDate}</p>
+    `;
+  }
+
+  actionArea.html(btnHtml);
 }
