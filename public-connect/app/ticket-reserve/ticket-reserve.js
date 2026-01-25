@@ -216,7 +216,10 @@ $('#reserve-form').on('submit', async function (e) {
       const liveData = liveSnap.data();
 
       // --- 追加機能: 受付期間のチェック (任意) ---
-      const nowStr = new Date().toISOString().split('T')[0].replace(/-/g, '.'); // "2026.01.25"形式
+
+      // 日本時間(Asia/Tokyo)で yyyy.mm.dd 形式を取得
+      const nowStr = utils.format(new Date(), 'yyyy.MM.dd');
+
       if (liveData.acceptStartDate && nowStr < liveData.acceptStartDate) {
         throw new Error(`予約受付は ${liveData.acceptStartDate} からです。`);
       }
