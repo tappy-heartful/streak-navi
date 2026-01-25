@@ -114,7 +114,7 @@ async function loadMyTickets() {
         : 'なし';
 
     const ticketId = resDoc.id;
-    const ticketDetailUrl = `${window.location.origin}/app/ticket-detail/ticket-detail.html?ticketId=${ticketId}`;
+    const ticketDetailUrl = `${window.location.origin}/app/ticket-detail/ticket-detail.html?ticketId=${ticketId}&fromPage=mypage`;
     const liveDetailUrl = `../live-detail/live-detail.html?liveId=${resData.liveId}&fromPage=mypage`;
 
     container.append(`
@@ -138,7 +138,7 @@ async function loadMyTickets() {
           </div>
           
           <div class="ticket-actions">
-            <button class="btn-edit" onclick="location.href='../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}'">
+            <button class="btn-edit" onclick="location.href='../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}&fromPage=mypage'">
               <i class="fa-solid fa-pen-to-square"></i> 変更
             </button>
             <button class="btn-delete" onclick="handleDeleteTicket('${resData.liveId}')">

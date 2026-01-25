@@ -11,7 +11,6 @@ $(document).ready(async function () {
 
     const urlParams = new URLSearchParams(window.location.search);
     currentLiveId = urlParams.get('liveId');
-    const fromPage = urlParams.get('fromPage');
 
     if (!currentLiveId) {
       await utils.showDialog('ライブIDが見つかりません。', true);
@@ -20,7 +19,11 @@ $(document).ready(async function () {
     }
 
     // パンくずリスト設定
-    utils.renderBreadcrumb($('#breadcrumb'), fromPage, 'Ticket Reserve');
+    utils.renderBreadcrumb($('#breadcrumb'), currentLiveId);
+    $('.btn-back-home').attr(
+      'href',
+      `../live-detail/live-detail.html?liveId=${currentLiveId}`,
+    );
 
     // streak-navi（usersコレクション）に存在するかチェック
     const uid = utils.getSession('uid');
@@ -80,7 +83,7 @@ async function loadLiveDetail() {
   const liveRef = utils.doc(utils.db, 'lives', currentLiveId);
   const liveSnap = await utils.getWrapDoc(liveRef);
 
-  const liveDetailUrl = `../live-detail/live-detail.html?liveId=${currentLiveId}&fromPage=ticketReserve`;
+  const liveDetailUrl = `../live-detail/live-detail.html?liveId=${currentLiveId}`;
 
   if (!liveSnap.exists()) {
     container.html('<p class="no-data">ライブ情報が見つかりませんでした。</p>');

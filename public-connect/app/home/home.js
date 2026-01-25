@@ -102,7 +102,7 @@ async function loadTickets() {
         `;
       }
     }
-    const liveDetailUrl = `../live-detail/live-detail.html?liveId=${liveId}&fromPage=home`;
+    const liveDetailUrl = `../live-detail/live-detail.html?liveId=${liveId}`;
 
     const cardHtml = `
       <div class="ticket-card" data-id="${liveId}">
@@ -135,7 +135,7 @@ async function loadTickets() {
  * ライブ詳細ページへ遷移
  */
 window.handleLiveDetail = function (liveId) {
-  location.href = `../live-detail/live-detail.html?liveId=${liveId}&fromPage=home`;
+  location.href = `../live-detail/live-detail.html?liveId=${liveId}`;
 };
 
 /**
