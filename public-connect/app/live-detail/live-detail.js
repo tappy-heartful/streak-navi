@@ -39,6 +39,9 @@ async function loadLiveDetail(liveId) {
   const container = $('#live-content-area');
   const actionArea = $('.live-actions');
 
+  container.empty();
+  actionArea.empty();
+
   // 1. ライブデータの取得
   const liveRef = utils.doc(utils.db, 'lives', liveId);
   const liveSnap = await utils.getWrapDoc(liveRef);
@@ -147,5 +150,5 @@ async function loadLiveDetail(liveId) {
  */
 window.handleCancelTicket = async function (liveId) {
   await utils.deleteTicket(liveId);
-  location.reload(); // 状態を更新するためにリロード
+  await loadLiveDetail(liveId);
 };
