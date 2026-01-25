@@ -155,6 +155,7 @@
     font-size: 1.1rem;
     cursor: pointer;
     transition: 0.3s;
+    border-radius: 50px;
 }
 
 .btn-reserve:hover {
