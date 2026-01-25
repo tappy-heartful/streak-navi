@@ -45,6 +45,10 @@ $(document).ready(async function () {
  */
 async function loadTicketInfo(ticketId, fromPage) {
   const container = $('#ticket-content-area');
+  const actionArea = $('.live-actions');
+  container.empty();
+  actionArea.empty();
+
   const currentUid = utils.getSession('uid');
 
   // 1. 予約データの取得
@@ -122,7 +126,7 @@ async function loadTicketInfo(ticketId, fromPage) {
 
   // 4. ログインユーザーが予約者本人の場合、編集・取消ボタンを表示
   if (currentUid && resData.uid === currentUid) {
-    html += `
+    let btnHtml = `
       <div class="reserved-actions">
         <a href="../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}" class="btn-action btn-reserve-red">
           <i class="fa-solid fa-pen-to-square"></i> 予約内容を変更
@@ -135,6 +139,7 @@ async function loadTicketInfo(ticketId, fromPage) {
         </button>
       </div>
     `;
+    actionArea.html(btnHtml);
   }
 
   container.html(html);

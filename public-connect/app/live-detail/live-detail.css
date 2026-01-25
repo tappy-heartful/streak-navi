@@ -67,13 +67,6 @@
     text-decoration: underline;
 }
 
-/* --- アクションエリア共通 --- */
-.live-actions {
-    margin-top: 40px;
-    text-align: center;
-}
-
-
 .accept-period {
     margin-top: 15px;
     font-size: 0.8rem;

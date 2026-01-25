@@ -148,6 +148,12 @@ body {
 
 
 /* 基本のボタン構造 */
+/* --- アクションエリア共通 --- */
+.live-actions {
+    margin-top: 40px;
+    text-align: center;
+}
+
 .btn-action {
     display: flex;
     align-items: center;
