@@ -89,8 +89,8 @@ async function loadTickets() {
         actionButtons = `
           <div class="reserved-actions">
             ${detailBtnHtml}
-            <button class="btn-reserve" onclick="handleReserve('${liveId}')">変更 / CHANGE RESERVE</button>
-            <button class="btn-reserve btn-delete" onclick="handleDeleteTicket('${liveId}')">取消 / CANCEL</button>
+            <button class="btn-reserve" onclick="handleReserve('${liveId}')">予約変更 / CHANGE RESERVE</button>
+            <button class="btn-reserve btn-delete" onclick="handleDeleteTicket('${liveId}')">予約取消 / CANCEL</button>
           </div>
         `;
       } else {
