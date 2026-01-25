@@ -320,8 +320,8 @@ export function renderBreadcrumb(breadcrumb, liveId = '') {
   // 4. 現在のページ名（URLから推測）
   let currentLabel = 'Page';
   if (path.includes('live-detail')) currentLabel = 'Live Info';
-  if (path.includes('ticket-reserve')) currentLabel = 'Reserve';
-  if (path.includes('ticket-detail')) currentLabel = 'Ticket';
+  if (path.includes('ticket-reserve')) currentLabel = 'Ticket Reservation';
+  if (path.includes('ticket-detail')) currentLabel = 'Ticket Info';
 
   html += `<span class="separator">&gt;</span><span class="current">${currentLabel}</span>`;
 
