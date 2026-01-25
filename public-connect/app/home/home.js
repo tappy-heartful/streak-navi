@@ -149,33 +149,9 @@ window.handleReserve = function (liveId) {
 
 // 予約取り消し（削除機能）
 window.handleDeleteTicket = async function (liveId) {
-  const uid = utils.getSession('uid');
-  if (!uid) return;
-
-  if (!(await utils.showDialog('予約を取り消してもよろしいですか？'))) return;
-
-  try {
-    utils.showSpinner();
-    // liveId と uid が一致するドキュメントを探す
-    const q = utils.query(
-      utils.collection(utils.db, 'tickets'),
-      utils.where('liveId', '==', liveId),
-      utils.where('uid', '==', uid),
-    );
-
-    const snap = await utils.getWrapDocs(q);
-    const deletePromises = snap.docs.map((doc) => utils.deleteDoc(doc.ref));
-    await Promise.all(deletePromises);
-
-    utils.hideSpinner();
-    await utils.showDialog('予約を取り消しました。', true);
-    await loadTickets(); // 表示を更新
-  } catch (e) {
-    alert('エラーが発生しました。');
-    console.error(e);
-  } finally {
-    utils.hideSpinner();
-  }
+  // 削除機能は共通
+  await utils.deleteTicket(liveId);
+  await loadTickets(); // 表示を更新
 };
 
 /**

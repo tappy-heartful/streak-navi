@@ -70,29 +70,8 @@ window.handleLogout = async function () {
  * 予約取り消し処理
  */
 window.handleDeleteTicket = async function (liveId) {
-  if (
-    !(await utils.showDialog(
-      'この予約を取り消しますか？\n（この操作は元に戻せません）',
-    ))
-  )
-    return;
-
-  try {
-    utils.showSpinner();
-    const uid = utils.getSession('uid');
-    const ticketId = `${liveId}_${uid}`;
-
-    await utils.archiveAndDeleteDoc('tickets', ticketId);
-
-    utils.hideSpinner();
-    await utils.showDialog('予約を取り消しました', true);
-    await loadMyTickets();
-  } catch (e) {
-    console.error(e);
-    alert('エラーが発生しました: ' + e.message);
-  } finally {
-    utils.hideSpinner();
-  }
+  await utils.deleteTicket(liveId);
+  await loadMyTickets();
 };
 
 /**
