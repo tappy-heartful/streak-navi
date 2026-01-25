@@ -149,6 +149,5 @@ async function loadLiveDetail(liveId) {
  * 予約取り消し処理
  */
 window.handleCancelTicket = async function (liveId) {
-  await utils.deleteTicket(liveId);
-  await loadLiveDetail(liveId);
+  if (await utils.deleteTicket(liveId)) await loadLiveDetail(liveId);
 };

@@ -150,8 +150,7 @@ window.handleReserve = function (liveId) {
 // 予約取り消し（削除機能）
 window.handleDeleteTicket = async function (liveId) {
   // 削除機能は共通
-  await utils.deleteTicket(liveId);
-  await loadTickets(); // 表示を更新
+  if (await utils.deleteTicket(liveId)) await loadTickets(); // 表示を更新
 };
 
 /**

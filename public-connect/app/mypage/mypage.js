@@ -70,8 +70,7 @@ window.handleLogout = async function () {
  * 予約取り消し処理
  */
 window.handleDeleteTicket = async function (liveId) {
-  await utils.deleteTicket(liveId);
-  await loadMyTickets();
+  if (await utils.deleteTicket(liveId)) await loadMyTickets();
 };
 
 /**

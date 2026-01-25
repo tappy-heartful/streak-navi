@@ -148,7 +148,5 @@ async function loadTicketInfo(ticketId, fromPage) {
  * チケット取り消し処理
  */
 window.handleDeleteTicket = async function (liveId) {
-  if (await utils.deleteTicket(liveId)) {
-    location.href = '../mypage/mypage.html';
-  }
+  if (await utils.deleteTicket(liveId)) location.href = '../mypage/mypage.html';
 };
