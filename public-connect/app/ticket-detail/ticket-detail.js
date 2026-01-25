@@ -134,7 +134,7 @@ async function loadTicketInfo(ticketId, fromPage) {
         <button class="btn-action btn-delete-outline" onclick="handleCancelTicket('${resData.liveId}')">
           <i class="fa-solid fa-trash-can"></i> 予約を取り消す
         </button>
-        <button class="btn-action btn-view-white" onclick="handleCopyTicketUrl('${resData.resType}')">
+        <button class="btn-action btn-copy-outline" onclick="handleCopyTicketUrl('${resData.resType}')">
           <i class="fa-solid fa-ticket"></i> チケットのリンクをコピー
         </button>
       </div>

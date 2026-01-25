@@ -199,6 +199,19 @@ body {
     background: rgba(231, 33, 26, 0.1);
 }
 
+/* 4.リンクボタン (透明) */
+
+/* 詳細/コピー (btn-copy-outline): 白枠・透過 */
+.btn-copy-outline {
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+}
+.btn-copy-outline:hover {
+    background: #fff;
+    color: #000;
+}
+
 /* 予約済みアクションの並び調整 */
 .reserved-actions {
     display: flex;
