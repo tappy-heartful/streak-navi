@@ -35,7 +35,6 @@ window.handleCopyTicketUrl = async function (resType, url) {
   try {
     await navigator.clipboard.writeText(url);
 
-    // 予約種別によってメッセージを出し分け
     const message =
       resType === 'invite'
         ? 'チケットURLをコピーしました。\nご招待する人に共有してください。'
@@ -119,7 +118,11 @@ async function loadMyTickets() {
 
     container.append(`
       <div class="ticket-card detail-mode">
-        <div class="t-status-badge">RESERVED</div>
+        <div class="card-status-area">
+          <div class="t-status-badge">RESERVED</div>
+          <div class="res-no-mini">NO. ${resData.reservationNo || '----'}</div>
+        </div>
+        
         <div class="ticket-info">
           <span class="res-type-label">${typeName}</span>
           <div class="t-date">${liveData.date}</div>
@@ -128,7 +131,6 @@ async function loadMyTickets() {
           <div class="t-details">
             <p><i class="fa-solid fa-location-dot"></i> 会場: ${liveData.venue}</p>
             <p><i class="fa-solid fa-clock"></i> 開演: ${liveData.start} (開場 ${liveData.open})</p>
-            <p><i class="fa-solid fa-yen"></i> 前売: ${liveData.advance}</p>
             <p><i class="fa-solid fa-user"></i> ${repLabel}: ${resData.representativeName} 様</p>
             <p><i class="fa-solid fa-users"></i> ${companionLabel}: ${companionText}</p>
           </div>
