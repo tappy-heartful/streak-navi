@@ -17,7 +17,7 @@ $(document).ready(async function () {
     breadcrumb.append(
       `<a href="../home/home.html">Home</a>
        <span class="separator">></span>
-       <span class="current">Live Detail</span>`,
+       <span class="current">Live Info</span>`,
     );
 
     await loadLiveDetail(liveId);
