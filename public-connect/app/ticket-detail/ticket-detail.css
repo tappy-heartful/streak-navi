@@ -36,6 +36,11 @@
     border-radius: 8px;
 }
 
+.res-status-badge-wrapper {
+    text-align: center;
+    margin: 10px 0 10px;
+}
+
 .res-status-badge {
     display: inline-block;
     background: #e7211a;

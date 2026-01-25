@@ -6,13 +6,27 @@ $(document).ready(async function () {
     await utils.initDisplay();
 
     const urlParams = new URLSearchParams(window.location.search);
+    const fromPage = urlParams.get('fromPage');
     const ticketId = urlParams.get('ticketId');
 
     if (!ticketId) {
       throw new Error('有効なチケットIDが見つかりません。');
     }
 
-    await loadTicketInfo(ticketId);
+    // パンくずリスト設定
+    const breadcrumb = $('#breadcrumb');
+    breadcrumb.append(
+      `<a href="../home/home.html">Home</a>
+       <span class="separator">&gt;</span>
+       ${
+         fromPage === 'mypage'
+           ? `<a href="../mypage/mypage.html">My Page</a><span class="separator">&gt;</span>`
+           : `<span class="current">Ticket</span>`
+       }
+       <span class="current">Ticket</span>`,
+    );
+
+    await loadTicketInfo(ticketId, fromPage);
 
     // Hero画像
     $('.hero').css(
@@ -29,7 +43,7 @@ $(document).ready(async function () {
 /**
  * 予約情報の取得と表示
  */
-async function loadTicketInfo(ticketId) {
+async function loadTicketInfo(ticketId, fromPage) {
   const container = $('#ticket-content-area');
 
   // 1. 予約データの取得
@@ -61,7 +75,12 @@ async function loadTicketInfo(ticketId) {
   const guestLabel = isInvite ? 'ご招待' : '同伴者様';
 
   let html = `
-    <div class="res-status-badge">CONFIRMED</div>
+    <p style="margin-top:25px; font-size:0.8rem; color:#888; text-align:center;">
+      当日はこの画面を会場受付にてご提示ください。
+    </p>
+    <div class="res-status-badge-wrapper">
+     <div class="res-status-badge">CONFIRMED</div>
+    </div>
     <div class="ticket-card detail-mode">
       <div class="ticket-info">
         <div class="t-date">${liveData.date}</div>
@@ -94,13 +113,12 @@ async function loadTicketInfo(ticketId) {
     html += `<li class="guest-item" style="color:#888;">同伴者の登録はありません</li>`;
   }
 
-  html += `
-      </ul>
-      <p style="margin-top:25px; font-size:0.8rem; color:#888; text-align:center;">
-        当日はこの画面を会場受付にてご提示ください。
-      </p>
-    </div>
-  `;
-
   container.html(html);
+
+  // バックリンク
+  $('.page-actions').html(
+    fromPage === 'mypage'
+      ? `<a href="../mypage/mypage.html" class="btn-back-home"> ← My Pageに戻る </a>`
+      : `<a href="../home/home.html" class="btn-back-home"> ← Homeに戻る </a>`,
+  );
 }
