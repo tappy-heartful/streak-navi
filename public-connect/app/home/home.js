@@ -165,55 +165,46 @@ async function renderMembers() {
       name: 'Shoei Matsushita',
       role: 'Guitar / Band Master',
       origin: 'Ehime',
-      img: 'member1.jpg',
     },
     {
       name: 'Miku Nozoe',
       role: 'Trumpet / Lead Trumpet',
       origin: 'Ehime',
-      img: 'member2.jpg',
     },
     {
       name: 'Takumi Fujimoto',
       role: 'Saxophne / Lead Alto Sax',
       origin: 'Hiroshima',
-      img: 'member6.jpg',
     },
     {
       name: 'Kana Asahiro',
       role: 'Trombone / Lead Trombone',
       origin: 'Osaka',
-      img: 'member4.jpg',
     },
     {
       name: 'Hiroto Murakami',
       role: 'Trombone / Section Leader',
       origin: 'Ehime',
-      img: 'member3.jpg',
     },
     {
       name: 'Taisei Yuyama',
       role: 'Saxophne / Lead Tenor Sax',
       origin: 'Ehime',
-      img: 'member7.jpg',
     },
     {
       name: 'Shunta Yabu',
       role: 'Saxophne / Section Leader',
       origin: 'Hiroshima',
-      img: 'member5.jpg',
     },
     {
       name: 'Akito Kimura',
       role: 'Drums',
       origin: 'Okayama',
-      img: 'member8.jpg',
     },
     {
       name: 'Yojiro Nakagawa',
       role: 'Bass',
       origin: 'Hiroshima',
-      img: 'member9.jpg',
     },
   ];
 
@@ -222,7 +213,7 @@ async function renderMembers() {
     $grid.append(`
       <div class="member-card">
         <div class="member-img-wrapper">
-          <img src="https://tappy-heartful.github.io/streak-connect-images/members/${m.img}" alt="${m.name}" class="member-img">
+          <img src="https://tappy-heartful.github.io/streak-connect-images/members/${m.name}.jpg" alt="${m.name}" class="member-img">
         </div>
         <div class="member-info-content">
           <div class="member-role">${m.role}</div>
