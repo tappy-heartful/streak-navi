@@ -78,7 +78,7 @@ async function loadTickets() {
     // 詳細ボタン（共通パーツ）
     const detailBtnHtml = `
       <button class="btn-detail" onclick="handleLiveDetail('${liveId}')">
-        <i class="fa-solid fa-circle-info"></i> 詳細
+        <i class="fa-solid fa-circle-info"></i> 詳細 / VIEW INFO
       </button>
     `;
 
@@ -89,8 +89,8 @@ async function loadTickets() {
         actionButtons = `
           <div class="reserved-actions">
             ${detailBtnHtml}
-            <button class="btn-reserve" onclick="handleReserve('${liveId}')">変更</button>
-            <button class="btn-reserve btn-delete" onclick="handleDeleteTicket('${liveId}')">取消</button>
+            <button class="btn-reserve" onclick="handleReserve('${liveId}')">変更 / CHANGE RESERVE</button>
+            <button class="btn-reserve btn-delete" onclick="handleDeleteTicket('${liveId}')">取消 / CANCEL</button>
           </div>
         `;
       } else {
