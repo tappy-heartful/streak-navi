@@ -144,13 +144,6 @@ async function loadTicketInfo(ticketId, fromPage) {
   }
 
   container.html(html);
-
-  // バックリンク
-  $('.page-actions').html(
-    fromPage === 'mypage'
-      ? `<a href="../mypage/mypage.html" class="btn-back-home"> ← My Pageに戻る </a>`
-      : `<a href="../home/home.html" class="btn-back-home"> ← Homeに戻る </a>`,
-  );
 }
 
 /**
