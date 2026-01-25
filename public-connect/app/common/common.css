@@ -93,7 +93,7 @@ body {
 /* コンテンツセクション */
 .content-section {
     background-color: #000; /* 黒背景 */
-    padding: 60px 20px;
+    padding: 60px 20px 10px 20px;
 }
 
 .section-title {
