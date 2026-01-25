@@ -88,7 +88,7 @@ async function loadTicketInfo(ticketId) {
       <span class="res-no-label">RESERVATION NO.</span>
       <div class="res-no-display">
         <span class="res-no-value">${resData.reservationNo || '----'}</span>
-        <button class="btn-copy-no" onclick="handleCopyTicketUrl('${resData.resType}')" title="予約番号をコピー">
+        <button class="btn-copy-no" onclick="handleCopyTicketUrl('${resData.resType}')" title="チケットリンクをコピー">
           <i class="fa-solid fa-copy"></i>
         </button>
       </div>
