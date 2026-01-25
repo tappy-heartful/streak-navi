@@ -11,12 +11,16 @@ $(document).ready(async function () {
 
     const urlParams = new URLSearchParams(window.location.search);
     currentLiveId = urlParams.get('liveId');
+    const fromPage = urlParams.get('fromPage');
 
     if (!currentLiveId) {
       await utils.showDialog('ライブIDが見つかりません。', true);
       window.location.href = '../home/home.html';
       return;
     }
+
+    // パンくずリスト設定
+    utils.renderBreadcrumb($('#breadcrumb'), fromPage, 'Ticket Reserve');
 
     // streak-navi（usersコレクション）に存在するかチェック
     const uid = utils.getSession('uid');
@@ -76,6 +80,8 @@ async function loadLiveDetail() {
   const liveRef = utils.doc(utils.db, 'lives', currentLiveId);
   const liveSnap = await utils.getWrapDoc(liveRef);
 
+  const liveDetailUrl = `../live-detail/live-detail.html?liveId=${currentLiveId}&fromPage=ticketReserve`;
+
   if (!liveSnap.exists()) {
     container.html('<p class="no-data">ライブ情報が見つかりませんでした。</p>');
     return;
@@ -88,11 +94,13 @@ async function loadLiveDetail() {
     <div class="ticket-card detail-mode">
       <div class="ticket-info">
         <div class="t-date">${data.date}</div>
-        <h3 class="t-title">${data.title}</h3>
+          <a href="${liveDetailUrl}" class="t-title-link">
+            <h3 class="t-title">${data.title}</h3>
+          </a>
         <div class="t-details">
           <p><i class="fa-solid fa-location-dot"></i> ${data.venue}</p>
           <p><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</p>
-          <p><i class="fa-solid fa-ticket"></i>${data.advance}</p>
+          <p><i class="fa-solid fa-ticket"></i>前売：${data.advance}</p>
         </div>
       </div>
     </div>
@@ -163,7 +171,6 @@ async function fetchExistingTicket() {
     $('#representativeName').val(utils.getSession('displayName') || '');
   }
 }
-
 /**
  * フォーム送信処理（トランザクション実装）
  */
@@ -192,8 +199,6 @@ $('#reserve-form').on('submit', async function (e) {
     });
 
     // 予約合計人数の計算
-    // 一般予約: 代表者(1) + 同伴者数
-    // 招待予約: 同伴者（招待客）数のみ（※仕様に合わせて調整。自分を含めるなら+1してください）
     const newTotalCount =
       resType === 'invite' ? companions.length : companions.length + 1;
 
@@ -215,8 +220,6 @@ $('#reserve-form').on('submit', async function (e) {
 
       const liveData = liveSnap.data();
 
-      // --- 追加機能: 受付期間のチェック (任意) ---
-
       // 日本時間(Asia/Tokyo)で yyyy.mm.dd 形式を取得
       const nowStr = utils.format(new Date(), 'yyyy.MM.dd');
 
@@ -231,9 +234,8 @@ $('#reserve-form').on('submit', async function (e) {
 
       // 在庫管理用変数の取得
       const ticketStock = liveData.ticketStock || 0;
-      const currentTotalSold = liveData.totalReserved || 0; // すでに予約済みの総数
+      const currentTotalSold = liveData.totalReserved || 0;
 
-      // 今回の更新による増分を計算 (新規なら oldResCount は 0)
       const oldResCount = oldResSnap.exists()
         ? oldResSnap.data().totalCount || 0
         : 0;
@@ -247,12 +249,23 @@ $('#reserve-form').on('submit', async function (e) {
         );
       }
 
-      // 1. 予約データの作成/更新
+      // --- 1. 予約番号の生成 ---
+      // 新規の場合は生成、更新の場合は既存の番号を維持
+      let reservationNo;
+      if (!oldResSnap.exists()) {
+        // 数字のみ4桁のランダムな文字列を生成 (0000〜9999)
+        reservationNo = Math.floor(1000 + Math.random() * 9000).toString();
+      } else {
+        reservationNo = oldResSnap.data().reservationNo;
+      }
+
+      // 2. 予約データの構築
       const ticketData = {
         liveId: currentLiveId,
         uid: uid,
         resType: resType,
         representativeName: representativeName,
+        reservationNo: reservationNo, // 予約番号を追加
         companions: companions,
         companionCount: companions.length,
         totalCount: newTotalCount,
@@ -266,7 +279,7 @@ $('#reserve-form').on('submit', async function (e) {
         transaction.update(resRef, ticketData); // 更新
       }
 
-      // 2. ライブ側の総予約数を更新
+      // 3. ライブ側の総予約数を更新
       transaction.update(liveRef, {
         totalReserved: currentTotalSold + diff,
       });
@@ -274,11 +287,11 @@ $('#reserve-form').on('submit', async function (e) {
 
     utils.hideSpinner();
     await utils.showDialog('予約を確定しました！', true);
-    window.location.href = '../mypage/mypage.html';
+    window.location.href =
+      '../ticket-detail/ticket-detail.html?ticketId=' + ticketId;
   } catch (err) {
     console.error('Transaction failed: ', err);
     utils.hideSpinner();
-    // カスタムダイアログでエラーメッセージを表示
     await utils.showDialog(err.message, true);
   }
 });

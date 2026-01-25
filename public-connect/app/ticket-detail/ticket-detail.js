@@ -3,16 +3,20 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   try {
     // ログイン不要で表示
-    await utils.initDisplay(false);
+    await utils.initDisplay();
 
     const urlParams = new URLSearchParams(window.location.search);
+    const fromPage = urlParams.get('fromPage');
     const ticketId = urlParams.get('ticketId');
 
     if (!ticketId) {
       throw new Error('有効なチケットIDが見つかりません。');
     }
 
-    await loadTicketInfo(ticketId);
+    // パンくずリスト設定
+    utils.renderBreadcrumb($('#breadcrumb'), fromPage, 'Ticket Info');
+
+    await loadTicketInfo(ticketId, fromPage);
 
     // Hero画像
     $('.hero').css(
@@ -29,8 +33,13 @@ $(document).ready(async function () {
 /**
  * 予約情報の取得と表示
  */
-async function loadTicketInfo(ticketId) {
+async function loadTicketInfo(ticketId, fromPage) {
   const container = $('#ticket-content-area');
+  const actionArea = $('.live-actions');
+  container.empty();
+  actionArea.empty();
+
+  const currentUid = utils.getSession('uid');
 
   // 1. 予約データの取得
   const resRef = utils.doc(utils.db, 'tickets', ticketId);
@@ -59,15 +68,34 @@ async function loadTicketInfo(ticketId) {
     : 'GENERAL RESERVATION (一般予約)';
   const repLabel = isInvite ? '予約担当' : '代表者様';
   const guestLabel = isInvite ? 'ご招待' : '同伴者様';
+  const liveDetailUrl = `../live-detail/live-detail.html?liveId=${resData.liveId}&fromPage=ticketDetail`;
 
   let html = `
-    <div class="res-status-badge">CONFIRMED</div>
+    <p style="margin-top:25px; font-size:0.8rem; color:#888; text-align:center;">
+      ${
+        isInvite && currentUid && resData.uid === currentUid
+          ? 'ご招待する人にこのページを共有してください。'
+          : '当日はこの画面を会場受付にてご提示ください。'
+      }
+    </p>
+
     <div class="ticket-card detail-mode">
+      <div class="res-no-wrapper">
+        <span class="res-no-label">RESERVATION NO.</span>
+        <span class="res-no-value">${resData.reservationNo || '----'}</span>
+      </div>
+
       <div class="ticket-info">
         <div class="t-date">${liveData.date}</div>
-        <h3 class="t-title">${liveData.title}</h3>
+        <a href="${liveDetailUrl}" class="t-title-link">
+            <h3 class="t-title">${liveData.title}</h3>
+          </a>
         <div class="t-details">
-          <p><i class="fa-solid fa-location-dot"></i> 会場: ${liveData.venue}</p>
+          <p>
+            <i class="fa-solid fa-location-dot"></i> 会場: ${liveData.venue}
+            <a href="${liveData.venueGoogleMap}" target="_blank"><i class="fa-solid fa-map-location-dot"></i> Map</a>
+            <a href="${liveData.venueUrl}" target="_blank"><i class="fa-solid fa-house"></i> HP</a>
+          </p>
           <p><i class="fa-solid fa-clock"></i> Open ${liveData.open} / Start ${liveData.start}</p>
           <p><i class="fa-solid fa-ticket"></i> 前売料金:${liveData.advance}</p>
         </div>
@@ -80,6 +108,7 @@ async function loadTicketInfo(ticketId) {
       
       <div class="t-details">
         <p><i class="fa-solid fa-user-check"></i> ${repLabel}: ${resData.representativeName} 様</p>
+        <p><i class="fa-solid fa-users"></i> 合計人数: ${resData.totalCount} 名</p>
       </div>
 
       <h3 class="sub-title">${guestLabel}</h3>
@@ -94,13 +123,52 @@ async function loadTicketInfo(ticketId) {
     html += `<li class="guest-item" style="color:#888;">同伴者の登録はありません</li>`;
   }
 
-  html += `
-      </ul>
-      <p style="margin-top:25px; font-size:0.8rem; color:#888; text-align:center;">
-        当日はこの画面を会場受付にてご提示ください。
-      </p>
-    </div>
-  `;
+  html += `</ul></div>`;
+
+  // 4. ログインユーザー本人の場合のアクション
+  if (currentUid && resData.uid === currentUid) {
+    let btnHtml = `
+      <div class="reserved-actions">
+        <a href="../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}" class="btn-action btn-reserve-red">
+          <i class="fa-solid fa-pen-to-square"></i> 予約を変更
+        </a>
+        <button class="btn-action btn-delete-outline" onclick="handleDeleteTicket('${resData.liveId}')">
+          <i class="fa-solid fa-trash-can"></i> 予約を取り消す
+        </button>
+        <button class="btn-action btn-copy-outline" onclick="handleCopyTicketUrl('${resData.resType}')">
+          <i class="fa-solid fa-solid fa-copy"></i> チケットURLをコピー
+        </button>
+      </div>
+    `;
+    actionArea.html(btnHtml);
+  }
 
   container.html(html);
 }
+
+/**
+ * チケット取り消し処理
+ */
+window.handleDeleteTicket = async function (liveId) {
+  if (await utils.deleteTicket(liveId)) location.href = '../mypage/mypage.html';
+};
+
+/**
+ * チケットURLをクリップボードにコピー
+ */
+window.handleCopyTicketUrl = async function (resType) {
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+
+    // 予約種別によってメッセージを出し分け
+    const message =
+      resType === 'invite'
+        ? 'チケットURLをコピーしました。\nご招待する人に共有してください。'
+        : 'チケットURLをコピーしました。\n同伴者様に共有してください。';
+
+    await utils.showDialog(message, true);
+  } catch (err) {
+    console.error('Copy failed:', err);
+    alert('URLのコピーに失敗しました。');
+  }
+};

@@ -297,39 +297,63 @@ export async function initDisplay(
   });
 }
 
-// パンくずリスト取得
-export function renderBreadcrumb(crumbs) {
-  if (!crumbs || !crumbs.length) return;
+/**
+ * パンくずリストを動的に生成して描画する
+ * @param {jQuery} breadcrumb - パンくずリストを挿入する親要素のjQueryオブジェクト
+ * @param {string} fromPage - 遷移元のページ識別子（ディレクトリ名など）
+ * @param {string} currentPage - 現在のページの表示名
+ */
+export function renderBreadcrumb(
+  breadcrumb,
+  fromPage,
+  currentPage,
+  dataId = '',
+) {
+  if (!breadcrumb) return;
+  breadcrumb.empty();
 
-  const $container = $('#breadcrumb-container');
-  if ($container.length === 0) return;
+  // ページ識別子に対応するURLと表示名のマップ(homeはすでに描画済み)
+  let pageConfig = {
+    mypage: {
+      url: '../mypage/mypage.html',
+      label: 'My Page',
+    },
+    ticketDetail: {
+      url: '../ticket-detail/ticket-detail.html?ticketId=' + dataId,
+      label: 'Ticket Info',
+    },
+    ticketReserve: {
+      url: '../ticket-reserve/ticket-reserve.html?ticketId=' + dataId,
+      label: 'Ticket Reservation',
+    },
+    liveDetail: {
+      url: '../live-detail/live-detail.html?liveId=' + dataId,
+      label: 'Live Info',
+    },
+  };
 
-  $container.empty();
+  //TODO削除 とりあえずhomeのみで対応
+  pageConfig = {};
 
-  // <nav class="breadcrumb"> でラップ
-  const $nav = $('<nav class="breadcrumb"></nav>');
+  // 1. Homeは常に固定
+  let html = `<a href="../home/home.html">Home</a>`;
 
-  // 先頭にはホーム
-  $nav.append(
-    `<a href="../home/home.html"><i class="fa fa-home"></i> ホーム</a>`,
-  );
+  // 2. fromPageが指定されており、かつ設定が存在する場合に中間パスを追加
+  if (fromPage && pageConfig[fromPage]) {
+    const config = pageConfig[fromPage];
+    html += `
+      <span class="separator">&gt;</span>
+      <a href="${config.url}">${config.label}</a>
+    `;
+  }
 
-  crumbs.forEach((c, idx) => {
-    // セパレーター
-    $nav.append('<span class="separator">›</span>');
+  // 3. 現在のページ名を追加
+  html += `
+    <span class="separator">&gt;</span>
+    <span class="current">${currentPage}</span>
+  `;
 
-    const isLast = idx === crumbs.length - 1;
-
-    if (isLast) {
-      // 現在ページ
-      $nav.append(`<span class="current">${c.title}</span>`);
-    } else {
-      // 中間リンク
-      $nav.append(`<a href="${c.url}">${c.title}</a>`);
-    }
-  });
-
-  $container.append($nav);
+  breadcrumb.append(html);
 }
 
 // スピナー表示処理
@@ -874,13 +898,13 @@ export async function getWrapDoc(ref) {
 export async function archiveAndDeleteDoc(collectionName, docId) {
   // 1. 削除対象ドキュメント参照の構築
   const docRef = doc(db, collectionName, docId);
-  // const docRef = utils.doc(utils.db, collectionName, docId); // utilsがFirestore関数をラップしている場合
+  // const docRef = doc(db, collectionName, docId); // utilsがFirestore関数をラップしている場合
 
   // 2. バッチ処理の開始
-  const batch = writeBatch(db); // utils.writeBatchではなく、直接FirestoreのwriteBatchを使用すると仮定
+  const batch = writeBatch(db); // writeBatchではなく、直接FirestoreのwriteBatchを使用すると仮定
 
   // 3. 元ドキュメントのデータを取得
-  const docSnap = await getDoc(docRef); // utils.getDocではなく、直接getDocを使用すると仮定
+  const docSnap = await getDoc(docRef); // getDocではなく、直接getDocを使用すると仮定
 
   if (!docSnap.exists()) {
     console.warn(
@@ -916,30 +940,70 @@ export async function archiveAndDeleteDoc(collectionName, docId) {
   await batch.commit();
 }
 
-export async function compressImage(file) {
-  return new Promise((resolve) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const img = new Image();
-      img.onload = () => {
-        const canvas = document.createElement('canvas');
-        let width = img.width;
-        let height = img.height;
-        const max = 1000;
-        if (width > height && width > max) {
-          height *= max / width;
-          width = max;
-        } else if (height > max) {
-          width *= max / height;
-          height = max;
-        }
-        canvas.width = width;
-        canvas.height = height;
-        canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-        canvas.toBlob((blob) => resolve(blob), 'image/jpeg', 0.7);
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
+/**
+ * チケット削除処理
+ * トランザクションを使用して、lives側の在庫(totalReserved)を正確に差し引きます。
+ */
+export async function deleteTicket(liveId) {
+  const uid = getSession('uid');
+  if (!uid || !liveId) return false;
+
+  // 1. ユーザーへの最終確認
+  if (
+    !(await showDialog(
+      'この予約を取り消しますか？\n（この操作は元に戻せません）',
+    ))
+  ) {
+    return false;
+  }
+
+  try {
+    showSpinner();
+    const ticketId = `${liveId}_${uid}`;
+
+    // 2. トランザクション開始
+    await runTransaction(db, async (transaction) => {
+      const liveRef = doc(db, 'lives', liveId);
+      const resRef = doc(db, 'tickets', ticketId);
+
+      // データの取得
+      const liveSnap = await transaction.get(liveRef);
+      const resSnap = await transaction.get(resRef);
+
+      if (!resSnap.exists()) {
+        throw new Error('予約データが見つかりませんでした。');
+      }
+
+      const ticketData = resSnap.data();
+      const cancelCount = ticketData.totalCount || 0; // 返却する人数
+
+      // 3. 在庫の差し戻し（ライブドキュメントが存在する場合）
+      if (liveSnap.exists()) {
+        const currentTotalReserved = liveSnap.data().totalReserved || 0;
+        // 計算結果がマイナスにならないようガード
+        const newTotalReserved = Math.max(
+          0,
+          currentTotalReserved - cancelCount,
+        );
+
+        transaction.update(liveRef, {
+          totalReserved: newTotalReserved,
+        });
+      }
+
+      // 4. チケットの削除
+      transaction.delete(resRef);
+    });
+
+    hideSpinner();
+    await showDialog('予約を取り消しました', true);
+    return true;
+  } catch (e) {
+    console.error('Delete Ticket Error:', e);
+    hideSpinner();
+    await showDialog('取り消しに失敗しました: ' + e.message, true);
+    return false;
+  } finally {
+    hideSpinner();
+  }
 }

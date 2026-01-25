@@ -1,9 +1,31 @@
+/* --- 予約番号の表示スタイル --- */
+.res-no-wrapper {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+.res-no-label {
+    font-size: 0.7rem;
+    color: #888;
+    display: block;
+    margin-bottom: 2px;
+}
+
+.res-no-value {
+    font-family: 'Courier New', Courier, monospace; /* 等幅で誤読防止 */
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #e7211a;
+    letter-spacing: 2px;
+}
+
 /* ライブ詳細カードの調整 */
 .ticket-card.detail-mode {
     background: #1a1a1a;
     padding: 20px;
     border-left: 5px solid #e7211a;
     margin-bottom: 30px;
+    position: relative; /* 番号配置用 */
 }
 
 .sub-title {
@@ -27,6 +49,17 @@
     text-align: center;
 }
 
+.t-details a {
+    color: #e7211a;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-left: 5px;
+}
+
+.t-details a:hover {
+    text-decoration: underline;
+}
+
 /* 共有用画面専用スタイル */
 .share-info-wrapper {
     margin-top: 20px;
@@ -34,6 +67,11 @@
     padding: 30px;
     border: 1px solid #222;
     border-radius: 8px;
+}
+
+.res-status-badge-wrapper {
+    text-align: center;
+    margin: 10px 0 10px;
 }
 
 .res-status-badge {
@@ -62,12 +100,6 @@
 
 .guest-item:last-child {
     border-bottom: none;
-}
-
-.t-price span {
-    color: #e7211a;
-    font-weight: bold;
-    font-size: 1.2rem;
 }
 
 .loading-text {

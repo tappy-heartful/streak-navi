@@ -93,7 +93,7 @@ body {
 /* コンテンツセクション */
 .content-section {
     background-color: #000; /* 黒背景 */
-    padding: 60px 20px;
+    padding: 60px 20px 10px 20px;
 }
 
 .section-title {
@@ -143,6 +143,103 @@ body {
     .breadcrumb {
         margin-bottom: 1.5rem;
         padding-left: 5px;
+    }
+}
+
+/* タイトルリンク設定 */
+.t-title-link {
+    color: inherit;
+    display: block;
+}
+
+.t-title-link:hover .t-title {
+    color: #e7211a;
+    transition: 0.2s;
+}
+
+
+/* 基本のボタン構造 */
+/* --- アクションエリア共通 --- */
+.live-actions {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.btn-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 50px;
+    transition: 0.3s;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+/* 1. 予約ボタン (赤) */
+.btn-reserve-red {
+    background: #e7211a;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(231, 33, 26, 0.4);
+}
+
+/* 2. チケット表示ボタン (白) */
+.btn-view-white {
+    background: #fff;
+    color: #000;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+/* 3. 取り消しボタン (枠線) */
+.btn-delete-outline {
+    background: transparent;
+    border: 2px solid #e7211a;
+    color: #e7211a;
+}
+.btn-delete-outline:hover {
+    background: rgba(231, 33, 26, 0.1);
+}
+
+/* 4.リンクボタン (透明) */
+
+/* 詳細/コピー (btn-copy-outline): 白枠・透過 */
+.btn-copy-outline {
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+}
+.btn-copy-outline:hover {
+    background: #fff;
+    color: #000;
+}
+
+/* 予約済みアクションの並び調整 */
+.reserved-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+@media (min-width: 768px) {
+    /* PCでは 変更・削除 を横並びに、チケット表示を大きく */
+    .reserved-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+    }
+    .btn-view-white {
+        grid-column: span 2; /* チケットボタンを一番目立たせる */
     }
 }
 

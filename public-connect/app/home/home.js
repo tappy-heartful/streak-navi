@@ -54,8 +54,9 @@ async function loadTickets() {
   }
 
   upcomingContainer.empty();
-  const now = new Date();
-  const todayStr = `${now.getFullYear()}.${String(now.getMonth() + 1).padStart(2, '0')}.${String(now.getDate()).padStart(2, '0')}`;
+
+  // 日本時間での今日の日付取得
+  const todayStr = utils.format(new Date(), 'yyyy.MM.dd');
 
   // ログイン中なら予約済みリストを取得
   let myTickets = [];
@@ -74,34 +75,52 @@ async function loadTickets() {
     const isPast = data.date < todayStr;
     const isReserved = myTickets.includes(liveId);
 
-    // ボタン部分の動的生成
+    // 詳細ボタン（共通パーツ）
+    const detailBtnHtml = `
+      <button class="btn-detail" onclick="handleLiveDetail('${liveId}')">
+        <i class="fa-solid fa-circle-info"></i> 詳細 / VIEW INFO
+      </button>
+    `;
+
+    // ボタン部分の生成
     let actionButtons = '';
     if (!isPast) {
       if (isReserved) {
         actionButtons = `
           <div class="reserved-actions">
-            <button class="btn-reserve" onclick="handleReserve('${liveId}')">予約を変更</button>
-            <button class="btn-reserve btn-delete" onclick="handleDeleteTicket('${liveId}')">予約を取り消す</button>
+            ${detailBtnHtml}
+            <button class="btn-reserve" onclick="handleReserve('${liveId}')">予約変更 / CHANGE RESERVE</button>
+            <button class="btn-reserve btn-delete" onclick="handleDeleteTicket('${liveId}')">予約取消 / CANCEL</button>
           </div>
         `;
       } else {
-        actionButtons = `<button class="btn-reserve" onclick="handleReserve('${liveId}')">予約する / RESERVE</button>`;
+        actionButtons = `
+          <div class="reserved-actions">
+            ${detailBtnHtml}
+            <button class="btn-reserve" onclick="handleReserve('${liveId}')">予約 / RESERVE</button>
+          </div>
+        `;
       }
     }
+    const liveDetailUrl = `../live-detail/live-detail.html?liveId=${liveId}&fromPage=home`;
 
     const cardHtml = `
       <div class="ticket-card" data-id="${liveId}">
-        <div class="ticket-img-wrapper">
+        <div class="ticket-img-wrapper" onclick="handleLiveDetail('${liveId}')">
+          <div class="img-overlay"><i class="fa-solid fa-magnifying-glass"></i></div>
           <img src="${data.flyerUrl || 'https://tappy-heartful.github.io/streak-connect-images/favicon.png'}" class="ticket-img" alt="flyer">
         </div>
+        
         <div class="ticket-info">
           <div class="t-date">${isReserved ? '<span class="reserved-label">予約済み</span> ' : ''}${data.date}</div>
-          <h3 class="t-title">${data.title}</h3>
+          <a href="${liveDetailUrl}" class="t-title-link">
+            <h3 class="t-title">${data.title}</h3>
+          </a>
           <div class="t-details">
             <div><i class="fa-solid fa-location-dot"></i> ${data.venue}</div>
             <div><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</div>
-            <div><i class="fa-solid fa-ticket"></i>前売：${data.advance}</div>
-            <div><i class="fa-solid fa-ticket"></i>当日：${data.door}</div>
+            <div><i class="fa-solid fa-ticket"></i> 前売：${data.advance}</div>
+            <div><i class="fa-solid fa-ticket"></i> 当日：${data.door}</div>
           </div>
           ${actionButtons}
         </div>
@@ -112,40 +131,29 @@ async function loadTickets() {
   });
 }
 
-// 予約変更（既存の予約画面へ）
+/**
+ * ライブ詳細ページへ遷移
+ */
+window.handleLiveDetail = function (liveId) {
+  location.href = `../live-detail/live-detail.html?liveId=${liveId}&fromPage=home`;
+};
+
+/**
+ * 予約画面へ遷移
+ */
+window.handleReserve = function (liveId) {
+  location.href = `../ticket-reserve/ticket-reserve.html?liveId=${liveId}`;
+};
+
+// 予約画面へ
 window.handleReserve = function (liveId) {
   location.href = `../ticket-reserve/ticket-reserve.html?liveId=${liveId}`;
 };
 
 // 予約取り消し（削除機能）
 window.handleDeleteTicket = async function (liveId) {
-  const uid = utils.getSession('uid');
-  if (!uid) return;
-
-  if (!(await utils.showDialog('予約を取り消してもよろしいですか？'))) return;
-
-  try {
-    utils.showSpinner();
-    // liveId と uid が一致するドキュメントを探す
-    const q = utils.query(
-      utils.collection(utils.db, 'tickets'),
-      utils.where('liveId', '==', liveId),
-      utils.where('uid', '==', uid),
-    );
-
-    const snap = await utils.getWrapDocs(q);
-    const deletePromises = snap.docs.map((doc) => utils.deleteDoc(doc.ref));
-    await Promise.all(deletePromises);
-
-    utils.hideSpinner();
-    await utils.showDialog('予約を取り消しました。', true);
-    await loadTickets(); // 表示を更新
-  } catch (e) {
-    alert('エラーが発生しました。');
-    console.error(e);
-  } finally {
-    utils.hideSpinner();
-  }
+  // 削除機能は共通
+  if (await utils.deleteTicket(liveId)) await loadTickets(); // 表示を更新
 };
 
 /**

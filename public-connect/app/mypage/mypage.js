@@ -35,7 +35,6 @@ window.handleCopyTicketUrl = async function (resType, url) {
   try {
     await navigator.clipboard.writeText(url);
 
-    // 予約種別によってメッセージを出し分け
     const message =
       resType === 'invite'
         ? 'チケットURLをコピーしました。\nご招待する人に共有してください。'
@@ -70,29 +69,7 @@ window.handleLogout = async function () {
  * 予約取り消し処理
  */
 window.handleDeleteTicket = async function (liveId) {
-  if (
-    !(await utils.showDialog(
-      'この予約を取り消しますか？\n（この操作は元に戻せません）',
-    ))
-  )
-    return;
-
-  try {
-    utils.showSpinner();
-    const uid = utils.getSession('uid');
-    const ticketId = `${liveId}_${uid}`;
-
-    await utils.archiveAndDeleteDoc('tickets', ticketId);
-
-    utils.hideSpinner();
-    await utils.showDialog('予約を取り消しました', true);
-    await loadMyTickets();
-  } catch (e) {
-    console.error(e);
-    alert('エラーが発生しました: ' + e.message);
-  } finally {
-    utils.hideSpinner();
-  }
+  if (await utils.deleteTicket(liveId)) await loadMyTickets();
 };
 
 /**
@@ -137,20 +114,25 @@ async function loadMyTickets() {
         : 'なし';
 
     const ticketId = resDoc.id;
-    const detailUrl = `${window.location.origin}/app/ticket-detail/ticket-detail.html?ticketId=${ticketId}`;
+    const ticketDetailUrl = `${window.location.origin}/app/ticket-detail/ticket-detail.html?ticketId=${ticketId}`;
+    const liveDetailUrl = `../live-detail/live-detail.html?liveId=${resData.liveId}&fromPage=mypage`;
 
     container.append(`
       <div class="ticket-card detail-mode">
-        <div class="t-status-badge">RESERVED</div>
+        <div class="card-status-area">
+          <div class="res-no-mini">NO. ${resData.reservationNo || '----'}</div>
+        </div>
+        
         <div class="ticket-info">
           <span class="res-type-label">${typeName}</span>
           <div class="t-date">${liveData.date}</div>
-          <h3 class="t-title" style="margin: 5px 0 15px;">${liveData.title}</h3>
+          <a href="${liveDetailUrl}" class="t-title-link">
+            <h3 class="t-title">${liveData.title}</h3>
+          </a>
           
           <div class="t-details">
             <p><i class="fa-solid fa-location-dot"></i> 会場: ${liveData.venue}</p>
             <p><i class="fa-solid fa-clock"></i> 開演: ${liveData.start} (開場 ${liveData.open})</p>
-            <p><i class="fa-solid fa-yen"></i> 前売: ${liveData.advance}</p>
             <p><i class="fa-solid fa-user"></i> ${repLabel}: ${resData.representativeName} 様</p>
             <p><i class="fa-solid fa-users"></i> ${companionLabel}: ${companionText}</p>
           </div>
@@ -162,10 +144,14 @@ async function loadMyTickets() {
             <button class="btn-delete" onclick="handleDeleteTicket('${resData.liveId}')">
               <i class="fa-solid fa-trash-can"></i> 取消
             </button>
-            <button class="btn-ticket" onclick="location.href='../ticket-detail/ticket-detail.html?ticketId=${ticketId}'">
-              <i class="fa-solid fa-ticket"></i> 表示
+          </div>
+          <div class="ticket-actions">
+            <button class="btn-ticket" onclick="location.href='${ticketDetailUrl}'">
+              <i class="fa-solid fa-ticket"></i> チケットを表示
             </button>
-            <button class="btn-view" onclick="handleCopyTicketUrl('${resData.resType}', '${detailUrl}')">
+          </div>
+          <div class="ticket-actions">
+            <button class="btn-view" onclick="handleCopyTicketUrl('${resData.resType}', '${ticketDetailUrl}')">
               <i class="fa-solid fa-copy"></i> チケットURLをコピー
             </button>
           </div>
