@@ -13,7 +13,7 @@
 
 .res-no-value {
     font-family: 'Courier New', Courier, monospace; /* 等幅で誤読防止 */
-    font-size: 1.5rem;
+    font-size: 35px;
     font-weight: bold;
     color: #e7211a;
     letter-spacing: 2px;
