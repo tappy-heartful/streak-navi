@@ -116,7 +116,8 @@ async function loadLiveDetail() {
     // 招待予約が初期値(invite)なので「招待するお客様〜」をデフォルトに
     const titleText = isMember ? '招待するお客様のお名前' : '同伴者様';
     companionContainer.append(
-      `<h3 class="sub-title companion-title">${titleText}</h3>`,
+      `<h3 class="sub-title companion-title">${titleText}</h3>
+      <p class="form-note" style="margin-bottom:20px;">※あだ名や間柄（「友人」「母」など）でも構いません</p>`, // 💡 ここに注釈を追加
     );
 
     for (let i = 1; i <= maxCompanions; i++) {

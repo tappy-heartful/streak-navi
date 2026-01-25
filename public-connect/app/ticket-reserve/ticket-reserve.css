@@ -36,6 +36,16 @@
     padding-left: 10px;
 }
 
+/* ticket-reserve.css に追加 */
+.form-note {
+    font-size: 0.85rem;
+    color: #888; /* 控えめなグレー */
+    margin: -5px 0 10px 0; /* ラベルとの間隔を詰め、入力欄との間を開ける */
+    line-height: 1.4;
+    font-weight: normal;
+}
+
+
 .form-group {
     margin-bottom: 20px;
 }
@@ -46,6 +56,12 @@
     color: #ccc;
     margin-bottom: 8px;
     font-size: 1.1rem; /* 大きくした */
+}
+
+/* ついでに、入力欄のプレースホルダーも少しあわくすると雰囲気がでます */
+.form-group input::placeholder {
+    color: #555;
+    font-size: 0.9rem;
 }
 
 /* 入力欄と「様」を横並びにするコンテナ */
