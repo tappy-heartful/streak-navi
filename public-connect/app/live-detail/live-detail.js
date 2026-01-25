@@ -6,119 +6,75 @@ $(document).ready(async function () {
     await utils.initDisplay();
 
     const urlParams = new URLSearchParams(window.location.search);
-    const fromPage = urlParams.get('fromPage');
-    const ticketId = urlParams.get('ticketId');
+    const liveId = urlParams.get('liveId');
 
-    if (!ticketId) {
-      throw new Error('有効なチケットIDが見つかりません。');
+    if (!liveId) {
+      throw new Error('ライブ情報が見つかりません。');
     }
 
-    // パンくずリスト設定
+    // パンくず
     const breadcrumb = $('#breadcrumb');
     breadcrumb.append(
       `<a href="../home/home.html">Home</a>
        <span class="separator">&gt;</span>
-       ${
-         fromPage === 'mypage'
-           ? `<a href="../mypage/mypage.html">My Page</a><span class="separator">&gt;</span>`
-           : ``
-       }
-       <span class="current">Ticket</span>`,
+       <span class="current">Live Detail</span>`,
     );
 
-    await loadTicketInfo(ticketId, fromPage);
+    await loadLiveInfo(liveId);
 
-    // Hero画像
+    // Hero画像（あれば）
     $('.hero').css(
       '--hero-bg',
-      'url("https://tappy-heartful.github.io/streak-connect-images/background/ticket-detail.jpg")',
+      'url("https://tappy-heartful.github.io/streak-connect-images/background/mypage.jpg")',
     );
   } catch (e) {
-    $('#ticket-content-area').html(`<p class="no-data">${e.message}</p>`);
+    $('#live-content-area').html(`<p class="no-data">${e.message}</p>`);
   } finally {
     utils.hideSpinner();
   }
 });
 
 /**
- * 予約情報の取得と表示
+ * ライブ詳細情報の表示
  */
-async function loadTicketInfo(ticketId, fromPage) {
-  const container = $('#ticket-content-area');
+async function loadLiveInfo(liveId) {
+  const container = $('#live-content-area');
 
-  // 1. 予約データの取得
-  const resRef = utils.doc(utils.db, 'tickets', ticketId);
-  const resSnap = await utils.getWrapDoc(resRef);
-
-  if (!resSnap.exists()) {
-    throw new Error('ご予約情報が見つかりませんでした。');
-  }
-
-  const resData = resSnap.data();
-
-  // 2. ライブデータの取得
-  const liveRef = utils.doc(utils.db, 'lives', resData.liveId);
+  // 1. ライブデータの取得
+  const liveRef = utils.doc(utils.db, 'lives', liveId);
   const liveSnap = await utils.getWrapDoc(liveRef);
 
   if (!liveSnap.exists()) {
-    throw new Error('ライブ情報が削除されたか、存在しません。');
+    throw new Error('指定されたライブは存在しないか、終了しました。');
   }
 
   const liveData = liveSnap.data();
 
-  // 3. UI構築
-  const isInvite = resData.resType === 'invite';
-  const typeLabel = isInvite
-    ? 'INVITATION (招待枠)'
-    : 'GENERAL RESERVATION (一般予約)';
-  const repLabel = isInvite ? '予約担当' : '代表者様';
-  const guestLabel = isInvite ? 'ご招待' : '同伴者様';
-
-  let html = `
-    <p style="margin-top:25px; font-size:0.8rem; color:#888; text-align:center;">
-      当日はこの画面を会場受付にてご提示ください。
-    </p>
-    <div class="res-status-badge-wrapper">
-     <div class="res-status-badge">CONFIRMED</div>
-    </div>
+  // 2. UI構築
+  const html = `
     <div class="ticket-card detail-mode">
       <div class="ticket-info">
         <div class="t-date">${liveData.date}</div>
         <h3 class="t-title">${liveData.title}</h3>
+        
         <div class="t-details">
-          <p><i class="fa-solid fa-location-dot"></i> 会場: ${liveData.venue}</p>
-          <p><i class="fa-solid fa-clock"></i> Open ${liveData.open} / Start ${liveData.start}</p>
-          <p><i class="fa-solid fa-ticket"></i> 前売料金:${liveData.advance}</p>
+          <p><i class="fa-solid fa-location-dot"></i> <span>会場: ${liveData.venue}</span></p>
+          <p><i class="fa-solid fa-clock"></i> <span>Open ${liveData.open} / Start ${liveData.start}</span></p>
+          <p><i class="fa-solid fa-yen-sign"></i> <span>前売: ${liveData.advance} / 当日: ${liveData.door || '未定'}</span></p>
         </div>
       </div>
     </div>
 
-    <div class="share-info-wrapper">
-      <p style="color:#888; font-size:0.8rem; margin-bottom:5px;">${typeLabel}</p>
-      <h3 class="sub-title" style="margin-top:0;">ご予約情報</h3>
-      
-      <div class="t-details">
-        <p><i class="fa-solid fa-user-check"></i> ${repLabel}: ${resData.representativeName} 様</p>
-      </div>
-
-      <h3 class="sub-title">${guestLabel}</h3>
-      <ul class="guest-list">
+    <h3 class="sub-title">DESCRIPTION</h3>
+    <div style="color:#ccc; line-height:1.8; margin-bottom:30px; white-space:pre-wrap;">${liveData.description || 'ライブの詳細情報は準備中です。'}</div>
   `;
-
-  if (resData.companions && resData.companions.length > 0) {
-    resData.companions.forEach((name) => {
-      html += `<li class="guest-item"><i class="fa-solid fa-user-tag" style="color:#e7211a; margin-right:10px;"></i> ${name} 様</li>`;
-    });
-  } else {
-    html += `<li class="guest-item" style="color:#888;">同伴者の登録はありません</li>`;
-  }
 
   container.html(html);
 
-  // バックリンク
-  $('.page-actions').html(
-    fromPage === 'mypage'
-      ? `<a href="../mypage/mypage.html" class="btn-back-home"> ← My Pageに戻る </a>`
-      : `<a href="../home/home.html" class="btn-back-home"> ← Homeに戻る </a>`,
-  );
+  // 予約アクションエリアを表示し、イベント登録
+  $('#reservation-action-area').show();
+  $('#btn-go-reserve').on('click', () => {
+    // 予約画面へ遷移（liveIdを渡す）
+    window.location.href = `../ticket-reserve/ticket-reserve.html?liveId=${liveId}`;
+  });
 }
