@@ -84,10 +84,15 @@ async function loadTicketInfo(ticketId) {
     </p>
 
     <div class="ticket-card detail-mode">
-      <div class="res-no-wrapper">
-        <span class="res-no-label">RESERVATION NO.</span>
+    <div class="res-no-wrapper">
+      <span class="res-no-label">RESERVATION NO.</span>
+      <div class="res-no-display">
         <span class="res-no-value">${resData.reservationNo || '----'}</span>
+        <button class="btn-copy-no" onclick="handleCopyTicketUrl('${resData.resType}')" title="予約番号をコピー">
+          <i class="fa-solid fa-copy"></i>
+        </button>
       </div>
+    </div>
 
       <div class="ticket-info">
         <div class="t-date">${liveData.date}</div>
