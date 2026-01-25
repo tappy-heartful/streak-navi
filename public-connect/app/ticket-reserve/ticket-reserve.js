@@ -96,7 +96,7 @@ async function loadLiveDetail() {
         <div class="t-details">
           <p><i class="fa-solid fa-location-dot"></i> ${data.venue}</p>
           <p><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</p>
-          <p><i class="fa-solid fa-ticket"></i>${data.advance}</p>
+          <p><i class="fa-solid fa-ticket"></i>前売：${data.advance}</p>
         </div>
       </div>
     </div>
