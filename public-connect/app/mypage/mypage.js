@@ -138,11 +138,8 @@ async function loadMyTickets() {
           </div>
           
           <div class="ticket-actions">
-            <button class="btn-edit" onclick="location.href='../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}&fromPage=mypage'">
-              <i class="fa-solid fa-pen-to-square"></i> 変更
-            </button>
-            <button class="btn-delete" onclick="handleDeleteTicket('${resData.liveId}')">
-              <i class="fa-solid fa-trash-can"></i> 取消
+            <button class="btn-view" onclick="handleCopyTicketUrl('${resData.resType}', '${ticketDetailUrl}')">
+              <i class="fa-solid fa-copy"></i> チケットURLをコピー
             </button>
           </div>
           <div class="ticket-actions">
@@ -151,8 +148,11 @@ async function loadMyTickets() {
             </button>
           </div>
           <div class="ticket-actions">
-            <button class="btn-view" onclick="handleCopyTicketUrl('${resData.resType}', '${ticketDetailUrl}')">
-              <i class="fa-solid fa-copy"></i> チケットURLをコピー
+            <button class="btn-edit" onclick="location.href='../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}&fromPage=mypage'">
+              <i class="fa-solid fa-pen-to-square"></i> 変更
+            </button>
+            <button class="btn-delete" onclick="handleDeleteTicket('${resData.liveId}')">
+              <i class="fa-solid fa-trash-can"></i> 取消
             </button>
           </div>
           <p class="note-text">${msgTarget}にチケットURLを共有してください</p>

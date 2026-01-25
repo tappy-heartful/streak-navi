@@ -11,12 +11,42 @@
     margin-bottom: 2px;
 }
 
+/* 番号とコピーボタンのレイアウト */
+.res-no-display {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px; /* 番号とアイコンの間隔 */
+}
+
 .res-no-value {
-    font-family: 'Courier New', Courier, monospace; /* 等幅で誤読防止 */
+    font-family: 'Courier New', Courier, monospace;
     font-size: 35px;
     font-weight: bold;
     color: #e7211a;
     letter-spacing: 2px;
+    margin-left: 30px; /* アイコンがある分、中央寄せを調整（アイコンの幅分） */
+}
+
+.btn-copy-no {
+    background: none;
+    border: none;
+    color: #888;
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 10px;
+    transition: 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.btn-copy-no:hover {
+    color: #fff;
+    transform: scale(1.1);
+}
+
+.btn-copy-no:active {
+    transform: scale(0.9);
 }
 
 /* ライブ詳細カードの調整 */
