@@ -81,7 +81,11 @@ async function loadTicketInfo(ticketId, fromPage) {
 
   let html = `
     <p style="margin-top:25px; font-size:0.8rem; color:#888; text-align:center;">
-      当日はこの画面を会場受付にてご提示ください。
+      ${
+        isInvite && currentUid && resData.uid === currentUid
+          ? 'ご招待する人にこのページを共有してください。'
+          : '当日はこの画面を会場受付にてご提示ください。'
+      }
     </p>
     <div class="res-status-badge-wrapper">
      <div class="res-status-badge">CONFIRMED</div>
