@@ -135,14 +135,14 @@ async function loadTicketInfo(ticketId, fromPage) {
   if (currentUid && resData.uid === currentUid) {
     let btnHtml = `
       <div class="reserved-actions">
-        <button class="btn-action btn-copy-outline" onclick="handleCopyTicketUrl('${resData.resType}')" style="grid-column: span 2; background: #fff; color: #000; border: none;">
-          <i class="fa-solid fa-share-nodes"></i> チケットのリンクを共有する
-        </button>
         <a href="../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}" class="btn-action btn-reserve-red">
           <i class="fa-solid fa-pen-to-square"></i> 予約を変更
         </a>
         <button class="btn-action btn-delete-outline" onclick="handleDeleteTicket('${resData.liveId}')">
           <i class="fa-solid fa-trash-can"></i> 予約を取り消す
+        </button>
+        <button class="btn-action btn-copy-outline" onclick="handleCopyTicketUrl('${resData.resType}')">
+          <i class="fa-solid fa-solid fa-copy"></i> チケットURLをコピー
         </button>
       </div>
     `;
