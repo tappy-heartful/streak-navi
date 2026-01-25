@@ -86,7 +86,13 @@ async function loadTicketInfo(ticketId, fromPage) {
     <div class="res-status-badge-wrapper">
      <div class="res-status-badge">CONFIRMED</div>
     </div>
+
     <div class="ticket-card detail-mode">
+      <div class="res-no-wrapper">
+        <span class="res-no-label">RESERVATION NO.</span>
+        <span class="res-no-value">${resData.reservationNo || '----'}</span>
+      </div>
+
       <div class="ticket-info">
         <div class="t-date">${liveData.date}</div>
         <h3 class="t-title">${liveData.title}</h3>
@@ -108,6 +114,7 @@ async function loadTicketInfo(ticketId, fromPage) {
       
       <div class="t-details">
         <p><i class="fa-solid fa-user-check"></i> ${repLabel}: ${resData.representativeName} 様</p>
+        <p><i class="fa-solid fa-users"></i> 合計人数: ${resData.totalCount} 名</p>
       </div>
 
       <h3 class="sub-title">${guestLabel}</h3>
@@ -124,18 +131,18 @@ async function loadTicketInfo(ticketId, fromPage) {
 
   html += `</ul></div>`;
 
-  // 4. ログインユーザーが予約者本人の場合、編集・取消ボタンを表示
+  // 4. ログインユーザー本人の場合のアクション
   if (currentUid && resData.uid === currentUid) {
     let btnHtml = `
       <div class="reserved-actions">
-        <a href="../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}" class="btn-action btn-reserve-red">
-          <i class="fa-solid fa-pen-to-square"></i> 予約内容を変更
-        </a>
-        <button class="btn-action btn-delete-outline" onclick="handleCancelTicket('${resData.liveId}')">
-          <i class="fa-solid fa-trash-can"></i> 予約を取り消す
+        <button class="btn-action btn-copy-outline" onclick="handleCopyTicketUrl('${resData.resType}')" style="grid-column: span 2; background: #fff; color: #000; border: none;">
+          <i class="fa-solid fa-share-nodes"></i> チケットのリンクを共有する
         </button>
-        <button class="btn-action btn-copy-outline" onclick="handleCopyTicketUrl('${resData.resType}')">
-          <i class="fa-solid fa-ticket"></i> チケットのリンクをコピー
+        <a href="../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}" class="btn-action btn-reserve-red">
+          <i class="fa-solid fa-pen-to-square"></i> 予約を変更
+        </a>
+        <button class="btn-action btn-delete-outline" onclick="handleDeleteTicket('${resData.liveId}')">
+          <i class="fa-solid fa-trash-can"></i> 予約を取り消す
         </button>
       </div>
     `;
