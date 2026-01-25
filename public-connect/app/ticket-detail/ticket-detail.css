@@ -27,26 +27,36 @@
     letter-spacing: 2px;
     margin-left: 30px; /* アイコンがある分、中央寄せを調整（アイコンの幅分） */
 }
-
 .btn-copy-no {
-    background: none;
+    background: #1a1a1a;
+    border-radius: 6px;
     border: none;
-    color: #888;
-    font-size: 1.2rem;
+    color: #e7211a; /* アイコンも赤に */
+    font-size: 1rem;
     cursor: pointer;
-    padding: 10px;
-    transition: 0.2s;
-    display: flex;
+    padding: 6px 10px;
+    transition: all 0.2s ease;
+    display: inline-flex;
     align-items: center;
+    justify-content: center;
+    margin-left: 12px;
+    vertical-align: middle;
+    /* ほんのり光らせて浮かび上がらせる */
+    box-shadow: 0 0 8px rgba(231, 33, 26, 0.2);
 }
 
+/* ホバー時：中身を赤く塗りつぶして反転させる */
 .btn-copy-no:hover {
     color: #fff;
-    transform: scale(1.1);
+    background: #e7211a;
+    box-shadow: 0 0 15px rgba(231, 33, 26, 0.5);
+    transform: scale(1.05); /* 少し大きくして強調 */
 }
 
+/* クリック時：グッと押し込む */
 .btn-copy-no:active {
-    transform: scale(0.9);
+    transform: scale(0.95);
+    box-shadow: none;
 }
 
 /* ライブ詳細カードの調整 */
