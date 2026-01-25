@@ -78,6 +78,7 @@ async function loadTicketInfo(ticketId, fromPage) {
     : 'GENERAL RESERVATION (一般予約)';
   const repLabel = isInvite ? '予約担当' : '代表者様';
   const guestLabel = isInvite ? 'ご招待' : '同伴者様';
+  const liveDetailUrl = `../live-detail/live-detail.html?liveId=${resData.liveId}&fromPage=ticketReserve`;
 
   let html = `
     <p style="margin-top:25px; font-size:0.8rem; color:#888; text-align:center;">
@@ -99,7 +100,9 @@ async function loadTicketInfo(ticketId, fromPage) {
 
       <div class="ticket-info">
         <div class="t-date">${liveData.date}</div>
-        <h3 class="t-title">${liveData.title}</h3>
+        <a href="${liveDetailUrl}" class="t-title-link">
+            <h3 class="t-title">${liveData.title}</h3>
+          </a>
         <div class="t-details">
           <p>
             <i class="fa-solid fa-location-dot"></i> 会場: ${liveData.venue}

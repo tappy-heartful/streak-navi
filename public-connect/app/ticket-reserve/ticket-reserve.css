@@ -15,17 +15,6 @@
     font-family: 'Impact', sans-serif;
 }
 
-/* タイトルリンク設定（下線排除） */
-.t-title-link {
-    color: inherit;
-    display: block;
-}
-
-.t-title-link:hover .t-title {
-    color: #e7211a;
-    transition: 0.2s;
-}
-
 .t-details p {
     margin: 8px 0;
     font-size: 0.95rem;

@@ -102,7 +102,7 @@ async function loadTickets() {
         `;
       }
     }
-    const internalDetailUrl = `../live-detail/live-detail.html?liveId=${liveId}&fromPage=home`;
+    const liveDetailUrl = `../live-detail/live-detail.html?liveId=${liveId}&fromPage=home`;
 
     const cardHtml = `
       <div class="ticket-card" data-id="${liveId}">
@@ -113,7 +113,7 @@ async function loadTickets() {
         
         <div class="ticket-info">
           <div class="t-date">${isReserved ? '<span class="reserved-label">予約済み</span> ' : ''}${data.date}</div>
-          <a href="${internalDetailUrl}" class="t-title-link">
+          <a href="${liveDetailUrl}" class="t-title-link">
             <h3 class="t-title">${data.title}</h3>
           </a>
           <div class="t-details">

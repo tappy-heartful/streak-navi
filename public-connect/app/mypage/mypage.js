@@ -114,8 +114,8 @@ async function loadMyTickets() {
         : 'なし';
 
     const ticketId = resDoc.id;
-    const detailUrl = `${window.location.origin}/app/ticket-detail/ticket-detail.html?ticketId=${ticketId}`;
-    const internalDetailUrl = `../live-detail/live-detail.html?liveId=${resData.liveId}&fromPage=mypage`;
+    const ticketDetailUrl = `${window.location.origin}/app/ticket-detail/ticket-detail.html?ticketId=${ticketId}`;
+    const liveDetailUrl = `../live-detail/live-detail.html?liveId=${resData.liveId}&fromPage=mypage`;
 
     container.append(`
       <div class="ticket-card detail-mode">
@@ -127,7 +127,7 @@ async function loadMyTickets() {
         <div class="ticket-info">
           <span class="res-type-label">${typeName}</span>
           <div class="t-date">${liveData.date}</div>
-          <a href="${internalDetailUrl}" class="t-title-link">
+          <a href="${liveDetailUrl}" class="t-title-link">
             <h3 class="t-title">${liveData.title}</h3>
           </a>
           
@@ -147,12 +147,12 @@ async function loadMyTickets() {
             </button>
           </div>
           <div class="ticket-actions">
-            <button class="btn-ticket" onclick="location.href='${internalDetailUrl}'">
+            <button class="btn-ticket" onclick="location.href='${ticketDetailUrl}'">
               <i class="fa-solid fa-ticket"></i> チケットを表示
             </button>
           </div>
           <div class="ticket-actions">
-            <button class="btn-view" onclick="handleCopyTicketUrl('${resData.resType}', '${detailUrl}')">
+            <button class="btn-view" onclick="handleCopyTicketUrl('${resData.resType}', '${ticketDetailUrl}')">
               <i class="fa-solid fa-copy"></i> チケットURLをコピー
             </button>
           </div>
