@@ -199,12 +199,6 @@
     color: #e7211a;
 }
 
-/* ボタン共通コンテナ */
-.reserved-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-}
 
 /* ボタン基本スタイル */
 .btn-reserve, .btn-detail {
