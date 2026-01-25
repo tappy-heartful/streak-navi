@@ -78,9 +78,6 @@ async function loadTicketInfo(ticketId, fromPage) {
           : '当日はこの画面を会場受付にてご提示ください。'
       }
     </p>
-    <div class="res-status-badge-wrapper">
-     <div class="res-status-badge">CONFIRMED</div>
-    </div>
 
     <div class="ticket-card detail-mode">
       <div class="res-no-wrapper">

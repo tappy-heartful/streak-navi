@@ -120,7 +120,6 @@ async function loadMyTickets() {
     container.append(`
       <div class="ticket-card detail-mode">
         <div class="card-status-area">
-          <div class="t-status-badge">RESERVED</div>
           <div class="res-no-mini">NO. ${resData.reservationNo || '----'}</div>
         </div>
         
