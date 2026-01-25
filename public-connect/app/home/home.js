@@ -169,27 +169,9 @@ async function renderMembers() {
     },
     {
       name: 'Miku Nozoe',
-      role: 'Trumpet / Section Leader',
+      role: 'Trumpet / Lead Trumpet',
       origin: 'Ehime',
       img: 'member2.jpg',
-    },
-    {
-      name: 'Hiroto Murakami',
-      role: 'Trombone / Section Leader',
-      origin: 'Ehime',
-      img: 'member3.jpg',
-    },
-    {
-      name: 'Kana Asahiro',
-      role: 'Trombone / Lead Trombone',
-      origin: 'Osaka',
-      img: 'member4.jpg',
-    },
-    {
-      name: 'Shunta Yabu',
-      role: 'Saxophne / Section Leader',
-      origin: 'Hiroshima',
-      img: 'member5.jpg',
     },
     {
       name: 'Takumi Fujimoto',
@@ -198,10 +180,28 @@ async function renderMembers() {
       img: 'member6.jpg',
     },
     {
+      name: 'Kana Asahiro',
+      role: 'Trombone / Lead Trombone',
+      origin: 'Osaka',
+      img: 'member4.jpg',
+    },
+    {
+      name: 'Hiroto Murakami',
+      role: 'Trombone / Section Leader',
+      origin: 'Ehime',
+      img: 'member3.jpg',
+    },
+    {
       name: 'Taisei Yuyama',
       role: 'Saxophne / Lead Tenor Sax',
       origin: 'Ehime',
       img: 'member7.jpg',
+    },
+    {
+      name: 'Shunta Yabu',
+      role: 'Saxophne / Section Leader',
+      origin: 'Hiroshima',
+      img: 'member5.jpg',
     },
     {
       name: 'Akito Kimura',
