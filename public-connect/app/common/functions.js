@@ -916,30 +916,71 @@ export async function archiveAndDeleteDoc(collectionName, docId) {
   await batch.commit();
 }
 
-// チケット削除処理
+/**
+ * チケット削除処理（トランザクションによる在庫返却付き）
+ */
 export async function deleteTicket(liveId) {
   const uid = getSession('uid');
   if (!uid || !liveId) return false;
 
+  // 1. ユーザーへの最終確認
   if (
     !(await showDialog(
       'この予約を取り消しますか？\n（この操作は元に戻せません）',
     ))
-  )
+  ) {
     return false;
+  }
 
   try {
     showSpinner();
     const ticketId = `${liveId}_${uid}`;
 
-    await archiveAndDeleteDoc('tickets', ticketId);
+    // 2. トランザクション処理開始
+    await runTransaction(db, async (transaction) => {
+      const liveRef = doc(db, 'lives', liveId);
+      const resRef = doc(db, 'tickets', ticketId);
+
+      const liveSnap = await transaction.get(liveRef);
+      const resSnap = await transaction.get(resRef);
+
+      // 予約データが存在しない場合はエラー
+      if (!resSnap.exists()) {
+        throw new Error(
+          '予約データが見つかりません。すでに削除されている可能性があります。',
+        );
+      }
+
+      const ticketData = resSnap.data();
+      const cancelCount = ticketData.totalCount || 0;
+
+      // ライブデータが存在する場合のみ、在庫を減算
+      if (liveSnap.exists()) {
+        const currentTotalReserved = liveSnap.data().totalReserved || 0;
+        // 0を下回らないように Math.max で調整
+        const newTotalReserved = Math.max(
+          0,
+          currentTotalReserved - cancelCount,
+        );
+
+        transaction.update(liveRef, {
+          totalReserved: newTotalReserved,
+        });
+      }
+
+      // 3. チケットを削除（アーカイブが必要な場合はここで transaction.set/delete を行うか、
+      // トランザクション直後に既存の archiveAndDeleteDoc を呼び出します）
+      // ここでは整合性を保つため、トランザクション内で削除を予約します。
+      transaction.delete(resRef);
+    });
 
     hideSpinner();
-    await showDialog('予約を取り消しました', true);
+    await showDialog('予約を取り消しました。残席が更新されました。', true);
     return true;
   } catch (e) {
-    console.error(e);
-    alert('エラーが発生しました: ' + e.message);
+    console.error('Delete Ticket Transaction failed: ', e);
+    hideSpinner();
+    await showDialog('エラーが発生しました: ' + e.message, true);
     return false;
   } finally {
     hideSpinner();
