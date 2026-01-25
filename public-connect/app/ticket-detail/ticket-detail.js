@@ -3,7 +3,7 @@ import * as utils from '../common/functions.js';
 $(document).ready(async function () {
   try {
     // ログイン不要で表示
-    await utils.initDisplay(false);
+    await utils.initDisplay();
 
     const urlParams = new URLSearchParams(window.location.search);
     const ticketId = urlParams.get('ticketId');
