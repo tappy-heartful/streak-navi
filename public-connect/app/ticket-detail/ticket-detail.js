@@ -45,6 +45,7 @@ $(document).ready(async function () {
  */
 async function loadTicketInfo(ticketId, fromPage) {
   const container = $('#ticket-content-area');
+  const currentUid = utils.getSession('uid');
 
   // 1. 予約データの取得
   const resRef = utils.doc(utils.db, 'tickets', ticketId);
@@ -86,7 +87,11 @@ async function loadTicketInfo(ticketId, fromPage) {
         <div class="t-date">${liveData.date}</div>
         <h3 class="t-title">${liveData.title}</h3>
         <div class="t-details">
-          <p><i class="fa-solid fa-location-dot"></i> 会場: ${liveData.venue}</p>
+          <p>
+            <i class="fa-solid fa-location-dot"></i> 会場: ${liveData.venue}
+            <a href="${liveData.venueGoogleMap}" target="_blank"><i class="fa-solid fa-map-location-dot"></i> Map</a>
+            <a href="${liveData.venueUrl}" target="_blank"><i class="fa-solid fa-house"></i> HP</a>
+          </p>
           <p><i class="fa-solid fa-clock"></i> Open ${liveData.open} / Start ${liveData.start}</p>
           <p><i class="fa-solid fa-ticket"></i> 前売料金:${liveData.advance}</p>
         </div>
@@ -113,6 +118,22 @@ async function loadTicketInfo(ticketId, fromPage) {
     html += `<li class="guest-item" style="color:#888;">同伴者の登録はありません</li>`;
   }
 
+  html += `</ul></div>`;
+
+  // 4. ログインユーザーが予約者本人の場合、編集・取消ボタンを表示
+  if (currentUid && resData.uid === currentUid) {
+    html += `
+      <div class="owner-actions">
+        <a href="../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}" class="btn-action btn-edit">
+          <i class="fa-solid fa-pen-to-square"></i> 予約内容を変更する
+        </a>
+        <button class="btn-action btn-cancel" onclick="handleDeleteTicket('${resData.liveId}')">
+          <i class="fa-solid fa-trash-can"></i> 予約を取り消す
+        </button>
+      </div>
+    `;
+  }
+
   container.html(html);
 
   // バックリンク
@@ -122,3 +143,12 @@ async function loadTicketInfo(ticketId, fromPage) {
       : `<a href="../home/home.html" class="btn-back-home"> ← Homeに戻る </a>`,
   );
 }
+
+/**
+ * チケット取り消し処理
+ */
+window.handleDeleteTicket = async function (liveId) {
+  if (await utils.deleteTicket(liveId)) {
+    location.href = '../mypage/mypage.html';
+  }
+};

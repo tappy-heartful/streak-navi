@@ -919,14 +919,14 @@ export async function archiveAndDeleteDoc(collectionName, docId) {
 // チケット削除処理
 export async function deleteTicket(liveId) {
   const uid = getSession('uid');
-  if (!uid || !liveId) return;
+  if (!uid || !liveId) return false;
 
   if (
     !(await showDialog(
       'この予約を取り消しますか？\n（この操作は元に戻せません）',
     ))
   )
-    return;
+    return false;
 
   try {
     showSpinner();
@@ -936,9 +936,11 @@ export async function deleteTicket(liveId) {
 
     hideSpinner();
     await showDialog('予約を取り消しました', true);
+    return true;
   } catch (e) {
     console.error(e);
     alert('エラーが発生しました: ' + e.message);
+    return false;
   } finally {
     hideSpinner();
   }
