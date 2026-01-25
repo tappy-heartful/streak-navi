@@ -87,7 +87,6 @@
 
 
 
-
 /* チケット情報 */
 /* ライブカードのスタイル */
 .ticket-grid {
@@ -120,6 +119,7 @@
     aspect-ratio: 16/9;
     background: #222;
     overflow: hidden;
+    cursor: pointer; /* クリック可能であることを示す */
 }
 
 @media (min-width: 768px) {
@@ -134,6 +134,34 @@
     height: 100%;
     object-fit: cover;
     opacity: 0.8;
+    transition: 0.5s;
+}
+
+/* 画像ホバー時の演出 */
+.img-overlay {
+    position: absolute;
+    top: 0; 
+    left: 0; 
+    width: 100%; 
+    height: 100%;
+    background: rgba(231, 33, 26, 0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-size: 1.5rem;
+    opacity: 0;
+    transition: 0.3s;
+    z-index: 2;
+}
+
+.ticket-img-wrapper:hover .img-overlay {
+    opacity: 1;
+}
+
+.ticket-img-wrapper:hover .ticket-img {
+    transform: scale(1.05);
+    opacity: 1;
 }
 
 /* 右側：詳細エリア */
@@ -170,12 +198,16 @@
     color: #e7211a;
 }
 
-/* 予約ボタン */
-.btn-reserve {
+/* ボタン共通コンテナ */
+.reserved-actions {
+    display: flex;
+    gap: 10px;
     margin-top: 20px;
+}
+
+/* ボタン基本スタイル */
+.btn-reserve, .btn-detail {
     padding: 12px;
-    background: #e7211a;
-    color: #fff;
     text-align: center;
     font-weight: bold;
     text-transform: uppercase;
@@ -183,17 +215,47 @@
     cursor: pointer;
     border: none;
     transition: 0.3s;
+    flex: 1;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+/* 予約ボタン：赤背景 */
+.btn-reserve {
+    background: #e7211a;
+    color: #fff;
 }
 
 .btn-reserve:hover {
     background: #b61a15;
 }
 
-.btn-reserved-mark {
-    background: #333;
-    color: #888;
-    cursor: default;
+/* 詳細ボタン：白枠 */
+.btn-detail {
+    background: transparent;
+    border: 1px solid #fff;
+    color: #fff;
 }
+
+.btn-detail:hover {
+    background: #fff;
+    color: #000;
+}
+
+/* 取り消しボタン（枠線のみのスタイル） */
+.btn-delete {
+    background: transparent;
+    border: 1px solid #e7211a;
+    color: #e7211a;
+}
+
+.btn-delete:hover {
+    background: rgba(231, 33, 26, 0.1);
+}
+
 /* 予約済みラベル */
 .reserved-label {
     background: #e7211a;
@@ -205,36 +267,11 @@
     vertical-align: middle;
 }
 
-/* ボタンが2つ並ぶコンテナ */
-.reserved-actions {
-    display: flex;
-    gap: 10px;
-    margin-top: 20px;
-}
-
-.reserved-actions .btn-reserve {
-    margin-top: 0; /* 上の余白をリセット */
-    flex: 1;
-    font-size: 0.8rem;
-}
-
-/* 取り消しボタン（枠線のみのスタイル） */
-.btn-delete {
-    background: transparent;
-    border: 1px solid #e7211a;
-    color: #e7211a;
-}
-.btn-delete:hover {
-    background: rgba(231, 33, 26, 0.1);
-}
-
 @media (max-width: 600px) {
     .reserved-actions {
         flex-direction: column; /* スマホでは縦並び */
     }
 }
-/* チケット情報ここまで */
-
 
 
 
