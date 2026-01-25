@@ -75,6 +75,7 @@
 
 .btn-reserve-now {
     display: block;
+    max-width: 400px;
     margin: 0 auto;
     background: #e7211a;
     color: #fff;
@@ -84,12 +85,39 @@
     font-weight: bold;
     border-radius: 50px;
     transition: 0.3s;
+    border: none;
+    cursor: pointer;
     box-shadow: 0 4px 15px rgba(231, 33, 26, 0.4);
 }
 
 .btn-reserve-now:hover {
     background: #ff2a22;
     transform: translateY(-2px);
+}
+
+/* 予約済みアクション（横並び） */
+.reserved-actions {
+    display: flex;
+    gap: 15px;
+    max-width: 500px;
+    margin: 0 auto;
+}
+
+.reserved-actions .btn-reserve-now {
+    flex: 1;
+    font-size: 1rem;
+    padding: 15px;
+}
+
+.btn-delete-outline {
+    background: transparent !important;
+    border: 2px solid #e7211a !important;
+    color: #e7211a !important;
+    box-shadow: none !important;
+}
+
+.btn-delete-outline:hover {
+    background: rgba(231, 33, 26, 0.1) !important;
 }
 
 .accept-period {
@@ -102,4 +130,10 @@
     text-align: center;
     color: #888;
     padding: 100px 0;
+}
+
+@media (max-width: 600px) {
+    .reserved-actions {
+        flex-direction: column;
+    }
 }

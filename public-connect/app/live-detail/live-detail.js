@@ -2,7 +2,7 @@ import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
   try {
-    // ログイン不要
+    // ログイン不要で初期化
     await utils.initDisplay();
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -39,29 +39,31 @@ async function loadLiveDetail(liveId) {
   const container = $('#live-content-area');
   const actionArea = $('.live-actions');
 
+  // 1. ライブデータの取得
   const liveRef = utils.doc(utils.db, 'lives', liveId);
   const liveSnap = await utils.getWrapDoc(liveRef);
 
   if (!liveSnap.exists()) {
     throw new Error('ライブ情報が存在しません。');
   }
-
   const data = liveSnap.data();
 
-  // HTML構築
+  // 2. 予約状況の確認（ログイン時のみ）
+  const uid = utils.getSession('uid');
+  let isReserved = false;
+  if (uid) {
+    const ticketId = `${liveId}_${uid}`;
+    const ticketRef = utils.doc(utils.db, 'tickets', ticketId);
+    const ticketSnap = await utils.getWrapDoc(ticketRef);
+    isReserved = ticketSnap.exists();
+  }
+
+  // 3. UI構築
   let html = `
-    ${
-      data.flyerUrl
-        ? `
-      <div class="flyer-wrapper">
-        <img src="${data.flyerUrl}" alt="Flyer">
-      </div>
-    `
-        : ''
-    }
+    ${data.flyerUrl ? `<div class="flyer-wrapper"><img src="${data.flyerUrl}" alt="Flyer"></div>` : ''}
 
     <div class="live-info-card">
-      <div class="l-date">${data.date}</div>
+      <div class="l-date">${isReserved ? '<span class="reserved-label" style="background:#e7211a; color:#fff; font-size:0.7rem; padding:2px 6px; border-radius:3px; margin-right:8px; vertical-align:middle;">予約済み</span>' : ''}${data.date}</div>
       <h2 class="l-title">${data.title}</h2>
       
       <div class="info-list">
@@ -89,10 +91,7 @@ async function loadLiveDetail(liveId) {
           <i class="fa-solid fa-ticket"></i>
           <div>
             <div class="label">料金</div>
-            <div class="val">
-              前売: ${data.advance}<br>
-              当日: ${data.door}
-            </div>
+            <div class="val">前売: ${data.advance}<br>当日: ${data.door}</div>
           </div>
         </div>
       </div>
@@ -107,7 +106,7 @@ async function loadLiveDetail(liveId) {
 
   container.html(html);
 
-  // 予約ボタンの制御
+  // 4. ボタンの制御
   const nowStr = utils.format(new Date(), 'yyyy.MM.dd');
   let btnHtml = '';
 
@@ -117,13 +116,36 @@ async function loadLiveDetail(liveId) {
     btnHtml = `<button class="btn-reserve-now" disabled style="background:#444;">予約受付前</button>
                <p class="accept-period">受付開始: ${data.acceptStartDate}</p>`;
   } else {
-    btnHtml = `
-      <a href="../ticket-reserve/ticket-reserve.html?liveId=${liveId}" class="btn-reserve-now">
-        <i class="fa-solid fa-paper-plane"></i> このライブを予約する
-      </a>
-      <p class="accept-period">受付期間: ${data.acceptStartDate} ～ ${data.acceptEndDate}</p>
-    `;
+    if (isReserved) {
+      // 予約済みの場合の出し分け
+      btnHtml = `
+        <div class="reserved-actions">
+          <a href="../ticket-reserve/ticket-reserve.html?liveId=${liveId}" class="btn-reserve-now">
+            <i class="fa-solid fa-pen-to-square"></i> 予約内容を変更
+          </a>
+          <button class="btn-reserve-now btn-delete-outline" onclick="handleCancelTicket('${liveId}')">
+            <i class="fa-solid fa-trash-can"></i> 予約を取り消す
+          </button>
+        </div>
+      `;
+    } else {
+      // 未予約の場合
+      btnHtml = `
+        <a href="../ticket-reserve/ticket-reserve.html?liveId=${liveId}" class="btn-reserve-now">
+          <i class="fa-solid fa-paper-plane"></i> このライブを予約する
+        </a>
+        <p class="accept-period">受付期間: ${data.acceptStartDate} ～ ${data.acceptEndDate}</p>
+      `;
+    }
   }
 
   actionArea.html(btnHtml);
 }
+
+/**
+ * 予約取り消し処理
+ */
+window.handleCancelTicket = async function (liveId) {
+  await utils.deleteTicket(liveId);
+  location.reload(); // 状態を更新するためにリロード
+};
