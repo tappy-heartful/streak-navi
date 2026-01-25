@@ -54,11 +54,11 @@ async function loadTickets() {
   }
 
   upcomingContainer.empty();
-  // 先程作った utils.format がある場合はそれを使うと深夜問題も安心です
-  const todayStr = utils.format
-    ? utils.format(new Date(), 'yyyy.MM.dd')
-    : new Date().toISOString().split('T')[0].replace(/-/g, '.');
 
+  // 日本時間での今日の日付取得
+  const todayStr = utils.format(new Date(), 'yyyy.MM.dd');
+
+  // ログイン中なら予約済みリストを取得
   let myTickets = [];
   if (uid) {
     const resQ = utils.query(
@@ -75,25 +75,29 @@ async function loadTickets() {
     const isPast = data.date < todayStr;
     const isReserved = myTickets.includes(liveId);
 
-    // 詳細ボタン（共通）
-    const detailBtn = `<button class="btn-detail" onclick="handleLiveDetail('${liveId}')">詳細を見る / VIEW INFO</button>`;
+    // 詳細ボタン（共通パーツ）
+    const detailBtnHtml = `
+      <button class="btn-detail" onclick="handleLiveDetail('${liveId}')">
+        <i class="fa-solid fa-circle-info"></i> 詳細
+      </button>
+    `;
 
-    // アクション部分の生成
+    // ボタン部分の生成
     let actionButtons = '';
     if (!isPast) {
       if (isReserved) {
         actionButtons = `
           <div class="reserved-actions">
-            ${detailBtn}
-            <button class="btn-reserve" onclick="handleReserve('${liveId}')">予約を変更</button>
+            ${detailBtnHtml}
+            <button class="btn-reserve" onclick="handleReserve('${liveId}')">変更</button>
             <button class="btn-reserve btn-delete" onclick="handleDeleteTicket('${liveId}')">取消</button>
           </div>
         `;
       } else {
         actionButtons = `
           <div class="reserved-actions">
-            ${detailBtn}
-            <button class="btn-reserve" onclick="handleReserve('${liveId}')">予約する / RESERVE</button>
+            ${detailBtnHtml}
+            <button class="btn-reserve" onclick="handleReserve('${liveId}')">予約 / RESERVE</button>
           </div>
         `;
       }
@@ -101,16 +105,19 @@ async function loadTickets() {
 
     const cardHtml = `
       <div class="ticket-card" data-id="${liveId}">
-        <div class="ticket-img-wrapper" onclick="handleLiveDetail('${liveId}')" style="cursor:pointer;">
+        <div class="ticket-img-wrapper" onclick="handleLiveDetail('${liveId}')">
+          <div class="img-overlay"><i class="fa-solid fa-magnifying-glass"></i></div>
           <img src="${data.flyerUrl || 'https://tappy-heartful.github.io/streak-connect-images/favicon.png'}" class="ticket-img" alt="flyer">
-          <div class="img-overlay"><i class="fa-solid fa-magnifying-glass-plus"></i></div>
         </div>
+        
         <div class="ticket-info">
           <div class="t-date">${isReserved ? '<span class="reserved-label">予約済み</span> ' : ''}${data.date}</div>
           <h3 class="t-title">${data.title}</h3>
           <div class="t-details">
             <div><i class="fa-solid fa-location-dot"></i> ${data.venue}</div>
             <div><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</div>
+            <div><i class="fa-solid fa-ticket"></i> 前売：${data.advance}</div>
+            <div><i class="fa-solid fa-ticket"></i> 当日：${data.door}</div>
           </div>
           ${actionButtons}
         </div>
@@ -121,9 +128,18 @@ async function loadTickets() {
   });
 }
 
-// ライブ詳細へ
+/**
+ * ライブ詳細ページへ遷移
+ */
 window.handleLiveDetail = function (liveId) {
   location.href = `../live-detail/live-detail.html?liveId=${liveId}`;
+};
+
+/**
+ * 予約画面へ遷移
+ */
+window.handleReserve = function (liveId) {
+  location.href = `../ticket-reserve/ticket-reserve.html?liveId=${liveId}`;
 };
 
 // 予約画面へ
