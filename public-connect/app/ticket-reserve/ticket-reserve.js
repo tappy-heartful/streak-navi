@@ -274,7 +274,8 @@ $('#reserve-form').on('submit', async function (e) {
 
     utils.hideSpinner();
     await utils.showDialog('予約を確定しました！', true);
-    window.location.href = '../mypage/mypage.html';
+    window.location.href =
+      '../ticket-detail/ticket-detail.html?ticketId=' + ticketId;
   } catch (err) {
     console.error('Transaction failed: ', err);
     utils.hideSpinner();
