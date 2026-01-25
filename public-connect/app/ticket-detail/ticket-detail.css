@@ -30,6 +30,7 @@
 .btn-copy-no {
     background: #1a1a1a;
     border-radius: 6px;
+    border: none;
     color: #e7211a; /* アイコンも赤に */
     font-size: 1rem;
     cursor: pointer;

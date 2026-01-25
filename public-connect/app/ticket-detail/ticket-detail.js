@@ -145,7 +145,7 @@ async function loadTicketInfo(ticketId) {
           <i class="fa-solid fa-trash-can"></i> 予約を取り消す
         </button>
         <button class="btn-action btn-copy-outline" onclick="handleCopyTicketUrl('${resData.resType}')">
-          <i class="fa-solid fa-solid fa-copy"></i> チケットURLをコピー
+          <i class="fa-solid fa-solid fa-link"></i> チケットURLをコピー
         </button>
       </div>
     `;
