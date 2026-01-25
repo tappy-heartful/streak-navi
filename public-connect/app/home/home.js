@@ -135,7 +135,7 @@ async function loadTickets() {
  * ライブ詳細ページへ遷移
  */
 window.handleLiveDetail = function (liveId) {
-  location.href = `../live-detail/live-detail.html?liveId=${liveId}`;
+  location.href = `../live-detail/live-detail.html?liveId=${liveId}&fromPage=home`;
 };
 
 /**

@@ -14,17 +14,7 @@ $(document).ready(async function () {
     }
 
     // パンくずリスト設定
-    const breadcrumb = $('#breadcrumb');
-    breadcrumb.append(
-      `<a href="../home/home.html">Home</a>
-       <span class="separator">&gt;</span>
-       ${
-         fromPage === 'mypage'
-           ? `<a href="../mypage/mypage.html">My Page</a><span class="separator">&gt;</span>`
-           : ``
-       }
-       <span class="current">Ticket</span>`,
-    );
+    utils.renderBreadcrumb($('#breadcrumb'), fromPage, 'Ticket Info');
 
     await loadTicketInfo(ticketId, fromPage);
 
@@ -78,7 +68,7 @@ async function loadTicketInfo(ticketId, fromPage) {
     : 'GENERAL RESERVATION (一般予約)';
   const repLabel = isInvite ? '予約担当' : '代表者様';
   const guestLabel = isInvite ? 'ご招待' : '同伴者様';
-  const liveDetailUrl = `../live-detail/live-detail.html?liveId=${resData.liveId}&fromPage=ticketReserve`;
+  const liveDetailUrl = `../live-detail/live-detail.html?liveId=${resData.liveId}&fromPage=ticketDetail`;
 
   let html = `
     <p style="margin-top:25px; font-size:0.8rem; color:#888; text-align:center;">

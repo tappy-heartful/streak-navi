@@ -11,12 +11,16 @@ $(document).ready(async function () {
 
     const urlParams = new URLSearchParams(window.location.search);
     currentLiveId = urlParams.get('liveId');
+    const fromPage = urlParams.get('fromPage');
 
     if (!currentLiveId) {
       await utils.showDialog('ライブIDが見つかりません。', true);
       window.location.href = '../home/home.html';
       return;
     }
+
+    // パンくずリスト設定
+    utils.renderBreadcrumb($('#breadcrumb'), fromPage, 'Ticket Reserve');
 
     // streak-navi（usersコレクション）に存在するかチェック
     const uid = utils.getSession('uid');

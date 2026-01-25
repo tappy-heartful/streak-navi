@@ -7,18 +7,14 @@ $(document).ready(async function () {
 
     const urlParams = new URLSearchParams(window.location.search);
     const liveId = urlParams.get('liveId');
+    const fromPage = urlParams.get('fromPage');
 
     if (!liveId) {
       throw new Error('ライブ情報が見つかりません。');
     }
 
-    // パンくずリスト
-    const breadcrumb = $('#breadcrumb');
-    breadcrumb.append(
-      `<a href="../home/home.html">Home</a>
-       <span class="separator">></span>
-       <span class="current">Live Info</span>`,
-    );
+    // パンくずリスト設定
+    utils.renderBreadcrumb($('#breadcrumb'), fromPage, 'Live Info');
 
     await loadLiveDetail(liveId);
 
