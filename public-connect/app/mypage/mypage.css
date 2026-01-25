@@ -167,3 +167,16 @@
     color: #e7211a;
     text-align: center;
 }
+/* 下部注釈テキスト */
+.note-text {
+    margin-top: 15px;
+    font-size: 0.75rem;
+    color: #bbb;
+    text-align: center;
+    font-weight: 500;
+}
+
+.note-text::before {
+    content: "※";
+    margin-right: 2px;
+}

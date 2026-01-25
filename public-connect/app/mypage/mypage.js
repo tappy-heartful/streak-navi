@@ -129,6 +129,7 @@ async function loadMyTickets() {
     const typeName = isInvite ? '招待予約' : '一般予約';
     const repLabel = isInvite ? '予約担当' : '代表者';
     const companionLabel = isInvite ? 'ご招待' : '同伴者';
+    const msgTarget = isInvite ? '招待するお客様' : '同伴者様';
 
     const companionText =
       resData.companions && resData.companions.length > 0
@@ -168,6 +169,7 @@ async function loadMyTickets() {
               <i class="fa-solid fa-copy"></i> チケットURLをコピー
             </button>
           </div>
+          <p class="note-text">${msgTarget}にチケットURLを共有してください</p>
         </div>
       </div>
     `);
