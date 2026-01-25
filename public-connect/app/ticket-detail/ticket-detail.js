@@ -130,6 +130,9 @@ async function loadTicketInfo(ticketId, fromPage) {
         <button class="btn-action btn-delete-outline" onclick="handleCancelTicket('${resData.liveId}')">
           <i class="fa-solid fa-trash-can"></i> 予約を取り消す
         </button>
+        <button class="btn-action btn-view-white" onclick="handleCopyTicketUrl('${resData.resType}')">
+          <i class="fa-solid fa-ticket"></i> チケットのリンクをコピー
+        </button>
       </div>
     `;
   }
@@ -149,4 +152,24 @@ async function loadTicketInfo(ticketId, fromPage) {
  */
 window.handleDeleteTicket = async function (liveId) {
   if (await utils.deleteTicket(liveId)) location.href = '../mypage/mypage.html';
+};
+
+/**
+ * チケットURLをクリップボードにコピー
+ */
+window.handleCopyTicketUrl = async function (resType) {
+  try {
+    await navigator.clipboard.writeText(window.location.href);
+
+    // 予約種別によってメッセージを出し分け
+    const message =
+      resType === 'invite'
+        ? 'チケットURLをコピーしました。\nご招待する人に共有してください。'
+        : 'チケットURLをコピーしました。\n同伴者様に共有してください。';
+
+    await utils.showDialog(message, true);
+  } catch (err) {
+    console.error('Copy failed:', err);
+    alert('URLのコピーに失敗しました。');
+  }
 };
