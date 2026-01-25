@@ -917,7 +917,8 @@ export async function archiveAndDeleteDoc(collectionName, docId) {
 }
 
 /**
- * チケット削除処理（トランザクションによる在庫返却付き）
+ * チケット削除処理
+ * トランザクションを使用して、lives側の在庫(totalReserved)を正確に差し引きます。
  */
 export async function deleteTicket(liveId) {
   const uid = getSession('uid');
@@ -936,28 +937,26 @@ export async function deleteTicket(liveId) {
     showSpinner();
     const ticketId = `${liveId}_${uid}`;
 
-    // 2. トランザクション処理開始
+    // 2. トランザクション開始
     await runTransaction(db, async (transaction) => {
       const liveRef = doc(db, 'lives', liveId);
       const resRef = doc(db, 'tickets', ticketId);
 
+      // データの取得
       const liveSnap = await transaction.get(liveRef);
       const resSnap = await transaction.get(resRef);
 
-      // 予約データが存在しない場合はエラー
       if (!resSnap.exists()) {
-        throw new Error(
-          '予約データが見つかりません。すでに削除されている可能性があります。',
-        );
+        throw new Error('予約データが見つかりませんでした。');
       }
 
       const ticketData = resSnap.data();
-      const cancelCount = ticketData.totalCount || 0;
+      const cancelCount = ticketData.totalCount || 0; // 返却する人数
 
-      // ライブデータが存在する場合のみ、在庫を減算
+      // 3. 在庫の差し戻し（ライブドキュメントが存在する場合）
       if (liveSnap.exists()) {
         const currentTotalReserved = liveSnap.data().totalReserved || 0;
-        // 0を下回らないように Math.max で調整
+        // 計算結果がマイナスにならないようガード
         const newTotalReserved = Math.max(
           0,
           currentTotalReserved - cancelCount,
@@ -968,19 +967,17 @@ export async function deleteTicket(liveId) {
         });
       }
 
-      // 3. チケットを削除（アーカイブが必要な場合はここで transaction.set/delete を行うか、
-      // トランザクション直後に既存の archiveAndDeleteDoc を呼び出します）
-      // ここでは整合性を保つため、トランザクション内で削除を予約します。
+      // 4. チケットの削除
       transaction.delete(resRef);
     });
 
     hideSpinner();
-    await showDialog('予約を取り消しました。残席が更新されました。', true);
+    await showDialog('予約を取り消しました', true);
     return true;
   } catch (e) {
-    console.error('Delete Ticket Transaction failed: ', e);
+    console.error('Delete Ticket Error:', e);
     hideSpinner();
-    await showDialog('エラーが発生しました: ' + e.message, true);
+    await showDialog('取り消しに失敗しました: ' + e.message, true);
     return false;
   } finally {
     hideSpinner();
