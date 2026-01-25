@@ -140,9 +140,13 @@ async function loadMyTickets() {
             <button class="btn-delete" onclick="handleDeleteTicket('${resData.liveId}')">
               <i class="fa-solid fa-trash-can"></i> 取消
             </button>
+          </div>
+          <div class="ticket-actions">
             <button class="btn-ticket" onclick="location.href='../ticket-detail/ticket-detail.html?ticketId=${ticketId}&fromPage=mypage'">
-              <i class="fa-solid fa-ticket"></i> 表示
+              <i class="fa-solid fa-ticket"></i> チケットを表示
             </button>
+          </div>
+          <div class="ticket-actions">
             <button class="btn-view" onclick="handleCopyTicketUrl('${resData.resType}', '${detailUrl}')">
               <i class="fa-solid fa-copy"></i> チケットURLをコピー
             </button>
