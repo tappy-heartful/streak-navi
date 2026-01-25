@@ -123,11 +123,11 @@ async function loadTicketInfo(ticketId, fromPage) {
   // 4. ログインユーザーが予約者本人の場合、編集・取消ボタンを表示
   if (currentUid && resData.uid === currentUid) {
     html += `
-      <div class="owner-actions">
-        <a href="../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}" class="btn-action btn-edit">
-          <i class="fa-solid fa-pen-to-square"></i> 予約内容を変更する
+      <div class="reserved-actions">
+        <a href="../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}" class="btn-action btn-reserve-red">
+          <i class="fa-solid fa-pen-to-square"></i> 予約内容を変更
         </a>
-        <button class="btn-action btn-cancel" onclick="handleDeleteTicket('${resData.liveId}')">
+        <button class="btn-action btn-delete-outline" onclick="handleCancelTicket('${resData.liveId}')">
           <i class="fa-solid fa-trash-can"></i> 予約を取り消す
         </button>
       </div>
