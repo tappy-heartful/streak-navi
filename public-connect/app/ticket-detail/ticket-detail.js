@@ -21,7 +21,7 @@ $(document).ready(async function () {
        ${
          fromPage === 'mypage'
            ? `<a href="../mypage/mypage.html">My Page</a><span class="separator">&gt;</span>`
-           : `<span class="current">Ticket</span>`
+           : ``
        }
        <span class="current">Ticket</span>`,
     );
