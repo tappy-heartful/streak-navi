@@ -298,60 +298,48 @@ export async function initDisplay(
 }
 
 /**
- * パンくずリストを動的に生成して描画する
- * @param {jQuery} breadcrumb - パンくずリストを挿入する親要素のjQueryオブジェクト
- * @param {string} fromPage - 遷移元のページ識別子（ディレクトリ名など）
- * @param {string} currentPage - 現在のページの表示名
+ * URLから階層を自動判定してパンくずを描画
+ * @param {jQuery} breadcrumb - 挿入先要素
+ * @param {string} liveId - ライブID (URLにない場合や補完したい場合に渡す)
  */
-export function renderBreadcrumb(
-  breadcrumb,
-  fromPage,
-  currentPage,
-  dataId = '',
-) {
+export function renderBreadcrumb(breadcrumb, liveId = '') {
   if (!breadcrumb) return;
   breadcrumb.empty();
 
-  // ページ識別子に対応するURLと表示名のマップ(homeはすでに描画済み)
-  let pageConfig = {
-    mypage: {
-      url: '../mypage/mypage.html',
-      label: 'My Page',
-    },
-    ticketDetail: {
-      url: '../ticket-detail/ticket-detail.html?ticketId=' + dataId,
-      label: 'Ticket Info',
-    },
-    ticketReserve: {
-      url: '../ticket-reserve/ticket-reserve.html?ticketId=' + dataId,
-      label: 'Ticket Reservation',
-    },
-    liveDetail: {
-      url: '../live-detail/live-detail.html?liveId=' + dataId,
+  const path = window.location.pathname;
+  const params = new URLSearchParams(window.location.search);
+  const isFromMypage = params.get('fromPage') === 'mypage';
+
+  // ページごとの定義
+  const links = {
+    home: { label: 'Home', url: '../home/home.html' },
+    mypage: { label: 'My Page', url: '../mypage/mypage.html' },
+    live: {
       label: 'Live Info',
+      url: `../live-detail/live-detail.html?liveId=${liveId}`,
     },
   };
 
-  //TODO削除 とりあえずhomeのみで対応
-  pageConfig = {};
+  // 1. Home (常に表示)
+  let html = `<a href="${links.home.url}" class="no-underline">${links.home.label}</a>`;
 
-  // 1. Homeは常に固定
-  let html = `<a href="../home/home.html">Home</a>`;
-
-  // 2. fromPageが指定されており、かつ設定が存在する場合に中間パスを追加
-  if (fromPage && pageConfig[fromPage]) {
-    const config = pageConfig[fromPage];
-    html += `
-      <span class="separator">&gt;</span>
-      <a href="${config.url}">${config.label}</a>
-    `;
+  // 2. My Page (パラメータがある場合のみ)
+  if (isFromMypage) {
+    html += `<span class="separator">&gt;</span><a href="${links.mypage.url}" class="no-underline">${links.mypage.label}</a>`;
   }
 
-  // 3. 現在のページ名を追加
-  html += `
-    <span class="separator">&gt;</span>
-    <span class="current">${currentPage}</span>
-  `;
+  // 3. 階層判定：現在のURLに "ticket-" が含まれるなら、親の Live Info を表示
+  if (path.includes('ticket-') && liveId) {
+    html += `<span class="separator">&gt;</span><a href="${links.live.url}" class="no-underline">${links.live.label}</a>`;
+  }
+
+  // 4. 現在のページ名（URLから推測）
+  let currentLabel = 'Page';
+  if (path.includes('live-detail')) currentLabel = 'Live Info';
+  if (path.includes('ticket-reserve')) currentLabel = 'Reserve';
+  if (path.includes('ticket-detail')) currentLabel = 'Ticket';
+
+  html += `<span class="separator">&gt;</span><span class="current">${currentLabel}</span>`;
 
   breadcrumb.append(html);
 }

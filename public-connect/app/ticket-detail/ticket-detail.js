@@ -6,17 +6,21 @@ $(document).ready(async function () {
     await utils.initDisplay();
 
     const urlParams = new URLSearchParams(window.location.search);
-    const fromPage = urlParams.get('fromPage');
     const ticketId = urlParams.get('ticketId');
 
     if (!ticketId) {
       throw new Error('有効なチケットIDが見つかりません。');
     }
 
-    // パンくずリスト設定
-    utils.renderBreadcrumb($('#breadcrumb'), fromPage, 'Ticket Info');
+    // パンくずリスト、バックリンク設定
+    const liveId = ticketId ? ticketId.split('_')[0] : '';
+    utils.renderBreadcrumb($('#breadcrumb'), liveId);
+    $('.btn-back-home').attr(
+      'href',
+      `../live-detail/live-detail.html?liveId=${liveId}`,
+    );
 
-    await loadTicketInfo(ticketId, fromPage);
+    await loadTicketInfo(ticketId);
 
     // Hero画像
     $('.hero').css(
@@ -33,7 +37,7 @@ $(document).ready(async function () {
 /**
  * 予約情報の取得と表示
  */
-async function loadTicketInfo(ticketId, fromPage) {
+async function loadTicketInfo(ticketId) {
   const container = $('#ticket-content-area');
   const actionArea = $('.live-actions');
   container.empty();
@@ -68,7 +72,7 @@ async function loadTicketInfo(ticketId, fromPage) {
     : 'GENERAL RESERVATION (一般予約)';
   const repLabel = isInvite ? '予約担当' : '代表者様';
   const guestLabel = isInvite ? 'ご招待' : '同伴者様';
-  const liveDetailUrl = `../live-detail/live-detail.html?liveId=${resData.liveId}&fromPage=ticketDetail`;
+  const liveDetailUrl = `../live-detail/live-detail.html?liveId=${resData.liveId}`;
 
   let html = `
     <p style="margin-top:25px; font-size:0.8rem; color:#888; text-align:center;">
