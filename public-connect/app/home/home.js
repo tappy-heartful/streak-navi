@@ -127,6 +127,7 @@ async function loadTickets() {
           <div><i class="fa-solid fa-location-dot"></i> ${data.venue}</div>
           <div><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</div>
           <div><i class="fa-solid fa-ticket"></i> 前売：${data.advance}</div>
+          <div><i class="fa-solid fa-ticket"></i> 当日：${data.door}</div>
         </div>
         ${actionButtonsHtml}
       </div>
