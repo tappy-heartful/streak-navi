@@ -185,7 +185,7 @@ async function renderMembers() {
     {
       name: 'Kana Asahiro',
       role: 'Trombone / Lead Trombone',
-      origin: 'Osaka',
+      origin: 'Nara',
     },
     {
       name: 'Hiroto Murakami',
