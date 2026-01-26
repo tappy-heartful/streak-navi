@@ -23,6 +23,12 @@ $(document).ready(async function () {
     await loadMyTickets();
   } catch (e) {
     console.error(e);
+    await utils.writeLog({
+      dataId: 'none',
+      action: 'Mypage初期表示',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
   } finally {
     utils.hideSpinner();
   }
@@ -59,7 +65,13 @@ window.handleLogout = async function () {
     utils.clearAllAppSession();
     window.location.href = '../home/home.html';
   } catch (e) {
-    alert('ログアウトに失敗しました');
+    console.error(e);
+    await utils.writeLog({
+      dataId: utils.getSession('uid') || 'none',
+      action: 'ログアウト処理',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
   } finally {
     utils.hideSpinner();
   }

@@ -24,7 +24,12 @@ $(document).ready(async function () {
     );
   } catch (e) {
     console.error(e);
-    $('#live-content-area').html(`<p class="no-data">${e.message}</p>`);
+    await utils.writeLog({
+      dataId: 'none',
+      action: 'LiveDetail初期表示',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
   } finally {
     utils.hideSpinner();
   }

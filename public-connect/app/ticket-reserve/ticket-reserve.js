@@ -51,6 +51,12 @@ $(document).ready(async function () {
     );
   } catch (e) {
     console.error(e);
+    await utils.writeLog({
+      dataId: 'none',
+      action: 'TicketReserve初期表示',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
   } finally {
     utils.hideSpinner();
   }
@@ -213,8 +219,10 @@ $('#reserve-form').on('submit', async function (e) {
   e.preventDefault();
   utils.showSpinner();
 
+  const uid = utils.getSession('uid');
+  const ticketId = `${currentLiveId}_${uid}`;
+
   try {
-    const uid = utils.getSession('uid');
     const resType = isMember
       ? $('input[name="resType"]:checked').val()
       : 'general';
@@ -235,8 +243,6 @@ $('#reserve-form').on('submit', async function (e) {
     if (newTotalCount === 0) {
       throw new Error('予約人数が0名です。お名前を入力してください。');
     }
-
-    const ticketId = `${currentLiveId}_${uid}`;
 
     await utils.runTransaction(utils.db, async (transaction) => {
       const liveRef = utils.doc(utils.db, 'lives', currentLiveId);
@@ -303,9 +309,15 @@ $('#reserve-form').on('submit', async function (e) {
     await utils.showDialog('予約を確定しました！ ', true);
     window.location.href =
       '../ticket-detail/ticket-detail.html?ticketId=' + ticketId;
-  } catch (err) {
-    console.error('Transaction failed: ', err);
+  } catch (e) {
+    console.error(e);
+    await utils.writeLog({
+      dataId: ticketId || 'none',
+      action: 'Ticket予約',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+  } finally {
     utils.hideSpinner();
-    await utils.showDialog(err.message, true);
   }
 });

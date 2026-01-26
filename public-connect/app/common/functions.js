@@ -926,9 +926,10 @@ export async function deleteTicket(liveId) {
     return false;
   }
 
+  const ticketId = `${liveId}_${uid}`;
+
   try {
     showSpinner();
-    const ticketId = `${liveId}_${uid}`;
 
     // 2. トランザクション開始
     await runTransaction(db, async (transaction) => {
@@ -968,10 +969,13 @@ export async function deleteTicket(liveId) {
     await showDialog('予約を取り消しました', true);
     return true;
   } catch (e) {
-    console.error('Delete Ticket Error:', e);
-    hideSpinner();
-    await showDialog('取り消しに失敗しました: ' + e.message, true);
-    return false;
+    console.error(e);
+    await writeLog({
+      dataId: ticketId,
+      action: 'Ticket予約取消',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
   } finally {
     hideSpinner();
   }
