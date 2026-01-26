@@ -145,6 +145,9 @@ async function loadTicketInfo(ticketId) {
   }
 
   html += `</ul></div>`;
+  html += liveData.flyerUrl
+    ? `<div class="flyer-wrapper"><img src="${liveData.flyerUrl}" alt="Flyer"></div>`
+    : '';
 
   // 4. アクションボタンの制御
   if (currentUid && resData.uid === currentUid) {
