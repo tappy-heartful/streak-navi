@@ -83,15 +83,44 @@ async function loadLiveDetail() {
   const liveRef = utils.doc(utils.db, 'lives', currentLiveId);
   const liveSnap = await utils.getWrapDoc(liveRef);
 
-  const liveDetailUrl = `../live-detail/live-detail.html?liveId=${currentLiveId}`;
+  // 戻り先の判定
+  const urlParams = new URLSearchParams(window.location.search);
+  const fromPage = urlParams.get('fromPage');
+  const backUrl =
+    fromPage === 'mypage' ? '../mypage/mypage.html' : '../home/home.html';
 
   if (!liveSnap.exists()) {
-    container.html('<p class="no-data">ライブ情報が見つかりませんでした。</p>');
+    await utils.showDialog('ライブ情報が見つかりませんでした。', true);
+    window.location.href = backUrl;
     return;
   }
 
   const data = liveSnap.data();
+
+  // --- 予約受付可否・期間のチェック ---
+  const todayStr = utils.format(new Date(), 'yyyy.MM.dd');
+  const isAccepting = data.isAcceptReserve === true;
+  const isWithinPeriod =
+    (!data.acceptStartDate || todayStr >= data.acceptStartDate) &&
+    (!data.acceptEndDate || todayStr <= data.acceptEndDate);
+
+  if (!isAccepting || !isWithinPeriod) {
+    let msg = '申し訳ありません。現在このライブの予約は受け付けておりません。';
+    if (data.acceptStartDate && todayStr < data.acceptStartDate) {
+      msg = `予約受付は ${data.acceptStartDate} から開始となります。`;
+    } else if (data.acceptEndDate && todayStr > data.acceptEndDate) {
+      msg = `予約受付は ${data.acceptEndDate} で終了いたしました。`;
+    }
+
+    await utils.showDialog(msg, true);
+    window.location.href = backUrl;
+    return;
+  }
+  // ----------------------------------
+
   maxCompanions = data.maxCompanions || 0;
+
+  const liveDetailUrl = `../live-detail/live-detail.html?liveId=${currentLiveId}`;
 
   // 注意文言（notes）がある場合のみHTMLを生成
   const notesHtml = data.notes
@@ -118,7 +147,6 @@ async function loadLiveDetail() {
   companionContainer.empty();
 
   if (maxCompanions > 0) {
-    // 招待予約が初期値(invite)なので「招待するお客様〜」をデフォルトに
     const titleText = isMember ? '招待するお客様のお名前' : '同伴者様';
     companionContainer.append(
       `<h3 class="sub-title companion-title">${titleText}</h3>

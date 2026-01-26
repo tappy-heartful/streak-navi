@@ -102,6 +102,18 @@ async function loadMyTickets() {
     if (!liveSnap.exists()) continue;
     const liveData = liveSnap.data();
 
+    // 1. 本日の日付取得（比較用）
+    const todayStr = utils.format(new Date(), 'yyyy.MM.dd');
+    const isPast = liveData.date < todayStr;
+
+    // 2. 予約受付可否の判定
+    const isAccepting = liveData.isAcceptReserve === true;
+    const isWithinPeriod =
+      (!liveData.acceptStartDate || todayStr >= liveData.acceptStartDate) &&
+      (!liveData.acceptEndDate || todayStr <= liveData.acceptEndDate);
+    const canModify = !isPast && isAccepting && isWithinPeriod;
+
+    // ラベル等の設定
     const isInvite = resData.resType === 'invite';
     const typeName = isInvite ? '招待予約' : '一般予約';
     const repLabel = isInvite ? '予約担当' : '代表者';
@@ -116,6 +128,24 @@ async function loadMyTickets() {
     const ticketId = resDoc.id;
     const ticketDetailUrl = `${window.location.origin}/app/ticket-detail/ticket-detail.html?ticketId=${ticketId}&fromPage=mypage`;
     const liveDetailUrl = `../live-detail/live-detail.html?liveId=${resData.liveId}&fromPage=mypage`;
+
+    // 3. 変更・取消ボタンの生成（条件付き）
+    const actionButtons = canModify
+      ? `
+      <div class="ticket-actions">
+        <button class="btn-edit" onclick="location.href='../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}&fromPage=mypage'">
+          <i class="fa-solid fa-pen-to-square"></i> 変更
+        </button>
+        <button class="btn-delete" onclick="handleDeleteTicket('${resData.liveId}')">
+          <i class="fa-solid fa-trash-can"></i> 取消
+        </button>
+      </div>
+    `
+      : `
+      <div class="ticket-actions">
+        <span class="status-badge">${isPast ? '終了' : '予約受付期間外（変更不可）'}</span>
+      </div>
+    `;
 
     container.append(`
       <div class="ticket-card detail-mode">
@@ -147,15 +177,10 @@ async function loadMyTickets() {
               <i class="fa-solid fa-ticket"></i> チケットを表示
             </button>
           </div>
-          <div class="ticket-actions">
-            <button class="btn-edit" onclick="location.href='../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}&fromPage=mypage'">
-              <i class="fa-solid fa-pen-to-square"></i> 変更
-            </button>
-            <button class="btn-delete" onclick="handleDeleteTicket('${resData.liveId}')">
-              <i class="fa-solid fa-trash-can"></i> 取消
-            </button>
-          </div>
-          <p class="note-text">${msgTarget}にチケットURLを共有してください</p>
+          
+          ${actionButtons}
+          
+          ${canModify ? `<p class="note-text">${msgTarget}にチケットURLを共有してください</p>` : ''}
         </div>
       </div>
     `);

@@ -65,6 +65,18 @@ async function loadTicketInfo(ticketId) {
 
   const liveData = liveSnap.data();
 
+  // --- 予約変更が可能かどうかの判定 ---
+  const todayStr = utils.format(new Date(), 'yyyy.MM.dd');
+  const isPast = liveData.date < todayStr;
+  const isAccepting = liveData.isAcceptReserve === true;
+  const isWithinPeriod =
+    (!liveData.acceptStartDate || todayStr >= liveData.acceptStartDate) &&
+    (!liveData.acceptEndDate || todayStr <= liveData.acceptEndDate);
+
+  // 変更・取消ができる条件
+  const canModify = !isPast && isAccepting && isWithinPeriod;
+  // ----------------------------------
+
   // 3. UI構築
   const isInvite = resData.resType === 'invite';
   const typeLabel = isInvite
@@ -84,15 +96,15 @@ async function loadTicketInfo(ticketId) {
     </p>
 
     <div class="ticket-card detail-mode">
-    <div class="res-no-wrapper">
-      <span class="res-no-label">RESERVATION NO.</span>
-      <div class="res-no-display">
-        <span class="res-no-value">${resData.reservationNo || '----'}</span>
-        <button class="btn-copy-no" onclick="handleCopyTicketUrl('${resData.resType}')" title="チケットリンクをコピー">
-          <i class="fa-solid fa-copy"></i>
-        </button>
+      <div class="res-no-wrapper">
+        <span class="res-no-label">RESERVATION NO.</span>
+        <div class="res-no-display">
+          <span class="res-no-value">${resData.reservationNo || '----'}</span>
+          <button class="btn-copy-no" onclick="handleCopyTicketUrl('${resData.resType}')" title="チケットリンクをコピー">
+            <i class="fa-solid fa-copy"></i>
+          </button>
+        </div>
       </div>
-    </div>
 
       <div class="ticket-info">
         <div class="t-date">${liveData.date}</div>
@@ -134,21 +146,41 @@ async function loadTicketInfo(ticketId) {
 
   html += `</ul></div>`;
 
-  // 4. ログインユーザー本人の場合のアクション
+  // 4. アクションボタンの制御
   if (currentUid && resData.uid === currentUid) {
-    let btnHtml = `
-      <div class="reserved-actions">
-        <a href="../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}" class="btn-action btn-reserve-red">
-          <i class="fa-solid fa-pen-to-square"></i> 予約を変更
-        </a>
-        <button class="btn-action btn-delete-outline" onclick="handleDeleteTicket('${resData.liveId}')">
-          <i class="fa-solid fa-trash-can"></i> 予約を取り消す
-        </button>
-        <button class="btn-action btn-copy-outline" onclick="handleCopyTicketUrl('${resData.resType}')">
-          <i class="fa-solid fa-solid fa-link"></i> チケットURLをコピー
-        </button>
-      </div>
-    `;
+    let btnHtml = '';
+
+    if (canModify) {
+      // 予約受付期間中の表示
+      btnHtml = `
+        <div class="reserved-actions">
+          <a href="../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}" class="btn-action btn-reserve-red">
+            <i class="fa-solid fa-pen-to-square"></i> 予約を変更
+          </a>
+          <button class="btn-action btn-delete-outline" onclick="handleDeleteTicket('${resData.liveId}')">
+            <i class="fa-solid fa-trash-can"></i> 予約を取り消す
+          </button>
+          <button class="btn-action btn-copy-outline" onclick="handleCopyTicketUrl('${resData.resType}')">
+            <i class="fa-solid fa-link"></i> チケットURLをコピー
+          </button>
+        </div>
+      `;
+    } else {
+      // 期間外の表示（ボタンを無効化、または案内のみ）
+      const statusMsg = isPast
+        ? 'ライブは終了しました'
+        : '予約受付期間外（内容変更不可）';
+      btnHtml = `
+        <div class="reserved-actions">
+          <span class="status-badge" style="display:block; text-align:center; padding:10px; color:#888; background:#222; border-radius:4px; margin-bottom:10px;">
+            ${statusMsg}
+          </span>
+          <button class="btn-action btn-copy-outline" onclick="handleCopyTicketUrl('${resData.resType}')">
+            <i class="fa-solid fa-link"></i> チケットURLをコピー
+          </button>
+        </div>
+      `;
+    }
     actionArea.html(btnHtml);
   }
 

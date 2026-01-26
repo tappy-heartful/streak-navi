@@ -75,57 +75,63 @@ async function loadTickets() {
     const isPast = data.date < todayStr;
     const isReserved = myTickets.includes(liveId);
 
-    // 詳細ボタン（共通パーツ）
-    const detailBtnHtml = `
-      <button class="btn-detail" onclick="handleLiveDetail('${liveId}')">
-        <i class="fa-solid fa-circle-info"></i> 詳細 / VIEW INFO
-      </button>
-    `;
+    // 1. 予約受付条件の判定
+    const isAccepting = data.isAcceptReserve === true;
+    const isWithinPeriod =
+      (!data.acceptStartDate || todayStr >= data.acceptStartDate) &&
+      (!data.acceptEndDate || todayStr <= data.acceptEndDate);
+    const canReserve = !isPast && isAccepting && isWithinPeriod;
 
-    // ボタン部分の生成
-    let actionButtons = '';
-    if (!isPast) {
-      if (isReserved) {
-        actionButtons = `
-          <div class="reserved-actions">
-            ${detailBtnHtml}
-            <button class="btn-reserve" onclick="handleReserve('${liveId}')">予約変更 / CHANGE RESERVE</button>
-            <button class="btn-reserve btn-delete" onclick="handleDeleteTicket('${liveId}')">予約取消 / CANCEL</button>
-          </div>
-        `;
-      } else {
-        actionButtons = `
-          <div class="reserved-actions">
-            ${detailBtnHtml}
-            <button class="btn-reserve" onclick="handleReserve('${liveId}')">予約 / RESERVE</button>
-          </div>
-        `;
-      }
+    // 2. ボタン部分の生成
+    let actionButtonsHtml = '';
+
+    if (isPast) {
+      // 過去のライブは詳細ボタンのみ
+      actionButtonsHtml = `<button class="btn-detail" onclick="handleLiveDetail('${liveId}')">終了しました</button>`;
+    } else if (!canReserve) {
+      // 期間外または受付停止中
+      actionButtonsHtml = `
+      <div class="reserved-actions">
+        <button class="btn-detail" onclick="handleLiveDetail('${liveId}')">詳細を表示</button>
+        <span class="status-badge">予約受付期間外</span>
+      </div>`;
+    } else {
+      // 予約受付中
+      actionButtonsHtml = `
+      <div class="reserved-actions">
+        <button class="btn-detail" onclick="handleLiveDetail('${liveId}')">詳細 / VIEW INFO</button>
+        ${
+          isReserved
+            ? `<button class="btn-reserve" onclick="handleReserve('${liveId}')">予約変更</button>
+             <button class="btn-reserve btn-delete" onclick="handleDeleteTicket('${liveId}')">取消</button>`
+            : `<button class="btn-reserve" onclick="handleReserve('${liveId}')">予約 / RESERVE</button>`
+        }
+      </div>`;
     }
-    const liveDetailUrl = `../live-detail/live-detail.html?liveId=${liveId}`;
 
+    // 3. カードHTMLの組み立て
+    const liveDetailUrl = `../live-detail/live-detail.html?liveId=${liveId}`;
     const cardHtml = `
-      <div class="ticket-card" data-id="${liveId}">
-        <div class="ticket-img-wrapper" onclick="handleLiveDetail('${liveId}')">
-          <div class="img-overlay"><i class="fa-solid fa-magnifying-glass"></i></div>
-          <img src="${data.flyerUrl || 'https://tappy-heartful.github.io/streak-connect-images/favicon.png'}" class="ticket-img" alt="flyer">
-        </div>
-        
-        <div class="ticket-info">
-          <div class="t-date">${isReserved ? '<span class="reserved-label">予約済み</span> ' : ''}${data.date}</div>
-          <a href="${liveDetailUrl}" class="t-title-link">
-            <h3 class="t-title">${data.title}</h3>
-          </a>
-          <div class="t-details">
-            <div><i class="fa-solid fa-location-dot"></i> ${data.venue}</div>
-            <div><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</div>
-            <div><i class="fa-solid fa-ticket"></i> 前売：${data.advance}</div>
-            <div><i class="fa-solid fa-ticket"></i> 当日：${data.door}</div>
-          </div>
-          ${actionButtons}
-        </div>
+    <div class="ticket-card" data-id="${liveId}">
+      <div class="ticket-img-wrapper" onclick="handleLiveDetail('${liveId}')">
+        <div class="img-overlay"><i class="fa-solid fa-magnifying-glass"></i></div>
+        <img src="${data.flyerUrl || 'https://tappy-heartful.github.io/streak-connect-images/favicon.png'}" class="ticket-img" alt="flyer">
       </div>
-    `;
+      
+      <div class="ticket-info">
+        <div class="t-date">${isReserved ? '<span class="reserved-label">予約済み</span> ' : ''}${data.date}</div>
+        <a href="${liveDetailUrl}" class="t-title-link">
+          <h3 class="t-title">${data.title}</h3>
+        </a>
+        <div class="t-details">
+          <div><i class="fa-solid fa-location-dot"></i> ${data.venue}</div>
+          <div><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</div>
+          <div><i class="fa-solid fa-ticket"></i> 前売：${data.advance}</div>
+        </div>
+        ${actionButtonsHtml}
+      </div>
+    </div>
+  `;
 
     if (!isPast) upcomingContainer.append(cardHtml);
   });
