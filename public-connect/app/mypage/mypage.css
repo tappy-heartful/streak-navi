@@ -30,7 +30,23 @@
     font-weight: bold;
     margin-bottom: 10px;
 }
+/* プロフィールエリアに追加 */
+.btn-delete-account {
+    background: transparent;
+    border: 1px solid #444;
+    color: #666;
+    padding: 5px 12px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.3s;
+}
 
+.btn-delete-account:hover {
+    color: #e7211a;
+    border-color: #e7211a;
+    background: rgba(231, 33, 26, 0.05);
+}
 .btn-logout {
     background: transparent;
     border: 1px solid #444;

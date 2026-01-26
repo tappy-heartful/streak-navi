@@ -23,10 +23,100 @@ $(document).ready(async function () {
     await loadMyTickets();
   } catch (e) {
     console.error(e);
+    await utils.writeLog({
+      dataId: 'none',
+      action: 'Mypage初期表示',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
   } finally {
     utils.hideSpinner();
   }
 });
+
+/**
+ * 退会処理
+ */
+window.handleWithdrawal = async function () {
+  const confirmMsg =
+    '【退会確認】\n退会すると予約済みのチケットもすべて無効になります。本当によろしいですか？';
+  if (!(await utils.showDialog(confirmMsg))) return;
+
+  const finalConfirm = '本当に退会しますか？この操作は取り消せません。';
+  if (!(await utils.showDialog(finalConfirm))) return;
+
+  try {
+    utils.showSpinner();
+    const uid = utils.getSession('uid');
+    if (!uid) throw new Error('ユーザーIDが取得できません。');
+
+    // 1. 自分のチケットをすべて取得して削除
+    const q = utils.query(
+      utils.collection(utils.db, 'tickets'),
+      utils.where('uid', '==', uid),
+    );
+    const ticketSnap = await utils.getWrapDocs(q);
+
+    // チケットの削除（ループで一つずつ削除）
+    const deletePromises = ticketSnap.docs.map((doc) =>
+      utils.deleteTicket(doc.data().liveId, false),
+    );
+    await Promise.all(deletePromises);
+    console.log(`${deletePromises.length}件のチケットを削除しました。`);
+
+    // 2. connectUsers の自分のドキュメントを削除
+    await utils.archiveAndDeleteDoc('connectUsers', uid);
+    console.log('ユーザー情報を削除しました。');
+
+    // 3. ログアウトしてリダイレクト
+    await utils.auth.signOut();
+    utils.clearAllAppSession();
+
+    await utils.showDialog(
+      '退会処理が完了しました。ご利用ありがとうございました。',
+      true,
+    );
+    window.location.href = '../home/home.html';
+  } catch (e) {
+    console.error(e);
+    await utils.showDialog(
+      '退会処理中にエラーが発生しました。\nお手数ですが管理者までお問い合わせください。',
+      true,
+    );
+    await utils.writeLog({
+      dataId: utils.getSession('uid') || 'none',
+      action: '退会処理',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+  } finally {
+    utils.hideSpinner();
+  }
+};
+
+/**
+ * ログアウト処理
+ */
+window.handleLogout = async function () {
+  if (!(await utils.showDialog('ログアウトしますか？'))) return;
+
+  try {
+    utils.showSpinner();
+    await utils.auth.signOut();
+    utils.clearAllAppSession();
+    window.location.href = '../home/home.html';
+  } catch (e) {
+    console.error(e);
+    await utils.writeLog({
+      dataId: utils.getSession('uid') || 'none',
+      action: 'ログアウト処理',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+  } finally {
+    utils.hideSpinner();
+  }
+};
 
 /**
  * チケットURLをクリップボードにコピー
@@ -48,25 +138,7 @@ window.handleCopyTicketUrl = async function (resType, url) {
 };
 
 /**
- * ログアウト処理
- */
-window.handleLogout = async function () {
-  if (!(await utils.showDialog('ログアウトしますか？'))) return;
-
-  try {
-    utils.showSpinner();
-    await utils.auth.signOut();
-    utils.clearAllAppSession();
-    window.location.href = '../home/home.html';
-  } catch (e) {
-    alert('ログアウトに失敗しました');
-  } finally {
-    utils.hideSpinner();
-  }
-};
-
-/**
- * 予約取り消し処理
+ * 予約取り消し処理（単発）
  */
 window.handleDeleteTicket = async function (liveId) {
   if (await utils.deleteTicket(liveId)) await loadMyTickets();
@@ -102,18 +174,15 @@ async function loadMyTickets() {
     if (!liveSnap.exists()) continue;
     const liveData = liveSnap.data();
 
-    // 1. 本日の日付取得（比較用）
     const todayStr = utils.format(new Date(), 'yyyy.MM.dd');
     const isPast = liveData.date < todayStr;
 
-    // 2. 予約受付可否の判定
     const isAccepting = liveData.isAcceptReserve === true;
     const isWithinPeriod =
       (!liveData.acceptStartDate || todayStr >= liveData.acceptStartDate) &&
       (!liveData.acceptEndDate || todayStr <= liveData.acceptEndDate);
     const canModify = !isPast && isAccepting && isWithinPeriod;
 
-    // ラベル等の設定
     const isInvite = resData.resType === 'invite';
     const typeName = isInvite ? '招待予約' : '一般予約';
     const repLabel = isInvite ? '予約担当' : '代表者';
@@ -129,7 +198,6 @@ async function loadMyTickets() {
     const ticketDetailUrl = `${window.location.origin}/app/ticket-detail/ticket-detail.html?ticketId=${ticketId}&fromPage=mypage`;
     const liveDetailUrl = `../live-detail/live-detail.html?liveId=${resData.liveId}&fromPage=mypage`;
 
-    // 3. 変更・取消ボタンの生成（条件付き）
     const actionButtons = canModify
       ? `
       <div class="ticket-actions">

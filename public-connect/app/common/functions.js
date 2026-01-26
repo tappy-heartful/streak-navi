@@ -66,12 +66,9 @@ export {
   query,
   where,
   orderBy,
-  getDoc,
-  getDocs,
   updateDoc,
   addDoc,
   setDoc,
-  deleteDoc,
   collection,
   serverTimestamp,
   limit,
@@ -916,12 +913,13 @@ export async function archiveAndDeleteDoc(collectionName, docId) {
  * チケット削除処理
  * トランザクションを使用して、lives側の在庫(totalReserved)を正確に差し引きます。
  */
-export async function deleteTicket(liveId) {
+export async function deleteTicket(liveId, isComfirm = true) {
   const uid = getSession('uid');
   if (!uid || !liveId) return false;
 
   // 1. ユーザーへの最終確認
   if (
+    isComfirm &&
     !(await showDialog(
       'この予約を取り消しますか？\n（この操作は元に戻せません）',
     ))
@@ -929,9 +927,10 @@ export async function deleteTicket(liveId) {
     return false;
   }
 
+  const ticketId = `${liveId}_${uid}`;
+
   try {
     showSpinner();
-    const ticketId = `${liveId}_${uid}`;
 
     // 2. トランザクション開始
     await runTransaction(db, async (transaction) => {
@@ -971,10 +970,13 @@ export async function deleteTicket(liveId) {
     await showDialog('予約を取り消しました', true);
     return true;
   } catch (e) {
-    console.error('Delete Ticket Error:', e);
-    hideSpinner();
-    await showDialog('取り消しに失敗しました: ' + e.message, true);
-    return false;
+    console.error(e);
+    await writeLog({
+      dataId: ticketId,
+      action: 'Ticket予約取消',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
   } finally {
     hideSpinner();
   }

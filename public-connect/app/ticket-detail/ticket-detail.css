@@ -147,3 +147,20 @@
     color: #888;
     padding: 50px 0;
 }
+
+/* --- フライヤー画像エリア --- */
+.flyer-wrapper {
+    width: 100%;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    background: #111;
+}
+
+.flyer-wrapper img {
+    width: 100%;
+    display: block;
+    object-fit: contain;
+}

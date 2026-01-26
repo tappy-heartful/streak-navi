@@ -28,7 +28,13 @@ $(document).ready(async function () {
       'url("https://tappy-heartful.github.io/streak-connect-images/background/ticket-detail.jpg")',
     );
   } catch (e) {
-    $('#ticket-content-area').html(`<p class="no-data">${e.message}</p>`);
+    console.error(e);
+    await utils.writeLog({
+      dataId: 'none',
+      action: 'TicketDetail初期表示',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
   } finally {
     utils.hideSpinner();
   }
@@ -145,6 +151,9 @@ async function loadTicketInfo(ticketId) {
   }
 
   html += `</ul></div>`;
+  html += liveData.flyerUrl
+    ? `<div class="flyer-wrapper"><img src="${liveData.flyerUrl}" alt="Flyer"></div>`
+    : '';
 
   // 4. アクションボタンの制御
   if (currentUid && resData.uid === currentUid) {
