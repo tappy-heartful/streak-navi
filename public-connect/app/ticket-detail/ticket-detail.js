@@ -79,7 +79,6 @@ async function loadTicketInfo(ticketId) {
     (!liveData.acceptStartDate || todayStr >= liveData.acceptStartDate) &&
     (!liveData.acceptEndDate || todayStr <= liveData.acceptEndDate);
 
-  // 変更・取消ができる条件
   const canModify = !isPast && isAccepting && isWithinPeriod;
   // ----------------------------------
 
@@ -106,10 +105,11 @@ async function loadTicketInfo(ticketId) {
         <span class="res-no-label">RESERVATION NO.</span>
         <div class="res-no-display">
           <span class="res-no-value">${resData.reservationNo || '----'}</span>
-          <button class="btn-copy-no" onclick="handleCopyTicketUrl('${resData.resType}')" title="チケットリンクをコピー">
-            <i class="fa-solid fa-copy"></i>
-          </button>
         </div>
+        <button class="btn-copy-no" onclick="handleCopyTicketUrl('${resData.resType}')">
+          <i class="fa-solid fa-link"></i>
+          <span>COPY</span>
+        </button>
       </div>
 
       <div class="ticket-info">
@@ -160,7 +160,6 @@ async function loadTicketInfo(ticketId) {
     let btnHtml = '';
 
     if (canModify) {
-      // 予約受付期間中の表示
       btnHtml = `
         <div class="reserved-actions">
           <a href="../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}" class="btn-action btn-reserve-red">
@@ -175,7 +174,6 @@ async function loadTicketInfo(ticketId) {
         </div>
       `;
     } else {
-      // 期間外の表示（ボタンを無効化、または案内のみ）
       const statusMsg = isPast
         ? 'ライブは終了しました'
         : '予約受付期間外（内容変更不可）';
