@@ -83,15 +83,49 @@ async function loadLiveDetail() {
   const liveRef = utils.doc(utils.db, 'lives', currentLiveId);
   const liveSnap = await utils.getWrapDoc(liveRef);
 
-  const liveDetailUrl = `../live-detail/live-detail.html?liveId=${currentLiveId}`;
+  // 戻り先の判定
+  const urlParams = new URLSearchParams(window.location.search);
+  const fromPage = urlParams.get('fromPage');
+  const backUrl =
+    fromPage === 'mypage' ? '../mypage/mypage.html' : '../home/home.html';
 
   if (!liveSnap.exists()) {
-    container.html('<p class="no-data">ライブ情報が見つかりませんでした。</p>');
+    await utils.showDialog('ライブ情報が見つかりませんでした。', true);
+    window.location.href = backUrl;
     return;
   }
 
   const data = liveSnap.data();
+
+  // --- 予約受付可否・期間のチェック ---
+  const todayStr = utils.format(new Date(), 'yyyy.MM.dd');
+  const isAccepting = data.isAcceptReserve === true;
+  const isWithinPeriod =
+    (!data.acceptStartDate || todayStr >= data.acceptStartDate) &&
+    (!data.acceptEndDate || todayStr <= data.acceptEndDate);
+
+  if (!isAccepting || !isWithinPeriod) {
+    let msg = '申し訳ありません。現在このライブの予約は受け付けておりません。';
+    if (data.acceptStartDate && todayStr < data.acceptStartDate) {
+      msg = `予約受付は ${data.acceptStartDate} から開始となります。`;
+    } else if (data.acceptEndDate && todayStr > data.acceptEndDate) {
+      msg = `予約受付は ${data.acceptEndDate} で終了いたしました。`;
+    }
+
+    await utils.showDialog(msg, true);
+    window.location.href = backUrl;
+    return;
+  }
+  // ----------------------------------
+
   maxCompanions = data.maxCompanions || 0;
+
+  const liveDetailUrl = `../live-detail/live-detail.html?liveId=${currentLiveId}`;
+
+  // 注意文言（notes）がある場合のみHTMLを生成
+  const notesHtml = data.notes
+    ? `<div class="live-notes-area"><p class="live-notes-text">${data.notes}</p></div>`
+    : '';
 
   container.html(`
     <div class="ticket-card detail-mode">
@@ -105,7 +139,7 @@ async function loadLiveDetail() {
           <p><i class="fa-solid fa-clock"></i> Open ${data.open} / Start ${data.start}</p>
           <p><i class="fa-solid fa-ticket"></i>前売：${data.advance}</p>
         </div>
-      </div>
+        ${notesHtml} </div>
     </div>
   `);
 
@@ -113,11 +147,10 @@ async function loadLiveDetail() {
   companionContainer.empty();
 
   if (maxCompanions > 0) {
-    // 招待予約が初期値(invite)なので「招待するお客様〜」をデフォルトに
     const titleText = isMember ? '招待するお客様のお名前' : '同伴者様';
     companionContainer.append(
       `<h3 class="sub-title companion-title">${titleText}</h3>
-      <p class="form-note" style="margin-bottom:20px;">※あだ名や間柄（「友人」「母」など）でも構いません</p>`, // 💡 ここに注釈を追加
+      <p class="form-note" style="margin-bottom:20px;">※あだ名や間柄（「友人」「母」など）でも構いません</p>`,
     );
 
     for (let i = 1; i <= maxCompanions; i++) {
@@ -136,7 +169,6 @@ async function loadLiveDetail() {
   await fetchExistingTicket();
 
   if (isMember) {
-    // 画面ロード時に選択されている radio の値で UI を初期化
     toggleFormUI($('input[name="resType"]:checked').val());
   }
 
@@ -155,7 +187,6 @@ async function fetchExistingTicket() {
   if (resSnap.exists()) {
     const resData = resSnap.data();
 
-    // 予約種別の復元
     if (resData.resType) {
       $(`input[name="resType"][value="${resData.resType}"]`).prop(
         'checked',
@@ -184,25 +215,20 @@ $('#reserve-form').on('submit', async function (e) {
 
   try {
     const uid = utils.getSession('uid');
-    // メンバーなら選択した種別、一般なら'general'
     const resType = isMember
       ? $('input[name="resType"]:checked').val()
       : 'general';
-
-    // 招待モードなら代表者は自分（メンバー名）、一般なら入力された名前
     const representativeName =
       resType === 'invite'
         ? utils.getSession('displayName')
         : $('#representativeName').val().trim();
 
-    // 同伴者リストの取得
     const companions = [];
     $('.companion-input').each(function () {
       const val = $(this).val().trim();
       if (val) companions.push(val);
     });
 
-    // 予約合計人数の計算
     const newTotalCount =
       resType === 'invite' ? companions.length : companions.length + 1;
 
@@ -212,7 +238,6 @@ $('#reserve-form').on('submit', async function (e) {
 
     const ticketId = `${currentLiveId}_${uid}`;
 
-    // トランザクション処理開始
     await utils.runTransaction(utils.db, async (transaction) => {
       const liveRef = utils.doc(utils.db, 'lives', currentLiveId);
       const resRef = utils.doc(utils.db, 'tickets', ticketId);
@@ -223,8 +248,6 @@ $('#reserve-form').on('submit', async function (e) {
       if (!liveSnap.exists()) throw new Error('ライブ情報が存在しません。');
 
       const liveData = liveSnap.data();
-
-      // 日本時間(Asia/Tokyo)で yyyy.mm.dd 形式を取得
       const nowStr = utils.format(new Date(), 'yyyy.MM.dd');
 
       if (liveData.acceptStartDate && nowStr < liveData.acceptStartDate) {
@@ -236,16 +259,13 @@ $('#reserve-form').on('submit', async function (e) {
         );
       }
 
-      // 在庫管理用変数の取得
       const ticketStock = liveData.ticketStock || 0;
       const currentTotalSold = liveData.totalReserved || 0;
-
       const oldResCount = oldResSnap.exists()
         ? oldResSnap.data().totalCount || 0
         : 0;
       const diff = newTotalCount - oldResCount;
 
-      // 在庫チェック
       if (currentTotalSold + diff > ticketStock) {
         const remaining = ticketStock - currentTotalSold;
         throw new Error(
@@ -253,23 +273,16 @@ $('#reserve-form').on('submit', async function (e) {
         );
       }
 
-      // --- 1. 予約番号の生成 ---
-      // 新規の場合は生成、更新の場合は既存の番号を維持
-      let reservationNo;
-      if (!oldResSnap.exists()) {
-        // 数字のみ4桁のランダムな文字列を生成 (0000〜9999)
-        reservationNo = Math.floor(1000 + Math.random() * 9000).toString();
-      } else {
-        reservationNo = oldResSnap.data().reservationNo;
-      }
+      let reservationNo = oldResSnap.exists()
+        ? oldResSnap.data().reservationNo
+        : Math.floor(1000 + Math.random() * 9000).toString();
 
-      // 2. 予約データの構築
       const ticketData = {
         liveId: currentLiveId,
         uid: uid,
         resType: resType,
         representativeName: representativeName,
-        reservationNo: reservationNo, // 予約番号を追加
+        reservationNo: reservationNo,
         companions: companions,
         companionCount: companions.length,
         totalCount: newTotalCount,
@@ -278,15 +291,12 @@ $('#reserve-form').on('submit', async function (e) {
 
       if (!oldResSnap.exists()) {
         ticketData.createdAt = utils.serverTimestamp();
-        transaction.set(resRef, ticketData); // 新規作成
+        transaction.set(resRef, ticketData);
       } else {
-        transaction.update(resRef, ticketData); // 更新
+        transaction.update(resRef, ticketData);
       }
 
-      // 3. ライブ側の総予約数を更新
-      transaction.update(liveRef, {
-        totalReserved: currentTotalSold + diff,
-      });
+      transaction.update(liveRef, { totalReserved: currentTotalSold + diff });
     });
 
     utils.hideSpinner();
