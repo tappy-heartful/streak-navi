@@ -7,6 +7,11 @@ $(document).ready(async function () {
     if (picUrl) {
       $('#header-icon-img').attr('src', picUrl);
     }
+    // ログイン中だったらMypage→Loginに変更
+    const uid = utils.getSession('uid');
+    if (!uid) {
+      $('#nav-mypage').text('Login');
+    }
 
     markCurrentPage();
     utils.hideSpinner();
