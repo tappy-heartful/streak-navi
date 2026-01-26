@@ -50,9 +50,17 @@
             <div class="profile-info">
               <p class="profile-label">ようこそ,</p>
               <h2 id="user-name" class="profile-name">Loading...</h2>
-              <button class="btn-logout" onclick="handleLogout()">
-                <i class="fa-solid fa-right-from-bracket"></i> ログアウト
-              </button>
+              <div
+                class="profile-actions"
+                style="display: flex; gap: 10px; align-items: center"
+              >
+                <button class="btn-logout" onclick="handleLogout()">
+                  <i class="fa-solid fa-right-from-bracket"></i> ログアウト
+                </button>
+                <button class="btn-delete-account" onclick="handleWithdrawal()">
+                  退会
+                </button>
+              </div>
             </div>
           </div>
 

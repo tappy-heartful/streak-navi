@@ -913,12 +913,13 @@ export async function archiveAndDeleteDoc(collectionName, docId) {
  * チケット削除処理
  * トランザクションを使用して、lives側の在庫(totalReserved)を正確に差し引きます。
  */
-export async function deleteTicket(liveId) {
+export async function deleteTicket(liveId, isComfirm = true) {
   const uid = getSession('uid');
   if (!uid || !liveId) return false;
 
   // 1. ユーザーへの最終確認
   if (
+    isComfirm &&
     !(await showDialog(
       'この予約を取り消しますか？\n（この操作は元に戻せません）',
     ))
