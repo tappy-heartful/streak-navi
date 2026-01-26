@@ -161,3 +161,22 @@
 .btn-reserve:hover {
     background: #b61a15;
 }
+
+
+/* 注意文言エリアのスタイル */
+.live-notes-area {
+    margin: 20px 0;
+    padding: 15px;
+    background: rgba(231, 33, 26, 0.05); /* ほんのり赤みを帯びた背景 */
+    border-left: 3px solid #e7211a;
+    border-radius: 4px;
+}
+
+.live-notes-text {
+    font-size: 0.85rem;
+    color: #ccc;
+    line-height: 1.6;
+    /* 💡 これが重要：改行コードを反映させ、枠からはみ出す場合は折り返す */
+    white-space: pre-wrap; 
+    margin: 0;
+}
