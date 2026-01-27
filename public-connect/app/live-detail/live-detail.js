@@ -158,7 +158,7 @@ async function loadLiveDetail(liveId) {
           <a href="../ticket-detail/ticket-detail.html?ticketId=${liveId}_${uid}" class="btn-action btn-view-white">
             <i class="fa-solid fa-ticket"></i> チケットを表示
           </a>
-          <a href="../ticket-reserve/ticket-reserve.html?liveId=${liveId}" class="btn-action btn-reserve-red">
+          <a onclick="handleReserve('${liveId}')" class="btn-action btn-reserve-red">
             <i class="fa-solid fa-pen-to-square"></i> 予約内容を変更
           </a>
           <button class="btn-action btn-delete-outline" onclick="handleCancelTicket('${liveId}')">
@@ -169,7 +169,7 @@ async function loadLiveDetail(liveId) {
     } else {
       btnHtml = `
         <div style="max-width:400px; margin:0 auto;">
-          <a href="../ticket-reserve/ticket-reserve.html?liveId=${liveId}" class="btn-action btn-reserve-red">
+          <a onclick="handleReserve('${liveId}')" class="btn-action btn-reserve-red">
             <i class="fa-solid fa-paper-plane"></i> このライブを予約する
           </a>
           <p class="accept-period">受付期間: ${data.acceptStartDate} ～ ${data.acceptEndDate}</p>
@@ -185,4 +185,19 @@ async function loadLiveDetail(liveId) {
  */
 window.handleCancelTicket = async function (liveId) {
   if (await utils.deleteTicket(liveId)) await loadLiveDetail(liveId);
+};
+
+/**
+ * 予約画面へ遷移
+ */
+window.handleReserve = async function (liveId) {
+  const uid = utils.getSession('uid');
+  if (
+    !uid &&
+    !(await utils.showDialog(
+      '予約にはログインが必要です。LINEログインページへ移動します。',
+    ))
+  )
+    return;
+  location.href = `../ticket-reserve/ticket-reserve.html?liveId=${liveId}`;
 };

@@ -148,12 +148,15 @@ window.handleLiveDetail = function (liveId) {
 /**
  * 予約画面へ遷移
  */
-window.handleReserve = function (liveId) {
-  location.href = `../ticket-reserve/ticket-reserve.html?liveId=${liveId}`;
-};
-
-// 予約画面へ
-window.handleReserve = function (liveId) {
+window.handleReserve = async function (liveId) {
+  const uid = utils.getSession('uid');
+  if (
+    !uid &&
+    !(await utils.showDialog(
+      '予約にはログインが必要です。LINEログインページへ移動します。',
+    ))
+  )
+    return;
   location.href = `../ticket-reserve/ticket-reserve.html?liveId=${liveId}`;
 };
 
