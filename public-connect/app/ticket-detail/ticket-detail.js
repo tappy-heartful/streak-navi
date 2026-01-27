@@ -2,7 +2,6 @@ import * as utils from '../common/functions.js';
 
 $(document).ready(async function () {
   try {
-    // ログイン不要で表示
     await utils.initDisplay();
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -12,7 +11,6 @@ $(document).ready(async function () {
       throw new Error('有効なチケットIDが見つかりません。');
     }
 
-    // パンくずリスト、バックリンク設定
     const liveId = ticketId ? ticketId.split('_')[0] : '';
     utils.renderBreadcrumb($('#breadcrumb'), liveId);
     $('.btn-back-home').attr(
@@ -22,7 +20,6 @@ $(document).ready(async function () {
 
     await loadTicketInfo(ticketId);
 
-    // Hero画像
     $('.hero').css(
       '--hero-bg',
       'url("https://tappy-heartful.github.io/streak-connect-images/background/ticket-detail.jpg")',
@@ -51,7 +48,6 @@ async function loadTicketInfo(ticketId) {
 
   const currentUid = utils.getSession('uid');
 
-  // 1. 予約データの取得
   const resRef = utils.doc(utils.db, 'tickets', ticketId);
   const resSnap = await utils.getWrapDoc(resRef);
 
@@ -61,7 +57,6 @@ async function loadTicketInfo(ticketId) {
 
   const resData = resSnap.data();
 
-  // 2. ライブデータの取得
   const liveRef = utils.doc(utils.db, 'lives', resData.liveId);
   const liveSnap = await utils.getWrapDoc(liveRef);
 
@@ -71,7 +66,6 @@ async function loadTicketInfo(ticketId) {
 
   const liveData = liveSnap.data();
 
-  // --- 予約変更が可能かどうかの判定 ---
   const todayStr = utils.format(new Date(), 'yyyy.MM.dd');
   const isPast = liveData.date < todayStr;
   const isAccepting = liveData.isAcceptReserve === true;
@@ -79,11 +73,8 @@ async function loadTicketInfo(ticketId) {
     (!liveData.acceptStartDate || todayStr >= liveData.acceptStartDate) &&
     (!liveData.acceptEndDate || todayStr <= liveData.acceptEndDate);
 
-  // 変更・取消ができる条件
   const canModify = !isPast && isAccepting && isWithinPeriod;
-  // ----------------------------------
 
-  // 3. UI構築
   const isInvite = resData.resType === 'invite';
   const typeLabel = isInvite
     ? 'INVITATION (招待枠)'
@@ -96,7 +87,7 @@ async function loadTicketInfo(ticketId) {
     <p style="margin-top:25px; font-size:0.8rem; color:#888; text-align:center;">
       ${
         isInvite && currentUid && resData.uid === currentUid
-          ? 'ライブに招待する人にこのページを共有してください。'
+          ? 'ライブに招待するお客様にこのページを共有してください。'
           : '当日はこの画面を会場受付にてご提示ください。'
       }
     </p>
@@ -106,10 +97,16 @@ async function loadTicketInfo(ticketId) {
         <span class="res-no-label">RESERVATION NO.</span>
         <div class="res-no-display">
           <span class="res-no-value">${resData.reservationNo || '----'}</span>
-          <button class="btn-copy-no" onclick="handleCopyTicketUrl('${resData.resType}')" title="チケットリンクをコピー">
-            <i class="fa-solid fa-copy"></i>
-          </button>
         </div>
+        <button class="btn-copy-no" onclick="handleCopyTicketUrl('${resData.resType}')">
+          <i class="fa-solid fa-link"></i>
+          <span>COPY</span>
+        </button>
+      </div>
+
+      <div class="qr-wrapper">
+        <div id="qrcode"></div>
+        <p class="qr-note">FOR ENTRANCE CHECK-IN</p>
       </div>
 
       <div class="ticket-info">
@@ -155,12 +152,21 @@ async function loadTicketInfo(ticketId) {
     ? `<div class="flyer-wrapper"><img src="${liveData.flyerUrl}" alt="Flyer"></div>`
     : '';
 
-  // 4. アクションボタンの制御
+  container.html(html);
+
+  // --- QRコード生成実行 ---
+  new QRCode(document.getElementById('qrcode'), {
+    text: ticketId, // チケットIDをそのまま読み取り用データにする
+    width: 160,
+    height: 160,
+    colorDark: '#ffffff', // 白いドット（ダークモード背景に合わせる）
+    colorLight: '#1a1a1a', // 背景色
+    correctLevel: QRCode.CorrectLevel.H,
+  });
+
   if (currentUid && resData.uid === currentUid) {
     let btnHtml = '';
-
     if (canModify) {
-      // 予約受付期間中の表示
       btnHtml = `
         <div class="reserved-actions">
           <a href="../ticket-reserve/ticket-reserve.html?liveId=${resData.liveId}" class="btn-action btn-reserve-red">
@@ -175,7 +181,6 @@ async function loadTicketInfo(ticketId) {
         </div>
       `;
     } else {
-      // 期間外の表示（ボタンを無効化、または案内のみ）
       const statusMsg = isPast
         ? 'ライブは終了しました'
         : '予約受付期間外（内容変更不可）';
@@ -192,30 +197,19 @@ async function loadTicketInfo(ticketId) {
     }
     actionArea.html(btnHtml);
   }
-
-  container.html(html);
 }
 
-/**
- * チケット取り消し処理
- */
 window.handleDeleteTicket = async function (liveId) {
   if (await utils.deleteTicket(liveId)) location.href = '../mypage/mypage.html';
 };
 
-/**
- * チケットURLをクリップボードにコピー
- */
 window.handleCopyTicketUrl = async function (resType) {
   try {
     await navigator.clipboard.writeText(window.location.href);
-
-    // 予約種別によってメッセージを出し分け
     const message =
       resType === 'invite'
-        ? 'チケットURLをコピーしました。\nご招待する人に共有してください。'
+        ? 'チケットURLをコピーしました。\nご招待するお客様に共有してください。'
         : 'チケットURLをコピーしました。\n同伴者様に共有してください。';
-
     await utils.showDialog(message, true);
   } catch (err) {
     console.error('Copy failed:', err);

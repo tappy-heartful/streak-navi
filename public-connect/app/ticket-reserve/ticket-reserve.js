@@ -9,6 +9,11 @@ $(document).ready(async function () {
     // ログイン必須
     await utils.initDisplay(true, true);
 
+    // 【重要】リダイレクトが走っている最中に下のコードが動かないよう、
+    // 確実にuidが存在するかチェックを入れ、なければここで処理を止める。
+    const uid = utils.getSession('uid');
+    if (!uid) return;
+
     const urlParams = new URLSearchParams(window.location.search);
     currentLiveId = urlParams.get('liveId');
 
@@ -26,7 +31,6 @@ $(document).ready(async function () {
     );
 
     // streak-navi（usersコレクション）に存在するかチェック
-    const uid = utils.getSession('uid');
     const userRef = utils.doc(utils.db, 'users', uid);
     const userSnap = await utils.getWrapDoc(userRef);
     isMember = userSnap.exists();
@@ -217,6 +221,12 @@ async function fetchExistingTicket() {
  */
 $('#reserve-form').on('submit', async function (e) {
   e.preventDefault();
+
+  // 1. ユーザーへの確認
+  if (!(await utils.showDialog('この内容で予約しますか？'))) {
+    return false;
+  }
+
   utils.showSpinner();
 
   const uid = utils.getSession('uid');
@@ -306,7 +316,11 @@ $('#reserve-form').on('submit', async function (e) {
     });
 
     utils.hideSpinner();
-    await utils.showDialog('予約を確定しました！ ', true);
+    await utils.showDialog(
+      `予約を確定しました！ 次に表示されるチケットを、
+       ${resType === 'invite' ? 'ご招待するお客様に共有して' : '当日会場受付にてご提示'}ください。`,
+      true,
+    );
     window.location.href =
       '../ticket-detail/ticket-detail.html?ticketId=' + ticketId;
   } catch (e) {

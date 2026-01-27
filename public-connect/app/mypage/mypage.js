@@ -5,6 +5,11 @@ $(document).ready(async function () {
     // ログイン必須
     await utils.initDisplay(true, true);
 
+    // 【重要】リダイレクトが走っている最中に下のコードが動かないよう、
+    // 確実にuidが存在するかチェックを入れ、なければここで処理を止める。
+    const uid = utils.getSession('uid');
+    if (!uid) return;
+
     // プロフィール反映
     $('#user-icon').attr(
       'src',
@@ -127,7 +132,7 @@ window.handleCopyTicketUrl = async function (resType, url) {
 
     const message =
       resType === 'invite'
-        ? 'チケットURLをコピーしました。\nご招待する人に共有してください。'
+        ? 'チケットURLをコピーしました。\nご招待するお客様共有してください。'
         : 'チケットURLをコピーしました。\n同伴者様に共有してください。';
 
     await utils.showDialog(message, true);
