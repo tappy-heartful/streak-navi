@@ -102,7 +102,8 @@ async function loadTickets() {
         <button class="btn-detail" onclick="handleLiveDetail('${liveId}')">詳細 / VIEW INFO</button>
         ${
           isReserved
-            ? `<button class="btn-reserve" onclick="handleReserve('${liveId}')">予約変更</button>
+            ? `<button class="btn-ticket-detail" onclick="handleTicketDetail('${liveId}')">チケットを表示</button>
+             <button class="btn-reserve" onclick="handleReserve('${liveId}')">予約変更</button>
              <button class="btn-reserve btn-delete" onclick="handleDeleteTicket('${liveId}')">取消</button>`
             : `<button class="btn-reserve" onclick="handleReserve('${liveId}')">予約 / RESERVE</button>`
         }
@@ -137,6 +138,14 @@ async function loadTickets() {
     if (!isPast) upcomingContainer.append(cardHtml);
   });
 }
+
+/**
+ * 予約画面へ遷移
+ */
+window.handleTicketDetail = async function (liveId) {
+  const uid = utils.getSession('uid');
+  location.href = `../ticket-detail/ticket-detail.html?liveId=${liveId}_${uid}`;
+};
 
 /**
  * ライブ詳細ページへ遷移

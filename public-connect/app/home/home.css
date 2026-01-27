@@ -199,7 +199,7 @@
 
 
 /* ボタン基本スタイル */
-.btn-reserve, .btn-detail {
+.btn-reserve, .btn-detail, .btn-delete, .btn-ticket-detail {
     padding: 12px;
     text-align: center;
     font-weight: bold;
@@ -216,15 +216,6 @@
     gap: 8px;
 }
 
-/* 予約ボタン：赤背景 */
-.btn-reserve {
-    background: #e7211a;
-    color: #fff;
-}
-
-.btn-reserve:hover {
-    background: #b61a15;
-}
 
 /* 詳細ボタン：白枠 */
 .btn-detail {
@@ -236,6 +227,27 @@
 .btn-detail:hover {
     background: #fff;
     color: #000;
+}
+
+/* チケット詳細ボタン：白背景 */
+.btn-ticket-detail {
+    background: #fff;
+    color: #000;
+}
+
+.btn-ticket-detail:hover {
+    background: #e9e9e9;
+}
+
+
+/* 予約ボタン：赤背景 */
+.btn-reserve {
+    background: #e7211a;
+    color: #fff;
+}
+
+.btn-reserve:hover {
+    background: #b61a15;
 }
 
 /* 取り消しボタン（枠線のみのスタイル） */
