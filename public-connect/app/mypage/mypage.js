@@ -132,7 +132,7 @@ window.handleCopyTicketUrl = async function (resType, url) {
 
     const message =
       resType === 'invite'
-        ? 'チケットURLをコピーしました。\nご招待する人に共有してください。'
+        ? 'チケットURLをコピーしました。\nご招待するお客様共有してください。'
         : 'チケットURLをコピーしました。\n同伴者様に共有してください。';
 
     await utils.showDialog(message, true);

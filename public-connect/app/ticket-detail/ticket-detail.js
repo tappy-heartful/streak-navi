@@ -95,7 +95,7 @@ async function loadTicketInfo(ticketId) {
     <p style="margin-top:25px; font-size:0.8rem; color:#888; text-align:center;">
       ${
         isInvite && currentUid && resData.uid === currentUid
-          ? 'ライブに招待する人にこのページを共有してください。'
+          ? 'ライブに招待するお客様このページを共有してください。'
           : '当日はこの画面を会場受付にてご提示ください。'
       }
     </p>
@@ -211,7 +211,7 @@ window.handleCopyTicketUrl = async function (resType) {
     // 予約種別によってメッセージを出し分け
     const message =
       resType === 'invite'
-        ? 'チケットURLをコピーしました。\nご招待する人に共有してください。'
+        ? 'チケットURLをコピーしました。\nご招待するお客様共有してください。'
         : 'チケットURLをコピーしました。\n同伴者様に共有してください。';
 
     await utils.showDialog(message, true);

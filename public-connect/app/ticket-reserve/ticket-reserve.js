@@ -221,6 +221,12 @@ async function fetchExistingTicket() {
  */
 $('#reserve-form').on('submit', async function (e) {
   e.preventDefault();
+
+  // 1. ユーザーへの確認
+  if (!(await utils.showDialog('この内容で予約しますか？'))) {
+    return false;
+  }
+
   utils.showSpinner();
 
   const uid = utils.getSession('uid');
