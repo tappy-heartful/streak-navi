@@ -310,7 +310,11 @@ $('#reserve-form').on('submit', async function (e) {
     });
 
     utils.hideSpinner();
-    await utils.showDialog('予約を確定しました！ ', true);
+    await utils.showDialog(
+      `予約を確定しました！ 次に表示されるチケットを、
+       ${resType === 'invite' ? 'ご招待するお客様に共有して' : '当日会場受付にてご提示'}ください。`,
+      true,
+    );
     window.location.href =
       '../ticket-detail/ticket-detail.html?ticketId=' + ticketId;
   } catch (e) {
