@@ -144,7 +144,7 @@ async function loadTickets() {
  */
 window.handleTicketDetail = async function (liveId) {
   const uid = utils.getSession('uid');
-  location.href = `../ticket-detail/ticket-detail.html?liveId=${liveId}_${uid}`;
+  location.href = `../ticket-detail/ticket-detail.html?ticketId=${liveId}_${uid}`;
 };
 
 /**
