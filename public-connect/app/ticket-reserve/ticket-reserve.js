@@ -9,6 +9,11 @@ $(document).ready(async function () {
     // ログイン必須
     await utils.initDisplay(true, true);
 
+    // 【重要】リダイレクトが走っている最中に下のコードが動かないよう、
+    // 確実にuidが存在するかチェックを入れ、なければここで処理を止める。
+    const uid = utils.getSession('uid');
+    if (!uid) return;
+
     const urlParams = new URLSearchParams(window.location.search);
     currentLiveId = urlParams.get('liveId');
 
@@ -26,7 +31,6 @@ $(document).ready(async function () {
     );
 
     // streak-navi（usersコレクション）に存在するかチェック
-    const uid = utils.getSession('uid');
     const userRef = utils.doc(utils.db, 'users', uid);
     const userSnap = await utils.getWrapDoc(userRef);
     isMember = userSnap.exists();

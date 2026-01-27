@@ -5,6 +5,11 @@ $(document).ready(async function () {
     // ログイン必須
     await utils.initDisplay(true, true);
 
+    // 【重要】リダイレクトが走っている最中に下のコードが動かないよう、
+    // 確実にuidが存在するかチェックを入れ、なければここで処理を止める。
+    const uid = utils.getSession('uid');
+    if (!uid) return;
+
     // プロフィール反映
     $('#user-icon').attr(
       'src',
