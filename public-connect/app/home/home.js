@@ -388,7 +388,10 @@ async function handleLineLoginCallback(code, state, error) {
       // URLからLINEの認可コード等を消して、綺麗なURLにする
       window.history.replaceState({}, document.title, window.location.pathname);
 
-      // コンテンツを隠して規約を表示
+      // ★リダイレクト先URLをセッションに保存しておく
+      const targetUrl = redirectAfterLogin || './home.html';
+      utils.setSession('pendingRedirect', targetUrl);
+
       $('main > section').hide();
       $('#agreement-overlay').fadeIn();
 
@@ -396,7 +399,7 @@ async function handleLineLoginCallback(code, state, error) {
       $('#agree-check').on('change', function () {
         $('#btn-agree').prop('disabled', !this.checked);
       });
-      return; // ここで処理を終了し、通常のコンテンツ読み込みをブロック
+      return;
     }
 
     // すでに同意済みの場合は指定の場所かホームへ
@@ -419,7 +422,7 @@ async function handleLineLoginCallback(code, state, error) {
 }
 
 /**
- * 規約同意ボタンクリック時の処理 (document.ready内に記述)
+ * 規約同意ボタンクリック時の処理
  */
 $(document).on('click', '#btn-agree', async function () {
   const uid = utils.getSession('uid');
@@ -432,14 +435,18 @@ $(document).on('click', '#btn-agree', async function () {
     // 同意日時を記録
     await utils.setDoc(
       userRef,
-      {
-        agreedAt: utils.serverTimestamp(),
-      },
+      { agreedAt: utils.serverTimestamp() },
       { merge: true },
     );
 
-    // 画面再読み込み
-    window.location.reload();
+    // ★一時保存していたリダイレクト先を取得
+    const targetUrl = utils.getSession('pendingRedirect') || './home.html';
+
+    // 使い終わったのでセッションから削除
+    utils.removeSession('pendingRedirect'); // utilsにremoveがあればそれを使用
+
+    // 指定の画面へ遷移（reloadではなくhref書き換え）
+    window.location.href = targetUrl;
   } catch (e) {
     console.error(e);
     alert('同意処理中にエラーが発生しました。');
