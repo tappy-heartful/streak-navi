@@ -222,6 +222,32 @@ async function fetchExistingTicket() {
 $('#reserve-form').on('submit', async function (e) {
   e.preventDefault();
 
+  // バリデーションチェック
+  const resType = isMember
+    ? $('input[name="resType"]:checked').val()
+    : 'general';
+  const representativeName =
+    resType === 'invite'
+      ? utils.getSession('displayName')
+      : $('#representativeName').val().trim();
+
+  const companions = [];
+  $('.companion-input').each(function () {
+    const val = $(this).val().trim();
+    if (val) companions.push(val);
+  });
+
+  const newTotalCount =
+    resType === 'invite' ? companions.length : companions.length + 1;
+
+  if (newTotalCount === 0) {
+    await utils.showDialog(
+      '予約人数が0名です。お名前を入力してください。',
+      true,
+    );
+    return;
+  }
+
   // 1. ユーザーへの確認
   if (!(await utils.showDialog('この内容で予約しますか？'))) {
     return false;
@@ -233,27 +259,6 @@ $('#reserve-form').on('submit', async function (e) {
   const ticketId = `${currentLiveId}_${uid}`;
 
   try {
-    const resType = isMember
-      ? $('input[name="resType"]:checked').val()
-      : 'general';
-    const representativeName =
-      resType === 'invite'
-        ? utils.getSession('displayName')
-        : $('#representativeName').val().trim();
-
-    const companions = [];
-    $('.companion-input').each(function () {
-      const val = $(this).val().trim();
-      if (val) companions.push(val);
-    });
-
-    const newTotalCount =
-      resType === 'invite' ? companions.length : companions.length + 1;
-
-    if (newTotalCount === 0) {
-      throw new Error('予約人数が0名です。お名前を入力してください。');
-    }
-
     await utils.runTransaction(utils.db, async (transaction) => {
       const liveRef = utils.doc(utils.db, 'lives', currentLiveId);
       const resRef = utils.doc(utils.db, 'tickets', ticketId);
@@ -317,8 +322,8 @@ $('#reserve-form').on('submit', async function (e) {
 
     utils.hideSpinner();
     await utils.showDialog(
-      `予約を確定しました！ 次に表示されるチケットを、
-       ${resType === 'invite' ? 'ご招待するお客様に共有して' : '当日会場受付にてご提示'}ください。`,
+      `予約を確定しました！ 次に表示されるチケットを
+       ${resType === 'invite' ? 'ご招待するお客様に共有して' : '会場受付にてご提示'}ください。`,
       true,
     );
     window.location.href =

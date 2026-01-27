@@ -102,7 +102,8 @@ async function loadTickets() {
         <button class="btn-detail" onclick="handleLiveDetail('${liveId}')">詳細 / VIEW INFO</button>
         ${
           isReserved
-            ? `<button class="btn-reserve" onclick="handleReserve('${liveId}')">予約変更</button>
+            ? `<button class="btn-ticket-detail" onclick="handleTicketDetail('${liveId}')">チケットを表示</button>
+             <button class="btn-reserve" onclick="handleReserve('${liveId}')">予約変更</button>
              <button class="btn-reserve btn-delete" onclick="handleDeleteTicket('${liveId}')">取消</button>`
             : `<button class="btn-reserve" onclick="handleReserve('${liveId}')">予約 / RESERVE</button>`
         }
@@ -137,6 +138,14 @@ async function loadTickets() {
     if (!isPast) upcomingContainer.append(cardHtml);
   });
 }
+
+/**
+ * 予約画面へ遷移
+ */
+window.handleTicketDetail = async function (liveId) {
+  const uid = utils.getSession('uid');
+  location.href = `../ticket-detail/ticket-detail.html?ticketId=${liveId}_${uid}`;
+};
 
 /**
  * ライブ詳細ページへ遷移
@@ -327,7 +336,7 @@ async function handleLineLoginCallback(code, state, error) {
     const {
       customToken,
       profile,
-      redirectAfterLogin, // サーバーのFirestoreから復元されたURL
+      redirectAfterLogin,
       error: loginError,
     } = await loginResponse.json();
 
@@ -340,12 +349,12 @@ async function handleLineLoginCallback(code, state, error) {
       customToken,
     );
     const user = userCredential.user;
-    utils.setSession('uid', user.uid);
 
-    // 【修正】保存先を connectUsers に変更
+    // ユーザーデータの取得と保存
     const userRef = utils.doc(utils.db, 'connectUsers', user.uid);
     const docSnap = await utils.getWrapDoc(userRef);
     const userExists = docSnap.exists();
+    const existingData = userExists ? docSnap.data() : {};
 
     const displayName = profile.displayName || '名無し';
     const pictureUrl = profile.pictureUrl || utils.globalLineDefaultImage;
@@ -360,6 +369,7 @@ async function handleLineLoginCallback(code, state, error) {
       userData.createdAt = utils.serverTimestamp();
     }
 
+    // データの保存（merge: true で既存の agreedAt などを消さないようにする）
     await utils.setDoc(userRef, userData, { merge: true });
 
     // 最新のユーザー情報をセッションに同期
@@ -370,8 +380,29 @@ async function handleLineLoginCallback(code, state, error) {
     }
     utils.setSession('uid', user.uid);
 
-    // 【修正】リダイレクト判定
-    // サーバーから戻り先URLが来ていればそこへ、無ければホームへ
+    // --- 規約同意チェックロジック ---
+    if (!latestUserData.agreedAt) {
+      // 未同意の場合：クエリパラメータを消して、同意画面を表示
+      utils.hideSpinner();
+
+      // URLからLINEの認可コード等を消して、綺麗なURLにする
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      // ★リダイレクト先URLをセッションに保存しておく
+      const targetUrl = redirectAfterLogin || './home.html';
+      utils.setSession('pendingRedirect', targetUrl);
+
+      $('main > section').hide();
+      $('#agreement-overlay').fadeIn();
+
+      // ボタンの活性化制御イベントを登録
+      $('#agree-check').on('change', function () {
+        $('#btn-agree').prop('disabled', !this.checked);
+      });
+      return;
+    }
+
+    // すでに同意済みの場合は指定の場所かホームへ
     const targetUrl = redirectAfterLogin || './home.html';
     window.location.href = targetUrl;
   } catch (e) {
@@ -382,8 +413,44 @@ async function handleLineLoginCallback(code, state, error) {
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
     });
-    window.location.href = './home.html'; // エラー時もとりあえずホームへ
+
+    // 画面再読み込み
+    window.location.reload();
   } finally {
     utils.hideSpinner();
   }
 }
+
+/**
+ * 規約同意ボタンクリック時の処理
+ */
+$(document).on('click', '#btn-agree', async function () {
+  const uid = utils.getSession('uid');
+  if (!uid) return;
+
+  utils.showSpinner();
+  try {
+    const userRef = utils.doc(utils.db, 'connectUsers', uid);
+
+    // 同意日時を記録
+    await utils.setDoc(
+      userRef,
+      { agreedAt: utils.serverTimestamp() },
+      { merge: true },
+    );
+
+    // ★一時保存していたリダイレクト先を取得
+    const targetUrl = utils.getSession('pendingRedirect') || './home.html';
+
+    // 使い終わったのでセッションから削除
+    utils.removeSession('pendingRedirect'); // utilsにremoveがあればそれを使用
+
+    // 指定の画面へ遷移（reloadではなくhref書き換え）
+    window.location.href = targetUrl;
+  } catch (e) {
+    console.error(e);
+    alert('同意処理中にエラーが発生しました。');
+  } finally {
+    utils.hideSpinner();
+  }
+});

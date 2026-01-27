@@ -242,6 +242,17 @@ export async function initDisplay(
       return;
     }
 
+    // 利用規約同意チェック
+    if (!userSnap.data().agreedAt) {
+      await auth.signOut();
+      clearAllAppSession();
+      alert('利用規約への同意が必要です。');
+      // 同意していない場合はホーム画面へ
+      window.location.href = '../home/home.html';
+      hideSpinner();
+      return;
+    }
+
     // --- 4. ユーザー情報をセッションに更新 ---
     for (const [key, value] of Object.entries(userSnap.data())) {
       setSession(key, value);

@@ -36,6 +36,44 @@
         </div>
       </section>
 
+      <div id="agreement-overlay" style="display: none">
+        <div class="agreement-card">
+          <h1 class="agreement-title">TERMS OF SERVICE</h1>
+          <div class="agreement-body">
+            <h3>1. 本サービスについて</h3>
+            <p>
+              本システムは、SSJOのライブ予約、チケット発行、および当日のスムーズな受付管理を行うためのサービスです。
+            </p>
+
+            <h3>2. データの取得とセキュリティ</h3>
+            <p>
+              ・LINEアカウントから「表示名」および「プロフィール画像」を取得し、予約者の識別に使用します。<br />
+              ・LINE
+              ID（内部識別子）は、セキュリティ確保のため**不可逆なハッシュ化**を行った上で、Google社のクラウドサービス**「Firebase
+              Firestore」**に厳重に保存・管理されます。
+            </p>
+
+            <h3>3. 個人情報の利用目的</h3>
+            <p>
+              取得した情報は、ライブ当日の受付確認および、緊急時の連絡（公演中止等）以外の目的には一切使用いたしません。
+            </p>
+
+            <h3>4. 予約・キャンセルについて</h3>
+            <p>
+              無断キャンセルは運営に大きな影響を及ぼします。万が一来場できなくなった場合は、本システム内より速やかにキャンセルまたは変更の手続きを行ってください。
+            </p>
+          </div>
+          <div class="agreement-footer">
+            <label class="checkbox-container">
+              <input type="checkbox" id="agree-check" /> 規約に同意する
+            </label>
+            <button id="btn-agree" class="btn-primary" disabled>
+              承諾してはじめる
+            </button>
+          </div>
+        </div>
+      </div>
+
       <section class="content-section">
         <div class="inner">
           <h2 class="section-title">UPCOMING LIVES</h2>
