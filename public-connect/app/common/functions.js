@@ -462,7 +462,7 @@ export function errorHandler(errorMessage) {
   hideSpinner();
   console.error('Error:', errorMessage);
   if (
-    confirm(`エラーが発生しました: ${errorMessage}\nログイン画面に戻りますか？`)
+    confirm(`エラーが発生しました: ${errorMessage}\nホーム画面に戻りますか？`)
   ) {
     // ログインページへ遷移
     window.location.href = window.location.origin;
