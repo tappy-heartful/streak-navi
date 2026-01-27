@@ -336,7 +336,7 @@ async function handleLineLoginCallback(code, state, error) {
     const {
       customToken,
       profile,
-      redirectAfterLogin, // サーバーのFirestoreから復元されたURL
+      redirectAfterLogin,
       error: loginError,
     } = await loginResponse.json();
 
@@ -349,12 +349,12 @@ async function handleLineLoginCallback(code, state, error) {
       customToken,
     );
     const user = userCredential.user;
-    utils.setSession('uid', user.uid);
 
-    // 【修正】保存先を connectUsers に変更
+    // ユーザーデータの取得と保存
     const userRef = utils.doc(utils.db, 'connectUsers', user.uid);
     const docSnap = await utils.getWrapDoc(userRef);
     const userExists = docSnap.exists();
+    const existingData = userExists ? docSnap.data() : {};
 
     const displayName = profile.displayName || '名無し';
     const pictureUrl = profile.pictureUrl || utils.globalLineDefaultImage;
@@ -369,6 +369,7 @@ async function handleLineLoginCallback(code, state, error) {
       userData.createdAt = utils.serverTimestamp();
     }
 
+    // データの保存（merge: true で既存の agreedAt などを消さないようにする）
     await utils.setDoc(userRef, userData, { merge: true });
 
     // 最新のユーザー情報をセッションに同期
@@ -379,8 +380,26 @@ async function handleLineLoginCallback(code, state, error) {
     }
     utils.setSession('uid', user.uid);
 
-    // 【修正】リダイレクト判定
-    // サーバーから戻り先URLが来ていればそこへ、無ければホームへ
+    // --- 規約同意チェックロジック ---
+    if (!latestUserData.agreedAt) {
+      // 未同意の場合：クエリパラメータを消して、同意画面を表示
+      utils.hideSpinner();
+
+      // URLからLINEの認可コード等を消して、綺麗なURLにする
+      window.history.replaceState({}, document.title, window.location.pathname);
+
+      // コンテンツを隠して規約を表示
+      $('main > section').hide();
+      $('#agreement-overlay').fadeIn();
+
+      // ボタンの活性化制御イベントを登録
+      $('#agree-check').on('change', function () {
+        $('#btn-agree').prop('disabled', !this.checked);
+      });
+      return; // ここで処理を終了し、通常のコンテンツ読み込みをブロック
+    }
+
+    // すでに同意済みの場合は指定の場所かホームへ
     const targetUrl = redirectAfterLogin || './home.html';
     window.location.href = targetUrl;
   } catch (e) {
@@ -391,8 +410,40 @@ async function handleLineLoginCallback(code, state, error) {
       status: 'error',
       errorDetail: { message: e.message, stack: e.stack },
     });
-    window.location.href = './home.html'; // エラー時もとりあえずホームへ
+
+    // 画面再読み込み
+    window.location.reload();
   } finally {
     utils.hideSpinner();
   }
 }
+
+/**
+ * 規約同意ボタンクリック時の処理 (document.ready内に記述)
+ */
+$(document).on('click', '#btn-agree', async function () {
+  const uid = utils.getSession('uid');
+  if (!uid) return;
+
+  utils.showSpinner();
+  try {
+    const userRef = utils.doc(utils.db, 'connectUsers', uid);
+
+    // 同意日時を記録
+    await utils.setDoc(
+      userRef,
+      {
+        agreedAt: utils.serverTimestamp(),
+      },
+      { merge: true },
+    );
+
+    // 画面再読み込み
+    window.location.reload();
+  } catch (e) {
+    console.error(e);
+    alert('同意処理中にエラーが発生しました。');
+  } finally {
+    utils.hideSpinner();
+  }
+});

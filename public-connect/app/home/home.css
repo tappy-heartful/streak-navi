@@ -587,3 +587,102 @@
     }
 }
 /* --- HISTORY (MEDIA) ここまで --- */
+
+
+
+
+
+
+
+
+
+/* --- 同意画面 --- */
+/* home.css へ追加 */
+#agreement-overlay {
+    padding: 40px 20px;
+    background: #000; /* 背景を黒くして境界をはっきりさせる */
+}
+
+.agreement-card {
+    background: #111;
+    border: 1px solid #e7211a; /* バンドカラーの枠線 */
+    border-radius: 12px;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+.agreement-title {
+    font-family: 'Impact', sans-serif;
+    color: #e7211a;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.agreement-body {
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 8px;
+    height: 250px;
+    overflow-y: auto; /* 長くなってもスクロール可能に */
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.agreement-body h3 {
+    color: #fff;
+    font-size: 1rem;
+    margin-top: 15px;
+}
+
+.agreement-footer {
+    text-align: center;
+}
+
+.checkbox-container {
+    display: block;
+    margin-bottom: 20px;
+    color: #fff;
+    cursor: pointer;
+}
+/* 規約同意ボタンのスタイル */
+.btn-primary {
+    width: 100%;
+    max-width: 300px; /* PCで見ても広がりすぎないように */
+    padding: 16px 24px;
+    background-color: #e7211a;
+    color: #fff;
+    border: none;
+    border-radius: 50px; /* 丸みを持たせてモダンな印象に */
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(231, 33, 26, 0.3);
+    margin: 0 auto;
+    display: block;
+}
+
+/* ホバー時：少し明るくして浮き上がらせる */
+.btn-primary:hover:not(:disabled) {
+    background-color: #ff3c35;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(231, 33, 26, 0.4);
+}
+
+/* 活性時：クリックした感触を出す */
+.btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* 無効時（チェックボックス未チェック時） */
+.btn-primary:disabled {
+    background-color: #444;
+    color: #888;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.6;
+}
+/* --- 同意画面ここまで --- */
