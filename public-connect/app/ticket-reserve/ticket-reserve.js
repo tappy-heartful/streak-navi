@@ -307,6 +307,7 @@ $('#reserve-form').on('submit', async function (e) {
         companions: companions,
         companionCount: companions.length,
         totalCount: newTotalCount,
+        isLineNotified: false, // ★ここで常にfalseに設定（更新時も再通知される）
         updatedAt: utils.serverTimestamp(),
       };
 
