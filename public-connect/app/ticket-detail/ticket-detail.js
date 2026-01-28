@@ -87,8 +87,8 @@ async function loadTicketInfo(ticketId) {
     <p style="margin-top:25px; font-size:0.8rem; color:#888; text-align:center;">
       ${
         isInvite && currentUid && resData.uid === currentUid
-          ? 'ライブに招待するお客様にこのページを共有してください。'
-          : '当日はこの画面を会場受付にてご提示ください。'
+          ? 'ライブに招待するお客様にこのページを共有してください！'
+          : '当日はこの画面を会場受付にてご提示ください！'
       }
     </p>
 
@@ -208,8 +208,8 @@ window.handleCopyTicketUrl = async function (resType) {
     await navigator.clipboard.writeText(window.location.href);
     const message =
       resType === 'invite'
-        ? 'チケットURLをコピーしました。\nご招待するお客様に共有してください。'
-        : 'チケットURLをコピーしました。\n同伴者様に共有してください。';
+        ? 'チケットURLをコピーしました！\nご招待するお客様に共有してください！'
+        : 'チケットURLをコピーしました！\n同伴者様に共有してください！';
     await utils.showDialog(message, true);
   } catch (err) {
     console.error('Copy failed:', err);

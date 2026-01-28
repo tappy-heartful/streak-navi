@@ -436,8 +436,61 @@
 
 
 
+/* SNS Section Styles */
+.sns-container {
+  text-align: center;
+  padding: 10px 0;
+}
 
+.sns-desc {
+  margin-bottom: 20px;
+  font-size: 0.9rem;
+  color: #ccc;
+}
 
+.sns-links {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  align-items: center;
+}
+
+.sns-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  width: 100%;
+  max-width: 300px;
+  padding: 12px 20px;
+  border-radius: 50px;
+  text-decoration: none;
+  font-weight: bold;
+  transition: opacity 0.3s;
+  color: #fff;
+}
+
+.sns-btn:hover {
+  opacity: 0.8;
+}
+
+/* 各ブランドカラー */
+.line-btn {
+  background-color: #06C755; /* LINEグリーン */
+}
+
+.insta-btn {
+  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); /* Instagramグラデーション */
+}
+
+/* PC等で横並びにする場合 */
+@media (min-width: 600px) {
+  .sns-links {
+    flex-direction: row;
+    justify-content: center;
+  }
+}
+/* SNS Section Styles ここまで */
 
 
 
