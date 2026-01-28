@@ -132,8 +132,8 @@ window.handleCopyTicketUrl = async function (resType, url) {
 
     const message =
       resType === 'invite'
-        ? 'チケットURLをコピーしました。\nご招待するお客様共有してください。'
-        : 'チケットURLをコピーしました。\n同伴者様に共有してください。';
+        ? 'チケットURLをコピーしました！\nご招待するお客様共有してください！'
+        : 'チケットURLをコピーしました！\n同伴者様に共有してください！';
 
     await utils.showDialog(message, true);
   } catch (err) {
@@ -253,7 +253,7 @@ async function loadMyTickets() {
           
           ${actionButtons}
           
-          ${canModify ? `<p class="note-text">${msgTarget}にチケットURLを共有してください</p>` : ''}
+          ${canModify ? `<p class="note-text">${msgTarget}にチケットURLを共有してください！</p>` : ''}
         </div>
       </div>
     `);

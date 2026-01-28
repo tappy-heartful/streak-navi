@@ -324,7 +324,7 @@ $('#reserve-form').on('submit', async function (e) {
     utils.hideSpinner();
     await utils.showDialog(
       `予約を確定しました！ 次に表示されるチケットを
-       ${resType === 'invite' ? 'ご招待するお客様に共有して' : '会場受付にてご提示'}ください。`,
+       ${resType === 'invite' ? 'ご招待するお客様に共有して' : '会場受付にてご提示'}ください！`,
       true,
     );
     window.location.href =
