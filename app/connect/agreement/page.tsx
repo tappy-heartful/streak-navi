@@ -10,6 +10,7 @@ import Link from "next/link";
 import "./agreement.css";
 
 export default function AgreementPage() {
+  showSpinner();
   const [agreed, setAgreed] = useState(false);
   
   // --- 修正ポイント：フックは必ずここで呼ぶ！ ---
@@ -55,6 +56,7 @@ export default function AgreementPage() {
     );
   }
 
+  hideSpinner();
   return (
     <main className="agreement-page">
       <section className="hero-mini">
