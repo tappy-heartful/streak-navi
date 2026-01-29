@@ -13,8 +13,12 @@ import {
   Query,
   QuerySnapshot,
   DocumentSnapshot,
+  collection, 
+  query, 
+  where, 
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
+import { showDialog } from "@/components/CommonDialog"; // 先ほど作った共通ダイアログ
 
 // --- 定数 ---
 export const isTest = typeof window !== 'undefined' && window.location.hostname.includes('streak-connect-test');
@@ -144,3 +148,67 @@ export async function writeLog({ dataId, action, status = 'success', errorDetail
     console.error("Log failed", e);
   }
 }
+
+export async function archiveAndDeleteDoc(collectionName: string, docId: string) {
+  const docRef = doc(db, collectionName, docId);
+  const snap = await getDoc(docRef);
+
+  if (snap.exists()) {
+    // 削除前に 'archives' コレクションにコピー（履歴保存用）
+    const archiveRef = doc(db, "archives", `${collectionName}_${docId}_${Date.now()}`);
+    await setDoc(archiveRef, {
+      ...snap.data(),
+      archivedAt: serverTimestamp(),
+      originalCollection: collectionName,
+      originalId: docId
+    });
+    // 本番データを削除
+    await deleteDoc(docRef);
+  }
+}
+
+/**
+ * チケットの削除
+ * @param liveId 対象のライブID
+ * @param showConfirm 確認ダイアログを出すかどうか
+ */
+export async function deleteTicket(liveId: string, showConfirm = true) {
+  if (showConfirm) {
+    const ok = await showDialog("予約を取り消しますか？\n(この操作は取り消せません)");
+    if (!ok) return false;
+  }
+
+  const user = auth.currentUser;
+  if (!user) return false;
+
+  try {
+    // 1. チケットドキュメントを探す (uid と liveId で特定)
+    const q = query(
+      collection(db, "tickets"),
+      where("uid", "==", user.uid),
+      where("liveId", "==", liveId)
+    );
+    const snap = await getDocs(q);
+
+    if (snap.empty) return false;
+
+    // 2. 削除（複数ヒットしても基本は1つのはずだがループで処理）
+    for (const d of snap.docs) {
+      // こちらも一応アーカイブしてから消すのが安全
+      await archiveAndDeleteDoc("tickets", d.id);
+    }
+    
+    if (showConfirm) {
+      await showDialog("予約を取り消しました。", true);
+    }
+    return true;
+  } catch (e) {
+    console.error("Delete Ticket Error:", e);
+    await showDialog("エラーが発生しました。", true);
+    return false;
+  }
+}
+
+// すでに CommonDialog.tsx で export していますが、
+// もし lib/functions.ts からも呼び出したい場合は再エクスポートしておくと便利です
+export { showDialog };

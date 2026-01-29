@@ -1,0 +1,180 @@
+/* プロフィールエリア */
+.profile-card {
+    display: flex;
+    align-items: center;
+    background: #111;
+    padding: 25px;
+    border: 1px solid #222;
+    margin-bottom: 40px;
+    border-radius: 8px;
+}
+
+.profile-icon-wrapper {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 2px solid #e7211a;
+    margin-right: 20px;
+}
+
+.profile-icon-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.profile-name {
+    font-size: 1.5rem;
+    color: #fff;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+/* プロフィールエリアに追加 */
+.btn-delete-account {
+    background: transparent;
+    border: 1px solid #444;
+    color: #666;
+    padding: 5px 12px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.3s;
+}
+
+.btn-delete-account:hover {
+    color: #e7211a;
+    border-color: #e7211a;
+    background: rgba(231, 33, 26, 0.05);
+}
+.btn-logout {
+    background: transparent;
+    border: 1px solid #444;
+    color: #888;
+    padding: 5px 12px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: 0.3s;
+}
+
+.btn-logout:hover {
+    color: #fff;
+    border-color: #fff;
+}
+
+/* チケットカード追加分 */
+.ticket-card.detail-mode {
+    position: relative;
+    background: #1a1a1a;
+    padding: 25px;
+    border-left: 5px solid #e7211a;
+    margin-bottom: 20px;
+    border-radius: 4px;
+}
+
+.card-status-area {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    text-align: right;
+}
+
+.t-status-badge {
+    display: inline-block;
+    background: rgba(231, 33, 26, 0.1);
+    color: #e7211a;
+    border: 1px solid #e7211a;
+    padding: 2px 10px;
+    font-size: 0.65rem;
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 0.1em;
+    border-radius: 20px;
+    margin-bottom: 5px;
+}
+
+.res-no-mini {
+    color: #fff;
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 20px;
+    font-weight: bold;
+    letter-spacing: 1px;
+}
+
+.res-type-label {
+    display: inline-block;
+    font-size: 0.7rem;
+    background: #333;
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    font-weight: bold;
+}
+
+.ticket-actions {
+    padding-top: 15px;
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 15px;
+}
+
+/* 共通ボタン設定 */
+.btn-view, .btn-edit, .btn-delete, .btn-ticket {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+    padding: 10px 4px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    border-radius: 4px;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+
+.btn-ticket { background: #fff; border-color: #fff; color: #000; }
+.btn-ticket:hover { background: #e9e9e9; }
+
+.btn-view { background: transparent; border-color: #fff; color: #fff; }
+.btn-view:hover { background: #fff; color: #000; }
+
+.btn-edit { background: #e7211a; border-color: #e7211a; color: #fff; }
+.btn-edit:hover { background: #b61a15; }
+
+.btn-delete { background: transparent; border-color: #e7211a; color: #e7211a; }
+.btn-delete:hover { background: rgba(231, 33, 26, 0.1); }
+
+.t-details p {
+    margin: 10px 0;
+    font-size: 0.9rem;
+    color: #fff;
+}
+
+.t-details i {
+    width: 20px;
+    color: #e7211a;
+    text-align: center;
+}
+
+.note-text {
+    margin-top: 15px;
+    font-size: 0.7rem;
+    color: #bbb;
+    text-align: center;
+    font-weight: 500;
+}
+.note-text::before { content: "※"; margin-right: 2px; }
+
+.status-badge {
+    font-size: 0.8rem;
+    color: #888;
+    background: #222;
+    padding: 4px 12px;
+    border-radius: 4px;
+    border: 1px solid #333;
+    display: inline-block;
+}
