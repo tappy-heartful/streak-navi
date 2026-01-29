@@ -120,6 +120,7 @@ export default function HomePage() {
                       <div><i className="fa-solid fa-location-dot"></i> {live.venue}</div>
                       <div><i className="fa-solid fa-clock"></i> Open {live.open} / Start {live.start}</div>
                       <div><i className="fa-solid fa-ticket"></i> 前売：{live.advance}</div>
+                      <div><i className="fa-solid fa-ticket"></i> 当日：{live.door}</div>
                     </div>
                     <Link href={`/connect/live-detail/${live.id}`} className={styles.btnDetail}>
                       詳細 / VIEW INFO
@@ -139,7 +140,7 @@ export default function HomePage() {
           <div className={styles.conceptBody}>
             <p className={styles.conceptLead}>Swingは続く...</p>
             <div className={styles.conceptText}>
-              <p>Swing Streak Jazz Orchestra（SSJO）は、2021年に結成されました。</p>
+              <p>Swing Streak Jazz Orchestra（SSJO）は、2022年に結成されました。</p>
               <p>現役時代に築いた関係性が、これからも絶えることなく続いていきますように。</p>
             </div>
           </div>
