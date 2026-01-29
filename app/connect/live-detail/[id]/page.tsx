@@ -21,6 +21,7 @@ export default function LiveDetailPage() {
   const [isReserved, setIsReserved] = useState(false);
   const [fetching, setFetching] = useState(true);
 
+  // データ取得とタブタイトルの更新
   useEffect(() => {
     if (!id) return;
     loadData();
@@ -54,7 +55,7 @@ export default function LiveDetailPage() {
   };
 
   const handleCancel = async () => {
-    if (await deleteTicket(id as string)) {
+    if (await deleteTicket(id as string, user?.uid)) {
       await loadData(); // 状態を更新
     }
   };
@@ -62,17 +63,13 @@ export default function LiveDetailPage() {
   const handleReserveClick = async () => {
     if (!user) {
       const ok = await showDialog("予約にはログインが必要です。\nログインしますか？");
-      if (ok) {
-        // ヘッダーと同様のログイン処理を走らせるか、
-        // 単純にトップに戻してログインを促す
-        router.push("/connect");
-      }
+      if (ok) router.push("/connect");
       return;
     }
     router.push(`/connect/ticket-reserve/${id}`);
   };
 
-  if (authLoading || fetching) return <div className="inner">Loading...</div>;
+  if (authLoading || fetching) return <div className="loading-text">Loading...</div>;
   if (!live) return null;
 
   // 予約期間・ステータス判定
@@ -100,33 +97,37 @@ export default function LiveDetailPage() {
           </nav>
 
           <div id="live-content-area">
+            {/* フライヤー画像エリア */}
             {live.flyerUrl && (
               <div className="flyer-wrapper">
                 <img src={live.flyerUrl} alt="Flyer" />
               </div>
             )}
 
+            {/* ライブ基本情報カード */}
             <div className="live-info-card">
               <div className="l-date">
-                {isReserved && <span className="reserved-label">予約済み</span>}
                 {live.date}
+                {isReserved && <span className="reserved-label" style={{marginLeft: "10px", fontSize: "0.8rem", background: "#e7211a", color: "#fff", padding: "2px 8px", borderRadius: "4px"}}>予約済み</span>}
               </div>
               <h2 className="l-title">{live.title}</h2>
               
               <div className="info-list">
+                {/* 会場情報 */}
                 <div className="info-item">
                   <i className="fa-solid fa-location-dot"></i>
                   <div>
                     <div className="label">会場</div>
                     <div className="val">
                       {live.venue}<br />
-                      {live.venueUrl && <a href={live.venueUrl} target="_blank" className="mini-link">公式サイト</a>}
+                      {live.venueUrl && <a href={live.venueUrl} target="_blank" rel="noopener noreferrer">公式サイト</a>}
                       {live.venueUrl && live.venueGoogleMap && " / "}
-                      {live.venueGoogleMap && <a href={live.venueGoogleMap} target="_blank" className="mini-link">地図を見る</a>}
+                      {live.venueGoogleMap && <a href={live.venueGoogleMap} target="_blank" rel="noopener noreferrer">地図を見る</a>}
                     </div>
                   </div>
                 </div>
 
+                {/* 時間情報 */}
                 <div className="info-item">
                   <i className="fa-solid fa-clock"></i>
                   <div>
@@ -135,37 +136,50 @@ export default function LiveDetailPage() {
                   </div>
                 </div>
 
+                {/* 料金情報 */}
                 <div className="info-item">
                   <i className="fa-solid fa-ticket"></i>
                   <div>
                     <div className="label">料金</div>
-                    <div className="val">前売: {live.advance} / 当日: {live.door}</div>
+                    <div className="val">前売: {live.advance}</div>
+                    <div className="val">当日: {live.door}</div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <h3 className="sub-title">注意事項</h3>
+            {/* 注意事項・備考エリア */}
+            <h3 className="sub-title">注意事項 / NOTES</h3>
             <div className="t-details">
-              <p><i className="fa-solid fa-users"></i> お一人様 {live.maxCompanions}名様まで同伴可能</p>
-              <p><i className="fa-solid fa-circle-info"></i> チケット残数: あと {live.ticketStock - (live.totalReserved || 0)} 枚</p>
+              <div className="info-item" style={{marginBottom: "10px"}}>
+                <i className="fa-solid fa-users"></i>
+                <div className="val">お一人様 {live.maxCompanions}名様まで同伴可能</div>
+              </div>
+              <div className="info-item" style={{marginBottom: "20px"}}>
+                <i className="fa-solid fa-circle-info"></i>
+                <div className="val">チケット残数: あと {Math.max(0, live.ticketStock - (live.totalReserved || 0))} 枚</div>
+              </div>
+              
               {live.notes && (
-                <div className="live-notes-area">{live.notes}</div>
+                <div className="live-notes-area">
+                  <p className="live-notes-text">{live.notes}</p>
+                </div>
               )}
             </div>
           </div>
 
-          <div className="live-actions">
+          {/* アクションボタンエリア */}
+          <div className="live-actions" style={{ marginTop: "40px" }}>
             {isPast ? (
-              <button className="btn-action disabled" disabled>このライブは終了しました</button>
+              <button className="btn-action disabled" style={{width: "100%", padding: "15px", borderRadius: "50px"}} disabled>このライブは終了しました</button>
             ) : (!isAccepting || isBefore || isAfter) ? (
-              <div className="action-box">
+              <div className="action-box" style={{ textAlign: "center" }}>
                 {isReserved && (
-                  <Link href={`/connect/ticket-detail/${id}_${user?.uid}`} className="btn-action btn-view-white">
+                  <Link href={`/connect/ticket-detail/${id}_${user?.uid}`} className="btn-action btn-view-white" style={{display: "block", marginBottom: "15px"}}>
                     <i className="fa-solid fa-ticket"></i> チケットを表示
                   </Link>
                 )}
-                <button className="btn-action disabled" disabled>
+                <button className="btn-action disabled" style={{width: "100%", padding: "15px", borderRadius: "50px"}} disabled>
                   {isBefore ? "予約受付前" : isAfter ? "予約受付終了" : "予約受付停止中"}
                 </button>
                 {live.acceptStartDate && (
@@ -175,24 +189,26 @@ export default function LiveDetailPage() {
             ) : (
               <div className="action-box">
                 {isReserved ? (
-                  <div className="reserved-actions">
-                    <Link href={`/connect/ticket-detail/${id}_${user?.uid}`} className="btn-action btn-view-white">
+                  <div className="reserved-actions" style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
+                    <Link href={`/connect/ticket-detail/${id}_${user?.uid}`} className="btn-action btn-view-white" style={{textAlign: "center", padding: "12px", borderRadius: "50px", border: "1px solid #fff", color: "#fff"}}>
                       <i className="fa-solid fa-ticket"></i> チケットを表示
                     </Link>
-                    <button onClick={handleReserveClick} className="btn-action btn-reserve-red">
+                    <button onClick={handleReserveClick} className="btn-reserve" style={{width: "100%"}}>
                       <i className="fa-solid fa-pen-to-square"></i> 予約内容を変更
                     </button>
-                    <button className="btn-action btn-delete-outline" onClick={handleCancel}>
-                      <i className="fa-solid fa-trash-can"></i> 予約を取り消す
+                    <button className="btn-delete" onClick={handleCancel} style={{ background: "transparent", color: "#888", border: "none", cursor: "pointer", fontSize: "0.9rem" }}>
+                      <i className="fa-solid fa-trash-can"></i> この予約を取り消す
                     </button>
                   </div>
                 ) : (
-                  <>
-                    <button onClick={handleReserveClick} className="btn-action btn-reserve-red">
-                      <i className="fa-solid fa-paper-plane"></i> このライブを予約する
+                  <div className="unreserved-actions" style={{ textAlign: "center" }}>
+                    <button onClick={handleReserveClick} className="btn-reserve" style={{width: "100%"}}>
+                      <i className="fa-solid fa-paper-plane"></i> このライブを予約する / RESERVE
                     </button>
-                    <p className="accept-period">受付期間: {live.acceptStartDate} ～ {live.acceptEndDate}</p>
-                  </>
+                    {live.acceptStartDate && (
+                      <p className="accept-period">受付終了: {live.acceptEndDate}</p>
+                    )}
+                  </div>
                 )}
               </div>
             )}
@@ -200,7 +216,7 @@ export default function LiveDetailPage() {
         </div>
       </section>
 
-      <div className="page-actions">
+      <div className="page-actions" style={{ textAlign: "center", padding: "60px 0" }}>
         <Link href="/connect" className="btn-back-home"> ← Homeに戻る </Link>
       </div>
     </main>

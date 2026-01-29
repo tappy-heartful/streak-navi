@@ -64,7 +64,7 @@ export default function TicketDetailPage() {
   };
 
   const handleDelete = async () => {
-    if (await deleteTicket(ticket.liveId)) {
+    if (await deleteTicket(ticket.liveId, user?.uid)) {
       router.push("/connect/mypage");
     }
   };

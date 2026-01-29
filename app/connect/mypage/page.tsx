@@ -90,7 +90,7 @@ export default function MyPage() {
     try {
       // チケット削除
       for (const t of tickets) {
-        await deleteTicket(t.liveId, false);
+        await deleteTicket(t.liveId, user?.uid);
       }
       // ユーザー削除（アーカイブ）
       await archiveAndDeleteDoc("connectUsers", user!.uid);
@@ -179,6 +179,7 @@ export default function MyPage() {
 function TicketCard({ ticket, onRefresh, onCopy }: { ticket: Ticket, onRefresh: () => void, onCopy: any }) {
   const live = ticket.liveData;
   if (!live) return null;
+  const { user } = useAuth();
 
   const today = formatDateToYMDDot(new Date());
   const isPast = live.date < today;
@@ -212,7 +213,7 @@ function TicketCard({ ticket, onRefresh, onCopy }: { ticket: Ticket, onRefresh: 
           <div className="ticket-actions">
             <Link href={`/connect/ticket-reserve/${ticket.liveId}`} className="btn-edit">変更</Link>
             <button className="btn-delete" onClick={async () => {
-              if (await deleteTicket(ticket.liveId)) onRefresh();
+              if (await deleteTicket(ticket.id, user?.uid)) onRefresh();
             }}>取消</button>
           </div>
         ) : (

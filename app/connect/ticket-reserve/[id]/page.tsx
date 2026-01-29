@@ -39,7 +39,6 @@ export default function TicketReservePage() {
   const loadData = async () => {
     setFetching(true);
     try {
-      // 1. ライブデータの取得
       const liveRef = doc(db, "lives", id as string);
       const liveSnap = await getDoc(liveRef);
       if (!liveSnap.exists()) {
@@ -50,18 +49,17 @@ export default function TicketReservePage() {
       const liveData = liveSnap.data();
       setLive(liveData);
 
-      // 同伴者枠の初期化
       const maxComp = liveData.maxCompanions || 0;
       setCompanions(Array(maxComp).fill(""));
 
-      // 2. メンバー（出演者）チェック
-      const userRef = doc(db, "users", user!.uid); // streak-navi側の管理
+      // streak-navi側のメンバーチェック
+      const userRef = doc(db, "users", user!.uid);
       const userSnap = await getDoc(userRef);
       const memberStatus = userSnap.exists();
       setIsMember(memberStatus);
-      if (memberStatus) setResType("invite"); // メンバーならデフォルトを招待に
+      if (memberStatus) setResType("invite");
 
-      // 3. 既存予約の取得（あれば編集モード）
+      // 既存予約の取得
       const ticketId = `${id}_${user!.uid}`;
       const ticketRef = doc(db, "tickets", ticketId);
       const ticketSnap = await getDoc(ticketRef);
@@ -72,14 +70,12 @@ export default function TicketReservePage() {
         setResType(tData.resType || (memberStatus ? "invite" : "general"));
         setRepresentativeName(tData.representativeName || "");
         
-        // 既存の同伴者名をセット
         const newCompanions = Array(maxComp).fill("");
         (tData.companions || []).forEach((name: string, i: number) => {
           if (i < maxComp) newCompanions[i] = name;
         });
         setCompanions(newCompanions);
       } else {
-        // 新規予約時のデフォルト名
         setRepresentativeName(userData?.displayName || "");
       }
 
@@ -115,7 +111,6 @@ export default function TicketReservePage() {
         if (!lSnap.exists()) throw new Error("ライブ情報が存在しません。");
         const lData = lSnap.data();
 
-        // 在庫チェック
         const oldResCount = existingTicket ? existingTicket.totalCount || 0 : 0;
         const diff = totalCount - oldResCount;
         if ((lData.totalReserved || 0) + diff > (lData.ticketStock || 0)) {
@@ -153,7 +148,7 @@ export default function TicketReservePage() {
       router.push(`/connect/ticket-detail/${ticketId}`);
     } catch (e: any) {
       hideSpinner();
-      alert(e.message || "エラーが発生しました");
+      await showDialog(e.message || "エラーが発生しました", true);
     }
   };
 
@@ -192,25 +187,29 @@ export default function TicketReservePage() {
           <div className="form-wrapper">
             <h2 className="section-title">チケット予約</h2>
 
-            {isMember && (
-              <div className="form-group">
-                <label>予約種別 <span className="required">必須</span></label>
-                <div className="radio-group">
-                  <label className="radio-item">
-                    <input type="radio" value="invite" checked={resType === "invite"} onChange={() => setResType("invite")} />
-                    <span>招待予約</span>
-                    <small>家族や知人を招待します</small>
-                  </label>
-                  <label className="radio-item">
-                    <input type="radio" value="general" checked={resType === "general"} onChange={() => setResType("general")} />
-                    <span>一般予約</span>
-                    <small>自分も観客として参加します</small>
-                  </label>
-                </div>
-              </div>
-            )}
-
             <form onSubmit={handleSubmit}>
+              {isMember && (
+                <div className="form-group">
+                  <label>予約種別 <span className="required">必須</span></label>
+                  <div className="radio-group">
+                    <div className="radio-item">
+                      <label className="radio-label">
+                        <input type="radio" value="invite" checked={resType === "invite"} onChange={() => setResType("invite")} />
+                        <span>招待予約</span>
+                      </label>
+                      <small className="radio-description">ライブに出演し、家族や知人の方をご招待します</small>
+                    </div>
+                    <div className="radio-item">
+                      <label className="radio-label">
+                        <input type="radio" value="general" checked={resType === "general"} onChange={() => setResType("general")} />
+                        <span>一般予約</span>
+                      </label>
+                      <small className="radio-description">お客さんとしてライブを見にいきます</small>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {resType === "general" && (
                 <div className="form-group">
                   <label>代表者氏名 <span className="required">必須</span></label>
@@ -258,6 +257,13 @@ export default function TicketReservePage() {
                 </div>
               ))}
 
+              {/* ライブ側からの注意事項がある場合のみ表示 */}
+              {live.notes && (
+                <div className="live-notes-area">
+                  <p className="live-notes-text">{live.notes}</p>
+                </div>
+              )}
+
               <div className="form-actions">
                 <button type="submit" className="btn-reserve">
                   {existingTicket ? "予約内容を更新する / UPDATE" : "予約を確定する / CONFIRM"}
@@ -268,7 +274,7 @@ export default function TicketReservePage() {
         </div>
       </section>
 
-      <div className="page-actions">
+      <div className="page-actions" style={{ textAlign: "center", paddingBottom: "60px" }}>
         <Link href={`/connect/live-detail/${id}`} className="btn-back-home"> ← Live情報に戻る </Link>
       </div>
     </main>

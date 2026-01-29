@@ -78,3 +78,8 @@
     color: #888;
     padding: 100px 0;
 }
+
+.live-notes-area {
+  white-space: pre-wrap; /* これで \n が改行として表示されます */
+  word-break: break-all; /* 長い単語があっても枠からはみ出さないようにします */
+}
