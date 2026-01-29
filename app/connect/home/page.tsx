@@ -1,12 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { db } from "../../../lib/firebase";
+import { db } from "@/lib/firebase";
 import { collection, query, orderBy, getDocs, limit } from "firebase/firestore";
-// 1. 共通関数のインポートを追加
-import { buildInstagramHtml } from "../../../lib/connect/functions";
-import "./home.css";
+import { buildInstagramHtml } from "@/lib/connect/functions";
 import Link from "next/link";
+// CSS Modulesをインポート
+import styles from "./home.module.css";
 
 declare global {
   interface Window {
@@ -57,13 +57,6 @@ export default function HomePage() {
         const snapshot = await getDocs(q);
         const mediaData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
         setMedias(mediaData);
-
-        // 2. データ取得後にInstagramに「解析して！」と命令する
-        setTimeout(() => {
-          if (window.instgrm) {
-            window.instgrm.Embeds.process();
-          }
-        }, 500); // 少し余裕を持って実行
       } catch (e) {
         console.error("Medias fetch error:", e);
       } finally {
@@ -75,10 +68,8 @@ export default function HomePage() {
     fetchMedias();
   }, []);
 
-    // 2. 【ここを追加！】mediasが更新され、HTMLが描画された後にInstagramを実行する
   useEffect(() => {
     if (medias.length > 0) {
-      // 0.1秒だけ待ってからInstagramにスキャンさせる
       const timer = setTimeout(() => {
         if (window.instgrm) {
           window.instgrm.Embeds.process();
@@ -86,17 +77,20 @@ export default function HomePage() {
       }, 100);
       return () => clearTimeout(timer);
     }
-  }, [medias]); // mediasが変わったときだけ動く
+  }, [medias]);
 
   return (
     <main>
       {/* HERO */}
-      <section className="home-hero">
-        <div className="home-hero-content">
-          <h1 className="band-name">
-            Swing Streak<br /><span className="sub-name"><span className="accent-j">J</span>azz Orchestra</span>
+      <section className={styles.homeHero}>
+        <div className={styles.homeHeroContent}>
+          <h1 className={styles.bandName}>
+            Swing Streak<br />
+            <span className={styles.subName}>
+              <span className={styles.accentJ}>J</span>azz Orchestra
+            </span>
           </h1>
-          <p className="tagline">BASED IN MATSUYAMA, EHIME</p>
+          <p className={styles.tagline}>BASED IN MATSUYAMA, EHIME</p>
         </div>
       </section>
 
@@ -104,26 +98,32 @@ export default function HomePage() {
       <section className="content-section">
         <div className="inner">
           <h2 className="section-title">UPCOMING LIVES</h2>
-          <div className="ticket-grid">
+          <div className={styles.ticketGrid}>
             {loadingLives ? (
               <p className="loading-text">Checking for upcoming lives...</p>
             ) : lives.length === 0 ? (
               <p className="no-data">No information available.</p>
             ) : (
               lives.map((live) => (
-                <div key={live.id} className="ticket-card">
-                  <div className="ticket-img-wrapper">
-                    <img src={live.flyerUrl || 'https://tappy-heartful.github.io/streak-connect-images/favicon.png'} className="ticket-img" alt="flyer" />
+                <div key={live.id} className={styles.ticketCard}>
+                  <div className={styles.ticketImgWrapper}>
+                    <img 
+                      src={live.flyerUrl || 'https://tappy-heartful.github.io/streak-connect-images/favicon.png'} 
+                      className={styles.ticketImg} 
+                      alt="flyer" 
+                    />
                   </div>
-                  <div className="ticket-info">
-                    <div className="t-date">{live.date}</div>
-                    <h3 className="t-title">{live.title}</h3>
-                    <div className="t-details">
+                  <div className={styles.ticketInfo}>
+                    <div className={styles.tDate}>{live.date}</div>
+                    <h3 className={styles.tTitle}>{live.title}</h3>
+                    <div className={styles.tDetails}>
                       <div><i className="fa-solid fa-location-dot"></i> {live.venue}</div>
                       <div><i className="fa-solid fa-clock"></i> Open {live.open} / Start {live.start}</div>
                       <div><i className="fa-solid fa-ticket"></i> 前売：{live.advance}</div>
                     </div>
-                    <Link href={`/connect/live-detail/${live.id}`} className="btn-detail">詳細 / VIEW INFO</Link>
+                    <Link href={`/connect/live-detail/${live.id}`} className={styles.btnDetail}>
+                      詳細 / VIEW INFO
+                    </Link>
                   </div>
                 </div>
               ))
@@ -136,9 +136,9 @@ export default function HomePage() {
       <section className="content-section" id="concept">
         <div className="inner">
           <h2 className="section-title">Concept</h2>
-          <div className="concept-body">
-            <p className="concept-lead">Swingは続く...</p>
-            <div className="concept-text">
+          <div className={styles.conceptBody}>
+            <p className={styles.conceptLead}>Swingは続く...</p>
+            <div className={styles.conceptText}>
               <p>Swing Streak Jazz Orchestra（SSJO）は、2021年に結成されました。</p>
               <p>現役時代に築いた関係性が、これからも絶えることなく続いていきますように。</p>
             </div>
@@ -150,16 +150,22 @@ export default function HomePage() {
       <section className="content-section">
         <div className="inner">
           <h2 className="section-title">CORE MEMBERS</h2>
-          <div className="member-grid">
+          <div className={styles.memberGrid}>
             {members.map((m) => (
-              <div key={m.name} className="member-card">
-                <div className="member-img-wrapper">
-                  <img src={`https://tappy-heartful.github.io/streak-connect-images/members/${m.name}.jpg`} alt={m.name} className="member-img" />
+              <div key={m.name} className={styles.memberCard}>
+                <div className={styles.memberImgWrapper}>
+                  <img 
+                    src={`https://tappy-heartful.github.io/streak-connect-images/members/${m.name}.jpg`} 
+                    alt={m.name} 
+                    className={styles.memberImg} 
+                  />
                 </div>
-                <div className="member-info-content">
-                  <div className="member-role">{m.role}</div>
-                  <div className="member-name">{m.name.split(' ').map((p, i) => <span key={i}>{p}<br/></span>)}</div>
-                  <div className="member-origin">from {m.origin}</div>
+                <div className={styles.memberInfoContent}>
+                  <div className={styles.memberRole}>{m.role}</div>
+                  <div className={styles.memberName}>
+                    {m.name.split(' ').map((p, i) => <span key={i}>{p}<br/></span>)}
+                  </div>
+                  <div className={styles.memberOrigin}>from {m.origin}</div>
                 </div>
               </div>
             ))}
@@ -171,10 +177,14 @@ export default function HomePage() {
       <section className="content-section">
         <div className="inner">
           <h2 className="section-title">Follow Us</h2>
-          <div className="sns-container">
-            <div className="sns-links">
-              <a href="https://lin.ee/suVPLxR" target="_blank" className="sns-btn line-btn">LINE公式アカウント</a>
-              <a href="https://www.instagram.com/swstjazz" target="_blank" className="sns-btn insta-btn">Instagram</a>
+          <div className={styles.snsContainer}>
+            <div className={styles.snsLinks}>
+              <a href="https://lin.ee/suVPLxR" target="_blank" rel="noopener noreferrer" className={`${styles.snsBtn} ${styles.lineBtn}`}>
+                LINE公式アカウント
+              </a>
+              <a href="https://www.instagram.com/swstjazz" target="_blank" rel="noopener noreferrer" className={`${styles.snsBtn} ${styles.instaBtn}`}>
+                Instagram
+              </a>
             </div>
           </div>
         </div>
@@ -184,14 +194,19 @@ export default function HomePage() {
       <section className="content-section">
         <div className="inner">
           <h2 className="section-title">Official Store</h2>
-          <div className="goods-container">
-            <div className="horizontal-scroll">
+          <div className={styles.goodsContainer}>
+            <div className={styles.horizontalScroll}>
               {goodsItems.map((item, i) => (
-                <img key={i} src={`https://tappy-heartful.github.io/streak-connect-images/goods/${item}`} alt="Goods" className="square-img" />
+                <img 
+                  key={i} 
+                  src={`https://tappy-heartful.github.io/streak-connect-images/goods/${item}`} 
+                  alt="Goods" 
+                  className={styles.squareImg} 
+                />
               ))}
             </div>
-            <div className="btn-area">
-              <a href="https://ssjo.booth.pm/" target="_blank" className="btn-link">
+            <div className={styles.btnArea}>
+              <a href="https://ssjo.booth.pm/" target="_blank" rel="noopener noreferrer" className={styles.btnLink}>
                 <i className="fa-solid fa-cart-shopping"></i> Visit BOOTH Store
               </a>
             </div>
@@ -200,21 +215,20 @@ export default function HomePage() {
       </section>
 
       {/* HISTORY */}
-      <section className="content-section bg-darker">
+      <section className={`content-section ${styles.bgDarker}`}>
         <div className="inner">
           <h2 className="section-title">HISTORY</h2>
-          <div className="media-grid">
+          <div className={styles.mediaGrid}>
             {loadingMedias ? (
               <p>Loading archives...</p>
             ) : (
               medias.map((m) => (
-                <div key={m.id} className="media-card">
-                  <div className="media-info">
-                    <span className="media-date">{m.date}</span>
-                    <h3 className="media-title">{m.title}</h3>
+                <div key={m.id} className={styles.mediaCard}>
+                  <div className={styles.mediaInfo}>
+                    <span className={styles.mediaDate}>{m.date}</span>
+                    <h3 className={styles.mediaTitle}>{m.title}</h3>
                   </div>
-                  <div className="media-body">
-                    {/* 3. ここが重要！buildInstagramHtmlを通してHTMLとして流し込む */}
+                  <div className={styles.mediaBody}>
                     <div 
                       dangerouslySetInnerHTML={{ 
                         __html: buildInstagramHtml(m.instagramUrl) 

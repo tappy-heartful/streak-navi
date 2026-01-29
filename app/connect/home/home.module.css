@@ -1,6 +1,5 @@
-
 /* --- ヒーローセクション --- */
-.home-hero {
+.homeHero {
     position: relative;
     width: 100%;
     aspect-ratio: 1 / 1.1; 
@@ -10,7 +9,7 @@
     overflow: hidden;
 }
 
-.home-hero::before {
+.homeHero::before {
     content: "";
     position: absolute;
     top: 0; left: 0; right: 0; bottom: 0;
@@ -21,7 +20,7 @@
     z-index: -1;
 }
 
-.home-hero::after {
+.homeHero::after {
     content: "";
     position: absolute;
     bottom: 0;
@@ -32,13 +31,13 @@
     z-index: 0;
 }
 
-.home-hero-content {
+.homeHeroContent {
     text-align: center;
     z-index: 1;
     padding-top: 80px; 
 }
 
-.band-name {
+.bandName {
     font-family: 'Impact', 'Charcoal', sans-serif;
     font-size: 3.2rem;
     line-height: 1.1;
@@ -47,12 +46,12 @@
     text-transform: uppercase;
 }
 
-.sub-name {
+.subName {
     font-size: 1.8rem;
     display: block;
 }
 
-.accent-j {
+.accentJ {
     color: #e7211a;
 }
 
@@ -64,14 +63,8 @@
     letter-spacing: 0.2em;
 }
 
-@keyframes bounce {
-    0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
-    40% {transform: translateY(-5px);}
-    60% {transform: translateY(-3px);}
-}
-/* ヒーローセクションここまで */
-
-.status-badge {
+/* --- ステータス・共通 --- */
+.statusBadge {
     font-size: 0.8rem;
     color: #888;
     background: #222;
@@ -81,21 +74,15 @@
     display: inline-block;
 }
 
-
-
-
-
-
-/* チケット情報 */
-/* ライブカードのスタイル */
-.ticket-grid {
+/* --- チケット情報 --- */
+.ticketGrid {
     display: flex;
     flex-direction: column;
     gap: 30px;
     margin-top: 40px;
 }
 
-.ticket-card {
+.ticketCard {
     display: flex;
     flex-direction: column;
     background: #111;
@@ -105,30 +92,29 @@
 }
 
 @media (min-width: 768px) {
-    .ticket-card {
+    .ticketCard {
         flex-direction: row;
         min-height: 220px;
     }
 }
 
-/* 左側：フライヤー/画像エリア */
-.ticket-img-wrapper {
+.ticketImgWrapper {
     position: relative;
     width: 100%;
     aspect-ratio: 16/9;
     background: #222;
     overflow: hidden;
-    cursor: pointer; /* クリック可能であることを示す */
+    cursor: pointer;
 }
 
 @media (min-width: 768px) {
-    .ticket-img-wrapper {
+    .ticketImgWrapper {
         width: 35%;
         aspect-ratio: auto;
     }
 }
 
-.ticket-img {
+.ticketImg {
     width: 100%;
     height: 100%;
     object-fit: cover;
@@ -136,13 +122,9 @@
     transition: 0.5s;
 }
 
-/* 画像ホバー時の演出 */
-.img-overlay {
+.imgOverlay {
     position: absolute;
-    top: 0; 
-    left: 0; 
-    width: 100%; 
-    height: 100%;
+    top: 0; left: 0; width: 100%; height: 100%;
     background: rgba(231, 33, 26, 0.4);
     display: flex;
     align-items: center;
@@ -154,17 +136,10 @@
     z-index: 2;
 }
 
-.ticket-img-wrapper:hover .img-overlay {
-    opacity: 1;
-}
+.ticketImgWrapper:hover .imgOverlay { opacity: 1; }
+.ticketImgWrapper:hover .ticketImg { transform: scale(1.05); opacity: 1; }
 
-.ticket-img-wrapper:hover .ticket-img {
-    transform: scale(1.05);
-    opacity: 1;
-}
-
-/* 右側：詳細エリア */
-.ticket-info {
+.ticketInfo {
     padding: 25px;
     flex: 1;
     display: flex;
@@ -172,35 +147,33 @@
     justify-content: center;
 }
 
-.t-date {
+.tDate {
     font-family: 'Impact', sans-serif;
     color: #e7211a;
     font-size: 1.2rem;
     letter-spacing: 0.1em;
 }
 
-.t-title {
+.tTitle {
     color: #fff;
     font-size: 1.5rem;
     margin: 10px 0;
     font-weight: bold;
 }
 
-
-.t-details {
+.tDetails {
     font-size: 0.85rem;
     color: #aaa;
     line-height: 1.6;
 }
 
-.t-details i {
+.tDetails :global(.fa-solid) {
     width: 20px;
     color: #e7211a;
 }
 
-
-/* ボタン基本スタイル */
-.btn-reserve, .btn-detail, .btn-delete, .btn-ticket-detail {
+/* --- ボタン --- */
+.btnBase {
     padding: 12px;
     text-align: center;
     font-weight: bold;
@@ -217,53 +190,37 @@
     gap: 8px;
 }
 
-
-/* 詳細ボタン：白枠 */
-.btn-detail {
+.btnDetail {
+    composes: btnBase;
     background: transparent;
     border: 1px solid #fff;
     color: #fff;
 }
+.btnDetail:hover { background: #fff; color: #000; }
 
-.btn-detail:hover {
+.btnTicketDetail {
+    composes: btnBase;
     background: #fff;
     color: #000;
 }
+.btnTicketDetail:hover { background: #e9e9e9; }
 
-/* チケット詳細ボタン：白背景 */
-.btn-ticket-detail {
-    background: #fff;
-    color: #000;
-}
-
-.btn-ticket-detail:hover {
-    background: #e9e9e9;
-}
-
-
-/* 予約ボタン：赤背景 */
-.btn-reserve {
+.btnReserve {
+    composes: btnBase;
     background: #e7211a;
     color: #fff;
 }
+.btnReserve:hover { background: #b61a15; }
 
-.btn-reserve:hover {
-    background: #b61a15;
-}
-
-/* 取り消しボタン（枠線のみのスタイル） */
-.btn-delete {
+.btnDelete {
+    composes: btnBase;
     background: transparent;
     border: 1px solid #e7211a;
     color: #e7211a;
 }
+.btnDelete:hover { background: rgba(231, 33, 26, 0.1); }
 
-.btn-delete:hover {
-    background: rgba(231, 33, 26, 0.1);
-}
-
-/* 予約済みラベル */
-.reserved-label {
+.reservedLabel {
     background: #e7211a;
     color: #fff;
     font-size: 0.7rem;
@@ -273,24 +230,8 @@
     vertical-align: middle;
 }
 
-@media (max-width: 600px) {
-    .reserved-actions {
-        flex-direction: column; /* スマホでは縦並び */
-    }
-}
-
-
-
-
-
-
-
-
-
-
-
 /* --- Concept --- */
-.concept-lead {
+.conceptLead {
     font-size: 1.4rem;
     color: #e7211a;
     font-weight: bold;
@@ -298,34 +239,20 @@
     margin-bottom: 25px;
 }
 
-.concept-text {
+.conceptText {
     line-height: 1.8;
     color: #ccc;
     font-size: 0.95rem;
 }
-/* --- Conceptここまで --- */
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /* --- メンバー情報 --- */
-.bg-darker {
+.bgDarker {
     background-color: #050505;
     padding-top: 80px;
     padding-bottom: 80px;
 }
 
-.sub-section-title {
+.subSectionTitle {
     text-align: center;
     color: #666;
     margin-top: -20px;
@@ -335,15 +262,14 @@
     text-transform: uppercase;
 }
 
-/* --- MEMBER LIST (Horizontal Style) --- */
-.member-grid {
+.memberGrid {
     display: flex;
     flex-direction: column;
     gap: 40px;
     margin-top: 40px;
 }
 
-.member-card {
+.memberCard {
     position: relative;
     display: flex;
     align-items: center;
@@ -354,52 +280,39 @@
     border-bottom: 1px solid #1a1a1a;
 }
 
-/* 左側の画像エリア */
-.member-img-wrapper {
+.memberImgWrapper {
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 70%; /* 画像の表示領域 */
-    height: 100%;
+    top: 0; left: 0; width: 70%; height: 100%;
     z-index: 1;
-    /* 💡 拡大した画像がこの枠からはみ出ないようにする */
     overflow: hidden; 
 }
 
-.member-img {
-    width: 100%;
-    height: 100%;
+.memberImg {
+    width: 100%; height: 100%;
     object-fit: cover;
     filter: contrast(1.1);
     transition: 0.8s ease;
-    /* 💡 左端を基準に拡大させることで右へのはみ出しを防ぐ */
     transform-origin: left center;
 }
 
-/* 画像から右へのグラデーションマスク */
-.member-img-wrapper::after {
+.memberImgWrapper::after {
     content: '';
     position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    /* 💡 グラデーションの終わりを100%に調整して背景と同期 */
+    top: 0; left: 0; width: 100%; height: 100%;
     background: linear-gradient(to right, transparent 0%, #000 100%);
     z-index: 2;
 }
 
-/* 情報エリア */
-.member-info-content {
+.memberInfoContent {
     position: relative;
     z-index: 3;
-    margin-left: auto; /* 右側に寄せる */
+    margin-left: auto;
     width: 60%;
     padding: 20px 20px 20px 0;
     text-align: right;
 }
 
-.member-role {
+.memberRole {
     font-family: 'Impact', sans-serif;
     color: #e7211a;
     font-size: 0.8rem;
@@ -408,7 +321,7 @@
     margin-bottom: 5px;
 }
 
-.member-name {
+.memberName {
     font-size: 1.4rem;
     font-weight: bold;
     color: #fff;
@@ -417,46 +330,24 @@
     line-height: 1.2;
 }
 
-.member-origin {
+.memberOrigin {
     font-size: 0.75rem;
     color: #888;
     letter-spacing: 0.05em;
     text-transform: uppercase;
 }
 
-/* ホバー演出 */
-.member-card:hover .member-img {
+.memberCard:hover .memberImg {
     filter: grayscale(0%) contrast(1.0);
     transform: scale(1.05);
 }
-/* --- メンバー情報ここまで --- */
 
+/* --- SNS Section --- */
+.snsContainer { text-align: center; padding: 10px 0; }
+.snsDesc { margin-bottom: 20px; font-size: 0.9rem; color: #ccc; }
+.snsLinks { display: flex; flex-direction: column; gap: 15px; align-items: center; }
 
-
-
-
-
-
-/* SNS Section Styles */
-.sns-container {
-  text-align: center;
-  padding: 10px 0;
-}
-
-.sns-desc {
-  margin-bottom: 20px;
-  font-size: 0.9rem;
-  color: #ccc;
-}
-
-.sns-links {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  align-items: center;
-}
-
-.sns-btn {
+.snsBtn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -471,173 +362,67 @@
   color: #fff;
 }
 
-.sns-btn:hover {
-  opacity: 0.8;
-}
+.lineBtn { background-color: #06C755; }
+.instaBtn { background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); }
 
-/* 各ブランドカラー */
-.line-btn {
-  background-color: #06C755; /* LINEグリーン */
-}
+@media (min-width: 600px) { .snsLinks { flex-direction: row; justify-content: center; } }
 
-.insta-btn {
-  background: linear-gradient(45deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%); /* Instagramグラデーション */
-}
-
-/* PC等で横並びにする場合 */
-@media (min-width: 600px) {
-  .sns-links {
-    flex-direction: row;
-    justify-content: center;
-  }
-}
-/* SNS Section Styles ここまで */
-
-
-
-
-/* --- グッズ --- */
-/* --- BOOTH スワイプ部分 --- */
-.goods-desc {
-    font-size: 0.9rem;
-    margin-bottom: 20px;
-    color: #ccc;
-}
-
-.horizontal-scroll {
+/* --- Goods --- */
+.goodsDesc { font-size: 0.9rem; margin-bottom: 20px; color: #ccc; }
+.horizontalScroll {
     display: flex;
     gap: 15px;
     overflow-x: auto;
     padding-bottom: 15px;
     scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
 }
+.horizontalScroll::-webkit-scrollbar { height: 4px; }
+.horizontalScroll::-webkit-scrollbar-thumb { background: #e7211a; }
 
-.square-img {
-    width: 200px;
-    height: 200px;
-    object-fit: cover;
-    flex-shrink: 0;
+.squareImg {
+    width: 200px; height: 200px;
+    object-fit: cover; flex-shrink: 0;
     scroll-snap-align: start;
     border: 1px solid #333;
-    cursor: pointer;
 }
 
-/* スクロールバーのデザイン */
-.horizontal-scroll::-webkit-scrollbar { height: 4px; }
-.horizontal-scroll::-webkit-scrollbar-thumb { background: #e7211a; }
-
-/* --- ボタン共通 --- */
-.btn-area { margin-top: 20px; text-align: center; }
-
-.btn-link, .btn-line {
+.btnArea { margin-top: 20px; text-align: center; }
+.btnLink {
     display: inline-block;
     padding: 12px 25px;
     text-decoration: none;
     font-weight: bold;
     border-radius: 4px;
-    transition: 0.3s;
-}
-
-.btn-link {
     border: 1px solid #e7211a;
     color: #e7211a;
+    transition: 0.3s;
 }
-.btn-link:hover { background: #e7211a; color: #fff; }
+.btnLink:hover { background: #e7211a; color: #fff; }
 
-.btn-line {
-    background: #06C755; /* LINEカラー */
-    color: #fff;
-    /* margin-topはbtn-areaで制御するためリセット */
-    margin: 0; 
-}
-.btn-line:hover { opacity: 0.8; }
-
-/* --- ユヤマメ（縦長画像） --- */
-.coffee-card {
+.coffeeCard {
     display: flex;
     flex-direction: column;
     gap: 20px;
     background: #111;
     padding: 20px;
     border-radius: 8px;
-    text-align: center; /* 💡 子要素を中央揃えに */
-}
-
-.portrait-img {
-    width: 100%;
-    max-width: 300px;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-}
-
-.owner-name {
-    color: #e7211a;
-    font-family: 'Impact', sans-serif;
-    font-size: 1.1rem;
-    margin-bottom: 10px;
-}
-
-.coffee-desc {
-    font-size: 0.9rem;
-    line-height: 1.6;
-    color: #ddd;
-}
-/* --- グッズここまで --- */
-
-
-
-
-
-
-
-
-
-
-
-/* --- HISTORY (MEDIA) --- */
-.media-grid {
-    display: flex;
-    flex-direction: column;
-    gap: 80px;
-}
-
-.media-card {
-    max-width: 540px;
-    margin: 0 auto;
-    width: 100%;
-}
-
-.media-info {
-    margin-bottom: 20px;
     text-align: center;
 }
 
-.media-date {
-    font-family: 'Impact', sans-serif;
-    color: #e7211a;
-    font-size: 1.2rem;
-    display: block;
+.portraitImg {
+    width: 100%; max-width: 300px;
+    height: auto; margin: 0 auto;
 }
 
-.media-title {
-    font-size: 1.1rem;
-    margin: 8px 0;
-    color: #fff;
-    font-weight: bold;
-}
+/* --- Media/History --- */
+.mediaGrid { display: flex; flex-direction: column; gap: 80px; }
+.mediaCard { max-width: 540px; margin: 0 auto; width: 100%; }
+.mediaInfo { margin-bottom: 20px; text-align: center; }
+.mediaDate { font-family: 'Impact', sans-serif; color: #e7211a; font-size: 1.2rem; display: block; }
+.mediaTitle { font-size: 1.1rem; margin: 8px 0; color: #fff; font-weight: bold; }
 
-/* タブレット・PC向け調整 */
 @media (min-width: 768px) {
-    .member-card {
-        min-height: 250px;
-    }
-    .member-name {
-        font-size: 2rem;
-    }
-    .member-img-wrapper {
-        width: 60%;
-    }
+    .memberCard { min-height: 250px; }
+    .memberName { font-size: 2rem; }
+    .memberImgWrapper { width: 60%; }
 }
-/* --- HISTORY (MEDIA) ここまで --- */
