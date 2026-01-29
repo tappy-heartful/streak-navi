@@ -1,0 +1,204 @@
+/* --- 予約番号の表示スタイル --- */
+.res-no-wrapper {
+    position: relative; /* ボタンの絶対配置の基準にする */
+    text-align: center;
+    margin-bottom: 20px;
+    padding-top: 10px;
+}
+
+.res-no-label {
+    font-size: 0.7rem;
+    color: #888;
+    display: block;
+    margin-bottom: 5px;
+    letter-spacing: 0.2em;
+}
+
+/* 番号を完全に中央へ */
+.res-no-display {
+    display: block; /* flexを解除して中央寄せを確実に */
+}
+
+.res-no-value {
+    font-family: 'Courier New', Courier, monospace;
+    font-size: 35px;
+    font-weight: bold;
+    color: #e7211a;
+    letter-spacing: 4px;
+    /* 中央寄せを完璧にするため余計なmarginを削除 */
+    margin: 0; 
+}
+
+/* コピーボタンを右上に絶対配置 */
+.btn-copy-no {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: #222; /* 少し背景と差をつける */
+    border-radius: 4px;
+    border: 1px solid #333;
+    color: #e7211a;
+    font-size: 0.65rem; /* 小さめに設定 */
+    cursor: pointer;
+    padding: 6px 10px;
+    transition: all 0.2s ease;
+    display: flex;
+    flex-direction: column; /* アイコンと文字を縦並びにする */
+    align-items: center;
+    gap: 2px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+}
+
+.btn-copy-no i {
+    font-size: 0.9rem;
+}
+
+.btn-copy-no:hover {
+    color: #fff;
+    background: #e7211a;
+    border-color: #e7211a;
+    transform: translateY(-2px);
+}
+
+.btn-copy-no:active {
+    transform: translateY(0);
+}
+
+/* ライブ詳細カードの調整 */
+.ticket-card.detail-mode {
+    background: #1a1a1a;
+    padding: 20px;
+    border-left: 5px solid #e7211a;
+    margin-bottom: 30px;
+    position: relative; /* 番号配置用 */
+}
+
+.sub-title {
+    margin: 35px 0 15px;
+    color: #fff;
+    font-size: 1.3rem; 
+    border-left: 5px solid #e7211a;
+    padding-left: 12px;
+    font-family: 'Impact', sans-serif;
+}
+
+.t-details p {
+    margin: 12px 0;
+    font-size: 1rem;
+    color: #fff;
+}
+
+.t-details i {
+    width: 25px;
+    color: #e7211a;
+    text-align: center;
+}
+
+.t-details a {
+    color: #e7211a;
+    text-decoration: none;
+    font-size: 0.9rem;
+    margin-left: 5px;
+}
+
+.t-details a:hover {
+    text-decoration: underline;
+}
+
+/* 共有用画面専用スタイル */
+.share-info-wrapper {
+    margin-top: 20px;
+    background: #111;
+    padding: 30px;
+    border: 1px solid #222;
+    border-radius: 8px;
+}
+
+.res-status-badge-wrapper {
+    text-align: center;
+    margin: 10px 0 10px;
+}
+
+.res-status-badge {
+    display: inline-block;
+    background: #e7211a;
+    color: #fff;
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.8rem;
+    margin-bottom: 15px;
+}
+
+.guest-list {
+    list-style: none;
+    padding: 0;
+}
+
+.guest-item {
+    padding: 15px;
+    background: #222;
+    border-bottom: 1px solid #333;
+    color: #fff;
+    font-size: 1.1rem;
+}
+
+.guest-item:last-child {
+    border-bottom: none;
+}
+
+.loading-text {
+    text-align: center;
+    color: #888;
+    padding: 50px 0;
+}
+
+/* --- フライヤー画像エリア --- */
+.flyer-wrapper {
+    width: 100%;
+    margin-top: 30px;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    background: #111;
+}
+
+.flyer-wrapper img {
+    width: 100%;
+    display: block;
+    object-fit: contain;
+}
+
+/* --- QRコード表示エリア --- */
+.qr-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 20px 0 30px;
+    padding: 20px;
+    background: #111; /* QRの背景を少し沈ませる */
+    border-radius: 12px;
+    border: 1px dashed #333;
+}
+
+#qrcode {
+    padding: 10px;
+    background: #1a1a1a; /* QR自体の背景 */
+    border: 4px solid #fff; /* QR読み取り精度を上げるための外枠 */
+    border-radius: 4px;
+}
+
+/* QRコード内の画像（ライブラリが生成するimgタグ） */
+#qrcode img {
+    display: block;
+}
+
+.qr-note {
+    margin-top: 10px;
+    font-family: 'Impact', sans-serif;
+    font-size: 0.8rem;
+    color: #e7211a;
+    letter-spacing: 2px;
+}
