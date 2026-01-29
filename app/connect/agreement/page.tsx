@@ -67,7 +67,7 @@ export default function AgreementPage() {
       <div className="inner">
         <div className="agreement-wrapper">
           <div className="agreement-header">
-            <h3>SSJO Connect 利用規約</h3>
+            <h3>Streak Connect 利用規約</h3>
             <p>本サービスをご利用いただくために、以下の内容をご確認ください。</p>
           </div>
 
