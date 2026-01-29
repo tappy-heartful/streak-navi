@@ -18,11 +18,12 @@ export default function AgreementPage() {
     document.title = "利用規約 | SSJO Connect";
   }, []);
 
-  useEffect(() => {
-    if (!loading && !user) {
-      router.push("/connect");
-    }
-  }, [user, loading, router]);
+  // TODO 検討
+  // useEffect(() => {
+  //   if (!loading && !user) {
+  //     router.push("/connect");
+  //   }
+  // }, [user, loading, router]);
 
   const handleAgree = async () => {
     if (!user) return;
