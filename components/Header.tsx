@@ -2,18 +2,45 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext"; // これを使う
+import { useAuth } from "@/contexts/AuthContext";
+import { globalAuthServerRender, showSpinner, hideSpinner } from "@/lib/functions";
 
 export default function Header() {
   const pathname = usePathname();
-  // AuthContextから現在のユーザー情報と読み込み状態を取得
   const { user, userData, loading } = useAuth();
 
   const isSelected = (path: string) => (pathname === path ? "selected" : "");
 
-  // ログイン中ならマイページへ、未ログインならログイン処理（またはトップのまま）
-  // ※ 未ログイン時の遷移先は運用に合わせて "/" や "/login" に変えてもOK
-  const profileLink = user ? "/mypage" : "/"; 
+  /**
+   * ログイン/マイページ クリック時のハンドリング
+   */
+  const handleProfileClick = async (e: React.MouseEvent) => {
+    // 未ログイン時のみログイン処理を実行
+    if (!user) {
+      e.preventDefault(); // 通常のLink遷移をキャンセル
+      
+      try {
+        showSpinner();
+        // 現在のページをリダイレクト先に指定（ログイン後にここに戻るため）
+        const currentUrl = window.location.href;
+        const fetchUrl = `${globalAuthServerRender}/get-line-login-url?redirectAfterLogin=${encodeURIComponent(currentUrl)}`;
+
+        const res = await fetch(fetchUrl);
+        const { loginUrl } = await res.json();
+
+        if (loginUrl) {
+          window.location.href = loginUrl;
+        } else {
+          throw new Error("ログインURLの取得に失敗しました");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("ログイン処理中にエラーが発生しました。");
+        hideSpinner();
+      }
+    }
+    // ログイン済みの場合は、Linkタグの本来の挙動で /mypage へ遷移する
+  };
 
   return (
     <header className="main-header">
@@ -22,18 +49,19 @@ export default function Header() {
           Home
         </Link>
 
-        {/* loading中は何も出さない、もしくは薄く出すなどの処理を入れると
-          アイコンがパッと切り替わる違和感が減ります
-        */}
         {!loading && (
-          <Link 
-            href={profileLink} 
+          <Link
+            href="/mypage"
+            onClick={handleProfileClick}
             className={`nav-item profile-nav ${isSelected("/mypage")}`}
           >
             <span className="nav-text">{user ? "MyPage" : "Login"}</span>
             <div className="header-user-icon">
               <img
-                src={userData?.pictureUrl || "https://tappy-heartful.github.io/streak-connect-images/line-profile-unset.png"}
+                src={
+                  userData?.pictureUrl ||
+                  "https://tappy-heartful.github.io/streak-connect-images/line-profile-unset.png"
+                }
                 alt="icon"
                 id="header-icon-img"
               />
