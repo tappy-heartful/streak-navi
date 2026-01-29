@@ -2,43 +2,44 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext"; // これを使う
 
 export default function Header() {
   const pathname = usePathname();
-  const [userIcon, setUserIcon] = useState("https://tappy-heartful.github.io/streak-connect-images/line-profile-unset.png");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // AuthContextから現在のユーザー情報と読み込み状態を取得
+  const { user, userData, loading } = useAuth();
 
-  // ログイン状態の確認（一旦LocalStorageから取得する簡易版）
-  useEffect(() => {
-    const uid = sessionStorage.getItem("uid");
-    const picUrl = sessionStorage.getItem("pictureUrl");
-    
-    if (uid) setIsLoggedIn(true);
-    if (picUrl) setUserIcon(picUrl);
-  }, []);
+  const isSelected = (path: string) => (pathname === path ? "selected" : "");
 
-  // 現在のページかどうかを判定する関数
-  const isSelected = (path: string) => pathname === path ? "selected" : "";
+  // ログイン中ならマイページへ、未ログインならログイン処理（またはトップのまま）
+  // ※ 未ログイン時の遷移先は運用に合わせて "/" や "/login" に変えてもOK
+  const profileLink = user ? "/mypage" : "/"; 
 
   return (
     <header className="main-header">
       <nav className="nav-container">
-        {/* Linkタグを使うことで、ページ遷移が爆速（リロードなし）になります */}
         <Link href="/" className={`nav-item ${isSelected("/")}`}>
           Home
         </Link>
 
-        <Link href="/mypage" className={`nav-item profile-nav ${isSelected("/mypage")}`}>
-          <span className="nav-text">{isLoggedIn ? "MyPage" : "Login"}</span>
-          <div className="header-user-icon">
-            <img
-              src={userIcon}
-              alt="icon"
-              id="header-icon-img"
-            />
-          </div>
-        </Link>
+        {/* loading中は何も出さない、もしくは薄く出すなどの処理を入れると
+          アイコンがパッと切り替わる違和感が減ります
+        */}
+        {!loading && (
+          <Link 
+            href={profileLink} 
+            className={`nav-item profile-nav ${isSelected("/mypage")}`}
+          >
+            <span className="nav-text">{user ? "MyPage" : "Login"}</span>
+            <div className="header-user-icon">
+              <img
+                src={userData?.pictureUrl || "https://tappy-heartful.github.io/streak-connect-images/line-profile-unset.png"}
+                alt="icon"
+                id="header-icon-img"
+              />
+            </div>
+          </Link>
+        )}
       </nav>
     </header>
   );
