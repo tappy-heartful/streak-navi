@@ -109,7 +109,7 @@ export default function MyPage() {
 
   // URLコピー
   const handleCopyUrl = async (resType: string, ticketId: string) => {
-    const url = `${window.location.origin}/ticket-detail/${ticketId}`;
+    const url = `${window.location.origin}/connect/ticket-detail/${ticketId}`;
     await navigator.clipboard.writeText(url);
     const msg = resType === 'invite' 
       ? "招待用URLをコピーしました！" 
