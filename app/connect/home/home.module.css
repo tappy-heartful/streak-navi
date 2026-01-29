@@ -195,6 +195,7 @@
     background: transparent;
     border: 1px solid #fff;
     color: #fff;
+    margin-top: 20px;
 }
 .btnDetail:hover { background: #fff; color: #000; }
 
