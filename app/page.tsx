@@ -6,6 +6,7 @@ import { collection, query, orderBy, getDocs, limit } from "firebase/firestore";
 // 1. 共通関数のインポートを追加
 import { buildInstagramHtml } from "../lib/functions";
 import "./home.css";
+import Link from "next/link";
 
 declare global {
   interface Window {
@@ -122,7 +123,7 @@ export default function HomePage() {
                       <div><i className="fa-solid fa-clock"></i> Open {live.open} / Start {live.start}</div>
                       <div><i className="fa-solid fa-ticket"></i> 前売：{live.advance}</div>
                     </div>
-                    <button className="btn-detail">詳細 / VIEW INFO</button>
+                    <Link href={`/live-detail/${live.id}`} className="btn-detail">詳細 / VIEW INFO</Link>
                   </div>
                 </div>
               ))

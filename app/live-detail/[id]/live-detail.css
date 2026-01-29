@@ -1,0 +1,80 @@
+/* --- フライヤー画像エリア --- */
+.flyer-wrapper {
+    width: 100%;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    background: #111;
+}
+
+.flyer-wrapper img {
+    width: 100%;
+    display: block;
+    object-fit: contain;
+}
+
+/* --- ライブ基本情報 --- */
+.live-info-card {
+    background: #1a1a1a;
+    padding: 25px;
+    border-left: 5px solid #e7211a;
+    margin-bottom: 25px;
+}
+
+.l-title {
+    font-size: 1.8rem;
+    color: #fff;
+    margin: 10px 0 20px;
+    line-height: 1.3;
+}
+
+.l-date {
+    color: #e7211a;
+    font-weight: bold;
+    font-size: 1.2rem;
+}
+
+/* --- 詳細リスト --- */
+.info-list {
+    margin-top: 20px;
+}
+
+.info-item {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    color: #fff;
+    font-size: 1rem;
+}
+
+.info-item i {
+    width: 30px;
+    color: #e7211a;
+    font-size: 1.1rem;
+    margin-top: 3px;
+}
+
+.info-item .label {
+    width: 80px;
+    color: #888;
+    font-size: 0.8rem;
+    margin-right: 10px;
+}
+
+.info-item .val a {
+    color: #e7211a;
+    text-decoration: underline;
+}
+
+.accept-period {
+    margin-top: 15px;
+    font-size: 0.8rem;
+    color: #888;
+}
+
+.loading-text {
+    text-align: center;
+    color: #888;
+    padding: 100px 0;
+}
