@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/connect/AuthContext";
+import { useAuth } from "@/contexts/connect/AuthContext"; // ここでカスタムフックをインポート
 import { db } from "@/lib/firebase";
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { showSpinner, hideSpinner, getSession, removeSession } from "@/lib/connect/functions";
@@ -11,40 +11,49 @@ import "./agreement.css";
 
 export default function AgreementPage() {
   const [agreed, setAgreed] = useState(false);
-  const { user, loading } = useAuth();
+  
+  // --- 修正ポイント：フックは必ずここで呼ぶ！ ---
+  const { user, loading, refreshUserData } = useAuth(); 
   const router = useRouter();
 
   useEffect(() => {
     document.title = "利用規約 | SSJO Connect";
   }, []);
 
-  // TODO 検討
-  // useEffect(() => {
-  //   if (!loading && !user) {
-  //     router.push("/connect");
-  //   }
-  // }, [user, loading, router]);
-
   const handleAgree = async () => {
-    if (!user) return;
+    // loading中はボタンが押せないよう制御していますが、念のため
+    if (loading || !user) return;
+
     showSpinner();
     try {
-      await updateDoc(doc(db, "connectUsers", user.uid), {
+      const userRef = doc(db, "connectUsers", user.uid);
+      await updateDoc(userRef, {
         agreedAt: serverTimestamp(),
         status: "active"
       });
+
+      // --- refreshUserData を実行して Context の userData を最新にする ---
+      await refreshUserData(); 
+
       const target = getSession("pendingRedirect") || "/connect";
       removeSession("pendingRedirect");
+      
       router.push(target);
     } catch (e) {
-      console.error(e);
-      alert("エラーが発生しました。");
+      console.error("Agreement error:", e);
+      alert("登録処理中にエラーが発生しました。");
     } finally {
       hideSpinner();
     }
   };
 
-  if (loading) return <div className="loading-text">Loading...</div>;
+  if (loading) {
+    return (
+      <div className="agreement-page">
+        <div className="loading-text">認証情報を確認中...</div>
+      </div>
+    );
+  }
 
   return (
     <main className="agreement-page">
@@ -109,9 +118,9 @@ export default function AgreementPage() {
             </label>
 
             <button 
-              disabled={!agreed} 
+              disabled={!agreed || !user} 
               onClick={handleAgree} 
-              className={`btn-agree ${agreed ? 'active' : ''}`}
+              className={`btn-agree ${agreed && user ? 'active' : ''}`}
             >
               同意して登録を完了する
             </button>
