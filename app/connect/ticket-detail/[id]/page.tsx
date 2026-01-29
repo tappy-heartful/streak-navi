@@ -28,6 +28,7 @@ export default function TicketDetailPage() {
   }, [id]);
 
   const loadData = async () => {
+    showSpinner();
     setFetching(true);
     try {
       // 1. チケットデータの取得
@@ -52,6 +53,7 @@ export default function TicketDetailPage() {
       console.error(e);
     } finally {
       setFetching(false);
+      hideSpinner();
     }
   };
 

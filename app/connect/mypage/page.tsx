@@ -41,6 +41,7 @@ export default function MyPage() {
   }, [user, loading]);
 
   const loadMyTickets = async () => {
+    showSpinner();
     if (!user) return;
     setFetching(true);
     try {
@@ -67,6 +68,7 @@ export default function MyPage() {
       console.error(e);
     } finally {
       setFetching(false);
+      hideSpinner();
     }
   };
 
@@ -90,7 +92,7 @@ export default function MyPage() {
     try {
       // チケット削除
       for (const t of tickets) {
-        await deleteTicket(t.liveId, user?.uid);
+        await deleteTicket(t.liveId, user?.uid, false);
       }
       // ユーザー削除（アーカイブ）
       await archiveAndDeleteDoc("connectUsers", user!.uid);

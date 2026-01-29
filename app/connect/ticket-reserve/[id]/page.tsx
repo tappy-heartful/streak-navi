@@ -37,6 +37,7 @@ export default function TicketReservePage() {
   }, [id, user, authLoading]);
 
   const loadData = async () => {
+    showSpinner();
     setFetching(true);
     try {
       const liveRef = doc(db, "lives", id as string);
@@ -83,6 +84,7 @@ export default function TicketReservePage() {
       console.error(e);
     } finally {
       setFetching(false);
+      hideSpinner();
     }
   };
 

@@ -7,7 +7,7 @@ import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { 
   showSpinner, hideSpinner, showDialog, 
-  deleteTicket, formatDateToYMDDot 
+  deleteTicket, formatDateToYMDDot , globalAuthServerRender,
 } from "@/lib/connect/functions";
 import Link from "next/link";
 import "./live-detail.css";
@@ -28,6 +28,7 @@ export default function LiveDetailPage() {
   }, [id, user]);
 
   const loadData = async () => {
+    showSpinner();
     setFetching(true);
     try {
       // 1. ライブデータの取得
@@ -51,6 +52,7 @@ export default function LiveDetailPage() {
       console.error(e);
     } finally {
       setFetching(false);
+      hideSpinner();
     }
   };
 
@@ -60,12 +62,39 @@ export default function LiveDetailPage() {
     }
   };
 
-  const handleReserveClick = async () => {
+const handleReserveClick = async () => {
     if (!user) {
-      const ok = await showDialog("予約にはログインが必要です。\nログインしますか？");
-      if (ok) router.push("/connect");
+      const ok = await showDialog("予約にはログインが必要です。\nログイン画面へ移動しますか？");
+      if (!ok) return;
+
+      try {
+        showSpinner();
+        // 1. 現在のページの絶対URLを取得 (ログイン後に戻ってくる場所)
+        const currentUrl = window.location.origin + '/connect/ticket-reserve/' + id;
+        
+        // 2. サーバーサイドの関数（globalAuthServerRender）からLINEログインURLを取得
+        // redirectAfterLogin パラメータを付与することで、ログイン後の遷移先を指定する
+        const fetchUrl = `${globalAuthServerRender}/get-line-login-url?redirectAfterLogin=${encodeURIComponent(currentUrl)}`;
+
+        const res = await fetch(fetchUrl);
+        const { loginUrl } = await res.json();
+
+        if (loginUrl) {
+          // 3. LINEのログイン画面へリダイレクト
+          window.location.href = loginUrl;
+        } else {
+          throw new Error("ログインURLの取得に失敗しました");
+        }
+      } catch (err) {
+        console.error(err);
+        alert("ログイン処理中にエラーが発生しました。");
+      } finally {
+        hideSpinner();
+      }
       return;
     }
+
+    // ログイン済みの場合は予約画面へ
     router.push(`/connect/ticket-reserve/${id}`);
   };
 
@@ -201,8 +230,8 @@ export default function LiveDetailPage() {
                     </button>
                   </div>
                 ) : (
-                  <div className="unreserved-actions" style={{ textAlign: "center" }}>
-                    <button onClick={handleReserveClick} className="btn-reserve" style={{width: "100%"}}>
+                  <div className="reserved-actions">
+                    <button onClick={handleReserveClick} className="btn-action btn-reserve-red">
                       <i className="fa-solid fa-paper-plane"></i> このライブを予約する / RESERVE
                     </button>
                     {live.acceptStartDate && (
