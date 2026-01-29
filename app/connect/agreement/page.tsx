@@ -2,10 +2,10 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/connect/AuthContext";
 import { db } from "@/lib/firebase";
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { showSpinner, hideSpinner, getSession, removeSession } from "@/lib/functions";
+import { showSpinner, hideSpinner, getSession, removeSession } from "@/lib/connect/functions";
 
 export default function AgreementPage() {
   const [agreed, setAgreed] = useState(false);

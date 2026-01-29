@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import { signInWithCustomToken } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { showSpinner, hideSpinner, globalAuthServerRender } from "@/lib/functions";
+import { showSpinner, hideSpinner, globalAuthServerRender } from "@/lib/connect/functions";
 
 export default function CallbackPage() {
   const router = useRouter();

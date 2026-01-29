@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/connect/AuthContext";
 import { db, auth } from "@/lib/firebase";
 import { collection, query, where, orderBy, getDocs, doc, getDoc } from "firebase/firestore";
 import { 
   showSpinner, hideSpinner, showDialog, 
   deleteTicket, archiveAndDeleteDoc, clearAllAppSession,
   formatDateToYMDDot 
-} from "@/lib/functions";
+} from "@/lib/connect/functions";
 import Link from "next/link";
 import "./mypage.css"; // ← これが必要です！
 

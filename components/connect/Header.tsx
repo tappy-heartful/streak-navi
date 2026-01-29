@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
-import { globalAuthServerRender, showSpinner, hideSpinner } from "@/lib/functions";
+import { useAuth } from "@/contexts/connect/AuthContext";
+import { globalAuthServerRender, showSpinner, hideSpinner } from "@/lib/connect/functions";
 
 export default function Header() {
   const pathname = usePathname();

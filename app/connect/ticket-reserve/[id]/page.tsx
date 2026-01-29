@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/connect/AuthContext";
 import { db } from "@/lib/firebase";
 import { 
   doc, getDoc, runTransaction, serverTimestamp 
@@ -10,7 +10,7 @@ import {
 import { 
   showSpinner, hideSpinner, showDialog, 
   formatDateToYMDDot 
-} from "@/lib/functions";
+} from "@/lib/connect/functions";
 import Link from "next/link";
 import "./ticket-reserve.css";
 

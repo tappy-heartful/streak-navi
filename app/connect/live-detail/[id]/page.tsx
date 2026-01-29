@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/connect/AuthContext";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { 
   showSpinner, hideSpinner, showDialog, 
   deleteTicket, formatDateToYMDDot 
-} from "@/lib/functions";
+} from "@/lib/connect/functions";
 import Link from "next/link";
 import "./live-detail.css";
 

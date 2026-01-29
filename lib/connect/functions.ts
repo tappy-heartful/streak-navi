@@ -1,4 +1,4 @@
-import { db, auth } from "./firebase";
+import { db, auth } from "../firebase";
 import {
   doc,
   getDoc,
@@ -18,7 +18,7 @@ import {
   where, 
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage";
-import { showDialog } from "@/components/CommonDialog"; // 先ほど作った共通ダイアログ
+import { showDialog } from "@/components/connect/CommonDialog"; // 先ほど作った共通ダイアログ
 
 // --- 定数 ---
 export const isTest = typeof window !== 'undefined' && window.location.hostname.includes('streak-connect-test');
