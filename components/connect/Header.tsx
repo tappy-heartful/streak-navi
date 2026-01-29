@@ -45,13 +45,13 @@ export default function Header() {
   return (
     <header className="main-header">
       <nav className="nav-container">
-        <Link href="/" className={`nav-item ${isSelected("/")}`}>
+        <Link href="/connect" className={`nav-item ${isSelected("/")}`}>
           Home
         </Link>
 
         {!loading && (
           <Link
-            href="/mypage"
+            href="/connect/mypage"
             onClick={handleProfileClick}
             className={`nav-item profile-nav ${isSelected("/mypage")}`}
           >

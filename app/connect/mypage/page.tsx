@@ -34,7 +34,7 @@ export default function MyPage() {
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      router.push("/"); // ログインしてなければトップへ
+      router.push("/connect"); // ログインしてなければトップへ
       return;
     }
     loadMyTickets();
@@ -77,7 +77,7 @@ export default function MyPage() {
     await auth.signOut();
     clearAllAppSession();
     hideSpinner();
-    router.push("/");
+    router.push("/connect");
   };
 
   // 退会処理
@@ -97,7 +97,7 @@ export default function MyPage() {
       await auth.signOut();
       clearAllAppSession();
       await showDialog("退会処理が完了しました。", true);
-      router.push("/");
+      router.push("/connect");
     } catch (e) {
       alert("エラーが発生しました");
     } finally {
@@ -129,7 +129,7 @@ export default function MyPage() {
       <section className="content-section">
         <div className="inner">
           <nav className="breadcrumb">
-            <Link href="/">Home</Link>
+            <Link href="/connect">Home</Link>
             <span className="separator">&gt;</span>
             <span className="current">My Page</span>
           </nav>
@@ -167,7 +167,7 @@ export default function MyPage() {
       </section>
 
       <div className="page-actions" style={{ textAlign: "center", paddingBottom: "60px" }}>
-        <Link href="/" className="btn-back-home">
+        <Link href="/connect" className="btn-back-home">
           ← Homeに戻る
         </Link>
       </div>
@@ -193,7 +193,7 @@ function TicketCard({ ticket, onRefresh, onCopy }: { ticket: Ticket, onRefresh: 
       <div className="ticket-info">
         <span className="res-type-label">{ticket.resType === 'invite' ? '招待予約' : '一般予約'}</span>
         <div className="t-date">{live.date}</div>
-        <Link href={`/live-detail/${ticket.liveId}`} className="t-title-link">
+        <Link href={`/connect/live-detail/${ticket.liveId}`} className="t-title-link">
           <h3 className="t-title">{live.title}</h3>
         </Link>
         
@@ -205,12 +205,12 @@ function TicketCard({ ticket, onRefresh, onCopy }: { ticket: Ticket, onRefresh: 
         
         <div className="ticket-actions">
           <button className="btn-view" onClick={() => onCopy(ticket.resType, ticket.id)}>URLコピー</button>
-          <Link href={`/ticket-detail/${ticket.id}`} className="btn-ticket">チケット表示</Link>
+          <Link href={`/connect/ticket-detail/${ticket.id}`} className="btn-ticket">チケット表示</Link>
         </div>
 
         {canModify ? (
           <div className="ticket-actions">
-            <Link href={`/ticket-reserve/${ticket.liveId}`} className="btn-edit">変更</Link>
+            <Link href={`/connect/ticket-reserve/${ticket.liveId}`} className="btn-edit">変更</Link>
             <button className="btn-delete" onClick={async () => {
               if (await deleteTicket(ticket.liveId)) onRefresh();
             }}>取消</button>

@@ -123,7 +123,7 @@ export default function HomePage() {
                       <div><i className="fa-solid fa-clock"></i> Open {live.open} / Start {live.start}</div>
                       <div><i className="fa-solid fa-ticket"></i> 前売：{live.advance}</div>
                     </div>
-                    <Link href={`../live-detail/${live.id}`} className="btn-detail">詳細 / VIEW INFO</Link>
+                    <Link href={`/connect/live-detail/${live.id}`} className="btn-detail">詳細 / VIEW INFO</Link>
                   </div>
                 </div>
               ))

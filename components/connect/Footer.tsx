@@ -7,7 +7,7 @@ export default function Footer() {
       <div className="developed-by">Developed by Takumi Fujimoto</div>
       <div className="footer-actions">
         {/* 内部リンクにする場合はLink、外部や別タブならaタグでOK */}
-        <Link href="/about" target="_blank">
+        <Link href="/connect/about" target="_blank">
           サイト情報
         </Link>
       </div>

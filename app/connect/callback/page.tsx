@@ -55,13 +55,13 @@ export default function CallbackPage() {
 
       // 4. 規約同意チェック & リダイレクト
       if (!finalData?.agreedAt) {
-        router.push("/agreement"); // 同意ページへ
+        router.push("/connect/agreement"); // 同意ページへ
       } else {
         router.push(data.redirectAfterLogin || "/"); // ホームまたは元のページへ
       }
     } catch (e: any) {
       alert("ログインに失敗しました: " + e.message);
-      router.push("/");
+      router.push("/connect");
     } finally {
       hideSpinner();
     }

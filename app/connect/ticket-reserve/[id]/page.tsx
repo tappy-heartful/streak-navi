@@ -30,7 +30,7 @@ export default function TicketReservePage() {
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
-      router.push("/");
+      router.push("/connect");
       return;
     }
     loadData();
@@ -44,7 +44,7 @@ export default function TicketReservePage() {
       const liveSnap = await getDoc(liveRef);
       if (!liveSnap.exists()) {
         await showDialog("ライブ情報が見つかりません。", true);
-        router.push("/");
+        router.push("/connect");
         return;
       }
       const liveData = liveSnap.data();
@@ -150,7 +150,7 @@ export default function TicketReservePage() {
 
       hideSpinner();
       await showDialog("予約を確定しました！", true);
-      router.push(`/ticket-detail/${ticketId}`);
+      router.push(`/connect/ticket-detail/${ticketId}`);
     } catch (e: any) {
       hideSpinner();
       alert(e.message || "エラーが発生しました");
@@ -171,9 +171,9 @@ export default function TicketReservePage() {
       <section className="content-section">
         <div className="inner">
           <nav className="breadcrumb">
-            <Link href="/">Home</Link>
+            <Link href="/connect">Home</Link>
             <span className="separator">&gt;</span>
-            <Link href={`/live-detail/${id}`}>Live Detail</Link>
+            <Link href={`/connect/live-detail/${id}`}>Live Detail</Link>
             <span className="separator">&gt;</span>
             <span className="current">Reserve</span>
           </nav>
@@ -269,7 +269,7 @@ export default function TicketReservePage() {
       </section>
 
       <div className="page-actions">
-        <Link href={`/live-detail/${id}`} className="btn-back-home"> ← Live情報に戻る </Link>
+        <Link href={`/connect/live-detail/${id}`} className="btn-back-home"> ← Live情報に戻る </Link>
       </div>
     </main>
   );

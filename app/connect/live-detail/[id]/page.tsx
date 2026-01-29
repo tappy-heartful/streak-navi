@@ -35,7 +35,7 @@ export default function LiveDetailPage() {
 
       if (!liveSnap.exists()) {
         await showDialog("ライブ情報が見つかりませんでした。", true);
-        router.push("/");
+        router.push("/connect");
         return;
       }
       setLive(liveSnap.data());
@@ -65,11 +65,11 @@ export default function LiveDetailPage() {
       if (ok) {
         // ヘッダーと同様のログイン処理を走らせるか、
         // 単純にトップに戻してログインを促す
-        router.push("/");
+        router.push("/connect");
       }
       return;
     }
-    router.push(`/ticket-reserve/${id}`);
+    router.push(`/connect/ticket-reserve/${id}`);
   };
 
   if (authLoading || fetching) return <div className="inner">Loading...</div>;
@@ -94,7 +94,7 @@ export default function LiveDetailPage() {
       <section className="content-section">
         <div className="inner">
           <nav className="breadcrumb">
-            <Link href="/">Home</Link>
+            <Link href="/connect">Home</Link>
             <span className="separator">&gt;</span>
             <span className="current">Live Detail</span>
           </nav>
@@ -161,7 +161,7 @@ export default function LiveDetailPage() {
             ) : (!isAccepting || isBefore || isAfter) ? (
               <div className="action-box">
                 {isReserved && (
-                  <Link href={`/ticket-detail/${id}_${user?.uid}`} className="btn-action btn-view-white">
+                  <Link href={`/connect/ticket-detail/${id}_${user?.uid}`} className="btn-action btn-view-white">
                     <i className="fa-solid fa-ticket"></i> チケットを表示
                   </Link>
                 )}
@@ -176,7 +176,7 @@ export default function LiveDetailPage() {
               <div className="action-box">
                 {isReserved ? (
                   <div className="reserved-actions">
-                    <Link href={`/ticket-detail/${id}_${user?.uid}`} className="btn-action btn-view-white">
+                    <Link href={`/connect/ticket-detail/${id}_${user?.uid}`} className="btn-action btn-view-white">
                       <i className="fa-solid fa-ticket"></i> チケットを表示
                     </Link>
                     <button onClick={handleReserveClick} className="btn-action btn-reserve-red">
@@ -201,7 +201,7 @@ export default function LiveDetailPage() {
       </section>
 
       <div className="page-actions">
-        <Link href="/" className="btn-back-home"> ← Homeに戻る </Link>
+        <Link href="/connect" className="btn-back-home"> ← Homeに戻る </Link>
       </div>
     </main>
   );
