@@ -41,6 +41,7 @@ export default function MyPage() {
   }, [user, loading]);
 
   const loadMyTickets = async () => {
+    showSpinner();
     if (!user) return;
     setFetching(true);
     try {
@@ -67,6 +68,7 @@ export default function MyPage() {
       console.error(e);
     } finally {
       setFetching(false);
+      hideSpinner();
     }
   };
 
