@@ -21,7 +21,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (firebaseUser) => {
+      setLoading(true); // 状態変化が始まったら一旦loadingをtrueにするのが安全
+
       if (firebaseUser) {
+        // --- 修正ポイント1: Authが成功していれば即座にuserをセットする ---
+        setUser(firebaseUser);
+        setSession("uid", firebaseUser.uid);
+
         // Firestoreからユーザー詳細を取得
         const userRef = doc(db, "connectUsers", firebaseUser.uid);
         const snap = await getDoc(userRef);
@@ -29,13 +35,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (snap.exists()) {
           const data = snap.data();
           setUserData(data);
-          setUser(firebaseUser);
           // 既存のセッション管理との互換性
-          setSession("uid", firebaseUser.uid);
           Object.entries(data).forEach(([k, v]) => setSession(k, v));
         } else {
-          // アカウントがない場合
-          setUser(null);
+          // --- 修正ポイント2: Firestoreにデータがなくても、userをnullにしない ---
+          // まだ登録プロセス（Agreement）が終わっていないだけの状態なので、
+          // user情報は保持したままにする。userDataだけnullになる。
+          setUserData(null);
         }
       } else {
         setUser(null);
