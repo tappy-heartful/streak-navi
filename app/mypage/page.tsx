@@ -11,6 +11,7 @@ import {
   formatDateToYMDDot 
 } from "@/lib/functions";
 import Link from "next/link";
+import "./mypage.css"; // ← これが必要です！
 
 // 型定義
 interface Ticket {
