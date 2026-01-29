@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import Header from "../components/Header";
-import Footer from "../components/Footer"; // 追加
+import Footer from "../components/Footer";
+import Script from "next/script";
 
 export const metadata: Metadata = {
   title: "HOME | SSJO",
@@ -28,7 +29,13 @@ export default function RootLayout({
       <body>
         <Header />
         {children}
-        <Footer /> {/* Headerと対になるように配置 */}
+        <Footer />
+        
+        {/* Instagramの埋め込み用スクリプト */}
+        <Script 
+          src="https://www.instagram.com/embed.js" 
+          strategy="afterInteractive" 
+        />
       </body>
     </html>
   );

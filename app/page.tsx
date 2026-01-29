@@ -3,15 +3,21 @@
 import { useState, useEffect } from "react";
 import { db } from "../lib/firebase";
 import { collection, query, orderBy, getDocs, limit } from "firebase/firestore";
+// 1. 共通関数のインポートを追加
+import { buildInstagramHtml } from "../lib/functions";
+
+declare global {
+  interface Window {
+    instgrm?: any;
+  }
+}
 
 export default function HomePage() {
-  // --- 状態管理 (States) ---
   const [lives, setLives] = useState<any[]>([]);
   const [medias, setMedias] = useState<any[]>([]);
   const [loadingLives, setLoadingLives] = useState(true);
   const [loadingMedias, setLoadingMedias] = useState(true);
 
-  // メンバーデータ
   const members = [
     { name: 'Shoei Matsushita', role: 'Guitar / Band Master', origin: 'Ehime' },
     { name: 'Miku Nozoe', role: 'Trumpet / Lead Trumpet', origin: 'Ehime' },
@@ -24,22 +30,17 @@ export default function HomePage() {
     { name: 'Yojiro Nakagawa', role: 'Bass', origin: 'Hiroshima' },
   ];
 
-  // グッズデータ
   const goodsItems = ['item1.jpg', 'item2.jpg', 'item3.jpg', 'item4.jpg'];
 
-  // --- データ取得ロジック ---
   useEffect(() => {
-    // ライブ情報の取得
     async function fetchLives() {
       try {
         const q = query(collection(db, "lives"), orderBy("date", "desc"));
         const snapshot = await getDocs(q);
         const todayStr = new Date().toISOString().split('T')[0].replace(/-/g, '.');
-        
         const livesData = snapshot.docs
           .map(doc => ({ id: doc.id, ...doc.data() as any }))
-          .filter(live => live.date >= todayStr); // 過去のライブは除外
-
+          .filter(live => live.date >= todayStr);
         setLives(livesData);
       } catch (e) {
         console.error("Lives fetch error:", e);
@@ -48,12 +49,19 @@ export default function HomePage() {
       }
     }
 
-    // 履歴 (Instagram) の取得
     async function fetchMedias() {
       try {
         const q = query(collection(db, "medias"), orderBy("date", "desc"), limit(5));
         const snapshot = await getDocs(q);
-        setMedias(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any })));
+        const mediaData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any }));
+        setMedias(mediaData);
+
+        // 2. データ取得後にInstagramに「解析して！」と命令する
+        setTimeout(() => {
+          if (window.instgrm) {
+            window.instgrm.Embeds.process();
+          }
+        }, 500); // 少し余裕を持って実行
       } catch (e) {
         console.error("Medias fetch error:", e);
       } finally {
@@ -64,6 +72,19 @@ export default function HomePage() {
     fetchLives();
     fetchMedias();
   }, []);
+
+    // 2. 【ここを追加！】mediasが更新され、HTMLが描画された後にInstagramを実行する
+  useEffect(() => {
+    if (medias.length > 0) {
+      // 0.1秒だけ待ってからInstagramにスキャンさせる
+      const timer = setTimeout(() => {
+        if (window.instgrm) {
+          window.instgrm.Embeds.process();
+        }
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [medias]); // mediasが変わったときだけ動く
 
   return (
     <main>
@@ -176,17 +197,26 @@ export default function HomePage() {
         <div className="inner">
           <h2 className="section-title">HISTORY</h2>
           <div className="media-grid">
-            {loadingMedias ? <p>Loading archives...</p> : medias.map(m => (
-              <div key={m.id} className="media-card">
-                <div className="media-info">
-                  <span className="media-date">{m.date}</span>
-                  <h3 className="media-title">{m.title}</h3>
+            {loadingMedias ? (
+              <p>Loading archives...</p>
+            ) : (
+              medias.map((m) => (
+                <div key={m.id} className="media-card">
+                  <div className="media-info">
+                    <span className="media-date">{m.date}</span>
+                    <h3 className="media-title">{m.title}</h3>
+                  </div>
+                  <div className="media-body">
+                    {/* 3. ここが重要！buildInstagramHtmlを通してHTMLとして流し込む */}
+                    <div 
+                      dangerouslySetInnerHTML={{ 
+                        __html: buildInstagramHtml(m.instagramUrl) 
+                      }} 
+                    />
+                  </div>
                 </div>
-                <div className="media-body">
-                  <p style={{fontSize: '12px', color: '#888'}}>Instagram Embed Placeholder</p>
-                </div>
-              </div>
-            ))}
+              ))
+            )}
           </div>
         </div>
       </section>
