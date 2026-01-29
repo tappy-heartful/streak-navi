@@ -168,44 +168,90 @@ export async function archiveAndDeleteDoc(collectionName: string, docId: string)
 }
 
 /**
- * チケットの削除
- * @param liveId 対象のライブID
- * @param showConfirm 確認ダイアログを出すかどうか
+ * チケット削除処理（TypeScript版）
+ * @param liveId ライブドキュメントのID
+ * @param uid ユーザーのUID
+ * @param isConfirm 削除前に確認ダイアログを表示するか
  */
-export async function deleteTicket(liveId: string, showConfirm = true) {
-  if (showConfirm) {
-    const ok = await showDialog("予約を取り消しますか？\n(この操作は取り消せません)");
+export async function deleteTicket(
+  liveId: string, 
+  uid: string | undefined, 
+  isConfirm = true
+): Promise<boolean> {
+  // 1. 基本チェック
+  if (!uid || !liveId) {
+    console.error("UID or LiveID is missing");
+    return false;
+  }
+
+  // 2. ユーザーへの最終確認
+  if (isConfirm) {
+    const ok = await showDialog(
+      'この予約を取り消しますか？\n（この操作は元に戻せません）'
+    );
     if (!ok) return false;
   }
 
-  const user = auth.currentUser;
-  if (!user) return false;
+  const ticketId = `${liveId}_${uid}`;
 
   try {
-    // 1. チケットドキュメントを探す (uid と liveId で特定)
-    const q = query(
-      collection(db, "tickets"),
-      where("uid", "==", user.uid),
-      where("liveId", "==", liveId)
-    );
-    const snap = await getDocs(q);
+    showSpinner();
 
-    if (snap.empty) return false;
+    // 3. トランザクション開始
+    await runTransaction(db, async (transaction) => {
+      const liveRef = doc(db, 'lives', liveId);
+      const resRef = doc(db, 'tickets', ticketId);
 
-    // 2. 削除（複数ヒットしても基本は1つのはずだがループで処理）
-    for (const d of snap.docs) {
-      // こちらも一応アーカイブしてから消すのが安全
-      await archiveAndDeleteDoc("tickets", d.id);
-    }
-    
-    if (showConfirm) {
-      await showDialog("予約を取り消しました。", true);
-    }
+      // データの取得
+      const liveSnap = await transaction.get(liveRef);
+      const resSnap = await transaction.get(resRef);
+
+      if (!resSnap.exists()) {
+        throw new Error('予約データが見つかりませんでした。');
+      }
+
+      const ticketData = resSnap.data();
+      const cancelCount = ticketData.totalCount || 0; // 返却する人数
+
+      // 4. 在庫の差し戻し
+      if (liveSnap.exists()) {
+        const currentTotalReserved = liveSnap.data().totalReserved || 0;
+        // 計算結果がマイナスにならないようガード
+        const newTotalReserved = Math.max(
+          0,
+          currentTotalReserved - cancelCount,
+        );
+
+        transaction.update(liveRef, {
+          totalReserved: newTotalReserved,
+        });
+      }
+
+      // 5. チケットの削除
+      transaction.delete(resRef);
+    });
+
+    hideSpinner();
+    await showDialog('予約を取り消しました', true);
     return true;
-  } catch (e) {
-    console.error("Delete Ticket Error:", e);
-    await showDialog("エラーが発生しました。", true);
+
+  } catch (e: any) {
+    console.error("Delete ticket error:", e);
+    
+    // エラーログの記録（必要に応じて）
+    await writeLog({
+      dataId: ticketId,
+      action: 'Ticket予約取消',
+      status: 'error',
+      errorDetail: { message: e.message, stack: e.stack },
+    });
+
+    hideSpinner();
+    await showDialog(`エラーが発生しました: ${e.message}`, true);
     return false;
+
+  } finally {
+    hideSpinner();
   }
 }
 

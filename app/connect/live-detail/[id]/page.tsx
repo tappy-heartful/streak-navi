@@ -54,7 +54,7 @@ export default function LiveDetailPage() {
   };
 
   const handleCancel = async () => {
-    if (await deleteTicket(id as string)) {
+    if (await deleteTicket(id as string, user?.uid)) {
       await loadData(); // 状態を更新
     }
   };
