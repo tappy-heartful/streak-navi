@@ -5,6 +5,7 @@ import { db } from "../lib/firebase";
 import { collection, query, orderBy, getDocs, limit } from "firebase/firestore";
 // 1. 共通関数のインポートを追加
 import { buildInstagramHtml } from "../lib/functions";
+import "./home.css";
 
 declare global {
   interface Window {
