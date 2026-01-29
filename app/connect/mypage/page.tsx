@@ -90,7 +90,7 @@ export default function MyPage() {
     try {
       // チケット削除
       for (const t of tickets) {
-        await deleteTicket(t.liveId, user?.uid);
+        await deleteTicket(t.liveId, user?.uid, false);
       }
       // ユーザー削除（アーカイブ）
       await archiveAndDeleteDoc("connectUsers", user!.uid);

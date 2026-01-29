@@ -201,8 +201,8 @@ export default function LiveDetailPage() {
                     </button>
                   </div>
                 ) : (
-                  <div className="unreserved-actions" style={{ textAlign: "center" }}>
-                    <button onClick={handleReserveClick} className="btn-reserve" style={{width: "100%"}}>
+                  <div className="reserved-actions">
+                    <button onClick={handleReserveClick} className="btn-action btn-reserve-red">
                       <i className="fa-solid fa-paper-plane"></i> このライブを予約する / RESERVE
                     </button>
                     {live.acceptStartDate && (
