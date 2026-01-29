@@ -187,12 +187,12 @@ export default function LiveDetailPage() {
                     </button>
                   </div>
                 ) : (
-                  <>
+                  <div className="reserved-actions">
                     <button onClick={handleReserveClick} className="btn-action btn-reserve-red">
                       <i className="fa-solid fa-paper-plane"></i> このライブを予約する
                     </button>
                     <p className="accept-period">受付期間: {live.acceptStartDate} ～ {live.acceptEndDate}</p>
-                  </>
+                  </div>
                 )}
               </div>
             )}

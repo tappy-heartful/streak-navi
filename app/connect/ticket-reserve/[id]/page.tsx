@@ -199,12 +199,12 @@ export default function TicketReservePage() {
                   <label className="radio-item">
                     <input type="radio" value="invite" checked={resType === "invite"} onChange={() => setResType("invite")} />
                     <span>招待予約</span>
-                    <small>家族や知人を招待します</small>
+                    <small className="radio-description">ライブに出演し、家族や知人の方をご招待します</small>
                   </label>
                   <label className="radio-item">
                     <input type="radio" value="general" checked={resType === "general"} onChange={() => setResType("general")} />
                     <span>一般予約</span>
-                    <small>自分も観客として参加します</small>
+                    <small className="radio-description">お客さんとしてライブを見にいきます</small>
                   </label>
                 </div>
               </div>
