@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
 import { collection, query, orderBy, getDocs, limit } from "firebase/firestore";
-import { buildInstagramHtml, showSpinner, hideSpinner } from "@/lib/connect/functions";
+import { buildInstagramHtml } from "@/lib/connect/functions";
 import Link from "next/link";
 // CSS Modulesをインポート
 import styles from "./home.module.css";
@@ -15,7 +15,6 @@ declare global {
 }
 
 export default function HomePage() {
-  showSpinner();
   const [lives, setLives] = useState<any[]>([]);
   const [medias, setMedias] = useState<any[]>([]);
   const [loadingLives, setLoadingLives] = useState(true);
@@ -80,7 +79,6 @@ export default function HomePage() {
     }
   }, [medias]);
 
-  hideSpinner();
   return (
     <main>
       {/* HERO */}

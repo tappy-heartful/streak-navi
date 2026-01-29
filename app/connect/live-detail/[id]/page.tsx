@@ -28,7 +28,6 @@ export default function LiveDetailPage() {
   }, [id, user]);
 
   const loadData = async () => {
-    showSpinner();
     setFetching(true);
     try {
       // 1. ライブデータの取得
@@ -52,7 +51,6 @@ export default function LiveDetailPage() {
       console.error(e);
     } finally {
       setFetching(false);
-      hideSpinner();
     }
   };
 

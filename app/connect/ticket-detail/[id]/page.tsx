@@ -14,7 +14,6 @@ import { QRCodeSVG } from "qrcode.react"; // QRコードライブラリ
 import "./ticket-detail.css";
 
 export default function TicketDetailPage() {
-  showSpinner();
   const { id } = useParams(); // URLパラメータ [id]
   const { user, loading: authLoading } = useAuth();
   const router = useRouter();
@@ -79,7 +78,6 @@ export default function TicketDetailPage() {
   const isPast = live.date < todayStr;
   const canModify = !isPast && live.isAcceptReserve;
 
-  hideSpinner();
   return (
     <main>
       <section className="hero" style={{ "--hero-bg": 'url("https://tappy-heartful.github.io/streak-connect-images/background/ticket-detail.jpg")' } as any}>

@@ -15,7 +15,6 @@ import Link from "next/link";
 import "./ticket-reserve.css";
 
 export default function TicketReservePage() {
-  showSpinner();
   const { id } = useParams(); // liveId
   const { user, loading: authLoading, userData } = useAuth();
   const router = useRouter();
@@ -155,7 +154,6 @@ export default function TicketReservePage() {
 
   if (authLoading || fetching) return <div className="inner">Loading...</div>;
 
-  hideSpinner();
   return (
     <main>
       <section className="hero" style={{ "--hero-bg": 'url("https://tappy-heartful.github.io/streak-connect-images/background/ticket-reserve.jpg")' } as any}>

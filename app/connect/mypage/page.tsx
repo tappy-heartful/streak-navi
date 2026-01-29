@@ -25,7 +25,6 @@ interface Ticket {
 }
 
 export default function MyPage() {
-  showSpinner();
   const { user, loading, userData } = useAuth();
   const router = useRouter();
   const [tickets, setTickets] = useState<Ticket[]>([]);
@@ -118,7 +117,6 @@ export default function MyPage() {
 
   if (loading || fetching) return <div className="inner">Loading...</div>;
 
-  hideSpinner();
   return (
     <main>
       <section className="hero" style={{ "--hero-bg": 'url("https://tappy-heartful.github.io/streak-connect-images/background/mypage.jpg")' } as any}>
