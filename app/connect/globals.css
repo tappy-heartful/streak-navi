@@ -233,10 +233,6 @@ body {
 
 @media (min-width: 768px) {
     /* PCでは 変更・削除 を横並びに、チケット表示を大きく */
-    .reserved-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-    }
     .btn-view-white {
         grid-column: span 2; /* チケットボタンを一番目立たせる */
     }
