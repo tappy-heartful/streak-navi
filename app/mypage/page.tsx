@@ -165,6 +165,12 @@ export default function MyPage() {
           </div>
         </div>
       </section>
+
+      <div className="page-actions" style={{ textAlign: "center", paddingBottom: "60px" }}>
+        <Link href="/" className="btn-back-home">
+          ← Homeに戻る
+        </Link>
+      </div>
     </main>
   );
 }
