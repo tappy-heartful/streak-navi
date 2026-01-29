@@ -1,65 +1,195 @@
-import Image from "next/image";
+"use client";
 
-export default function Home() {
+import { useState, useEffect } from "react";
+import { db } from "../lib/firebase";
+import { collection, query, orderBy, getDocs, limit } from "firebase/firestore";
+
+export default function HomePage() {
+  // --- 状態管理 (States) ---
+  const [lives, setLives] = useState<any[]>([]);
+  const [medias, setMedias] = useState<any[]>([]);
+  const [loadingLives, setLoadingLives] = useState(true);
+  const [loadingMedias, setLoadingMedias] = useState(true);
+
+  // メンバーデータ
+  const members = [
+    { name: 'Shoei Matsushita', role: 'Guitar / Band Master', origin: 'Ehime' },
+    { name: 'Miku Nozoe', role: 'Trumpet / Lead Trumpet', origin: 'Ehime' },
+    { name: 'Takumi Fujimoto', role: 'Saxophne / Lead Alto Sax', origin: 'Hiroshima' },
+    { name: 'Kana Asahiro', role: 'Trombone / Lead Trombone', origin: 'Nara' },
+    { name: 'Hiroto Murakami', role: 'Trombone / Section Leader', origin: 'Ehime' },
+    { name: 'Taisei Yuyama', role: 'Saxophne / Lead Tenor Sax', origin: 'Ehime' },
+    { name: 'Shunta Yabu', role: 'Saxophne / Section Leader', origin: 'Hiroshima' },
+    { name: 'Akito Kimura', role: 'Drums', origin: 'Okayama' },
+    { name: 'Yojiro Nakagawa', role: 'Bass', origin: 'Hiroshima' },
+  ];
+
+  // グッズデータ
+  const goodsItems = ['item1.jpg', 'item2.jpg', 'item3.jpg', 'item4.jpg'];
+
+  // --- データ取得ロジック ---
+  useEffect(() => {
+    // ライブ情報の取得
+    async function fetchLives() {
+      try {
+        const q = query(collection(db, "lives"), orderBy("date", "desc"));
+        const snapshot = await getDocs(q);
+        const todayStr = new Date().toISOString().split('T')[0].replace(/-/g, '.');
+        
+        const livesData = snapshot.docs
+          .map(doc => ({ id: doc.id, ...doc.data() as any }))
+          .filter(live => live.date >= todayStr); // 過去のライブは除外
+
+        setLives(livesData);
+      } catch (e) {
+        console.error("Lives fetch error:", e);
+      } finally {
+        setLoadingLives(false);
+      }
+    }
+
+    // 履歴 (Instagram) の取得
+    async function fetchMedias() {
+      try {
+        const q = query(collection(db, "medias"), orderBy("date", "desc"), limit(5));
+        const snapshot = await getDocs(q);
+        setMedias(snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() as any })));
+      } catch (e) {
+        console.error("Medias fetch error:", e);
+      } finally {
+        setLoadingMedias(false);
+      }
+    }
+
+    fetchLives();
+    fetchMedias();
+  }, []);
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
+    <main>
+      {/* HERO */}
+      <section className="home-hero">
+        <div className="home-hero-content">
+          <h1 className="band-name">
+            Swing Streak<br /><span className="sub-name"><span className="accent-j">J</span>azz Orchestra</span>
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+          <p className="tagline">BASED IN MATSUYAMA, EHIME</p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </section>
+
+      {/* UPCOMING LIVES */}
+      <section className="content-section">
+        <div className="inner">
+          <h2 className="section-title">UPCOMING LIVES</h2>
+          <div className="ticket-grid">
+            {loadingLives ? (
+              <p className="loading-text">Checking for upcoming lives...</p>
+            ) : lives.length === 0 ? (
+              <p className="no-data">No information available.</p>
+            ) : (
+              lives.map((live) => (
+                <div key={live.id} className="ticket-card">
+                  <div className="ticket-img-wrapper">
+                    <img src={live.flyerUrl || 'https://tappy-heartful.github.io/streak-connect-images/favicon.png'} className="ticket-img" alt="flyer" />
+                  </div>
+                  <div className="ticket-info">
+                    <div className="t-date">{live.date}</div>
+                    <h3 className="t-title">{live.title}</h3>
+                    <div className="t-details">
+                      <div><i className="fa-solid fa-location-dot"></i> {live.venue}</div>
+                      <div><i className="fa-solid fa-clock"></i> Open {live.open} / Start {live.start}</div>
+                      <div><i className="fa-solid fa-ticket"></i> 前売：{live.advance}</div>
+                    </div>
+                    <button className="btn-detail">詳細 / VIEW INFO</button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
         </div>
-      </main>
-    </div>
+      </section>
+
+      {/* CONCEPT */}
+      <section className="content-section" id="concept">
+        <div className="inner">
+          <h2 className="section-title">Concept</h2>
+          <div className="concept-body">
+            <p className="concept-lead">Swingは続く...</p>
+            <div className="concept-text">
+              <p>Swing Streak Jazz Orchestra（SSJO）は、2021年に結成されました。</p>
+              <p>現役時代に築いた関係性が、これからも絶えることなく続いていきますように。</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* MEMBERS */}
+      <section className="content-section">
+        <div className="inner">
+          <h2 className="section-title">CORE MEMBERS</h2>
+          <div className="member-grid">
+            {members.map((m) => (
+              <div key={m.name} className="member-card">
+                <div className="member-img-wrapper">
+                  <img src={`https://tappy-heartful.github.io/streak-connect-images/members/${m.name}.jpg`} alt={m.name} className="member-img" />
+                </div>
+                <div className="member-info-content">
+                  <div className="member-role">{m.role}</div>
+                  <div className="member-name">{m.name.split(' ').map((p, i) => <span key={i}>{p}<br/></span>)}</div>
+                  <div className="member-origin">from {m.origin}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* SNS */}
+      <section className="content-section">
+        <div className="inner">
+          <h2 className="section-title">Follow Us</h2>
+          <div className="sns-container">
+            <div className="sns-links">
+              <a href="https://lin.ee/suVPLxR" target="_blank" className="sns-btn line-btn">LINE公式アカウント</a>
+              <a href="https://www.instagram.com/swstjazz" target="_blank" className="sns-btn insta-btn">Instagram</a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* STORE */}
+      <section className="content-section">
+        <div className="inner">
+          <h2 className="section-title">Official Store</h2>
+          <div className="goods-container">
+            <div className="horizontal-scroll">
+              {goodsItems.map((item, i) => (
+                <img key={i} src={`https://tappy-heartful.github.io/streak-connect-images/goods/${item}`} alt="Goods" className="square-img" />
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* HISTORY */}
+      <section className="content-section bg-darker">
+        <div className="inner">
+          <h2 className="section-title">HISTORY</h2>
+          <div className="media-grid">
+            {loadingMedias ? <p>Loading archives...</p> : medias.map(m => (
+              <div key={m.id} className="media-card">
+                <div className="media-info">
+                  <span className="media-date">{m.date}</span>
+                  <h3 className="media-title">{m.title}</h3>
+                </div>
+                <div className="media-body">
+                  <p style={{fontSize: '12px', color: '#888'}}>Instagram Embed Placeholder</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
