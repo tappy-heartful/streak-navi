@@ -3,6 +3,7 @@ import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Script from "next/script";
+import CommonDialog from "@/components/CommonDialog";
 
 export const metadata: Metadata = {
   title: "HOME | SSJO",
@@ -36,6 +37,7 @@ export default function RootLayout({
           src="https://www.instagram.com/embed.js" 
           strategy="afterInteractive" 
         />
+        <CommonDialog />
       </body>
     </html>
   );
