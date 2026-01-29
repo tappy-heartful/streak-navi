@@ -190,6 +190,11 @@ export default function HomePage() {
                 <img key={i} src={`https://tappy-heartful.github.io/streak-connect-images/goods/${item}`} alt="Goods" className="square-img" />
               ))}
             </div>
+            <div className="btn-area">
+              <a href="https://ssjo.booth.pm/" target="_blank" className="btn-link">
+                <i className="fa-solid fa-cart-shopping"></i> Visit BOOTH Store
+              </a>
+            </div>
           </div>
         </div>
       </section>
