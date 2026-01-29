@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -28,6 +29,7 @@ export default function RootLayout({
         />
       </head>
       <body>
+        <AuthProvider>
         <Header />
         {children}
         <Footer />
@@ -38,6 +40,7 @@ export default function RootLayout({
           strategy="afterInteractive" 
         />
         <CommonDialog />
+        </AuthProvider>
       </body>
     </html>
   );
