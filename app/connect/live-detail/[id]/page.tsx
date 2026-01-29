@@ -189,14 +189,14 @@ export default function LiveDetailPage() {
             ) : (
               <div className="action-box">
                 {isReserved ? (
-                  <div className="reserved-actions" style={{ display: "flex", flexDirection: "column", gap: "15px" }}>
-                    <Link href={`/connect/ticket-detail/${id}_${user?.uid}`} className="btn-action btn-view-white" style={{textAlign: "center", padding: "12px", borderRadius: "50px", border: "1px solid #fff", color: "#fff"}}>
+                  <div className="reserved-actions">
+                    <Link href={`/connect/ticket-detail/${id}_${user?.uid}`} className="btn-action btn-view-white">
                       <i className="fa-solid fa-ticket"></i> チケットを表示
                     </Link>
-                    <button onClick={handleReserveClick} className="btn-reserve" style={{width: "100%"}}>
+                    <button onClick={handleReserveClick} className="btn-action btn-reserve-red">
                       <i className="fa-solid fa-pen-to-square"></i> 予約内容を変更
                     </button>
-                    <button className="btn-delete" onClick={handleCancel} style={{ background: "transparent", color: "#888", border: "none", cursor: "pointer", fontSize: "0.9rem" }}>
+                    <button className="btn-action btn-delete-outline" onClick={handleCancel}>
                       <i className="fa-solid fa-trash-can"></i> この予約を取り消す
                     </button>
                   </div>
