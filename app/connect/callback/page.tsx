@@ -1,13 +1,24 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, Suspense } from "react"; // Suspenseを追加
 import { useRouter, useSearchParams } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import { signInWithCustomToken } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
 import { showSpinner, hideSpinner, globalAuthServerRender } from "@/lib/connect/functions";
 
+// --- メインのページコンポーネント ---
 export default function CallbackPage() {
+  return (
+    // これで囲むことでビルドエラーが解消されます
+    <Suspense fallback={<div className="loading-screen">Loading...</div>}>
+      <CallbackContent />
+    </Suspense>
+  );
+}
+
+// --- 実際のログインロジックを持つコンポーネント ---
+function CallbackContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -57,11 +68,11 @@ export default function CallbackPage() {
       if (!finalData?.agreedAt) {
         router.push("/connect/agreement"); // 同意ページへ
       } else {
-        router.push(data.redirectAfterLogin || "/"); // ホームまたは元のページへ
+        router.push(data.redirectAfterLogin || "/connect/home"); // "/" から "/connect/home" へ修正（Homeフォルダ案に合わせる場合）
       }
     } catch (e: any) {
       alert("ログインに失敗しました: " + e.message);
-      router.push("/connect");
+      router.push("/connect/home");
     } finally {
       hideSpinner();
     }
