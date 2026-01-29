@@ -6,6 +6,10 @@ import Footer from "../components/Footer"; // 追加
 export const metadata: Metadata = {
   title: "HOME | SSJO",
   description: "Swing Streak Jazz Orchestra Official Store & Reserve",
+  icons: {
+    icon: "https://tappy-heartful.github.io/streak-connect-images/favicon.png",
+    apple: "https://tappy-heartful.github.io/streak-connect-images/favicon.png",
+  },
 };
 
 export default function RootLayout({
