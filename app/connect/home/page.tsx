@@ -125,6 +125,9 @@ export default function HomePage() {
                     <Link href={`/connect/live-detail/${live.id}`} className={styles.btnDetail}>
                       詳細 / VIEW INFO
                     </Link>
+                    <Link href={`/connect/ticket-reserve/${live.id}`} className={styles.btnReserve}>
+                      予約 / RESERVE TICKET
+                    </Link>
                   </div>
                 </div>
               ))
