@@ -35,8 +35,8 @@ export default function AgreementPage() {
       // --- refreshUserData を実行して Context の userData を最新にする ---
       await refreshUserData(); 
 
-      const target = getSession("pendingRedirect") || "/connect";
-      removeSession("pendingRedirect");
+      const target = getSession("redirectAfterLogin") || "/connect";
+      removeSession("redirectAfterLogin");
       
       router.push(target);
     } catch (e) {
