@@ -191,6 +191,20 @@ export async function initDisplay(
   isShowSpinner = true,
   isAuthRequired = false,
 ) {
+  const urlParams = new URLSearchParams(window.location.search);
+  // 旧サイトのため強制リダイレクト
+  if (window.location.search.includes('ticketId')) {
+    const ticketId = urlParams.get('ticketId');
+    window.location.href =
+      'https://ssjo.vercel.app/connect/ticket-detail/' + ticketId;
+  } else if (window.location.search.includes('liveId')) {
+    const liveId = urlParams.get('liveId');
+    window.location.href =
+      'https://ssjo.vercel.app/connect/live-detail/' + liveId;
+  } else {
+    window.location.href = 'https://ssjo.vercel.app/connect/home';
+  }
+
   if (isShowSpinner) {
     // スピナー表示
     showSpinner();
