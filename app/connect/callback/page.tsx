@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import { signInWithCustomToken } from "firebase/auth";
 import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
-import { showSpinner, hideSpinner, globalAuthServerRender } from "@/lib/connect/functions";
+import { showSpinner, hideSpinner, globalAuthServerRender, setSession } from "@/lib/connect/functions";
 
 // --- メインのページコンポーネント ---
 export default function CallbackPage() {
@@ -63,12 +63,14 @@ function CallbackContent() {
       await setDoc(userRef, userData, { merge: true });
       const updatedSnap = await getDoc(userRef);
       const finalData = updatedSnap.data();
-
+      const redirectAfterLogin = data.redirectAfterLogin || "/connect/home";
+      
       // 4. 規約同意チェック & リダイレクト
       if (!finalData?.agreedAt) {
         router.push("/connect/agreement"); // 同意ページへ
+        setSession("redirectAfterLogin", redirectAfterLogin || "/connect/home");
       } else {
-        router.push(data.redirectAfterLogin || "/connect/home"); // "/" から "/connect/home" へ修正（Homeフォルダ案に合わせる場合）
+        router.push(redirectAfterLogin || "/connect/home"); // "/" から "/connect/home" へ修正（Homeフォルダ案に合わせる場合）
       }
     } catch (e: any) {
       alert("ログインに失敗しました: " + e.message);
