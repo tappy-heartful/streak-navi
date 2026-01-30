@@ -47,7 +47,7 @@ async function renderCollect() {
       utils.getWrapDocs(utils.collection(utils.db, 'users')),
       utils.getWrapDocs(utils.collection(utils.db, 'sections')),
       utils.getWrapDocs(
-        utils.collection(utils.db, 'collects', collectId, 'responses')
+        utils.collection(utils.db, 'collects', collectId, 'responses'),
       ),
     ]);
 
@@ -81,11 +81,11 @@ async function renderCollect() {
   updateGlobalStatusLabel(data, responseMap, myUid, isActive);
 
   $('#target-date').text(
-    data.targetDate ? utils.getDayOfWeek(data.targetDate_decoded) : '-'
+    data.targetDate ? utils.getDayOfWeek(data.targetDate_decoded) : '-',
   );
   $('#collect-title').text(data.title);
   $('#accept-term').text(
-    `${data.acceptStartDate || ''} ～ ${data.acceptEndDate || ''}`
+    `${data.acceptStartDate || ''} ～ ${data.acceptEndDate || ''}`,
   );
   $('#amount-per-person').text(formatYen(data.amountPerPerson));
   $('#upfront-amount').text(formatYen(data.upfrontAmount));
@@ -100,7 +100,7 @@ async function renderCollect() {
 
   if (isSamePerson) {
     $remittanceArea.append(
-      '<span style="font-size: 0.85rem; color: #666;">なし<br />(立替者=担当者のため)</span>'
+      '<span style="font-size: 0.85rem; color: #666;">なし<br />(立替者=担当者のため)</span>',
     );
   } else {
     const remiResp = responseMap['remittance_evidence'];
@@ -142,7 +142,7 @@ async function renderCollect() {
     $('#adjustment-status').text('あり（端数調整）');
     $('#adjustment-details').show();
     $('#adjustment-payer').text(
-      userFullMap[data.adjustmentPayer]?.name || '未設定'
+      userFullMap[data.adjustmentPayer]?.name || '未設定',
     );
     const baseTotal = data.amountPerPerson * data.participantCount;
     const diff = data.upfrontAmount - baseTotal;
@@ -167,7 +167,7 @@ async function renderCollect() {
     const $section = $(
       `<div class="confirm-section-group"><div class="confirm-section-title">${
         sectionsMap[sId] || '❓未設定'
-      }</div></div>`
+      }</div></div>`,
     );
     grouped[sId].forEach((u) => {
       const resp = responseMap[u.id];
@@ -183,10 +183,10 @@ async function renderCollect() {
               isManager
                 ? '<span class="status-badge uploaded">集金担当</span>'
                 : isUpfrontPayer
-                ? '<span class="status-badge uploaded">立替担当</span>'
-                : hasReceipt
-                ? '<span class="status-badge uploaded">済</span>'
-                : ''
+                  ? '<span class="status-badge uploaded">立替担当</span>'
+                  : hasReceipt
+                    ? '<span class="status-badge uploaded">済</span>'
+                    : ''
             }
           </div>
           <div class="receipt-actions">
@@ -233,7 +233,7 @@ async function renderCollect() {
                     : '集金担当者を検索'
                 }</li>
                 <li><strong>${formatYen(
-                  data.amountPerPerson
+                  data.amountPerPerson,
                 )}</strong> を送金</li>
               </ol>
             </div>
@@ -247,8 +247,8 @@ async function renderCollect() {
                   <i class="fas fa-external-link-alt"></i> PayPayアプリを開く
                 </button>`
             : data.paymentUrl
-            ? `<button id="pay-link-button" class="save-button">支払う</button>`
-            : ''
+              ? `<button id="pay-link-button" class="save-button">支払う</button>`
+              : ''
         }
       </div>
       ${
@@ -266,7 +266,7 @@ async function renderCollect() {
   });
   if (data.paymentUrl) {
     $('#pay-link-button').on('click', () =>
-      window.open(data.paymentUrl, '_blank')
+      window.open(data.paymentUrl, '_blank'),
     );
   }
 
@@ -329,9 +329,9 @@ function setupEventHandlers(collectId, isAdmin, data, myUid, isActive) {
           'collects',
           collectId,
           'responses',
-          currentTargetUserId
+          currentTargetUserId,
         );
-        const oldDoc = await utils.getDoc(docRef);
+        const oldDoc = await utils.getWrapDoc(docRef);
         if (oldDoc.exists() && oldDoc.data().receiptUrl) {
           await deleteStorageFile(oldDoc.data().receiptUrl);
         }
@@ -372,7 +372,7 @@ function setupEventHandlers(collectId, isAdmin, data, myUid, isActive) {
 
       if (
         !(await utils.showDialog(
-          'このスクショを削除し、支払い記録を取り消してもよろしいですか？'
+          'このスクショを削除し、支払い記録を取り消してもよろしいですか？',
         ))
       )
         return;
@@ -387,7 +387,7 @@ function setupEventHandlers(collectId, isAdmin, data, myUid, isActive) {
           'collects',
           collectId,
           'responses',
-          uid
+          uid,
         );
         await utils.deleteDoc(responseDocRef);
 
@@ -428,13 +428,13 @@ function setupEventHandlers(collectId, isAdmin, data, myUid, isActive) {
   $('#collect-edit-button').on(
     'click',
     () =>
-      (window.location.href = `../collect-edit/collect-edit.html?mode=edit&collectId=${collectId}`)
+      (window.location.href = `../collect-edit/collect-edit.html?mode=edit&collectId=${collectId}`),
   );
 
   $('#collect-copy-button').on(
     'click',
     () =>
-      (window.location.href = `../collect-edit/collect-edit.html?mode=copy&collectId=${collectId}`)
+      (window.location.href = `../collect-edit/collect-edit.html?mode=copy&collectId=${collectId}`),
   );
 
   $('#collect-delete-button').on('click', async () => {

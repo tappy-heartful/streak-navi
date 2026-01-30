@@ -26,7 +26,7 @@ async function setUpPage() {
 
   const qCollects = utils.query(
     collectRef,
-    utils.orderBy('targetDate', 'desc')
+    utils.orderBy('targetDate', 'desc'),
   );
 
   const [snap, userSnap] = await Promise.all([
@@ -54,9 +54,9 @@ async function setUpPage() {
           'collects',
           doc.id,
           'responses',
-          myUid
+          myUid,
         );
-        const responseSnap = await utils.getDoc(responseDocRef);
+        const responseSnap = await utils.getWrapDoc(responseDocRef);
         hasPaid = responseSnap.exists();
       }
 
@@ -66,7 +66,7 @@ async function setUpPage() {
         hasPaid: hasPaid,
         myUid: myUid,
       };
-    })
+    }),
   );
 
   let activeCount = 0;
@@ -89,7 +89,7 @@ async function setUpPage() {
       termText,
       userMap,
       hasPaid, // 支払い済みフラグを追加
-      myUid // 自分のUIDを渡す（参加者判定用）
+      myUid, // 自分のUIDを渡す（参加者判定用）
     );
 
     if (isActive) {
@@ -114,7 +114,7 @@ function makeCollectRow(
   termText,
   userMap,
   hasPaid,
-  myUid
+  myUid,
 ) {
   // ステータスラベルの判定
   let statusClass = isActive ? 'pending' : 'closed';
@@ -146,8 +146,8 @@ function makeCollectRow(
         <div class="target-date-label">${data.targetDate || '-'}</div>
         <div class="collect-title">
           <a href="../collect-confirm/collect-confirm.html?collectId=${id}">${
-    data.title
-  }</a>
+            data.title
+          }</a>
         </div>
       </td>
       <td>
@@ -181,6 +181,6 @@ function makeCollectRow(
 
 function showEmptyRow($tbody) {
   $tbody.append(
-    '<tr><td colspan="8" class="empty-text">現在、受付中の集金はありません。</td></tr>'
+    '<tr><td colspan="8" class="empty-text">現在、受付中の集金はありません。</td></tr>',
   );
 }
