@@ -117,7 +117,6 @@ export default function TicketDetailPage() {
             </div>
 
             <div className="qr-wrapper">
-              {/* QRコード生成部分 */}
               <div className="qrcode-container">
                 <QRCodeSVG 
                   value={id as string} 
@@ -141,6 +140,14 @@ export default function TicketDetailPage() {
                 <p><i className="fa-solid fa-ticket"></i> 前売料金: {live.advance}</p>
               </div>
             </div>
+            {/* ライブの注意事項を表示 */}
+            {live.notes && (
+              <div className="notes-section">
+                <div className="live-notes-box">
+                  {live.notes}
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="share-info-wrapper">
