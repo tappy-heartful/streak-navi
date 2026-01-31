@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/connect/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { db, auth } from "@/lib/firebase";
 import { collection, query, where, orderBy, getDocs, doc, getDoc } from "firebase/firestore";
 import { 
   showSpinner, hideSpinner, showDialog, 
   deleteTicket, archiveAndDeleteDoc, clearAllAppSession,
   formatDateToYMDDot 
-} from "@/lib/connect/functions";
+} from "@/lib/functions";
 import Link from "next/link";
 import "./mypage.css"; // ← これが必要です！
 
@@ -34,7 +34,7 @@ export default function MyPage() {
   useEffect(() => {
     if (loading) return;
     if (!user) {
-      router.push("/connect"); // ログインしてなければトップへ
+      router.push("/"); // ログインしてなければトップへ
       return;
     }
     loadMyTickets();
@@ -79,7 +79,7 @@ export default function MyPage() {
     await auth.signOut();
     clearAllAppSession();
     hideSpinner();
-    router.push("/connect");
+    router.push("/");
   };
 
   // 退会処理
@@ -99,7 +99,7 @@ export default function MyPage() {
       await auth.signOut();
       clearAllAppSession();
       await showDialog("退会処理が完了しました。", true);
-      router.push("/connect");
+      router.push("/");
     } catch (e) {
       alert("エラーが発生しました");
     } finally {
@@ -109,7 +109,7 @@ export default function MyPage() {
 
   // URLコピー
   const handleCopyUrl = async (resType: string, ticketId: string) => {
-    const url = `${window.location.origin}/connect/ticket-detail/${ticketId}`;
+    const url = `${window.location.origin}/ticket-detail/${ticketId}`;
     await navigator.clipboard.writeText(url);
     const msg = resType === 'invite' 
       ? "招待用URLをコピーしました！" 
@@ -131,7 +131,7 @@ export default function MyPage() {
       <section className="content-section">
         <div className="inner">
           <nav className="breadcrumb">
-            <Link href="/connect">Home</Link>
+            <Link href="/">Home</Link>
             <span className="separator">&gt;</span>
             <span className="current">My Page</span>
           </nav>
@@ -169,7 +169,7 @@ export default function MyPage() {
       </section>
 
       <div className="page-actions" style={{ textAlign: "center", paddingBottom: "60px" }}>
-        <Link href="/connect" className="btn-back-home">
+        <Link href="/" className="btn-back-home">
           ← Homeに戻る
         </Link>
       </div>
@@ -196,7 +196,7 @@ function TicketCard({ ticket, onRefresh, onCopy }: { ticket: Ticket, onRefresh: 
       <div className="ticket-info">
         <span className="res-type-label">{ticket.resType === 'invite' ? '招待予約' : '一般予約'}</span>
         <div className="t-date">{live.date}</div>
-        <Link href={`/connect/live-detail/${ticket.liveId}`} className="t-title-link">
+        <Link href={`/live-detail/${ticket.liveId}`} className="t-title-link">
           <h3 className="t-title">{live.title}</h3>
         </Link>
         
@@ -208,12 +208,12 @@ function TicketCard({ ticket, onRefresh, onCopy }: { ticket: Ticket, onRefresh: 
         
         <div className="ticket-actions">
           <button className="btn-view" onClick={() => onCopy(ticket.resType, ticket.id)}>URLコピー</button>
-          <Link href={`/connect/ticket-detail/${ticket.id}`} className="btn-ticket">チケット表示</Link>
+          <Link href={`/ticket-detail/${ticket.id}`} className="btn-ticket">チケット表示</Link>
         </div>
 
         {canModify ? (
           <div className="ticket-actions">
-            <Link href={`/connect/ticket-reserve/${ticket.liveId}`} className="btn-edit">変更</Link>
+            <Link href={`/ticket-reserve/${ticket.liveId}`} className="btn-edit">変更</Link>
             <button className="btn-delete" onClick={async () => {
               if (await deleteTicket(ticket.id, user?.uid)) onRefresh();
             }}>取消</button>

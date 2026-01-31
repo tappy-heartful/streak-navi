@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { auth, db } from "@/lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 import { doc, getDoc } from "firebase/firestore";
-import { setSession, clearAllAppSession } from "@/lib/connect/functions";
+import { setSession, clearAllAppSession } from "@/lib/functions";
 
 interface AuthContextType {
   user: User | null;

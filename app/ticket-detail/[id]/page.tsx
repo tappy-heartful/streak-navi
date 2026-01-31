@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/connect/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { 
   showSpinner, hideSpinner, showDialog, 
   deleteTicket, formatDateToYMDDot 
-} from "@/lib/connect/functions";
+} from "@/lib/functions";
 import Link from "next/link";
 import { QRCodeSVG } from "qrcode.react"; // QRコードライブラリ
 import "./ticket-detail.css";
@@ -37,7 +37,7 @@ export default function TicketDetailPage() {
 
       if (!ticketSnap.exists()) {
         await showDialog("チケット情報が見つかりませんでした。", true);
-        router.push("/connect");
+        router.push("/");
         return;
       }
       const ticketData = ticketSnap.data();
@@ -67,7 +67,7 @@ export default function TicketDetailPage() {
 
   const handleDelete = async () => {
     if (await deleteTicket(ticket.liveId, user?.uid)) {
-      router.push("/connect/mypage");
+      router.push("/mypage");
     }
   };
 
@@ -92,9 +92,9 @@ export default function TicketDetailPage() {
       <section className="content-section">
         <div className="inner">
           <nav className="breadcrumb">
-            <Link href="/connect/">Home</Link>
+            <Link href="/">Home</Link>
             <span className="separator">&gt;</span>
-            <Link href={`/connect/live-detail/${ticket.liveId}`}>Live Detail</Link>
+            <Link href={`/live-detail/${ticket.liveId}`}>Live Detail</Link>
             <span className="separator">&gt;</span>
             <span className="current">Ticket</span>
           </nav>
@@ -131,7 +131,7 @@ export default function TicketDetailPage() {
 
             <div className="ticket-info">
               <div className="t-date">{live.date}</div>
-              <Link href={`/connect/live-detail/${ticket.liveId}`} className="t-title-link">
+              <Link href={`/live-detail/${ticket.liveId}`} className="t-title-link">
                 <h3 className="t-title">{live.title}</h3>
               </Link>
               <div className="t-details">
@@ -184,7 +184,7 @@ export default function TicketDetailPage() {
             <div className="live-actions">
               {canModify ? (
                 <div className="reserved-actions">
-                  <Link href={`/connect/ticket-reserve/${ticket.liveId}`} className="btn-action btn-reserve-red">
+                  <Link href={`/ticket-reserve/${ticket.liveId}`} className="btn-action btn-reserve-red">
                     <i className="fa-solid fa-pen-to-square"></i> 予約を変更
                   </Link>
                   <button className="btn-action btn-delete-outline" onClick={handleDelete}>
@@ -210,7 +210,7 @@ export default function TicketDetailPage() {
       </section>
 
       <div className="page-actions">
-        <Link href={`/connect/live-detail/${ticket.liveId}`} className="btn-back-home">
+        <Link href={`/live-detail/${ticket.liveId}`} className="btn-back-home">
           ← Live情報に戻る
         </Link>
       </div>

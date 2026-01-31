@@ -1,10 +1,10 @@
 import type { Metadata } from "next";
-import { AuthProvider } from "@/contexts/connect/AuthContext";
+import { AuthProvider } from "@/contexts/AuthContext";
 import "./globals.css";
-import Header from "../../components/connect/Header";
-import Footer from "../../components/connect/Footer";
+import Header from "../components/Header";
+import Footer from "../components/Footer";
 import Script from "next/script";
-import CommonDialog from "@/components/connect/CommonDialog";
+import CommonDialog from "@/components/CommonDialog";
 
 export const metadata: Metadata = {
   title: "SSJO",

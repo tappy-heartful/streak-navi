@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useAuth } from "@/contexts/connect/AuthContext";
-import { globalAuthServerRender, showSpinner, hideSpinner } from "@/lib/connect/functions";
+import { useAuth } from "@/contexts/AuthContext";
+import { globalAuthServerRender, showSpinner, hideSpinner } from "@/lib/functions";
 
 export default function Header() {
   const pathname = usePathname();
@@ -45,13 +45,13 @@ export default function Header() {
   return (
     <header className="main-header">
       <nav className="nav-container">
-        <Link href="/connect" className={`nav-item ${isSelected("/")}`}>
+        <Link href="/" className={`nav-item ${isSelected("/")}`}>
           Home
         </Link>
 
         {!loading && (
           <Link
-            href="/connect/mypage"
+            href="/mypage"
             onClick={handleProfileClick}
             className={`nav-item profile-nav ${isSelected("/mypage")}`}
           >

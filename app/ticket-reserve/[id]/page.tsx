@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/connect/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
 import { 
   doc, getDoc, runTransaction, serverTimestamp 
@@ -11,7 +11,7 @@ import {
   showSpinner, hideSpinner, showDialog, 
   formatDateToYMDDot, 
   writeLog
-} from "@/lib/connect/functions";
+} from "@/lib/functions";
 import Link from "next/link";
 import "./ticket-reserve.css";
 
@@ -31,7 +31,7 @@ export default function TicketReservePage() {
   useEffect(() => {
     if (authLoading) return;
     if (!user) {
-      router.push("/connect");
+      router.push("/");
       return;
     }
     loadData();
@@ -45,7 +45,7 @@ export default function TicketReservePage() {
       const liveSnap = await getDoc(liveRef);
       if (!liveSnap.exists()) {
         await showDialog("ライブ情報が見つかりません。", true);
-        router.push("/connect");
+        router.push("/");
         return;
       }
       const liveData = liveSnap.data();
@@ -153,7 +153,7 @@ export default function TicketReservePage() {
         action: 'Ticket予約確定',
       });
       await showDialog("予約を確定しました！", true);
-      router.push(`/connect/ticket-detail/${ticketId}`);
+      router.push(`/ticket-detail/${ticketId}`);
     } catch (e: any) {
       hideSpinner();
       // エラーログの記録
@@ -181,9 +181,9 @@ export default function TicketReservePage() {
       <section className="content-section">
         <div className="inner">
           <nav className="breadcrumb">
-            <Link href="/connect">Home</Link>
+            <Link href="/">Home</Link>
             <span className="separator">&gt;</span>
-            <Link href={`/connect/live-detail/${id}`}>Live Detail</Link>
+            <Link href={`/live-detail/${id}`}>Live Detail</Link>
             <span className="separator">&gt;</span>
             <span className="current">Reserve</span>
           </nav>
@@ -191,7 +191,7 @@ export default function TicketReservePage() {
           <div className="ticket-card detail-mode">
             <div className="ticket-info">
               <div className="t-date">{live.date}</div>
-              <Link href={`/connect/live-detail/${id}`} className="t-title-link">
+              <Link href={`/live-detail/${id}`} className="t-title-link">
                 <h3 className="t-title">{live.title}</h3>
               </Link>
               <div className="t-details">
@@ -293,7 +293,7 @@ export default function TicketReservePage() {
       </section>
 
       <div className="page-actions" style={{ textAlign: "center", paddingBottom: "60px" }}>
-        <Link href={`/connect/live-detail/${id}`} className="btn-back-home"> ← Live情報に戻る </Link>
+        <Link href={`/live-detail/${id}`} className="btn-back-home"> ← Live情報に戻る </Link>
       </div>
     </main>
   );

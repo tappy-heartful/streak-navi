@@ -2,13 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/connect/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { db } from "@/lib/firebase";
 import { doc, getDoc } from "firebase/firestore";
 import { 
   showSpinner, hideSpinner, showDialog, 
   deleteTicket, formatDateToYMDDot , globalAuthServerRender,
-} from "@/lib/connect/functions";
+} from "@/lib/functions";
 import Link from "next/link";
 import "./live-detail.css";
 
@@ -37,7 +37,7 @@ export default function LiveDetailPage() {
 
       if (!liveSnap.exists()) {
         await showDialog("ライブ情報が見つかりませんでした。", true);
-        router.push("/connect");
+        router.push("/");
         return;
       }
       setLive(liveSnap.data());
@@ -70,7 +70,7 @@ const handleReserveClick = async () => {
       try {
         showSpinner();
         // 1. 現在のページの絶対URLを取得 (ログイン後に戻ってくる場所)
-        const currentUrl = window.location.origin + '/connect/ticket-reserve/' + id;
+        const currentUrl = window.location.origin + '/ticket-reserve/' + id;
         
         // 2. サーバーサイドの関数（globalAuthServerRender）からLINEログインURLを取得
         // redirectAfterLogin パラメータを付与することで、ログイン後の遷移先を指定する
@@ -95,7 +95,7 @@ const handleReserveClick = async () => {
     }
 
     // ログイン済みの場合は予約画面へ
-    router.push(`/connect/ticket-reserve/${id}`);
+    router.push(`/ticket-reserve/${id}`);
   };
 
   if (authLoading || fetching) return <div className="loading-text">Loading...</div>;
@@ -120,7 +120,7 @@ const handleReserveClick = async () => {
       <section className="content-section">
         <div className="inner">
           <nav className="breadcrumb">
-            <Link href="/connect">Home</Link>
+            <Link href="/">Home</Link>
             <span className="separator">&gt;</span>
             <span className="current">Live Detail</span>
           </nav>
@@ -204,7 +204,7 @@ const handleReserveClick = async () => {
             ) : (!isAccepting || isBefore || isAfter) ? (
               <div className="action-box" style={{ textAlign: "center" }}>
                 {isReserved && (
-                  <Link href={`/connect/ticket-detail/${id}_${user?.uid}`} className="btn-action btn-view-white" style={{display: "block", marginBottom: "15px"}}>
+                  <Link href={`/ticket-detail/${id}_${user?.uid}`} className="btn-action btn-view-white" style={{display: "block", marginBottom: "15px"}}>
                     <i className="fa-solid fa-ticket"></i> チケットを表示
                   </Link>
                 )}
@@ -219,7 +219,7 @@ const handleReserveClick = async () => {
               <div className="action-box">
                 {isReserved ? (
                   <div className="reserved-actions">
-                    <Link href={`/connect/ticket-detail/${id}_${user?.uid}`} className="btn-action btn-view-white">
+                    <Link href={`/ticket-detail/${id}_${user?.uid}`} className="btn-action btn-view-white">
                       <i className="fa-solid fa-ticket"></i> チケットを表示
                     </Link>
                     <button onClick={handleReserveClick} className="btn-action btn-reserve-red">
@@ -246,7 +246,7 @@ const handleReserveClick = async () => {
       </section>
 
       <div className="page-actions" style={{ textAlign: "center", padding: "60px 0" }}>
-        <Link href="/connect" className="btn-back-home"> ← Homeに戻る </Link>
+        <Link href="/" className="btn-back-home"> ← Homeに戻る </Link>
       </div>
     </main>
   );

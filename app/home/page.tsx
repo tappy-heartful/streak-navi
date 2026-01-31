@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { db } from "@/lib/firebase";
 import { collection, query, orderBy, getDocs, limit } from "firebase/firestore";
-import { buildInstagramHtml } from "@/lib/connect/functions";
+import { buildInstagramHtml } from "@/lib/functions";
 import Link from "next/link";
 // CSS Modulesをインポート
 import styles from "./home.module.css";
@@ -122,10 +122,10 @@ export default function HomePage() {
                       <div><i className="fa-solid fa-ticket"></i> 前売：{live.advance}</div>
                       <div><i className="fa-solid fa-ticket"></i> 当日：{live.door}</div>
                     </div>
-                    <Link href={`/connect/live-detail/${live.id}`} className={styles.btnDetail}>
+                    <Link href={`/live-detail/${live.id}`} className={styles.btnDetail}>
                       詳細 / VIEW INFO
                     </Link>
-                    {/*TODO 検討中 <Link href={`/connect/ticket-reserve/${live.id}`} className={styles.btnReserve}>
+                    {/*TODO 検討中 <Link href={`/ticket-reserve/${live.id}`} className={styles.btnReserve}>
                       予約 / RESERVE TICKET
                     </Link> */}
                   </div>

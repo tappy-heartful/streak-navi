@@ -113,7 +113,7 @@ export default function AboutPage() {
       </div>
 
       <div className="page-footer">
-        <Link href="/connect" className="back-link">
+        <Link href="/" className="back-link">
           ← ホームに戻る
         </Link>
       </div>

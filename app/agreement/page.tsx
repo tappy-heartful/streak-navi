@@ -2,10 +2,10 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/contexts/connect/AuthContext"; // ここでカスタムフックをインポート
+import { useAuth } from "@/contexts/AuthContext"; // ここでカスタムフックをインポート
 import { db } from "@/lib/firebase";
 import { doc, updateDoc, serverTimestamp } from "firebase/firestore";
-import { showSpinner, hideSpinner, getSession, removeSession } from "@/lib/connect/functions";
+import { showSpinner, hideSpinner, getSession, removeSession } from "@/lib/functions";
 import Link from "next/link";
 import "./agreement.css";
 
@@ -35,7 +35,7 @@ export default function AgreementPage() {
       // --- refreshUserData を実行して Context の userData を最新にする ---
       await refreshUserData(); 
 
-      const target = getSession("redirectAfterLogin") || "/connect";
+      const target = getSession("redirectAfterLogin") || "/";
       removeSession("redirectAfterLogin");
       
       router.push(target);
@@ -126,7 +126,7 @@ export default function AgreementPage() {
             </button>
             
             <div className="cancel-link">
-              <Link href="/connect">同意せずに戻る</Link>
+              <Link href="/">同意せずに戻る</Link>
             </div>
           </div>
         </div>
