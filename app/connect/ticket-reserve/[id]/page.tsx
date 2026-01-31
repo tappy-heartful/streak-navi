@@ -191,10 +191,13 @@ export default function TicketReservePage() {
           <div className="ticket-card detail-mode">
             <div className="ticket-info">
               <div className="t-date">{live.date}</div>
-              <h3 className="t-title">{live.title}</h3>
+              <Link href={`/connect/live-detail/${id}`} className="t-title-link">
+                <h3 className="t-title">{live.title}</h3>
+              </Link>
               <div className="t-details">
                 <p><i className="fa-solid fa-location-dot"></i> {live.venue}</p>
                 <p><i className="fa-solid fa-clock"></i> Open {live.open} / Start {live.start}</p>
+                <p><i className="fa-solid fa-ticket"></i> 前売料金: {live.advance}</p>
               </div>
             </div>
           </div>
