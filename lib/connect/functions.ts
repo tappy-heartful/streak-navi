@@ -21,7 +21,7 @@ import { ref, uploadBytes, getDownloadURL, deleteObject } from "firebase/storage
 import { showDialog } from "@/components/connect/CommonDialog"; // 先ほど作った共通ダイアログ
 
 // --- 定数 ---
-export const isTest = typeof window !== 'undefined' && window.location.hostname.includes('streak-connect-test');
+export const isTest = typeof window !== 'undefined' && window.location.hostname.includes('test');
 export const globalAppName = isTest ? 'streakConnectTest' : 'streakConnect';
 export const globalClientId = '2007808275';
 export const globalAuthServerRender = 'https://streak-navi-auth-server-kz3v.onrender.com';
