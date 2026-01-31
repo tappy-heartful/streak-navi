@@ -134,8 +134,7 @@ export async function writeLog({ dataId, action, status = 'success', errorDetail
     const uid = getSession('uid') || 'unknown';
     const timestamp = new Date().getTime();
     const logId = `${timestamp}_${uid}`;
-    const colName = status === 'success' ? 'logs' : 'errorLogs';
-    
+    const colName = status === 'success' ? 'connectLogs' : 'connectErrorLogs';
     await setDoc(doc(db, colName, logId), {
       uid,
       action,
