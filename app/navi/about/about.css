@@ -1,0 +1,116 @@
+.about-page {
+  max-width: 800px;
+  width: 100%;
+  margin: 0 auto;
+  padding: 40px 15px;
+  color: #ccc;
+  line-height: 1.8;
+}
+
+.about-page h1 {
+  text-align: center;
+  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  color: #fff;
+}
+
+.about-page h2 {
+  color: #fff;
+  border-left: 4px solid #e7211a;
+  padding-left: 10px;
+  margin-top: 0;
+  margin-bottom: 1.5rem;
+  font-size: 1.2rem;
+}
+
+.tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-bottom: 0;
+}
+
+.tab {
+  flex: 1 1 auto;
+  text-align: center;
+  padding: 0.8rem 0.5rem;
+  cursor: pointer;
+  background: #222;
+  color: #888;
+  transition: all 0.2s;
+  font-size: 0.85rem;
+  border: 1px solid #333;
+}
+
+.tab.active {
+  background: #333;
+  color: #e7211a;
+  font-weight: bold;
+  border-bottom: 2px solid #e7211a;
+}
+
+.tab-container {
+  min-height: 300px;
+}
+
+.tab-content {
+  display: none;
+  background: #111;
+  padding: 1.5rem;
+  border: 1px solid #333;
+  border-top: none;
+  word-break: break-all;
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.tab-content ul {
+  padding-left: 20px;
+  margin: 1rem 0;
+}
+
+.tab-content li {
+  margin-bottom: 0.8rem;
+}
+
+.note {
+  font-size: 0.85rem;
+  color: #888;
+  margin-top: 1rem;
+}
+
+.page-footer {
+  text-align: center;
+  margin-top: 4rem;
+  margin-bottom: 2rem;
+}
+
+.back-link {
+  display: inline-block;
+  color: #fff;
+  text-decoration: none;
+  font-size: 1.1rem;
+  font-weight: bold;
+  padding: 12px 30px;
+  border: 2px solid #e7211a;
+  border-radius: 50px;
+  transition: all 0.3s ease;
+}
+
+.back-link:hover {
+  background-color: #e7211a;
+  transform: scale(1.05);
+}
+
+@media screen and (max-width: 600px) {
+  .tab {
+    flex: 1 1 48%;
+    font-size: 0.8rem;
+  }
+  .back-link {
+    width: 90%;
+    padding: 12px 10px;
+  }
+}

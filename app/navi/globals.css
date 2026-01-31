@@ -1,0 +1,665 @@
+/* ベーススタイル */
+html {
+  width: 100%;
+  overflow-y: scroll; /* 常にスクロールバーを表示してガタつきを防止 */
+}
+
+body {
+  min-height: 100dvh; 
+  width: 100%;
+  max-width: 768px;
+  margin: 0 auto;
+  padding: 0;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  
+  /* 💡 ここを削除、または auto に変更 */
+  /* overscroll-behavior-y: none; */ 
+  overscroll-behavior-y: auto; 
+
+  font-family: Arial, sans-serif;
+  color: #fff;
+  background-color: #000;
+}
+
+/* ヒーローエリア */
+.hero {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    background-color: #000;
+    z-index: 0;
+    background-image: var(--hero-bg, none);
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+
+/* 背景画像 */
+.hero::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    filter: blur(4px) brightness(0.4);
+    z-index: -2; /* グラデーションよりさらに後ろ */
+}
+
+/* Homeと同じグラデーション効果 */
+.hero::after {
+    content: "";
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 60%;
+    background: linear-gradient(to bottom, transparent, #000);
+    z-index: -1; /* 画像の上、テキストの下 */
+}
+
+.hero-content {
+    text-align: center;
+    z-index: 1;
+    padding: 0 20px;
+    width: 100%;
+}
+
+.page-title {
+    font-family: 'Impact', sans-serif;
+    font-size: 3.5rem;
+    letter-spacing: 0.1em;
+    margin: 0;
+    color: #fff;
+    padding-top: 60px;
+    text-transform: uppercase;
+}
+
+.tagline {
+    font-size: 0.8rem;
+    color: #e7211a;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+/* コンテンツセクション */
+.content-section {
+    background-color: #000; /* 黒背景 */
+    padding: 60px 20px 10px 20px;
+}
+
+.section-title {
+    border-left: 4px solid #e7211a; /* タイトルの横に赤いライン */
+    padding-left: 15px;
+    font-family: 'Impact', sans-serif;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.inner {
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.breadcrumb {
+    margin-bottom: 2rem;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #888; /* 基本はグレー */
+}
+
+.breadcrumb a {
+    color: #888;
+    transition: color 0.3s;
+}
+
+.breadcrumb a:hover {
+    color: #e7211a; /* ホバーでSSJOレッドに */
+}
+
+.breadcrumb .separator {
+    font-family: serif;
+    font-size: 0.75rem;
+    opacity: 0.5;
+}
+
+.breadcrumb .current {
+    color: #bbb; /* 現在地は少し明るく、リンクなし */
+    font-weight: bold;
+}
+
+/* スマホでの微調整 */
+@media screen and (max-width: 600px) {
+    .breadcrumb {
+        margin-bottom: 1.5rem;
+        padding-left: 5px;
+    }
+}
+
+/* タイトルリンク設定 */
+.t-title-link {
+    color: inherit;
+    display: block;
+}
+
+.t-title-link:hover .t-title {
+    color: #e7211a;
+    transition: 0.2s;
+}
+
+
+/* 基本のボタン構造 */
+/* --- アクションエリア共通 --- */
+.live-actions {
+    margin-top: 40px;
+    text-align: center;
+}
+
+.btn-action {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 16px;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 50px;
+    transition: 0.3s;
+    border: none;
+    cursor: pointer;
+    text-decoration: none;
+    white-space: nowrap;
+}
+
+.btn-action:hover {
+    transform: translateY(-2px);
+    filter: brightness(1.1);
+}
+
+/* 1. 予約ボタン (赤) */
+.btn-reserve-red {
+    background: #e7211a;
+    color: #fff;
+    box-shadow: 0 4px 15px rgba(231, 33, 26, 0.4);
+}
+
+/* 2. チケット表示ボタン (白) */
+.btn-view-white {
+    background: #fff;
+    color: #000;
+    box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);
+}
+
+/* 3. 取り消しボタン (枠線) */
+.btn-delete-outline {
+    background: transparent;
+    border: 2px solid #e7211a;
+    color: #e7211a;
+}
+.btn-delete-outline:hover {
+    background: rgba(231, 33, 26, 0.1);
+}
+
+/* 4.リンクボタン (透明) */
+
+/* 詳細/コピー (btn-copy-outline): 白枠・透過 */
+.btn-copy-outline {
+    background: transparent;
+    border: 2px solid #fff;
+    color: #fff;
+}
+.btn-copy-outline:hover {
+    background: #fff;
+    color: #000;
+}
+
+/* 予約済みアクションの並び調整 */
+.reserved-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+@media (min-width: 768px) {
+    /* PCでは 変更・削除 を横並びに、チケット表示を大きく */
+    .btn-view-white {
+        grid-column: span 2; /* チケットボタンを一番目立たせる */
+    }
+}
+
+/* ホームに戻るボタンエリア */
+.page-actions {
+    text-align: center;
+    margin: 40px 0 20px; /* 上下に余白 */
+    padding: 0 15px;
+}
+
+.btn-back-home {
+    display: inline-block;
+    color: #e7211a;           /* 赤い文字 */
+    text-decoration: none;
+    font-size: 0.95rem;
+    font-weight: bold;
+    padding: 10px 25px;
+    border: 1px solid #e7211a; /* 赤い細い枠線 */
+    border-radius: 4px;        /* 軽く角を丸める（SSJOの他デザインに合わせる） */
+    transition: all 0.3s ease;
+    background: transparent;
+}
+
+/* ホバーした時の反応（お好みで） */
+.btn-back-home:hover {
+    background: rgba(231, 33, 26, 0.05); /* ほんのり赤く */
+    opacity: 0.8;
+}
+
+/* スマホ対応：ボタンが横幅いっぱいに広がらないよう制御 */
+@media screen and (max-width: 600px) {
+    .btn-back-home {
+        width: auto;
+        min-width: 160px;
+    }
+}
+
+/* --- スタイリッシュ・スピナー修正 --- */
+#spinner-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.9); /* 漆黒の透過背景 */
+  z-index: 9999;
+  display: flex;
+  flex-direction: column; /* 垂直に並べる */
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+}
+
+.spinner {
+  border: 3px solid rgba(255, 255, 255, 0.1); /* 控えめな台座の輪 */
+  border-top: 3px solid #e7211a;               /* 鋭い赤のライン */
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  animation: spin 0.6s cubic-bezier(0.4, 0, 0.2, 1) infinite; /* 少し速く、滑らかに */
+}
+
+/* スピナーの下に文字を出す場合用（任意） */
+#spinner-overlay::after {
+  content: "LOADING";
+  color: #fff;
+  font-family: 'Impact', sans-serif;
+  font-size: 12px;
+  letter-spacing: 0.3em;
+  margin-top: 10px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 隠し */
+.hidden {
+  display: none !important;
+}
+
+/* YouTube埋め込みモーダル */
+.youtube-embed {
+  position: relative;
+  padding-bottom: 56.25%; /* 16:9 */
+  height: 0;
+  overflow: hidden;
+  max-width: 100%;
+  border-radius: 16px;
+  margin-bottom: 8px;
+}
+
+.youtube-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  border: 0;
+}
+
+/* YouTubeリンクコンテナ */
+.youtube-link-container {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+}
+
+.youtube-notice {
+  font-size: 14px;
+  font-weight: bold;
+  color: #888888;
+  margin-right: 8px;
+}
+
+.youtube-link-container a {
+  color: #e7211a; /* リンク色もアクセントカラーに */
+  font-weight: bold;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: auto;
+}
+
+/* Instagram埋め込み */
+.instagram-embed {
+  background: #111; /* 背景を少し暗めに */
+  border: 0;
+  border-radius: 16px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  margin: 8px 0;
+  padding: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.instagram-embed iframe.instagram-media {
+  min-width: 0 !important;
+  width: 100% !important;
+  max-width: 100% !important;
+  border-radius: 16px !important;
+}
+
+/* Google Drive埋め込み */
+.drive-embed-wrapper {
+  margin-bottom: 12px;
+}
+
+.drive-embed {
+  position: relative;
+  padding-bottom: 56.25%;
+  height: 0;
+  overflow: hidden;
+  border-radius: 16px;
+}
+
+.drive-embed iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  border: 0;
+}
+
+.drive-notice {
+  text-align: left;
+  font-size: 14px;
+  margin-top: 4px;
+  font-weight: bold;
+  color: #888888;
+}
+
+/* --- プレビュー用モーダル修正 --- */
+.image-preview-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.95); /* より没入感を出すため濃く */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    cursor: pointer;
+}
+
+.image-preview-content {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    height: 100%;
+}
+
+.image-preview-content img {
+    display: block;
+    max-width: 95%;
+    max-height: 100%;
+    object-fit: contain;
+    box-shadow: 0 0 30px rgba(231, 33, 26, 0.2); /* プレビューにうっすら赤い光を */
+}
+
+
+
+
+
+
+/* --- 同意画面 --- */
+/* home.css へ追加 */
+#agreement-overlay {
+    padding: 40px 20px;
+    background: #000; /* 背景を黒くして境界をはっきりさせる */
+}
+
+.agreement-card {
+    background: #111;
+    border: 1px solid #e7211a; /* バンドカラーの枠線 */
+    border-radius: 12px;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 30px;
+}
+
+.agreement-title {
+    font-family: 'Impact', sans-serif;
+    color: #e7211a;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.agreement-body {
+    background: #1a1a1a;
+    padding: 20px;
+    border-radius: 8px;
+    height: 250px;
+    overflow-y: auto; /* 長くなってもスクロール可能に */
+    font-size: 0.9rem;
+    line-height: 1.6;
+    color: #ccc;
+    margin-bottom: 20px;
+}
+
+.agreement-body h3 {
+    color: #fff;
+    font-size: 1rem;
+    margin-top: 15px;
+}
+
+.agreement-footer {
+    text-align: center;
+}
+
+.checkbox-container {
+    display: block;
+    margin-bottom: 20px;
+    color: #fff;
+    cursor: pointer;
+}
+/* 規約同意ボタンのスタイル */
+.btn-primary {
+    width: 100%;
+    max-width: 300px; /* PCで見ても広がりすぎないように */
+    padding: 16px 24px;
+    background-color: #e7211a;
+    color: #fff;
+    border: none;
+    border-radius: 50px; /* 丸みを持たせてモダンな印象に */
+    font-size: 1rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(231, 33, 26, 0.3);
+    margin: 0 auto;
+    display: block;
+}
+
+/* ホバー時：少し明るくして浮き上がらせる */
+.btn-primary:hover:not(:disabled) {
+    background-color: #ff3c35;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(231, 33, 26, 0.4);
+}
+
+/* 活性時：クリックした感触を出す */
+.btn-primary:active:not(:disabled) {
+    transform: translateY(0);
+}
+
+/* 無効時（チェックボックス未チェック時） */
+.btn-primary:disabled {
+    background-color: #444;
+    color: #888;
+    cursor: not-allowed;
+    box-shadow: none;
+    opacity: 0.6;
+}
+/* --- 同意画面ここまで --- */
+
+
+
+/* --- ヘッダー --- */
+.main-header {
+    position: fixed;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100%;
+    max-width: 768px;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(10px); /* ブラーを少し強めて高級感を */
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1000;
+}
+
+.nav-container {
+    display: flex;
+    justify-content: space-between; /* 両端に寄せる */
+    align-items: center;
+    height: 100%;
+    padding: 0 25px; /* 左右に少し余裕を持たせる */
+}
+
+.nav-item {
+    color: #fff;
+    font-size: 0.95rem;
+    font-weight: bold;
+    letter-spacing: 0.05em;
+    opacity: 0.7;
+    transition: 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-item:hover {
+    opacity: 1;
+    color: #e7211a;
+}
+
+.nav-item.selected {
+    color: #e7211a;
+    opacity: 1;
+}
+
+/* MyPageリンク部分の特殊スタイル */
+.profile-nav {
+    display: flex;
+    align-items: center;
+}
+
+.header-user-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    overflow: hidden;
+    border: 1.5px solid rgba(255, 255, 255, 0.5);
+    transition: 0.3s;
+}
+
+.nav-item.selected .header-user-icon {
+    border-color: #e7211a;
+}
+
+#header-icon-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+/* --- ヘッダーここまで --- */
+
+/* --- フッター --- */
+footer {
+  text-align: center;
+  margin-top: 3rem;
+  margin-bottom: 2rem;
+  font-size: 0.85rem;
+  color: #888;
+  line-height: 1.6;
+}
+
+.developed-by {
+  font-size: 0.8rem;
+  opacity: 0.8;
+}
+
+.footer-actions {
+  margin-top: 0.8rem;
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+}
+
+/* SNSリンクのスタイル */
+.footer-sns {
+  margin-top: 1.2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.instagram-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid #444; /* 丸い枠 */
+  border-radius: 50%;     /* 正円にする */
+  color: #888;
+  font-size: 1.2rem;
+  transition: all 0.3s ease;
+  text-decoration: none;
+}
+
+.instagram-link:hover {
+  color: #fff;            /* ホバーで白く */
+  border-color: #e7211a;  /* 枠線をアクセントカラーに */
+  background: rgba(231, 33, 26, 0.1); /* ほんのり背景色 */
+  transform: translateY(-3px); /* 少し浮かす */
+}
+/* --- フッターここまで --- */
