@@ -9,7 +9,8 @@ import {
 } from "firebase/firestore";
 import { 
   showSpinner, hideSpinner, showDialog, 
-  formatDateToYMDDot 
+  formatDateToYMDDot, 
+  writeLog
 } from "@/lib/connect/functions";
 import Link from "next/link";
 import "./ticket-reserve.css";
@@ -146,10 +147,22 @@ export default function TicketReservePage() {
       });
 
       hideSpinner();
+      // 成功ログの記録
+      await writeLog({
+        dataId: ticketId,
+        action: 'Ticket予約確定',
+      });
       await showDialog("予約を確定しました！", true);
       router.push(`/connect/ticket-detail/${ticketId}`);
     } catch (e: any) {
       hideSpinner();
+      // エラーログの記録
+      await writeLog({
+        dataId: ticketId,
+        action: 'Ticket予約確定',
+        status: 'error',
+        errorDetail: { message: e.message, stack: e.stack },
+      });
       await showDialog(e.message || "エラーが発生しました", true);
     }
   };
