@@ -13,7 +13,7 @@ $(document).ready(async function () {
   // テスト環境用表示
   if (utils.isTest) {
     $('#title').html(
-      '<h1>Streak <span style="color: rgb(208, 2, 2)">T</span>est</h1>'
+      '<h1>Streak <span style="color: rgb(208, 2, 2)">T</span>est</h1>',
     );
   }
 
@@ -39,7 +39,7 @@ $('#login').click(async function () {
   try {
     // サーバーにリクエストしてLINEログインURLとstateを取得
     const res = await fetch(
-      `${utils.globalAuthServerRender}/get-line-login-url`
+      `${utils.globalAuthServerRender}/get-line-login-url`,
     );
     const { loginUrl } = await res.json();
 
@@ -76,7 +76,7 @@ async function handleLineLoginCallback(code, state, error) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ code, state, redirectUri }),
-      }
+      },
     );
     const {
       customToken,
@@ -90,7 +90,7 @@ async function handleLineLoginCallback(code, state, error) {
     // 以下は既存処理（Firebaseログイン～リダイレクト）
     const userCredential = await utils.signInWithCustomToken(
       utils.auth,
-      customToken
+      customToken,
     );
     const user = userCredential.user;
     utils.setSession('uid', user.uid);
@@ -106,7 +106,7 @@ async function handleLineLoginCallback(code, state, error) {
       await utils.setDoc(
         userRef,
         { displayName, pictureUrl, lastLoginAt: utils.serverTimestamp() },
-        { merge: true }
+        { merge: true },
       );
     } else {
       await utils.setDoc(userRef, {
@@ -126,7 +126,7 @@ async function handleLineLoginCallback(code, state, error) {
     // セッション有効期限登録
     utils.setSession(
       'expiresAt',
-      Date.now() + 1000 * 60 * utils.globalSessionExpireMinutes
+      Date.now() + 1000 * 60 * utils.globalSessionExpireMinutes,
     );
 
     $('#login').removeClass('logging-in').text('ようこそ！');
@@ -166,7 +166,7 @@ async function handleLineLoginCallback(code, state, error) {
 function startBackgroundSlideshow() {
   const imageMap = {
     1: 2,
-    2: 5,
+    2: 6,
     3: 4,
     4: 5,
     5: 4,
