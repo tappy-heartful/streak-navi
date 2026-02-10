@@ -61,7 +61,16 @@ async function loadLiveData(liveId, mode) {
 
   const data = docSnap.data();
   $('#live-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
-  $('#live-date').val(data.date || '');
+
+  // 日付を input type="date" 用のフォーマット (YYYY-MM-DD) に変換してセット
+  $('#live-date').val(data.date ? data.date.replace(/\./g, '-') : '');
+  $('#live-acceptStartDate').val(
+    data.acceptStartDate ? data.acceptStartDate.replace(/\./g, '-') : '',
+  );
+  $('#live-acceptEndDate').val(
+    data.acceptEndDate ? data.acceptEndDate.replace(/\./g, '-') : '',
+  );
+
   $('#live-open').val(data.open || '');
   $('#live-start').val(data.start || '');
   $('#live-venue').val(data.venue || '');
@@ -70,14 +79,12 @@ async function loadLiveData(liveId, mode) {
   $('#live-advance').val(data.advance || '');
   $('#live-door').val(data.door || '');
   $('#live-isAcceptReserve').prop('checked', !!data.isAcceptReserve);
-  $('#live-acceptStartDate').val(data.acceptStartDate || '');
-  $('#live-acceptEndDate').val(data.acceptEndDate || '');
   $('#live-ticketStock').val(data.ticketStock || '');
   $('#live-maxCompanions').val(data.maxCompanions || '');
   $('#live-notes').val(data.notes || '');
 
-  // フライヤーは編集ときのみ表示
-  if (mode === 'edit' && data.flyerUrl) {
+  // フライヤーは表示（コピー時も画像は引き継ぐ）
+  if (data.flyerUrl) {
     flyerData = { url: data.flyerUrl, path: data.flyerPath || '' };
     renderFlyerPreview();
   }
@@ -103,12 +110,6 @@ function setupEventHandlers(mode, liveId) {
       renderFlyerPreview();
     } catch (err) {
       alert('アップロードに失敗しました');
-      await utils.writeLog({
-        dataId: liveId,
-        action: 'フライヤー更新',
-        status: 'error',
-        errorDetail: { message: err.message, stack: err.stack },
-      });
     } finally {
       utils.hideSpinner();
       $(this).val('');
@@ -144,11 +145,12 @@ function setupEventHandlers(mode, liveId) {
       window.location.href = `../live-confirm/live-confirm.html?liveId=${targetId}`;
     } catch (e) {
       await utils.writeLog({
-        dataId: liveId,
+        dataId: liveId || 'new',
         action: 'ライブ更新',
         status: 'error',
         errorDetail: { message: e.message, stack: e.stack },
       });
+      utils.showDialog('保存に失敗しました');
     } finally {
       utils.hideSpinner();
     }
@@ -172,9 +174,10 @@ function renderFlyerPreview() {
 }
 
 function collectData(mode) {
+  // 保存時はハイフンをドット (YYYY.MM.DD) に戻す
   const data = {
     title: $('#live-title').val().trim(),
-    date: $('#live-date').val().trim(),
+    date: $('#live-date').val().replace(/-/g, '.'),
     open: $('#live-open').val().trim(),
     start: $('#live-start').val().trim(),
     venue: $('#live-venue').val().trim(),
@@ -185,15 +188,14 @@ function collectData(mode) {
     flyerUrl: flyerData.url,
     flyerPath: flyerData.path,
     isAcceptReserve: $('#live-isAcceptReserve').is(':checked'),
-    acceptStartDate: $('#live-acceptStartDate').val().trim(),
-    acceptEndDate: $('#live-acceptEndDate').val().trim(),
+    acceptStartDate: $('#live-acceptStartDate').val().replace(/-/g, '.'),
+    acceptEndDate: $('#live-acceptEndDate').val().replace(/-/g, '.'),
     ticketStock: Number($('#live-ticketStock').val()) || 0,
     maxCompanions: Number($('#live-maxCompanions').val()) || 0,
     notes: $('#live-notes').val().trim(),
     updatedAt: utils.serverTimestamp(),
   };
 
-  // 新規登録またはコピー時のみ、予約数を0で初期化する
   if (mode === 'new' || mode === 'copy') {
     data.totalReserved = 0;
     data.createdAt = utils.serverTimestamp();
@@ -203,7 +205,7 @@ function collectData(mode) {
 }
 
 function validateData() {
-  if (!$('#live-title').val().trim() || !$('#live-date').val().trim()) {
+  if (!$('#live-title').val().trim() || !$('#live-date').val()) {
     utils.showDialog('タイトルと日付は必須です');
     return false;
   }
@@ -215,6 +217,5 @@ function captureInitialState() {
 }
 
 function restoreInitialState() {
-  // loadLiveDataと同様の処理でinitialStateを反映（省略）
   location.reload();
 }
