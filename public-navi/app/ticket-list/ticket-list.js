@@ -109,21 +109,12 @@ function renderTickets(ticketArray) {
   }
 
   ticketArray.forEach((t) => {
-    // 日付変換用ヘルパー
-    const formatDate = (ts) => {
-      if (!ts) return '-';
-      let d = ts.toDate
-        ? ts.toDate()
-        : ts.seconds
-          ? new Date(ts.seconds * 1000)
-          : ts instanceof Date
-            ? ts
-            : null;
-      return d ? utils.format(d, 'yyyy/MM/dd HH:mm') : '-';
-    };
-
-    const createdAt = formatDate(t.createdAt);
-    const updatedAt = formatDate(t.updatedAt);
+    const createdAt = t.createdAt
+      ? utils.format(t.createdAt, 'yyyy/MM/dd HH:mm')
+      : '-';
+    const updatedAt = t.updatedAt
+      ? utils.format(t.updatedAt, 'yyyy/MM/dd HH:mm')
+      : '-';
 
     // 同伴者リストの処理
     const companionsHtml =
