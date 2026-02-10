@@ -15,9 +15,25 @@
         <h1>ライブ一覧</h1>
       </div>
 
-      <div class="container" id="live-container">
-        <ul class="event-list" id="live-list"></ul>
-
+      <div class="container" id="future-container">
+        <h3>✅ 今後のライブ予定</h3>
+        <div class="table-wrapper">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>ライブ名</th>
+                <th>日付</th>
+                <th>時間</th>
+                <th>場所</th>
+                <th>料金</th>
+                <th>予約状況</th>
+                <th>Map</th>
+                <th>フライヤー</th>
+              </tr>
+            </thead>
+            <tbody id="future-tbody"></tbody>
+          </table>
+        </div>
         <button
           id="live-add-button"
           class="list-add-button"
@@ -26,8 +42,27 @@
             window.location.href = '../live-edit/live-edit.html?mode=new'
           "
         >
-          ＋ ライブ情報を追加
+          ＋ 新規作成
         </button>
+      </div>
+
+      <div class="container" id="closed-container">
+        <h3>🔚 終了したライブ</h3>
+        <div class="table-wrapper">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>ライブ名</th>
+                <th>日付</th>
+                <th>場所</th>
+                <th>料金</th>
+                <th>状況</th>
+                <th>フライヤー</th>
+              </tr>
+            </thead>
+            <tbody id="closed-tbody"></tbody>
+          </table>
+        </div>
       </div>
 
       <div class="page-footer">
