@@ -141,7 +141,7 @@ function renderTickets(ticketArray) {
     }
 
     // 予約種別
-    const resTypeText = t.resType === 'invite' ? '招待予約' : '一般予約';
+    const resTypeText = t.resType === 'invite' ? '招待' : '一般';
     const resTypeClass =
       t.resType === 'invite' ? 'status-invite' : 'status-general';
 
@@ -154,10 +154,10 @@ function renderTickets(ticketArray) {
             ${t.reservationNo || '-'}
           </a>
         </td>
-        <td>${displayName} 様</td>
-        <td style="font-size: 12px; line-height: 1.4;">${companionsHtml}</td>
-        <td class="text-center">${t.totalCount || 0} 名</td>
         <td class="text-center"><span class="res-type-label ${resTypeClass}">${resTypeText}</span></td>
+        <td class="text-center">${t.totalCount || 0} 名</td>
+        <td>${displayName} ${t.resType === 'invite' ? '' : ' 様'}</td>
+        <td style="font-size: 12px; line-height: 1.4;">${companionsHtml}</td>
         <td style="font-size: 11px; color: #666;">${createdAt}</td>
         <td style="font-size: 11px; color: #666;">${updatedAt}</td>
       </tr>
