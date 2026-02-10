@@ -100,6 +100,19 @@ function renderTickets(ticketArray) {
   const $tbody = $('#ticket-table-body').empty();
   let totalSum = 0;
 
+  // 管理者権限のチェック（引数はプロジェクトの権限設計に合わせて調整してください）
+  const hasFullAccess = utils.isAdmin('Ticket');
+
+  /**
+   * 名前をマスキングするヘルパー
+   * 管理者でない場合、2文字目以降を * に置換
+   */
+  const maskName = (name) => {
+    if (!name || hasFullAccess) return name;
+    if (name.length <= 1) return name;
+    return name.substring(0, 1) + '*'.repeat(name.length - 1);
+  };
+
   if (ticketArray.length === 0) {
     $tbody.append(
       '<tr><td colspan="7" class="text-center">予約データは見つかりませんでした。</td></tr>',
@@ -116,11 +129,16 @@ function renderTickets(ticketArray) {
       ? utils.format(t.updatedAt, 'yyyy/MM/dd HH:mm')
       : '-';
 
-    // 同伴者リストの処理
-    const companionsHtml =
-      Array.isArray(t.companions) && t.companions.length > 0
-        ? t.companions.join('<br>')
-        : '-';
+    // 代表者名のマスキング適用
+    const displayName = maskName(t.representativeName || '未設定');
+
+    // 同伴者リストの処理（配列の各要素にマスキングを適用）
+    let companionsHtml = '-';
+    if (Array.isArray(t.companions) && t.companions.length > 0) {
+      companionsHtml = t.companions
+        .map((c) => maskName(c) + ' 様')
+        .join('<br>');
+    }
 
     // 予約種別
     const resTypeText = t.resType === 'invite' ? '招待予約' : '一般予約';
@@ -136,7 +154,7 @@ function renderTickets(ticketArray) {
             ${t.reservationNo || '-'}
           </a>
         </td>
-        <td>${t.representativeName || '未設定'}</td>
+        <td>${displayName} 様</td>
         <td style="font-size: 12px; line-height: 1.4;">${companionsHtml}</td>
         <td class="text-center">${t.totalCount || 0} 名</td>
         <td class="text-center"><span class="res-type-label ${resTypeClass}">${resTypeText}</span></td>
