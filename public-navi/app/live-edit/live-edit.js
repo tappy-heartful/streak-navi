@@ -59,12 +59,21 @@ async function loadLiveData(liveId, mode) {
   const data = docSnap.data();
   $('#live-title').val(data.title + (mode === 'copy' ? '（コピー）' : ''));
   $('#live-date').val(data.date ? data.date.replace(/\./g, '-') : '');
-  $('#live-acceptStartDate').val(
-    data.acceptStartDate ? data.acceptStartDate.replace(/\./g, '-') : '',
-  );
-  $('#live-acceptEndDate').val(
-    data.acceptEndDate ? data.acceptEndDate.replace(/\./g, '-') : '',
-  );
+
+  // 予約設定
+  const isAccept = !!data.isAcceptReserve;
+  $('#live-isAcceptReserve').prop('checked', isAccept);
+  if (isAccept) {
+    $('#reserve-settings-area').show();
+    $('#live-acceptStartDate').val(
+      data.acceptStartDate ? data.acceptStartDate.replace(/\./g, '-') : '',
+    );
+    $('#live-acceptEndDate').val(
+      data.acceptEndDate ? data.acceptEndDate.replace(/\./g, '-') : '',
+    );
+    $('#live-ticketStock').val(data.ticketStock || '');
+    $('#live-maxCompanions').val(data.maxCompanions || '');
+  }
 
   $('#live-open').val(data.open || '');
   $('#live-start').val(data.start || '');
@@ -73,9 +82,6 @@ async function loadLiveData(liveId, mode) {
   $('#live-venueGoogleMap').val(data.venueGoogleMap || '');
   $('#live-advance').val(data.advance || '');
   $('#live-door').val(data.door || '');
-  $('#live-isAcceptReserve').prop('checked', !!data.isAcceptReserve);
-  $('#live-ticketStock').val(data.ticketStock || '');
-  $('#live-maxCompanions').val(data.maxCompanions || '');
   $('#live-notes').val(data.notes || '');
 
   if (data.flyerUrl) {
@@ -85,6 +91,15 @@ async function loadLiveData(liveId, mode) {
 }
 
 function setupEventHandlers(mode, liveId) {
+  // 予約受付チェックボックスの切り替え
+  $('#live-isAcceptReserve').on('change', function () {
+    if ($(this).is(':checked')) {
+      $('#reserve-settings-area').slideDown();
+    } else {
+      $('#reserve-settings-area').slideUp();
+    }
+  });
+
   $('#btn-file-select').on('click', () => $('#live-file-input').click());
 
   $('#live-file-input').on('change', async function (e) {
@@ -161,7 +176,7 @@ function validateData() {
   utils.clearErrors();
   const mode = utils.globalGetParamMode;
 
-  // 1. テキスト・数値項目のチェック
+  // 基本項目のチェック
   const fields = [
     { id: '#live-title', name: 'ライブ名' },
     { id: '#live-date', name: '開催日' },
@@ -172,19 +187,15 @@ function validateData() {
     { id: '#live-venueGoogleMap', name: 'Google Map URL' },
     { id: '#live-advance', name: '前売料金' },
     { id: '#live-door', name: '当日料金' },
-    { id: '#live-ticketStock', name: '販売総数' },
-    { id: '#live-maxCompanions', name: '最大同伴人数' },
   ];
 
   fields.forEach((field) => {
-    const val = $(field.id).val().trim();
-    if (!val) {
+    if (!$(field.id).val().trim()) {
       utils.markError($(field.id), '必須項目です');
       isValid = false;
     }
   });
 
-  // 2. フライヤーチェック
   if (!flyerData.url) {
     utils.markError(
       $('#flyer-upload-group'),
@@ -193,42 +204,48 @@ function validateData() {
     isValid = false;
   }
 
-  // 3. 予約受付期間チェック
-  const startDate = $('#live-acceptStartDate').val();
-  const endDate = $('#live-acceptEndDate').val();
+  // 予約受付を行う場合のみ必須チェックを行う
+  if ($('#live-isAcceptReserve').is(':checked')) {
+    const reserveFields = [
+      { id: '#live-acceptStartDate', name: '受付開始日' },
+      { id: '#live-acceptEndDate', name: '受付終了日' },
+      { id: '#live-ticketStock', name: '販売総数' },
+      { id: '#live-maxCompanions', name: '最大同伴人数' },
+    ];
 
-  if (!startDate) {
-    utils.markError($('#live-acceptStartDate'), '必須項目です');
-    isValid = false;
-  }
-  if (!endDate) {
-    utils.markError($('#live-acceptEndDate'), '必須項目です');
-    isValid = false;
-  }
+    reserveFields.forEach((field) => {
+      if (!$(field.id).val().trim()) {
+        utils.markError($(field.id), '必須項目です');
+        isValid = false;
+      }
+    });
 
-  if (startDate && endDate) {
-    const start = new Date(startDate + 'T00:00:00');
-    const end = new Date(endDate + 'T23:59:59');
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    const startDate = $('#live-acceptStartDate').val();
+    const endDate = $('#live-acceptEndDate').val();
 
-    if (
-      (mode === 'new' || mode === 'copy') &&
-      start.getTime() <= today.getTime()
-    ) {
-      utils.markError(
-        $('#live-acceptStartDate'),
-        '開始日は明日以降を指定してください',
-      );
-      isValid = false;
-    }
+    if (startDate && endDate) {
+      const start = new Date(startDate + 'T00:00:00');
+      const end = new Date(endDate + 'T23:59:59');
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
 
-    if (start.getTime() > end.getTime()) {
-      utils.markError(
-        $('#live-acceptEndDate'),
-        '終了日は開始日以降にしてください',
-      );
-      isValid = false;
+      if (
+        (mode === 'new' || mode === 'copy') &&
+        start.getTime() <= today.getTime()
+      ) {
+        utils.markError(
+          $('#live-acceptStartDate'),
+          '開始日は明日以降を指定してください',
+        );
+        isValid = false;
+      }
+      if (start.getTime() > end.getTime()) {
+        utils.markError(
+          $('#live-acceptEndDate'),
+          '終了日は開始日以降にしてください',
+        );
+        isValid = false;
+      }
     }
   }
 
@@ -248,6 +265,8 @@ function renderFlyerPreview() {
 }
 
 function collectData(mode) {
+  const isAccept = $('#live-isAcceptReserve').is(':checked');
+
   const data = {
     title: $('#live-title').val().trim(),
     date: $('#live-date').val().replace(/-/g, '.'),
@@ -260,14 +279,23 @@ function collectData(mode) {
     door: $('#live-door').val().trim(),
     flyerUrl: flyerData.url,
     flyerPath: flyerData.path,
-    isAcceptReserve: $('#live-isAcceptReserve').is(':checked'),
-    acceptStartDate: $('#live-acceptStartDate').val().replace(/-/g, '.'),
-    acceptEndDate: $('#live-acceptEndDate').val().replace(/-/g, '.'),
-    ticketStock: Number($('#live-ticketStock').val()) || 0,
-    maxCompanions: Number($('#live-maxCompanions').val()) || 0,
+    isAcceptReserve: isAccept,
     notes: $('#live-notes').val().trim(),
     updatedAt: utils.serverTimestamp(),
   };
+
+  // 予約受付を行う場合のみデータを追加、行わない場合はプロパティ自体を持たせない(または空にする)
+  if (isAccept) {
+    data.acceptStartDate = $('#live-acceptStartDate').val().replace(/-/g, '.');
+    data.acceptEndDate = $('#live-acceptEndDate').val().replace(/-/g, '.');
+    data.ticketStock = Number($('#live-ticketStock').val()) || 0;
+    data.maxCompanions = Number($('#live-maxCompanions').val()) || 0;
+  } else {
+    data.acceptStartDate = '';
+    data.acceptEndDate = '';
+    data.ticketStock = 0;
+    data.maxCompanions = 0;
+  }
 
   if (mode === 'new' || mode === 'copy') {
     data.totalReserved = 0;
