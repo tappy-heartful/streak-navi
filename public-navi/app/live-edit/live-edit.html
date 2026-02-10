@@ -46,11 +46,15 @@
             <input type="date" id="live-date" />
           </div>
           <div class="form-group">
-            <label for="live-open">開場時間</label>
+            <label for="live-open"
+              >開場時間 <span class="required">*</span></label
+            >
             <input type="text" id="live-open" placeholder="17:30" />
           </div>
           <div class="form-group">
-            <label for="live-start">開演時間</label>
+            <label for="live-start"
+              >開演時間 <span class="required">*</span></label
+            >
             <input type="text" id="live-start" placeholder="18:00" />
           </div>
         </div>
@@ -59,15 +63,19 @@
       <section class="edit-section">
         <h3>会場情報</h3>
         <div class="form-group">
-          <label for="live-venue">会場名</label>
+          <label for="live-venue">会場名 <span class="required">*</span></label>
           <input type="text" id="live-venue" placeholder="ライブハウス名など" />
         </div>
         <div class="form-group">
-          <label for="live-venueUrl">会場公式サイトURL</label>
+          <label for="live-venueUrl"
+            >会場公式サイトURL <span class="required">*</span></label
+          >
           <input type="url" id="live-venueUrl" placeholder="https://..." />
         </div>
         <div class="form-group">
-          <label for="live-venueGoogleMap">Google Map URL</label>
+          <label for="live-venueGoogleMap"
+            >Google Map URL <span class="required">*</span></label
+          >
           <input
             type="url"
             id="live-venueGoogleMap"
@@ -80,7 +88,9 @@
         <h3>詳細設定</h3>
         <div class="form-row">
           <div class="form-group">
-            <label for="live-advance">前売料金</label>
+            <label for="live-advance"
+              >前売料金 <span class="required">*</span></label
+            >
             <input
               type="text"
               id="live-advance"
@@ -88,14 +98,16 @@
             />
           </div>
           <div class="form-group">
-            <label for="live-door">当日料金</label>
+            <label for="live-door"
+              >当日料金 <span class="required">*</span></label
+            >
             <input type="text" id="live-door" placeholder="￥2500 + 1 Drink" />
           </div>
         </div>
 
         <div class="form-group">
-          <label>フライヤー画像</label>
-          <div class="file-upload-container">
+          <label>フライヤー画像 <span class="required">*</span></label>
+          <div class="file-upload-container" id="flyer-upload-group">
             <button type="button" id="btn-file-select" class="file-select-btn">
               <i class="fas fa-image"></i> 画像を選択
             </button>
@@ -120,21 +132,29 @@
         <div class="reserve-settings">
           <div class="form-row">
             <div class="form-group">
-              <label for="live-acceptStartDate">受付開始日</label>
+              <label for="live-acceptStartDate"
+                >受付開始日 <span class="required">*</span></label
+              >
               <input type="date" id="live-acceptStartDate" />
             </div>
             <div class="form-group">
-              <label for="live-acceptEndDate">受付終了日</label>
+              <label for="live-acceptEndDate"
+                >受付終了日 <span class="required">*</span></label
+              >
               <input type="date" id="live-acceptEndDate" />
             </div>
           </div>
           <div class="form-row">
             <div class="form-group">
-              <label for="live-ticketStock">販売総数（在庫）</label>
+              <label for="live-ticketStock"
+                >販売総数（在庫） <span class="required">*</span></label
+              >
               <input type="number" id="live-ticketStock" placeholder="80" />
             </div>
             <div class="form-group">
-              <label for="live-maxCompanions">最大同伴人数</label>
+              <label for="live-maxCompanions"
+                >最大同伴人数 <span class="required">*</span></label
+              >
               <input type="number" id="live-maxCompanions" placeholder="5" />
             </div>
           </div>
@@ -142,7 +162,7 @@
       </section>
 
       <div class="form-group">
-        <label for="live-notes">備考・ご案内</label>
+        <label for="live-notes">備考・ご案内（任意）</label>
         <textarea
           id="live-notes"
           rows="6"
