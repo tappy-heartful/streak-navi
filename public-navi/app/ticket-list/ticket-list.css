@@ -14,23 +14,6 @@
   border-radius: 20px;
 }
 
-/* テーブル全体のラッパー */
-.table-wrapper {
-  width: 100%;
-  overflow-x: auto;
-  -webkit-overflow-scrolling: touch;
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
-}
-
-/* テーブル本体 */
-.list-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 600px; /* スマホでも崩れないよう最小幅を設定 */
-}
-
 /* 予約番号（リンク） */
 .list-table td a {
   color: #007bff;
