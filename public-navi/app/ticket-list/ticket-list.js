@@ -24,7 +24,6 @@ $(document).ready(async function () {
 async function setUpPage() {
   utils.showSpinner();
 
-  // 1. ライブ一覧を取得（プルダウン用）
   const livesRef = utils.collection(utils.db, 'lives');
   const liveSnap = await utils.getWrapDocs(
     utils.query(livesRef, utils.orderBy('date', 'desc')),
@@ -35,7 +34,6 @@ async function setUpPage() {
   const today = utils.format(new Date(), 'yyyy.MM.dd');
   let closestLiveId = '';
 
-  // 直近のライブ（今日以降で最も日付が近いもの）を探す
   const futureLives = lives
     .filter((l) => l.date >= today)
     .sort((a, b) => a.date.localeCompare(b.date));
@@ -51,12 +49,10 @@ async function setUpPage() {
     );
   });
 
-  // 2. 予約データを全取得（本来はクエリ制限すべきですが、検索仕様に基づき全取得してフィルタリング）
   const ticketsRef = utils.collection(utils.db, 'tickets');
   const ticketSnap = await utils.getWrapDocs(ticketsRef);
   tickets = ticketSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-  // イベント登録
   $('#search-res-no, #search-name, #live-filter-select').on(
     'input change',
     () => {
@@ -67,11 +63,10 @@ async function setUpPage() {
   $('#clear-button').on('click', () => {
     $('#search-res-no').val('');
     $('#search-name').val('');
-    $('#live-filter-select').val(closestLiveId); // クリア時は直近ライブに戻す
+    $('#live-filter-select').val(closestLiveId);
     filterTickets();
   });
 
-  // 初期表示
   filterTickets();
 }
 
@@ -89,11 +84,9 @@ function filterTickets() {
       (t.representativeName &&
         t.representativeName.toLowerCase().includes(nameKeyword));
     const matchLive = !selectedLiveId || t.liveId === selectedLiveId;
-
     return matchResNo && matchName && matchLive;
   });
 
-  // 予約番号順（昇順）にソート
   filtered.sort((a, b) => {
     const noA = parseInt(a.reservationNo) || 0;
     const noB = parseInt(b.reservationNo) || 0;
@@ -109,50 +102,55 @@ function renderTickets(ticketArray) {
 
   if (ticketArray.length === 0) {
     $tbody.append(
-      '<tr><td colspan="5" class="text-center">予約データは見つかりませんでした。</td></tr>',
+      '<tr><td colspan="7" class="text-center">予約データは見つかりませんでした。</td></tr>',
     );
     $('#total-count-display').text('該当: 0件 / 合計人数: 0名');
     return;
   }
 
   ticketArray.forEach((t) => {
-    const live = lives.find((l) => l.id === t.liveId);
-    const liveTitle = live ? live.title : '不明なライブ';
+    // 日付変換用ヘルパー
+    const formatDate = (ts) => {
+      if (!ts) return '-';
+      let d = ts.toDate
+        ? ts.toDate()
+        : ts.seconds
+          ? new Date(ts.seconds * 1000)
+          : ts instanceof Date
+            ? ts
+            : null;
+      return d ? utils.format(d, 'yyyy/MM/dd HH:mm') : '-';
+    };
 
-    // --- 日付変換の安全な処理 ---
-    let createdAt = '-';
-    if (t.createdAt) {
-      let dateObj;
-      if (typeof t.createdAt.toDate === 'function') {
-        // 通常のTimestamp型の場合
-        dateObj = t.createdAt.toDate();
-      } else if (t.createdAt.seconds) {
-        // 単純なオブジェクト（{seconds, nanoseconds}）の場合
-        dateObj = new Date(t.createdAt.seconds * 1000);
-      } else if (t.createdAt instanceof Date) {
-        // すでにDateオブジェクトの場合
-        dateObj = t.createdAt;
-      }
+    const createdAt = formatDate(t.createdAt);
+    const updatedAt = formatDate(t.updatedAt);
 
-      if (dateObj) {
-        createdAt = utils.format(dateObj, 'yyyy/MM/dd HH:mm');
-      }
-    }
-    // --------------------------
+    // 同伴者リストの処理
+    const companionsHtml =
+      Array.isArray(t.companions) && t.companions.length > 0
+        ? t.companions.join('<br>')
+        : '-';
+
+    // 予約種別
+    const resTypeText = t.resType === 'invite' ? '招待予約' : '一般予約';
+    const resTypeClass =
+      t.resType === 'invite' ? 'status-invite' : 'status-general';
 
     totalSum += Number(t.totalCount) || 0;
 
     const row = `
       <tr>
-        <td class="text-center" style="font-weight:bold;">${t.reservationNo || '-'}</td>
-        <td>
-          <a href="../ticket-confirm/ticket-confirm.html?ticketId=${t.id}">
-            ${t.representativeName || '未設定'} 様
+        <td class="text-center">
+          <a href="../ticket-confirm/ticket-confirm.html?ticketId=${t.id}" style="font-weight:bold;">
+            ${t.reservationNo || '-'}
           </a>
         </td>
+        <td>${t.representativeName || '未設定'}</td>
+        <td style="font-size: 12px; line-height: 1.4;">${companionsHtml}</td>
         <td class="text-center">${t.totalCount || 0} 名</td>
-        <td style="font-size: 12px;">${liveTitle}</td>
-        <td style="font-size: 12px; color: #666;">${createdAt}</td>
+        <td class="text-center"><span class="res-type-label ${resTypeClass}">${resTypeText}</span></td>
+        <td style="font-size: 11px; color: #666;">${createdAt}</td>
+        <td style="font-size: 11px; color: #666;">${updatedAt}</td>
       </tr>
     `;
     $tbody.append(row);
