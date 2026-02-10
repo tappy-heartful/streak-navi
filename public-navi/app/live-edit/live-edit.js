@@ -41,13 +41,16 @@ function setupBreadcrumbs(mode, liveId) {
 }
 
 async function setupPage(mode, liveId) {
+  const backLink = $('.back-link');
   if (mode === 'new') {
     $('#page-title, #title').text('ライブ新規登録');
     $('#save-button').text('登録する');
+    backLink.text('← ライブ一覧に戻る');
   } else {
     const label = mode === 'edit' ? 'ライブ編集' : 'ライブコピー登録';
     $('#page-title, #title').text(label);
     $('#save-button').text(mode === 'edit' ? '更新する' : '登録する');
+    backLink.text('← ライブ確認に戻る');
     await loadLiveData(liveId, mode);
   }
 }
@@ -73,7 +76,8 @@ async function loadLiveData(liveId, mode) {
   $('#live-maxCompanions').val(data.maxCompanions || '');
   $('#live-notes').val(data.notes || '');
 
-  if (data.flyerUrl) {
+  // フライヤーは編集ときのみ表示
+  if (mode === 'edit' && data.flyerUrl) {
     flyerData = { url: data.flyerUrl, path: data.flyerPath || '' };
     renderFlyerPreview();
   }
@@ -99,6 +103,12 @@ function setupEventHandlers(mode, liveId) {
       renderFlyerPreview();
     } catch (err) {
       alert('アップロードに失敗しました');
+      await utils.writeLog({
+        dataId: liveId,
+        action: 'フライヤー更新',
+        status: 'error',
+        errorDetail: { message: err.message, stack: err.stack },
+      });
     } finally {
       utils.hideSpinner();
       $(this).val('');
@@ -133,7 +143,12 @@ function setupEventHandlers(mode, liveId) {
       await utils.showDialog('保存完了しました', true);
       window.location.href = `../live-confirm/live-confirm.html?liveId=${targetId}`;
     } catch (e) {
-      utils.showDialog('保存に失敗しました');
+      await utils.writeLog({
+        dataId: liveId,
+        action: 'ライブ更新',
+        status: 'error',
+        errorDetail: { message: e.message, stack: e.stack },
+      });
     } finally {
       utils.hideSpinner();
     }
@@ -157,7 +172,7 @@ function renderFlyerPreview() {
 }
 
 function collectData(mode) {
-  return {
+  const data = {
     title: $('#live-title').val().trim(),
     date: $('#live-date').val().trim(),
     open: $('#live-open').val().trim(),
@@ -176,8 +191,15 @@ function collectData(mode) {
     maxCompanions: Number($('#live-maxCompanions').val()) || 0,
     notes: $('#live-notes').val().trim(),
     updatedAt: utils.serverTimestamp(),
-    totalReserved: mode === 'new' || mode === 'copy' ? 0 : undefined, // 新規時は0リセット
   };
+
+  // 新規登録またはコピー時のみ、予約数を0で初期化する
+  if (mode === 'new' || mode === 'copy') {
+    data.totalReserved = 0;
+    data.createdAt = utils.serverTimestamp();
+  }
+
+  return data;
 }
 
 function validateData() {
