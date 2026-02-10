@@ -1,0 +1,84 @@
+.edit-section {
+  background: #fdfdfd;
+  padding: 15px;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.edit-section h3 {
+  font-size: 1rem;
+  border-left: 4px solid #2c7a7b;
+  padding-left: 10px;
+  margin-bottom: 15px;
+  color: #333;
+}
+
+.form-row {
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+}
+
+.form-row .form-group {
+  flex: 1;
+  min-width: 150px;
+}
+
+/* チェックボックス周り */
+.checkbox-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.checkbox-group input {
+  width: 20px;
+  height: 20px;
+}
+
+/* ファイルアップロード周り */
+.file-upload-container {
+  border: 2px dashed #ddd;
+  padding: 15px;
+  border-radius: 8px;
+  background: #fcfcfc;
+  text-align: center;
+}
+
+.file-select-btn {
+  background-color: #f0f0f0;
+  color: #333;
+  border: 1px solid #ccc;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.file-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: white;
+  padding: 8px 12px;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  margin-top: 10px;
+}
+
+.flyer-preview-img {
+  width: 100%;
+  max-width: 200px;
+  margin-top: 10px;
+  border-radius: 4px;
+  border: 1px solid #ddd;
+}
+
+.btn-file-delete {
+  color: #e53935;
+  background: none;
+  border: none;
+  cursor: pointer;
+}

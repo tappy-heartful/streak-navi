@@ -117,6 +117,7 @@ export const globalGetParamCollectId = globalGetparams.get('collectId');
 export const globalGetParamBoardId = globalGetparams.get('boardId');
 export const globalGetParamType = globalGetparams.get('type');
 export const globalGetParamSectionId = globalGetparams.get('sectionId');
+export const globalGetParamLiveId = globalGetparams.get('liveId');
 
 // 画面名
 export const globalScreenName = document.title || 'Streak Navi';
@@ -162,7 +163,7 @@ export function getSessionArray(key) {
 export function setSessionArray(key, array) {
   sessionStorage.setItem(
     globalAppName + '.' + key,
-    JSON.stringify(array ?? [])
+    JSON.stringify(array ?? []),
   );
 }
 
@@ -187,7 +188,7 @@ export async function loadComponent(
   target,
   isCss = true,
   isHTML = true,
-  isJs = true
+  isJs = true,
 ) {
   const basePath = '../' + target + '/' + target;
 
@@ -320,7 +321,7 @@ export function renderBreadcrumb(crumbs) {
 
   // 先頭にはホーム
   $nav.append(
-    `<a href="../home/home.html"><i class="fa fa-home"></i> ホーム</a>`
+    `<a href="../home/home.html"><i class="fa fa-home"></i> ホーム</a>`,
   );
 
   crumbs.forEach((c, idx) => {
@@ -549,7 +550,7 @@ function formatDateForId(date = new Date()) {
 export function buildYouTubeHtml(
   youtubeInput,
   showNotice = false,
-  showLink = true
+  showLink = true,
 ) {
   if (!youtubeInput) return '';
 
@@ -691,7 +692,7 @@ export function isInTerm(startDateStr, endDateStr) {
     (!startDateStr ||
       now >=
         new Date(
-          formatDateToYMDHyphen(startDateStr) + 'T00:00:00'
+          formatDateToYMDHyphen(startDateStr) + 'T00:00:00',
         ).getTime()) &&
     (!endDateStr ||
       now <=
@@ -939,7 +940,7 @@ export async function archiveAndDeleteDoc(collectionName, docId) {
 
   if (!docSnap.exists()) {
     console.warn(
-      `Document not found in ${collectionName}/${docId}. Skipping archive and delete.`
+      `Document not found in ${collectionName}/${docId}. Skipping archive and delete.`,
     );
     return;
   }

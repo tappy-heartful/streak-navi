@@ -1,0 +1,49 @@
+/* フライヤー画像の表示スタイル */
+.flyer-container {
+  width: 100%;
+  text-align: center;
+  margin-bottom: 25px;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+  overflow: hidden;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.live-flyer-img {
+  max-width: 100%;
+  max-height: 500px;
+  object-fit: contain;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
+/* リンクボタンのグループ */
+.link-group {
+  margin-top: 8px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.link-group a {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: #eee;
+  border-radius: 4px;
+  text-decoration: none;
+  font-size: 13px;
+  color: #333;
+}
+
+.link-group a:hover {
+  background: #e2e2e2;
+}
+
+/* ラベル値の調整 */
+.label-value {
+  line-height: 1.6;
+}
