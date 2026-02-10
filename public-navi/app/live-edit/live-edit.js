@@ -159,6 +159,14 @@ function setupEventHandlers(mode, liveId) {
   $('#clear-button').on('click', async () => {
     if (await utils.showDialog('入力を復元しますか？')) restoreInitialState();
   });
+
+  $(document).on('click', '.back-link', () => {
+    const url =
+      mode === 'new'
+        ? '../live-list/live-list.html'
+        : `../live-confirm/live-confirm.html?liveId=${utils.globalGetParamLiveId}`;
+    window.location.href = url;
+  });
 }
 
 function renderFlyerPreview() {
