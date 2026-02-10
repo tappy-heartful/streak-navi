@@ -130,7 +130,10 @@ function renderTickets(ticketArray) {
       : '-';
 
     // 代表者名のマスキング適用
-    const displayName = maskName(t.representativeName || '未設定');
+    const displayName =
+      t.resType === 'invite'
+        ? '(' + maskName(t.representativeName || '未設定') + ')'
+        : maskName(t.representativeName || '未設定') + ' 様';
 
     // 同伴者リストの処理（配列の各要素にマスキングを適用）
     let companionsHtml = '-';
@@ -153,10 +156,10 @@ function renderTickets(ticketArray) {
           <a href="../ticket-confirm/ticket-confirm.html?ticketId=${t.id}" style="font-weight:bold;">
             ${t.reservationNo || '-'}
           </a>
+          <span class="res-type-label ${resTypeClass}">${resTypeText}</span>
         </td>
-        <td class="text-center"><span class="res-type-label ${resTypeClass}">${resTypeText}</span></td>
         <td class="text-center">${t.totalCount || 0} 名</td>
-        <td>${displayName} ${t.resType === 'invite' ? '' : ' 様'}</td>
+        <td>${displayName}</td>
         <td style="font-size: 12px; line-height: 1.4;">${companionsHtml}</td>
         <td style="font-size: 11px; color: #666;">${createdAt}</td>
         <td style="font-size: 11px; color: #666;">${updatedAt}</td>
