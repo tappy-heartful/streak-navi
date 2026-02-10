@@ -409,37 +409,50 @@ export async function hideSpinner() {
 /**
  * DateオブジェクトまたはFirestoreのTimestampオブジェクトを
  * 指定されたフォーマットの文字列に変換します。
- * (※ここでは 'yyyy.MM.dd' のみに対応するシンプルな実装例です)
- * * @param {Date | firebase.firestore.Timestamp} dateOrTimestamp - 変換する日付/タイムスタンプオブジェクト
- * @param {string} formatString - 日付のフォーマット文字列 (例: 'yyyy.MM.dd')
- * @returns {string} フォーマットされた日付文字列
  */
 export function format(dateOrTimestamp, formatString = 'yyyy.MM.dd') {
   let date;
 
-  // 1. 引数がTimestamp型かどうかをチェックし、Dateオブジェクトに変換
-  if (dateOrTimestamp && typeof dateOrTimestamp.toDate === 'function') {
+  if (!dateOrTimestamp) return '';
+
+  // 1. 各種型を Date オブジェクトに変換
+  if (typeof dateOrTimestamp.toDate === 'function') {
+    // Firebase Timestamp インスタンス
     date = dateOrTimestamp.toDate();
   } else if (dateOrTimestamp instanceof Date) {
+    // Date オブジェクト
     date = dateOrTimestamp;
+  } else if (dateOrTimestamp.seconds !== undefined) {
+    // ★追加: プレーンなオブジェクト {seconds, nanoseconds}
+    date = new Date(dateOrTimestamp.seconds * 1000);
+  } else if (typeof dateOrTimestamp === 'number') {
+    // 数値（ミリ秒）
+    date = new Date(dateOrTimestamp);
   } else {
-    // 不正な値が渡された場合は空文字列を返すか、エラー処理を行う
+    // 不正な値
     return '';
   }
 
-  // 2. フォーマット文字列に基づいた処理 (ここでは 'yyyy.MM.dd' のみを想定)
-  if (formatString === 'yyyy.MM.dd') {
-    const year = date.getFullYear();
-    // getMonth() は 0 から始まるため、+1 する
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
+  // 無効なDate（Invalid Date）チェック
+  if (isNaN(date.getTime())) return '';
 
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+
+  // 2. フォーマット文字列に基づいた処理
+  if (formatString === 'yyyy.MM.dd') {
     return `${year}.${month}.${day}`;
   }
 
-  // その他のフォーマット（例: yyyy/MM/dd HH:mm）に対応する場合は、ここにロジックを追加
+  // ★追加: yyyy/MM/dd HH:mm の対応
+  if (formatString === 'yyyy/MM/dd HH:mm') {
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    return `${year}/${month}/${day} ${hours}:${minutes}`;
+  }
 
-  return ''; // 対応しないフォーマットの場合は空文字列を返す
+  return '';
 }
 
 /**

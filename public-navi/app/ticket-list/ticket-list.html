@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link rel="apple-touch-icon" href="../../images/favicon.png" />
+    <title>予約者一覧</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="ticket-list.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="page-header">
+        <h1>予約者一覧</h1>
+      </div>
+
+      <div class="container">
+        <h3>検索</h3>
+        <div class="form-group">
+          <input
+            type="text"
+            id="search-res-no"
+            placeholder="予約番号で検索..."
+          />
+        </div>
+        <div class="form-group">
+          <input type="text" id="search-name" placeholder="代表者名で検索..." />
+        </div>
+        <div class="form-group">
+          <select id="live-filter-select">
+            <option value="">ライブを選択</option>
+          </select>
+        </div>
+        <div class="confirm-buttons">
+          <button id="clear-button" class="clear-button">クリア</button>
+        </div>
+      </div>
+
+      <div class="container">
+        <div class="list-header">
+          <h3>予約データ</h3>
+          <div
+            id="total-count-display"
+            style="font-weight: bold; color: #555"
+          ></div>
+        </div>
+
+        <section class="list-section">
+          <div class="table-wrapper">
+            <table class="list-table" id="ticket-table">
+              <thead>
+                <tr>
+                  <th>予約No / 種別</th>
+                  <th>人数</th>
+                  <th>代表者</th>
+                  <th>同伴者(招待客)</th>
+                  <th>登録日時</th>
+                  <th>更新日時</th>
+                </tr>
+              </thead>
+              <tbody id="ticket-table-body"></tbody>
+            </table>
+          </div>
+        </section>
+      </div>
+
+      <div class="page-footer">
+        <a href="../home/home.html" class="back-link">← ホームに戻る</a>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="ticket-list.js"></script>
+  </body>
+</html>
