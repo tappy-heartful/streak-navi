@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title id="title">ライブ管理</title>
+    <link rel="icon" href="../../images/favicon.png" type="image/png" />
+    <link
+      rel="apple-touch-icon"
+      href="../../images/favicon.png"
+      type="image/png"
+    />
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="live-edit.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <div class="page-header">
+      <h1 id="page-title">ライブ管理</h1>
+    </div>
+
+    <main class="container">
+      <section class="edit-section">
+        <h3>基本情報</h3>
+        <div class="form-group">
+          <label for="live-title"
+            >ライブ名 <span class="required">*</span></label
+          >
+          <input
+            type="text"
+            id="live-title"
+            placeholder="第〇回定期演奏会 など"
+          />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="live-date"
+              >開催日 <span class="required">*</span></label
+            >
+            <input type="text" id="live-date" placeholder="2026.03.07" />
+          </div>
+          <div class="form-group">
+            <label for="live-open">開場時間</label>
+            <input type="text" id="live-open" placeholder="17:30" />
+          </div>
+          <div class="form-group">
+            <label for="live-start">開演時間</label>
+            <input type="text" id="live-start" placeholder="18:00" />
+          </div>
+        </div>
+      </section>
+
+      <section class="edit-section">
+        <h3>会場情報</h3>
+        <div class="form-group">
+          <label for="live-venue">会場名</label>
+          <input type="text" id="live-venue" placeholder="ライブハウス名など" />
+        </div>
+        <div class="form-group">
+          <label for="live-venueUrl">会場公式サイトURL</label>
+          <input type="url" id="live-venueUrl" placeholder="https://..." />
+        </div>
+        <div class="form-group">
+          <label for="live-venueGoogleMap">Google Map URL</label>
+          <input
+            type="url"
+            id="live-venueGoogleMap"
+            placeholder="https://goo.gl/maps/..."
+          />
+        </div>
+      </section>
+
+      <section class="edit-section">
+        <h3>詳細設定</h3>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="live-advance">前売料金</label>
+            <input
+              type="text"
+              id="live-advance"
+              placeholder="￥2000 + 1 Drink"
+            />
+          </div>
+          <div class="form-group">
+            <label for="live-door">当日料金</label>
+            <input type="text" id="live-door" placeholder="￥2500 + 1 Drink" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>フライヤー画像</label>
+          <div class="file-upload-container">
+            <button type="button" id="btn-file-select" class="file-select-btn">
+              <i class="fas fa-image"></i> 画像を選択
+            </button>
+            <input
+              type="file"
+              id="live-file-input"
+              style="display: none"
+              accept="image/*"
+            />
+            <div id="flyer-preview-area" class="file-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="edit-section">
+        <h3>予約受付設定</h3>
+        <div class="form-group checkbox-group">
+          <input type="checkbox" id="live-isAcceptReserve" />
+          <label for="live-isAcceptReserve">このライブの予約受付を行う</label>
+        </div>
+
+        <div class="reserve-settings">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="live-acceptStartDate">受付開始日</label>
+              <input
+                type="text"
+                id="live-acceptStartDate"
+                placeholder="2026.01.26"
+              />
+            </div>
+            <div class="form-group">
+              <label for="live-acceptEndDate">受付終了日</label>
+              <input
+                type="text"
+                id="live-acceptEndDate"
+                placeholder="2026.03.07"
+              />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="live-ticketStock">販売総数（在庫）</label>
+              <input type="number" id="live-ticketStock" placeholder="80" />
+            </div>
+            <div class="form-group">
+              <label for="live-maxCompanions">最大同伴人数</label>
+              <input type="number" id="live-maxCompanions" placeholder="5" />
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <div class="form-group">
+        <label for="live-notes">備考・ご案内</label>
+        <textarea
+          id="live-notes"
+          rows="6"
+          placeholder="入場時の注意点など..."
+        ></textarea>
+      </div>
+
+      <div id="confirm-buttons" class="confirm-buttons">
+        <button id="clear-button" class="clear-button">復元</button>
+        <button id="save-button" class="save-button">登録 / 更新</button>
+      </div>
+    </main>
+
+    <div class="page-footer">
+      <a class="back-link">← ライブ一覧に戻る</a>
+    </div>
+
+    <div id="footer-placeholder"></div>
+    <div id="dialog-placeholder"></div>
+    <div id="modal-placeholder"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="../common/functions.js"></script>
+    <script type="module" src="live-edit.js"></script>
+  </body>
+</html>
