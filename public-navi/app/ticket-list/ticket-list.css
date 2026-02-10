@@ -1,0 +1,87 @@
+/* 検索エリアのスタイル */
+.form-group input[type="text"],
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 14px;
+  margin-bottom: 10px;
+  box-sizing: border-box;
+}
+
+/* リストヘッダー（タイトルと合計人数の横並び） */
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  padding: 0 5px;
+}
+
+#total-count-display {
+  font-size: 14px;
+  background: #f0f0f0;
+  padding: 4px 12px;
+  border-radius: 20px;
+}
+
+/* テーブル全体のラッパー（スマホでの横スクロール用） */
+.table-wrapper {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+/* テーブル本体 */
+.list-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 600px; /* スマホでも崩れないよう最小幅を設定 */
+}
+
+.list-table th,
+.list-table td {
+  padding: 12px 15px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.list-table th {
+  background-color: #f8f9fa;
+  font-weight: bold;
+  color: #333;
+  white-space: nowrap;
+}
+
+/* 予約番号列の強調 */
+.list-table td:first-child {
+  color: #2c3e50;
+  font-family: 'Courier New', Courier, monospace; /* 番号を見やすく */
+  width: 80px;
+}
+
+/* 代表者名のリンク */
+.list-table td a {
+  color: #007bff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+.list-table td a:hover {
+  text-decoration: underline;
+}
+
+/* 中央揃え用クラス */
+.text-center {
+  text-align: center !important;
+}
+
+/* 行のホバー効果 */
+.list-table tbody tr:hover {
+  background-color: #f1f9ff;
+}
