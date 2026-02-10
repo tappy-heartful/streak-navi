@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ライブ一覧</title>
+    <link rel="stylesheet" href="../common/common.css" />
+    <link rel="stylesheet" href="live-list.css" />
+  </head>
+  <body>
+    <div id="header-placeholder"></div>
+
+    <main>
+      <div class="page-header">
+        <h1>ライブ一覧</h1>
+      </div>
+
+      <div class="container" id="live-container">
+        <ul class="event-list" id="live-list"></ul>
+
+        <button
+          id="live-add-button"
+          class="list-add-button"
+          style="display: none"
+          onclick="
+            window.location.href = '../live-edit/live-edit.html?mode=new'
+          "
+        >
+          ＋ ライブ情報を追加
+        </button>
+      </div>
+
+      <div class="page-footer">
+        <a href="../home/home.html" class="back-link">← ホームに戻る</a>
+      </div>
+    </main>
+
+    <div id="footer-placeholder"></div>
+
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"
+    />
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script type="module" src="live-list.js"></script>
+  </body>
+</html>

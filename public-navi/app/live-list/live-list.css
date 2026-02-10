@@ -1,0 +1,97 @@
+/* リスト全体のスタイル */
+.event-list {
+    list-style: none;
+    padding: 0;
+    margin: 20px 0;
+}
+
+.event-list li {
+    margin-bottom: 15px;
+}
+
+/* ライブ情報のカード（リンク） */
+.event-link {
+    display: flex;
+    gap: 15px;
+    padding: 15px;
+    border-radius: 12px;
+    background-color: #fff;
+    text-decoration: none;
+    color: #333;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease, background-color 0.3s ease;
+}
+
+.event-link:hover {
+    background-color: #f0fdf4; /* ほのかな緑 */
+    transform: translateY(-2px);
+}
+
+/* フライヤー画像 */
+.live-thumbnail {
+    width: 80px;
+    height: 80px;
+    border-radius: 8px;
+    object-fit: cover;
+    background-color: #eee;
+}
+
+/* 情報エリア */
+.event-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.event-date {
+    font-size: 13px;
+    font-weight: bold;
+    color: #2c7a7b; /* ライブらしいアクセントカラー */
+    margin-bottom: 4px;
+}
+
+.event-title {
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.event-venue {
+    font-size: 13px;
+    color: #666;
+}
+
+.event-venue i {
+    margin-right: 4px;
+}
+
+/* 右側の矢印や状態 */
+.event-arrow {
+    display: flex;
+    align-items: center;
+    color: #ccc;
+    font-size: 18px;
+}
+
+/* 管理者用追加ボタン */
+.list-add-button {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    background-color: #333;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    margin-top: 20px;
+}
+
+/* 空の状態 */
+.empty-msg {
+    text-align: center;
+    padding: 40px 20px;
+    color: #888;
+}

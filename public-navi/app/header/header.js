@@ -43,63 +43,71 @@ $(document).ready(async function () {
     'click',
     () =>
       (location.href =
-        '../user-confirm/user-confirm.html?uid=' + utils.getSession('uid'))
+        '../user-confirm/user-confirm.html?uid=' + utils.getSession('uid')),
   );
   $('#menu-home').on('click', () => (location.href = '../home/home.html'));
   $('#menu-score-list').on(
     'click',
-    () => (location.href = '../score-list/score-list.html')
+    () => (location.href = '../score-list/score-list.html'),
   );
   $('#menu-event-list').on(
     'click',
-    () => (location.href = '../event-list/event-list.html')
+    () => (location.href = '../event-list/event-list.html'),
   );
   $('#menu-assign-list').on(
     'click',
-    () => (location.href = '../assign-list/assign-list.html')
+    () => (location.href = '../assign-list/assign-list.html'),
   );
   $('#menu-call-list').on(
     'click',
-    () => (location.href = '../call-list/call-list.html')
+    () => (location.href = '../call-list/call-list.html'),
   );
   $('#menu-vote-list').on(
     'click',
-    () => (location.href = '../vote-list/vote-list.html')
+    () => (location.href = '../vote-list/vote-list.html'),
   );
   $('#menu-collect-list').on(
     'click',
-    () => (location.href = '../collect-list/collect-list.html')
+    () => (location.href = '../collect-list/collect-list.html'),
   );
   $('#menu-studio-list').on(
     'click',
-    () => (location.href = '../studio-list/studio-list.html')
+    () => (location.href = '../studio-list/studio-list.html'),
   );
   $('#menu-user-list').on(
     'click',
-    () => (location.href = '../user-list/user-list.html')
+    () => (location.href = '../user-list/user-list.html'),
   );
   $('#menu-notice-list').on(
     'click',
-    () => (location.href = '../notice-list/notice-list.html')
+    () => (location.href = '../notice-list/notice-list.html'),
   );
   $('#menu-blue-note-edit').on(
     'click',
-    () => (location.href = '../blue-note-edit/blue-note-edit.html')
+    () => (location.href = '../blue-note-edit/blue-note-edit.html'),
   );
   $('#menu-media-list').on(
     'click',
-    () => (location.href = '../media-list/media-list.html')
+    () => (location.href = '../media-list/media-list.html'),
   );
   $('#menu-board-list').on(
     'click',
-    () => (location.href = '../board-list/board-list.html')
+    () => (location.href = '../board-list/board-list.html'),
+  );
+  $('#menu-live-list').on(
+    'click',
+    () => (location.href = '../live-list/live-list.html'),
+  );
+  $('#menu-ticket-list').on(
+    'click',
+    () => (location.href = '../ticket-list/ticket-list.html'),
   );
 
   $('#profile-button').on(
     'click',
     () =>
       (location.href =
-        '../user-confirm/user-confirm.html?uid=' + utils.getSession('uid'))
+        '../user-confirm/user-confirm.html?uid=' + utils.getSession('uid')),
   );
 
   $('#logout-button').on('click', () => {
