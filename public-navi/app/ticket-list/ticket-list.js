@@ -62,12 +62,6 @@ async function setUpPage() {
     );
   });
 
-  const ticketsRef = utils.collection(utils.db, 'tickets');
-  const ticketSnap = await utils.getWrapDocs(ticketsRef);
-  tickets = ticketSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-
-  // setUpPage 関数内
-  // 既存の input change イベントは削除または検索ボタンへ統合
   $('#search-button').on('click', () => {
     fetchAndRenderTickets();
   });
@@ -128,59 +122,64 @@ function renderTickets(ticketArray, checkedNames = []) {
   let totalSum = 0;
   const hasFullAccess = utils.isAdmin('Ticket');
 
+  if (ticketArray.length === 0) {
+    $tbody.append(
+      '<tr><td colspan="6" class="text-center">予約データは見つかりませんでした。</td></tr>',
+    );
+    $('#total-count-display').text('該当: 0件 / 合計人数: 0名');
+    return;
+  }
+
   ticketArray.forEach((t) => {
-    // 名前リスト作成時にチェックイン済みなら✅を付与
-    const formatName = (name) =>
-      checkedNames.includes(name) ? `✅ ${name}` : name;
+    // --- 1. 名前の整形（チェックイン済みなら ✅ + 緑文字 にする） ---
+    const formatName = (name) => {
+      if (!name) return '未設定';
+      const isChecked = checkedNames.includes(name);
+      if (isChecked) {
+        // 緑文字のスタイルを適用
+        return `<span style="color: #28a745;">✅ ${name} 様</span>`;
+      }
+      return name + ' 様';
+    };
 
-    const repName = formatName(t.representativeName || '未設定');
-    const companions = (t.companions || []).map((c) => formatName(c) + ' 様');
+    const repNameFormatted = formatName(t.representativeName);
+    const companionsFormatted = (t.companions || []).map((c) => formatName(c));
 
+    // --- 2. 表示用HTMLの構築 ---
     let customerHtml = '';
     let inviterHtml = '-';
 
     if (t.resType === 'invite') {
       customerHtml =
-        companions.length > 0 ? companions.join('<br>') : '(招待客なし)';
+        companionsFormatted.length > 0
+          ? companionsFormatted.join('<br>')
+          : '(招待客なし)';
       inviterHtml = t.representativeName;
     } else {
-      const allCustomers = [repName + ' 様', ...companions];
+      const allCustomers = [repNameFormatted, ...companionsFormatted];
       customerHtml = allCustomers.join('<br>');
       inviterHtml = '-';
     }
+
+    // --- 3. その他のデータ準備 ---
     const createdAt = t.createdAt
       ? utils.format(t.createdAt, 'yyyy/MM/dd HH:mm')
       : '-';
     const updatedAt = t.updatedAt
       ? utils.format(t.updatedAt, 'yyyy/MM/dd HH:mm')
       : '-';
-
-    const maskedRepresentative = t.representativeName || '未設定';
-    const maskedCompanions = (t.companions || []).map((c) => c + ' 様');
-
-    if (t.resType === 'invite') {
-      customerHtml =
-        maskedCompanions.length > 0
-          ? maskedCompanions.join('<br>')
-          : '(招待客なし)';
-      inviterHtml = t.representativeName;
-    } else {
-      const allCustomers = [maskedRepresentative + ' 様', ...maskedCompanions];
-      customerHtml = allCustomers.join('<br>');
-      inviterHtml = '-';
-    }
-
     const resTypeText = t.resType === 'invite' ? '招待' : '一般';
     const resTypeClass =
       t.resType === 'invite' ? 'status-invite' : 'status-general';
 
     totalSum += Number(t.totalCount) || 0;
 
-    // isAdminがtrueの場合のみクリック可能なクラス「clickable-res-no」を付与
     const resNoLink = hasFullAccess
       ? `<a href="javascript:void(0)" class="open-checkin" data-id="${t.id}" style="font-weight:bold; color: #e91e63; text-decoration: underline;">${t.reservationNo || '-'}</a>`
       : `<span style="font-weight:bold;">${t.reservationNo || '-'}</span>`;
 
+    // --- 4. 行の生成 ---
+    // チェックイン済みの人が一人でもいれば行全体の背景を薄くするなど、さらなる調整もここから可能です
     const row = `
       <tr>
         <td class="text-center">
@@ -197,12 +196,14 @@ function renderTickets(ticketArray, checkedNames = []) {
     $tbody.append(row);
   });
 
-  // チェックインモーダルを開くイベント
-  $('.open-checkin').on('click', function () {
-    const ticketId = $(this).data('id');
-    const ticket = tickets.find((t) => t.id === ticketId);
-    if (ticket) openCheckInModal(ticket);
-  });
+  // イベントの再バインド
+  $('.open-checkin')
+    .off('click')
+    .on('click', function () {
+      const ticketId = $(this).data('id');
+      const ticket = tickets.find((t) => t.id === ticketId);
+      if (ticket) openCheckInModal(ticket);
+    });
 
   $('#total-count-display').html(
     `該当: ${ticketArray.length}件 <br> 合計人数: ${totalSum}名`,
