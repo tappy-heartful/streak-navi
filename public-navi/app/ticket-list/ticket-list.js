@@ -100,12 +100,10 @@ function renderTickets(ticketArray) {
   const $tbody = $('#ticket-table-body').empty();
   let totalSum = 0;
 
-  // 管理者権限のチェック（引数はプロジェクトの権限設計に合わせて調整してください）
   const hasFullAccess = utils.isAdmin('Ticket');
 
   /**
    * 名前をマスキングするヘルパー
-   * 管理者でない場合、2文字目以降を * に置換
    */
   const maskName = (name) => {
     if (!name || hasFullAccess) return name;
@@ -129,21 +127,38 @@ function renderTickets(ticketArray) {
       ? utils.format(t.updatedAt, 'yyyy/MM/dd HH:mm')
       : '-';
 
-    // 代表者名のマスキング適用
-    const displayName =
-      t.resType === 'invite'
-        ? '(' + maskName(t.representativeName || '未設定') + ')'
-        : maskName(t.representativeName || '未設定') + ' 様';
+    let customerHtml = '';
+    let inviterHtml = '-';
 
-    // 同伴者リストの処理（配列の各要素にマスキングを適用）
-    let companionsHtml = '-';
-    if (Array.isArray(t.companions) && t.companions.length > 0) {
-      companionsHtml = t.companions
-        .map((c) => maskName(c) + ' 様')
-        .join('<br>');
+    // マスキング済みの名前と同行者リストの準備
+    const maskedRepresentative = maskName(t.representativeName || '未設定');
+    const maskedCompanions = (t.companions || []).map(
+      (c) => maskName(c) + ' 様',
+    );
+
+    if (t.resType === 'invite') {
+      /**
+       * 招待予約の場合
+       * お客様：同行者（様付け）
+       * 招待者：代表者
+       */
+      customerHtml =
+        maskedCompanions.length > 0
+          ? maskedCompanions.join('<br>')
+          : '(同行者なし)';
+      inviterHtml = t.representativeName; // 招待者は「様」なし
+    } else {
+      /**
+       * 一般予約の場合
+       * お客様：代表者 + 同行者（すべて様付け）
+       * 招待者：-
+       */
+      const allCustomers = [maskedRepresentative + ' 様', ...maskedCompanions];
+      customerHtml = allCustomers.join('<br>');
+      inviterHtml = '-';
     }
 
-    // 予約種別
+    // 種別ラベル用
     const resTypeText = t.resType === 'invite' ? '招待' : '一般';
     const resTypeClass =
       t.resType === 'invite' ? 'status-invite' : 'status-general';
@@ -159,8 +174,8 @@ function renderTickets(ticketArray) {
           <span class="res-type-label ${resTypeClass}">${resTypeText}</span>
         </td>
         <td class="text-center">${t.totalCount || 0} 名</td>
-        <td>${displayName}</td>
-        <td style="font-size: 12px; line-height: 1.4;">${companionsHtml}</td>
+        <td style="line-height: 1.5;">${customerHtml}</td>
+        <td>${inviterHtml}</td>
         <td style="font-size: 11px; color: #666;">${createdAt}</td>
         <td style="font-size: 11px; color: #666;">${updatedAt}</td>
       </tr>
