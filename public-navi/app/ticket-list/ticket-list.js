@@ -66,63 +66,88 @@ async function setUpPage() {
   const ticketSnap = await utils.getWrapDocs(ticketsRef);
   tickets = ticketSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-  $('#search-res-no, #search-name, #live-filter-select').on(
-    'input change',
-    () => {
-      filterTickets();
-    },
-  );
+  // setUpPage 関数内
+  // 既存の input change イベントは削除または検索ボタンへ統合
+  $('#search-button').on('click', () => {
+    fetchAndRenderTickets();
+  });
 
   $('#clear-button').on('click', () => {
     $('#search-res-no').val('');
     $('#search-name').val('');
     $('#live-filter-select').val(closestLiveId);
-    filterTickets();
+    fetchAndRenderTickets(); // クリア時も再取得
   });
 
-  filterTickets();
+  fetchAndRenderTickets();
 }
 
-function filterTickets() {
-  const resNoKeyword = $('#search-res-no').val().trim();
-  const nameKeyword = $('#search-name').val().toLowerCase();
-  const selectedLiveId = $('#live-filter-select').val();
+// filterTickets の代わりとなる関数
+async function fetchAndRenderTickets() {
+  utils.showSpinner();
+  try {
+    // 1. 最新のチケットとチェックイン情報を取得
+    const ticketsRef = utils.collection(utils.db, 'tickets');
+    const ticketSnap = await utils.getWrapDocs(
+      utils.query(ticketsRef, utils.orderBy('reservationNo', 'asc')),
+    );
+    tickets = ticketSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
-  let filtered = tickets.filter((t) => {
-    const matchResNo =
-      !resNoKeyword ||
-      (t.reservationNo && t.reservationNo.includes(resNoKeyword));
-    const matchName =
-      !nameKeyword ||
-      (t.representativeName &&
-        t.representativeName.toLowerCase().includes(nameKeyword));
-    const matchLive = !selectedLiveId || t.liveId === selectedLiveId;
-    return matchResNo && matchName && matchLive;
-  });
+    const checkInsRef = utils.collection(utils.db, 'checkIns');
+    const checkInSnap = await utils.getWrapDocs(checkInsRef);
+    const checkedNames = checkInSnap.docs.map((doc) => doc.data().name);
 
-  filtered.sort((a, b) => {
-    const noA = parseInt(a.reservationNo) || 0;
-    const noB = parseInt(b.reservationNo) || 0;
-    return noA - noB;
-  });
+    // 2. フィルタリング
+    const resNoKeyword = $('#search-res-no').val().trim();
+    const nameKeyword = $('#search-name').val().toLowerCase();
+    const selectedLiveId = $('#live-filter-select').val();
 
-  renderTickets(filtered);
+    let filtered = tickets.filter((t) => {
+      const matchResNo =
+        !resNoKeyword ||
+        (t.reservationNo && t.reservationNo.includes(resNoKeyword));
+      const matchName =
+        !nameKeyword ||
+        (t.representativeName &&
+          t.representativeName.toLowerCase().includes(nameKeyword));
+      const matchLive = !selectedLiveId || t.liveId === selectedLiveId;
+      return matchResNo && matchName && matchLive;
+    });
+
+    // 3. ソートして描画 (描画関数内でチェックイン済み判定を行う)
+    renderTickets(filtered, checkedNames);
+  } catch (e) {
+    console.error(e);
+  } finally {
+    utils.hideSpinner();
+  }
 }
 
-function renderTickets(ticketArray) {
+function renderTickets(ticketArray, checkedNames = []) {
   const $tbody = $('#ticket-table-body').empty();
   let totalSum = 0;
   const hasFullAccess = utils.isAdmin('Ticket');
 
-  if (ticketArray.length === 0) {
-    $tbody.append(
-      '<tr><td colspan="6" class="text-center">予約データは見つかりませんでした。</td></tr>',
-    );
-    $('#total-count-display').text('該当: 0件 / 合計人数: 0名');
-    return;
-  }
-
   ticketArray.forEach((t) => {
+    // 名前リスト作成時にチェックイン済みなら✅を付与
+    const formatName = (name) =>
+      checkedNames.includes(name) ? `✅ ${name}` : name;
+
+    const repName = formatName(t.representativeName || '未設定');
+    const companions = (t.companions || []).map((c) => formatName(c) + ' 様');
+
+    let customerHtml = '';
+    let inviterHtml = '-';
+
+    if (t.resType === 'invite') {
+      customerHtml =
+        companions.length > 0 ? companions.join('<br>') : '(招待客なし)';
+      inviterHtml = t.representativeName;
+    } else {
+      const allCustomers = [repName + ' 様', ...companions];
+      customerHtml = allCustomers.join('<br>');
+      inviterHtml = '-';
+    }
     const createdAt = t.createdAt
       ? utils.format(t.createdAt, 'yyyy/MM/dd HH:mm')
       : '-';
@@ -130,8 +155,6 @@ function renderTickets(ticketArray) {
       ? utils.format(t.updatedAt, 'yyyy/MM/dd HH:mm')
       : '-';
 
-    let customerHtml = '';
-    let inviterHtml = '-';
     const maskedRepresentative = t.representativeName || '未設定';
     const maskedCompanions = (t.companions || []).map((c) => c + ' 様');
 
@@ -282,6 +305,7 @@ async function openCheckInModal(ticket) {
       if (promises.length > 0) {
         await Promise.all(promises);
         utils.showDialog('チェックイン情報を更新しました');
+        await fetchAndRenderTickets(); // ★ここで最新化
       }
       utils.hideSpinner();
     }
