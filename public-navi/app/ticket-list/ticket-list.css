@@ -94,3 +94,50 @@
 .checkin-container p {
   line-height: 1.6;
 }
+
+/* QRスキャンボタン専用スタイル */
+.btn-qr-scan {
+    background-color: #e91e63;
+    color: #fff;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 2px 8px rgba(233, 30, 99, 0.3);
+}
+
+.btn-qr-scan:hover {
+    background-color: #d81b60;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(233, 30, 99, 0.4);
+}
+
+.btn-qr-scan:active {
+    transform: translateY(0);
+}
+
+.btn-qr-scan i {
+    font-size: 16px;
+}
+
+.qr-video-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #000;
+  position: relative;
+  padding: 5px;
+}
+#qr-video {
+  width: 100%;
+  height: auto;
+  display: block;
+}
