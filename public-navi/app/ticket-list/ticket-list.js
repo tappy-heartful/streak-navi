@@ -101,12 +101,6 @@ function renderTickets(ticketArray) {
   let totalSum = 0;
   const hasFullAccess = utils.isAdmin('Ticket');
 
-  const maskName = (name) => {
-    if (!name || hasFullAccess) return name;
-    if (name.length <= 1) return name;
-    return name.substring(0, 1) + '*'.repeat(name.length - 1);
-  };
-
   if (ticketArray.length === 0) {
     $tbody.append(
       '<tr><td colspan="6" class="text-center">予約データは見つかりませんでした。</td></tr>',
@@ -125,16 +119,14 @@ function renderTickets(ticketArray) {
 
     let customerHtml = '';
     let inviterHtml = '-';
-    const maskedRepresentative = maskName(t.representativeName || '未設定');
-    const maskedCompanions = (t.companions || []).map(
-      (c) => maskName(c) + ' 様',
-    );
+    const maskedRepresentative = t.representativeName || '未設定';
+    const maskedCompanions = (t.companions || []).map((c) => c + ' 様');
 
     if (t.resType === 'invite') {
       customerHtml =
         maskedCompanions.length > 0
           ? maskedCompanions.join('<br>')
-          : '(同行者なし)';
+          : '(招待客なし)';
       inviterHtml = t.representativeName;
     } else {
       const allCustomers = [maskedRepresentative + ' 様', ...maskedCompanions];
