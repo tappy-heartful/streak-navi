@@ -94,3 +94,19 @@
 .checkin-container p {
   line-height: 1.6;
 }
+
+.qr-video-container {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 8px;
+  background: #000;
+  position: relative;
+  padding: 5px;
+}
+#qr-video {
+  width: 100%;
+  height: auto;
+  display: block;
+}

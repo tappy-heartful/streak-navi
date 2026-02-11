@@ -24,6 +24,15 @@ $(document).ready(async function () {
 async function setUpPage() {
   utils.showSpinner();
 
+  // isAdminの場合にボタンを表示する処理を追加
+  if (utils.isAdmin('Ticket')) {
+    const $cameraBtn = $(
+      '<button class="clear-button" style="background:#e91e63; color:#fff; border:none; margin:0;"><i class="fas fa-camera"></i> QRスキャン</button>',
+    );
+    $cameraBtn.on('click', openCameraModal);
+    $('#admin-camera-btn-placeholder').append($cameraBtn);
+  }
+
   const livesRef = utils.collection(utils.db, 'lives');
   const liveSnap = await utils.getWrapDocs(
     utils.query(livesRef, utils.orderBy('date', 'desc')),
@@ -277,4 +286,79 @@ async function openCheckInModal(ticket) {
     console.error(e);
     utils.showDialog('更新に失敗しました', true);
   }
+}
+let videoStream = null;
+
+async function openCameraModal() {
+  const modalBody = `
+    <div class="qr-video-container">
+      <video id="qr-video" playsinline></video>
+      <canvas id="qr-canvas" style="display:none;"></canvas>
+    </div>
+    <p style="text-align:center; margin-top:10px; font-size:0.8em; color:#666;">QRコードを枠内に写してください</p>
+  `;
+
+  // showModalを表示（保存ボタンは不要なのでcancelLabelのみ利用）
+  // showModalの仕様に合わせ、手動で閉じられるように調整
+  utils.showModal('QRスキャン', modalBody, null, '閉じる').then(() => {
+    stopCamera();
+  });
+
+  startCamera();
+}
+
+async function startCamera() {
+  const video = document.getElementById('qr-video');
+  try {
+    videoStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'environment' },
+    });
+    video.srcObject = videoStream;
+    video.play();
+    requestAnimationFrame(scanTick);
+  } catch (err) {
+    utils.showDialog('カメラの起動に失敗しました', true);
+  }
+}
+
+function stopCamera() {
+  if (videoStream) {
+    videoStream.getTracks().forEach((track) => track.stop());
+    videoStream = null;
+  }
+}
+
+function scanTick() {
+  const video = document.getElementById('qr-video');
+  if (!video || video.paused || video.ended) return;
+
+  if (video.readyState === video.HAVE_ENOUGH_DATA) {
+    const canvas = document.getElementById('qr-canvas');
+    const context = canvas.getContext('2d', { willReadFrequently: true });
+    canvas.height = video.videoHeight;
+    canvas.width = video.videoWidth;
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    const imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+    const code = jsQR(imageData.data, imageData.width, imageData.height);
+
+    if (code) {
+      // QRコード発見時
+      const ticketId = code.data;
+      const ticket = tickets.find((t) => t.id === ticketId);
+
+      // カメラを止めて、現在のモーダル（QRスキャン）を閉じる
+      stopCamera();
+      $('.modal-close').click(); // utils.showModalを閉じるための擬似クリック
+
+      if (ticket) {
+        // 読み取り成功後、即座にチェックインモーダルを開く
+        setTimeout(() => openCheckInModal(ticket), 300);
+      } else {
+        utils.showDialog('読み取りに失敗しました', true);
+      }
+      return;
+    }
+  }
+  requestAnimationFrame(scanTick);
 }
