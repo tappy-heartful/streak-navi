@@ -131,32 +131,32 @@ function renderTickets(ticketArray, checkedNames = []) {
   }
 
   ticketArray.forEach((t) => {
-    // --- 1. 名前の整形（チェックイン済みなら✅を付与） ---
-    // データ側は「様」なしとのことなので、純粋に名前だけで比較します
+    // --- 1. 名前の整形（チェックイン済みなら ✅ + 緑文字 にする） ---
     const formatName = (name) => {
       if (!name) return '未設定';
-      return checkedNames.includes(name) ? `✅ ${name}` : name;
+      const isChecked = checkedNames.includes(name);
+      if (isChecked) {
+        // 緑文字のスタイルを適用
+        return `<span style="color: #28a745;">✅ ${name} 様</span>`;
+      }
+      return name + ' 様';
     };
 
     const repNameFormatted = formatName(t.representativeName);
-    const companionsFormatted = (t.companions || []).map(
-      (c) => formatName(c) + ' 様',
-    );
+    const companionsFormatted = (t.companions || []).map((c) => formatName(c));
 
-    // --- 2. 表示用HTMLの構築（上書きされないよう一本化） ---
+    // --- 2. 表示用HTMLの構築 ---
     let customerHtml = '';
     let inviterHtml = '-';
 
     if (t.resType === 'invite') {
-      // 招待枠：同行者（お客様）を表示、代表者は招待者として表示
       customerHtml =
         companionsFormatted.length > 0
           ? companionsFormatted.join('<br>')
           : '(招待客なし)';
       inviterHtml = t.representativeName;
     } else {
-      // 一般：代表者＋同行者を表示
-      const allCustomers = [repNameFormatted + ' 様', ...companionsFormatted];
+      const allCustomers = [repNameFormatted, ...companionsFormatted];
       customerHtml = allCustomers.join('<br>');
       inviterHtml = '-';
     }
@@ -179,6 +179,7 @@ function renderTickets(ticketArray, checkedNames = []) {
       : `<span style="font-weight:bold;">${t.reservationNo || '-'}</span>`;
 
     // --- 4. 行の生成 ---
+    // チェックイン済みの人が一人でもいれば行全体の背景を薄くするなど、さらなる調整もここから可能です
     const row = `
       <tr>
         <td class="text-center">
@@ -195,7 +196,7 @@ function renderTickets(ticketArray, checkedNames = []) {
     $tbody.append(row);
   });
 
-  // イベントの再バインド（一度 off にしてから on にするのが安全です）
+  // イベントの再バインド
   $('.open-checkin')
     .off('click')
     .on('click', function () {
