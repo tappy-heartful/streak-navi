@@ -181,19 +181,22 @@ function renderTickets(ticketArray) {
   );
 }
 
-/**
- * チェックインモーダル
- */
 async function openCheckInModal(ticket) {
   utils.showSpinner();
   try {
+    // 1. 現在のチェックイン状況を取得（ドキュメントIDも一緒に保持する）
     const checkInsRef = utils.collection(utils.db, 'checkIns');
     const q = utils.query(
       checkInsRef,
       utils.where('ticketId', '==', ticket.id),
     );
     const snap = await utils.getWrapDocs(q);
-    const checkedNames = snap.docs.map((doc) => doc.data().name);
+
+    // { 名前: docId } の形式で保持しておくと削除が楽
+    const currentCheckedMap = {};
+    snap.docs.forEach((doc) => {
+      currentCheckedMap[doc.data().name] = doc.id;
+    });
 
     let targets = [];
     if (ticket.resType === 'invite') {
@@ -210,6 +213,7 @@ async function openCheckInModal(ticket) {
 
     utils.hideSpinner();
 
+    // 2. モーダルHTML生成
     let modalBody = `
       <div class="checkin-container">
         <p style="margin-bottom: 15px; font-size: 0.9em; color: #666;">
@@ -219,19 +223,18 @@ async function openCheckInModal(ticket) {
     `;
 
     targets.forEach((target, index) => {
-      const isChecked = checkedNames.includes(target.name);
-      const disabled = isChecked ? 'checked disabled' : '';
-      // ★ 修正ポイント: 全てのチェックボックスに id を付与 (checkin_0, checkin_1...)
+      const isChecked = !!currentCheckedMap[target.name];
       const checkboxId = `checkin_${index}`;
+      const checkedAttr = isChecked ? 'checked' : '';
 
       modalBody += `
-        <label style="display: flex; align-items: center; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: ${isChecked ? '#f9f9f9' : '#fff'};">
-          <input type="checkbox" id="${checkboxId}" value="${target.name}" style="width: 20px; height: 20px; margin-right: 10px;" ${disabled}>
+        <label style="display: flex; align-items: center; padding: 12px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; background: #fff;">
+          <input type="checkbox" id="${checkboxId}" value="${target.name}" style="width: 20px; height: 20px; margin-right: 10px;" ${checkedAttr}>
           <div>
             <span style="font-weight: bold;">${target.name} 様</span>
             <span style="display: block; font-size: 0.75em; color: #888;">${target.type}</span>
           </div>
-          ${isChecked ? '<span style="margin-left: auto; color: #4caf50; font-size: 0.8em;"><i class="fas fa-check-circle"></i> 済み</span>' : ''}
+          ${isChecked ? '<span style="margin-left: auto; color: #4caf50; font-size: 0.8em;" class="status-badge"><i class="fas fa-check-circle"></i> 済み</span>' : ''}
         </label>
       `;
     });
@@ -244,44 +247,42 @@ async function openCheckInModal(ticket) {
       '閉じる',
     );
 
-    // --- 💡 取得ロジックの修正 ---
     if (result && result.success) {
-      // result.data は { "checkin_0": true, "checkin_1": false, ... } という形式で返ってくる
-      const selectedNames = [];
+      utils.showSpinner();
+      const promises = [];
 
       targets.forEach((target, index) => {
         const checkboxId = `checkin_${index}`;
-        // 新しくチェックが入った（もともとチェック済みでdisabledなものは除外される）ものを抽出
-        if (result.data[checkboxId] === true) {
-          // すでにチェック済みだった人は対象外にする（念のため）
-          if (!checkedNames.includes(target.name)) {
-            selectedNames.push(target.name);
-          }
+        const isNowChecked = result.data[checkboxId] === true;
+        const existingDocId = currentCheckedMap[target.name];
+
+        if (isNowChecked && !existingDocId) {
+          // ★ 新しくチェックされた場合：追加
+          promises.push(
+            utils.addDoc(utils.collection(utils.db, 'checkIns'), {
+              ticketId: ticket.id,
+              reservationNo: ticket.reservationNo,
+              liveId: ticket.liveId,
+              name: target.name,
+              createdAt: utils.serverTimestamp(),
+            }),
+          );
+        } else if (!isNowChecked && existingDocId) {
+          // ★ チェックが外された場合：削除
+          const docRef = utils.doc(utils.db, 'checkIns', existingDocId);
+          promises.push(utils.deleteDoc(docRef));
         }
       });
 
-      if (selectedNames.length === 0) {
-        return; // 何も選択されなかったら終了
+      if (promises.length > 0) {
+        await Promise.all(promises);
+        utils.showDialog('チェックイン情報を更新しました');
       }
-
-      utils.showSpinner();
-      const batch = selectedNames.map((name) => {
-        return utils.addDoc(utils.collection(utils.db, 'checkIns'), {
-          ticketId: ticket.id,
-          reservationNo: ticket.reservationNo,
-          liveId: ticket.liveId,
-          name: name,
-          createdAt: utils.serverTimestamp(),
-        });
-      });
-
-      await Promise.all(batch);
       utils.hideSpinner();
-      utils.showDialog('チェックインを記録しました');
     }
   } catch (e) {
     utils.hideSpinner();
     console.error(e);
-    utils.showDialog('チェックイン処理に失敗しました', true);
+    utils.showDialog('更新に失敗しました', true);
   }
 }
