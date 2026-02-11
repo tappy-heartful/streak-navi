@@ -199,7 +199,7 @@ async function openCheckInModal(ticket) {
     if (ticket.resType === 'invite') {
       targets = (ticket.companions || []).map((name) => ({
         name,
-        type: '同行者',
+        type: '招待客',
       }));
     } else {
       targets.push({ name: ticket.representativeName, type: '代表者' });
