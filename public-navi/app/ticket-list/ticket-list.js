@@ -27,8 +27,12 @@ async function setUpPage() {
   // isAdminの場合にボタンを表示する処理を追加
   if (utils.isAdmin('Ticket')) {
     const $cameraBtn = $(
-      '<button class="clear-button" style="background:#e91e63; color:#fff; border:none; margin:0;"><i class="fas fa-camera"></i> QRスキャン</button>',
+      `<button type="button" class="btn-qr-scan">
+        <i class="fas fa-camera"></i>
+        <span>QRスキャン</span>
+      </button>`,
     );
+
     $cameraBtn.on('click', openCameraModal);
     $('#admin-camera-btn-placeholder').append($cameraBtn);
   }
