@@ -168,8 +168,8 @@ function renderTickets(ticketArray) {
     if (ticket) openCheckInModal(ticket);
   });
 
-  $('#total-count-display').text(
-    `該当: ${ticketArray.length}件 / 合計人数: ${totalSum}名`,
+  $('#total-count-display').html(
+    `該当: ${ticketArray.length}件 <br> 合計人数: ${totalSum}名`,
   );
 }
 
