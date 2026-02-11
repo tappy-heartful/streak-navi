@@ -54,3 +54,43 @@
 .list-table tbody tr:hover {
   background-color: #f1f9ff;
 }
+/* チェックイン済みの行を少し暗くする */
+.row-checked-in {
+  background-color: #f2f2f2 !important;
+  color: #888;
+}
+
+.row-checked-in td {
+  border-bottom: 1px solid #ddd;
+}
+
+/* バッジのスタイル */
+.badge {
+  display: inline-block;
+  padding: 0.25em 0.6em;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 10px;
+}
+
+.badge-success {
+  background-color: #28a745;
+  color: #fff;
+}
+
+/* モーダル内の調整 */
+.checkin-modal-content label:hover {
+  background-color: #eee;
+}
+/* チェックインモーダル用 */
+.checkin-container {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.checkin-list label:active {
+  background-color: #f0f0f0;
+}
+.checkin-container p {
+  line-height: 1.6;
+}

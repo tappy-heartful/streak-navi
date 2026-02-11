@@ -99,12 +99,8 @@ function filterTickets() {
 function renderTickets(ticketArray) {
   const $tbody = $('#ticket-table-body').empty();
   let totalSum = 0;
-
   const hasFullAccess = utils.isAdmin('Ticket');
 
-  /**
-   * 名前をマスキングするヘルパー
-   */
   const maskName = (name) => {
     if (!name || hasFullAccess) return name;
     if (name.length <= 1) return name;
@@ -113,7 +109,7 @@ function renderTickets(ticketArray) {
 
   if (ticketArray.length === 0) {
     $tbody.append(
-      '<tr><td colspan="7" class="text-center">予約データは見つかりませんでした。</td></tr>',
+      '<tr><td colspan="6" class="text-center">予約データは見つかりませんでした。</td></tr>',
     );
     $('#total-count-display').text('該当: 0件 / 合計人数: 0名');
     return;
@@ -129,48 +125,38 @@ function renderTickets(ticketArray) {
 
     let customerHtml = '';
     let inviterHtml = '-';
-
-    // マスキング済みの名前と同行者リストの準備
     const maskedRepresentative = maskName(t.representativeName || '未設定');
     const maskedCompanions = (t.companions || []).map(
       (c) => maskName(c) + ' 様',
     );
 
     if (t.resType === 'invite') {
-      /**
-       * 招待予約の場合
-       * お客様：同行者（様付け）
-       * 招待者：代表者
-       */
       customerHtml =
         maskedCompanions.length > 0
           ? maskedCompanions.join('<br>')
           : '(同行者なし)';
-      inviterHtml = t.representativeName; // 招待者は「様」なし
+      inviterHtml = t.representativeName;
     } else {
-      /**
-       * 一般予約の場合
-       * お客様：代表者 + 同行者（すべて様付け）
-       * 招待者：-
-       */
       const allCustomers = [maskedRepresentative + ' 様', ...maskedCompanions];
       customerHtml = allCustomers.join('<br>');
       inviterHtml = '-';
     }
 
-    // 種別ラベル用
     const resTypeText = t.resType === 'invite' ? '招待' : '一般';
     const resTypeClass =
       t.resType === 'invite' ? 'status-invite' : 'status-general';
 
     totalSum += Number(t.totalCount) || 0;
 
+    // isAdminがtrueの場合のみクリック可能なクラス「clickable-res-no」を付与
+    const resNoLink = hasFullAccess
+      ? `<a href="javascript:void(0)" class="open-checkin" data-id="${t.id}" style="font-weight:bold; color: #e91e63; text-decoration: underline;">${t.reservationNo || '-'}</a>`
+      : `<span style="font-weight:bold;">${t.reservationNo || '-'}</span>`;
+
     const row = `
       <tr>
         <td class="text-center">
-          <a href="../ticket-confirm/ticket-confirm.html?ticketId=${t.id}" style="font-weight:bold;">
-            ${t.reservationNo || '-'}
-          </a>
+          ${resNoLink}
           <span class="res-type-label ${resTypeClass}">${resTypeText}</span>
         </td>
         <td class="text-center">${t.totalCount || 0} 名</td>
@@ -183,7 +169,119 @@ function renderTickets(ticketArray) {
     $tbody.append(row);
   });
 
+  // チェックインモーダルを開くイベント
+  $('.open-checkin').on('click', function () {
+    const ticketId = $(this).data('id');
+    const ticket = tickets.find((t) => t.id === ticketId);
+    if (ticket) openCheckInModal(ticket);
+  });
+
   $('#total-count-display').text(
     `該当: ${ticketArray.length}件 / 合計人数: ${totalSum}名`,
   );
+}
+
+/**
+ * チェックインモーダル
+ */
+async function openCheckInModal(ticket) {
+  utils.showSpinner();
+  try {
+    const checkInsRef = utils.collection(utils.db, 'checkIns');
+    const q = utils.query(
+      checkInsRef,
+      utils.where('ticketId', '==', ticket.id),
+    );
+    const snap = await utils.getWrapDocs(q);
+    const checkedNames = snap.docs.map((doc) => doc.data().name);
+
+    let targets = [];
+    if (ticket.resType === 'invite') {
+      targets = (ticket.companions || []).map((name) => ({
+        name,
+        type: '同行者',
+      }));
+    } else {
+      targets.push({ name: ticket.representativeName, type: '代表者' });
+      (ticket.companions || []).forEach((name) => {
+        targets.push({ name, type: '同行者' });
+      });
+    }
+
+    utils.hideSpinner();
+
+    let modalBody = `
+      <div class="checkin-container">
+        <p style="margin-bottom: 15px; font-size: 0.9em; color: #666;">
+          予約番号: <strong>${ticket.reservationNo}</strong>
+        </p>
+        <div class="checkin-list" style="display: flex; flex-direction: column; gap: 10px;">
+    `;
+
+    targets.forEach((target, index) => {
+      const isChecked = checkedNames.includes(target.name);
+      const disabled = isChecked ? 'checked disabled' : '';
+      // ★ 修正ポイント: 全てのチェックボックスに id を付与 (checkin_0, checkin_1...)
+      const checkboxId = `checkin_${index}`;
+
+      modalBody += `
+        <label style="display: flex; align-items: center; padding: 12px; border: 1px solid #ddd; border-radius: 8px; background: ${isChecked ? '#f9f9f9' : '#fff'};">
+          <input type="checkbox" id="${checkboxId}" value="${target.name}" style="width: 20px; height: 20px; margin-right: 10px;" ${disabled}>
+          <div>
+            <span style="font-weight: bold;">${target.name} 様</span>
+            <span style="display: block; font-size: 0.75em; color: #888;">${target.type}</span>
+          </div>
+          ${isChecked ? '<span style="margin-left: auto; color: #4caf50; font-size: 0.8em;"><i class="fas fa-check-circle"></i> 済み</span>' : ''}
+        </label>
+      `;
+    });
+    modalBody += '</div></div>';
+
+    const result = await utils.showModal(
+      `チェックイン確認`,
+      modalBody,
+      '決定',
+      '閉じる',
+    );
+
+    // --- 💡 取得ロジックの修正 ---
+    if (result && result.success) {
+      // result.data は { "checkin_0": true, "checkin_1": false, ... } という形式で返ってくる
+      const selectedNames = [];
+
+      targets.forEach((target, index) => {
+        const checkboxId = `checkin_${index}`;
+        // 新しくチェックが入った（もともとチェック済みでdisabledなものは除外される）ものを抽出
+        if (result.data[checkboxId] === true) {
+          // すでにチェック済みだった人は対象外にする（念のため）
+          if (!checkedNames.includes(target.name)) {
+            selectedNames.push(target.name);
+          }
+        }
+      });
+
+      if (selectedNames.length === 0) {
+        return; // 何も選択されなかったら終了
+      }
+
+      utils.showSpinner();
+      const batch = selectedNames.map((name) => {
+        return utils.addDoc(utils.collection(utils.db, 'checkIns'), {
+          ticketId: ticket.id,
+          reservationNo: ticket.reservationNo,
+          liveId: ticket.liveId,
+          name: name,
+          createdAt: utils.serverTimestamp(),
+        });
+      });
+
+      await Promise.all(batch);
+      utils.hideSpinner();
+      utils.showDialog('チェックインを記録しました');
+    }
+  } catch (e) {
+    utils.hideSpinner();
+    console.error(e);
+    utils.showDialog('チェックイン処理に失敗しました', true);
+  }
 }
