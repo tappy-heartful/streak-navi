@@ -116,7 +116,6 @@ function renderTickets(ticketArray, checkedNames = []) {
   const $tbody = $('#ticket-table-body').empty();
   let totalSum = 0;
   let totalRows = 0;
-  const hasFullAccess = utils.isAdmin('Ticket');
 
   if (ticketArray.length === 0) {
     $tbody.append(
@@ -142,7 +141,6 @@ function renderTickets(ticketArray, checkedNames = []) {
       : '-';
 
     if (t.resType === 'invite' && t.groups) {
-      // 招待予約：グループごとに行を生成
       t.groups.forEach((group, gIdx) => {
         totalRows++;
         const gNo = `${t.reservationNo}-${gIdx + 1}`;
@@ -155,6 +153,7 @@ function renderTickets(ticketArray, checkedNames = []) {
         const customerHtml =
           groupCount > 0 ? companionsFormatted.join('<br>') : '(招待客なし)';
 
+        // ID生成時に明確に _g を付与
         const row = `
           <tr>
             <td class="text-center">
@@ -171,7 +170,6 @@ function renderTickets(ticketArray, checkedNames = []) {
         $tbody.append(row);
       });
     } else {
-      // 一般予約
       totalRows++;
       const repNameFormatted = formatName(t.representativeName);
       const companionsFormatted = (t.companions || [])
@@ -201,8 +199,7 @@ function renderTickets(ticketArray, checkedNames = []) {
   $('.open-checkin')
     .off('click')
     .on('click', function () {
-      const fullId = $(this).data('id'); // ID または ID_g1
-      openCheckInModal(fullId);
+      openCheckInModal($(this).data('id'));
     });
 
   $('#total-count-display').html(
@@ -213,8 +210,18 @@ function renderTickets(ticketArray, checkedNames = []) {
 async function openCheckInModal(fullId) {
   utils.showSpinner();
   try {
-    // 招待グループ ID_g[N] の分解
-    const [ticketId, groupSuffix] = fullId.split('_g');
+    let ticketId = fullId;
+    let groupSuffix = null;
+
+    // --- ID解析ロジック ---
+    const underscoreCount = (fullId.match(/_/g) || []).length;
+    const gIndex = fullId.lastIndexOf('_g');
+
+    if (underscoreCount >= 2 && gIndex !== -1) {
+      ticketId = fullId.substring(0, gIndex); // liveId_uid 部分
+      groupSuffix = fullId.substring(gIndex + 2); // N 部分
+    }
+
     const ticket = tickets.find((t) => t.id === ticketId);
     if (!ticket) throw new Error('Ticket not found');
 
@@ -237,12 +244,14 @@ async function openCheckInModal(fullId) {
       // 特定の招待グループのみ表示
       const gIdx = parseInt(groupSuffix) - 1;
       const group = ticket.groups[gIdx];
-      displayNo = `${ticket.reservationNo}-${groupSuffix}`;
-      targets = group.companions
-        .filter((c) => c !== '')
-        .map((name) => ({ name, type: group.groupName }));
+      if (group) {
+        displayNo = `${ticket.reservationNo}-${groupSuffix}`;
+        targets = group.companions
+          .filter((c) => c !== '')
+          .map((name) => ({ name, type: group.groupName }));
+      }
     } else if (ticket.resType === 'invite') {
-      // 全グループ表示（従来の全表示用）
+      // 全招待グループ表示
       ticket.groups.forEach((g) => {
         g.companions
           .filter((c) => c !== '')
@@ -251,9 +260,9 @@ async function openCheckInModal(fullId) {
           });
       });
     } else {
-      // 一般予約
+      // 一般予約（修正箇所）
       targets.push({ name: ticket.representativeName, type: '代表者' });
-      (ticket.companions || [])
+      (ticket.companions || []) // ここを t から ticket に修正しました
         .filter((c) => c !== '')
         .forEach((name) => {
           targets.push({ name, type: '同行者' });
@@ -272,10 +281,9 @@ async function openCheckInModal(fullId) {
 
     targets.forEach((target, index) => {
       const isChecked = !!currentCheckedMap[target.name];
-      const checkboxId = `checkin_${index}`;
       modalBody += `
         <label style="display: flex; align-items: center; padding: 12px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; background: #fff;">
-          <input type="checkbox" id="${checkboxId}" value="${target.name}" style="width: 20px; height: 20px; margin-right: 10px;" ${isChecked ? 'checked' : ''}>
+          <input type="checkbox" id="checkin_${index}" value="${target.name}" style="width: 20px; height: 20px; margin-right: 10px;" ${isChecked ? 'checked' : ''}>
           <div>
             <span style="font-weight: bold;">${target.name} 様</span>
             <span style="display: block; font-size: 0.75em; color: #888;">${target.type}</span>
@@ -383,14 +391,19 @@ function scanTick() {
     const code = jsQR(imageData.data, imageData.width, imageData.height);
 
     if (code) {
-      const fullId = code.data; // ticketId または ticketId_g1
+      const fullId = code.data;
       stopCamera();
       $('.modal-close').click();
 
-      // チケットID部分を抽出して存在確認
-      const baseId = fullId.split('_g')[0];
-      const ticketExists = tickets.some((t) => t.id === baseId);
+      // 解析ロジックを統一
+      const underscoreCount = (fullId.match(/_/g) || []).length;
+      const gIndex = fullId.lastIndexOf('_g');
+      const baseId =
+        underscoreCount >= 2 && gIndex !== -1
+          ? fullId.substring(0, gIndex)
+          : fullId;
 
+      const ticketExists = tickets.some((t) => t.id === baseId);
       if (ticketExists) {
         setTimeout(() => openCheckInModal(fullId), 300);
       } else {
