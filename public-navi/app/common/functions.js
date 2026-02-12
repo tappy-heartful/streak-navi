@@ -274,6 +274,7 @@ export async function initDisplay(isShowSpinner = true) {
     'call',
     'event',
     'media',
+    'live',
     'notice',
     'score',
     'studio',
@@ -282,7 +283,7 @@ export async function initDisplay(isShowSpinner = true) {
 
   for (const moduleName of modules) {
     // 編集画面初期表示時にチェック
-    if (path.includes(modules) && path.includes('edit')) {
+    if (path.includes(moduleName) && path.includes('edit')) {
       const adminKey = moduleName.charAt(0).toUpperCase() + moduleName.slice(1);
       // 編集画面にいて、かつ対応するAdmin権限を持っていない場合
       if (!isAdmin(adminKey)) {
