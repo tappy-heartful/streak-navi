@@ -190,3 +190,66 @@
   height: auto;
   display: block;
 }
+
+/* 招待情報のヘッダーデザイン */
+.invite-info-header {
+    background: #f0f7ff;
+    border-left: 4px solid #1976d2;
+    padding: 12px 15px;
+    margin-bottom: 15px;
+    border-radius: 0 8px 8px 0;
+}
+
+.invite-by {
+    font-size: 1.1em;
+    font-weight: bold;
+    color: #1976d2;
+    margin-bottom: 2px;
+}
+
+.group-for {
+    font-size: 0.9em;
+    color: #555;
+}
+
+/* チェックインリストの各アイテム */
+.checkin-item {
+    display: flex; 
+    align-items: center; 
+    padding: 15px; 
+    border: 1px solid #ddd; 
+    border-radius: 10px; 
+    cursor: pointer; 
+    background: #fff;
+    transition: all 0.2s ease;
+}
+
+.checkin-item:hover {
+    border-color: #1976d2;
+    background-color: #f9fcff;
+}
+
+.checkin-item.is-checked {
+    background-color: #f1f8e9;
+    border-color: #c5e1a5;
+}
+
+.visitor-name {
+    display: block;
+    font-weight: bold;
+    font-size: 1.05em;
+}
+
+.visitor-type {
+    display: block; 
+    font-size: 0.75em; 
+    color: #888;
+    margin-top: 2px;
+}
+
+.status-badge-checked {
+    margin-left: auto; 
+    color: #4caf50; 
+    font-size: 0.9em;
+    font-weight: bold;
+}
