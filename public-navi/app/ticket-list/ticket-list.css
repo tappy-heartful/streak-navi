@@ -47,9 +47,17 @@
     font-size: 11px;
 }
 
-/* 代表者が変わる時の区切り太線 */
-.border-top-bold {
-    border-top: 3px solid #444 !important;
+/* --- 予約者ごとの区切り（隙間デザイン） --- */
+
+/* 境界線：背景色（#f0f0f0や白など）と同じ色の太線を引くことで隙間に見せる */
+.group-separator td {
+    border-top: 3px solid #f4f4f4 !important;
+}
+
+/* 担当者セルの強調 */
+.rep-name-cell {
+    font-weight: 600;
+    color: #333;
 }
 
 /* 既存の調整：一般のラベルも合わせる */

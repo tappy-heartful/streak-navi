@@ -134,9 +134,8 @@ function renderTickets(ticketArray, checkedNames = []) {
   };
 
   ticketArray.forEach((t) => {
-    // 境界線の判定：UIDが変わったら太線クラスを付与
-    const isBorderRow = lastUid !== null && lastUid !== t.uid;
-    const borderClass = isBorderRow ? 'border-top-bold' : '';
+    // UIDが変わったタイミングを判定（最初の一件目は除外）
+    const isNewUser = lastUid !== null && lastUid !== t.uid;
     lastUid = t.uid;
 
     const createdAt = t.createdAt
@@ -159,8 +158,8 @@ function renderTickets(ticketArray, checkedNames = []) {
         const customerHtml =
           groupCount > 0 ? companionsFormatted.join('<br>') : '(招待客なし)';
 
-        // 最初のグループの時だけUID境界線の判定を適用（グループ内での線は通常通り）
-        const rowClass = gIdx === 0 ? borderClass : '';
+        // 💡 修正：新しい予約者の最初のグループ行にだけ separator クラスを付与
+        const rowClass = gIdx === 0 && isNewUser ? 'group-separator' : '';
 
         const row = `
           <tr class="${rowClass}">
@@ -172,7 +171,7 @@ function renderTickets(ticketArray, checkedNames = []) {
               </div>
             </td>
             <td style="line-height: 1.5;">${customerHtml}</td>
-            <td>${t.representativeName}<br><small style="color:#888;">(${group.groupName})</small></td>
+            <td class="rep-name-cell">${t.representativeName}<br><small style="color:#888;">(${group.groupName})</small></td>
             <td style="font-size: 11px; color: #666;">${createdAt}</td>
             <td style="font-size: 11px; color: #666;">${updatedAt}</td>
           </tr>
@@ -189,8 +188,11 @@ function renderTickets(ticketArray, checkedNames = []) {
       const count = allCustomers.length;
       totalSum += count;
 
+      // 💡 修正：一般予約でもUIDが変われば separator クラスを付与
+      const rowClass = isNewUser ? 'group-separator' : '';
+
       const row = `
-        <tr class="${borderClass}">
+        <tr class="${rowClass}">
           <td class="text-center">
             <a href="javascript:void(0)" class="open-checkin" data-id="${t.id}" style="font-weight:bold; color: #e91e63; text-decoration: underline;">${t.reservationNo || '-'}</a>
             <div style="margin-top:4px;">
@@ -199,7 +201,7 @@ function renderTickets(ticketArray, checkedNames = []) {
             </div>
           </td>
           <td style="line-height: 1.5;">${allCustomers.join('<br>')}</td>
-          <td>-</td>
+          <td class="rep-name-cell">-</td>
           <td style="font-size: 11px; color: #666;">${createdAt}</td>
           <td style="font-size: 11px; color: #666;">${updatedAt}</td>
         </tr>
