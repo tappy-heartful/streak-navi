@@ -163,7 +163,7 @@ function renderTickets(ticketArray, checkedNames = []) {
         const row = `
           <tr class="${rowClass}">
             <td class="text-center">
-              <a href="javascript:void(0)" class="open-checkin" data-id="${fullId}" style="font-weight:bold; color: #e91e63; text-decoration: underline;">${gNo}</a>
+              <a href="javascript:void(0)" class="open-checkin" data-id="${t.id}_g${gIdx + 1}" style="font-weight:bold; color: #e91e63; text-decoration: underline;">${gNo}</a>
               <div style="margin-top:4px;">
                 <span class="res-type-label status-invite">招待</span>
                 <span class="count-badge">${groupCount}名</span>
