@@ -60,6 +60,10 @@
     color: #333;
 }
 
+.list-table td {
+    border-bottom: 0px;
+}
+
 /* 既存の調整：一般のラベルも合わせる */
 .status-general {
     background-color: #f5f5f5;
