@@ -131,11 +131,6 @@
 .checkin-modal-content label:hover {
   background-color: #eee;
 }
-/* チェックインモーダル用 */
-.checkin-container {
-  max-height: 400px;
-  overflow-y: auto;
-}
 
 .checkin-list label:active {
   background-color: #f0f0f0;
