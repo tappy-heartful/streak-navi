@@ -116,11 +116,12 @@ function renderTickets(ticketArray, checkedNames = []) {
   const $tbody = $('#ticket-table-body').empty();
   let totalSum = 0;
   let totalRows = 0;
-  let lastUid = null; // 前の行のUIDを保持
+  let lastUid = null;
 
   if (ticketArray.length === 0) {
+    // colspanを6に変更
     $tbody.append(
-      '<tr><td colspan="5" class="text-center">予約データは見つかりませんでした。</td></tr>',
+      '<tr><td colspan="6" class="text-center">予約データは見つかりませんでした。</td></tr>',
     );
     $('#total-count-display').text('該当: 0件 / 合計人数: 0名');
     return;
@@ -134,7 +135,6 @@ function renderTickets(ticketArray, checkedNames = []) {
   };
 
   ticketArray.forEach((t) => {
-    // UIDが変わったタイミングを判定（最初の一件目は除外）
     const isNewUser = lastUid !== null && lastUid !== t.uid;
     lastUid = t.uid;
 
@@ -149,6 +149,7 @@ function renderTickets(ticketArray, checkedNames = []) {
       t.groups.forEach((group, gIdx) => {
         totalRows++;
         const gNo = `${t.reservationNo}-${gIdx + 1}`;
+        const fullId = `${t.id}?g=${gIdx + 1}`; // 招待用ID
         const companionsFormatted = group.companions
           .filter((c) => c !== '')
           .map((c) => formatName(c));
@@ -157,14 +158,12 @@ function renderTickets(ticketArray, checkedNames = []) {
 
         const customerHtml =
           groupCount > 0 ? companionsFormatted.join('<br>') : '(招待客なし)';
-
-        // 💡 修正：新しい予約者の最初のグループ行にだけ separator クラスを付与
         const rowClass = gIdx === 0 && isNewUser ? 'group-separator' : '';
 
         const row = `
           <tr class="${rowClass}">
             <td class="text-center">
-              <a href="javascript:void(0)" class="open-checkin" data-id="${t.id}_g${gIdx + 1}" style="font-weight:bold; color: #e91e63; text-decoration: underline;">${gNo}</a>
+              <a href="javascript:void(0)" class="open-checkin" data-id="${fullId}" style="font-weight:bold; color: #e91e63; text-decoration: underline;">${gNo}</a>
               <div style="margin-top:4px;">
                 <span class="res-type-label status-invite">招待</span>
                 <span class="count-badge">${groupCount}名</span>
@@ -172,6 +171,11 @@ function renderTickets(ticketArray, checkedNames = []) {
             </td>
             <td style="line-height: 1.5;">${customerHtml}</td>
             <td class="rep-name-cell">${t.representativeName}<br><small style="color:#888;">(${group.groupName})</small></td>
+            <td class="text-center">
+              <a href="https://ssjo.vercel.app/ticket-detail/${fullId}" target="_blank" class="ticket-link-icon" title="チケット表示">
+                <i class="fas fa-external-link-alt"></i>
+              </a>
+            </td>
             <td style="font-size: 11px; color: #666;">${createdAt}</td>
             <td style="font-size: 11px; color: #666;">${updatedAt}</td>
           </tr>
@@ -188,7 +192,6 @@ function renderTickets(ticketArray, checkedNames = []) {
       const count = allCustomers.length;
       totalSum += count;
 
-      // 💡 修正：一般予約でもUIDが変われば separator クラスを付与
       const rowClass = isNewUser ? 'group-separator' : '';
 
       const row = `
@@ -202,6 +205,11 @@ function renderTickets(ticketArray, checkedNames = []) {
           </td>
           <td style="line-height: 1.5;">${allCustomers.join('<br>')}</td>
           <td class="rep-name-cell">-</td>
+          <td class="text-center">
+            <a href="https://ssjo.vercel.app/ticket-detail/${t.id}" target="_blank" class="ticket-link-icon" title="チケット表示">
+              <i class="fas fa-external-link-alt"></i>
+            </a>
+          </td>
           <td style="font-size: 11px; color: #666;">${createdAt}</td>
           <td style="font-size: 11px; color: #666;">${updatedAt}</td>
         </tr>

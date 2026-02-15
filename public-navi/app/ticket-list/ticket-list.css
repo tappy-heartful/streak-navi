@@ -47,7 +47,32 @@
     font-size: 11px;
 }
 
-/* --- 予約者ごとの区切り（隙間デザイン） --- */
+/* チケット表示アイコンのスタイル */
+.ticket-link-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    background-color: #f8f9fa;
+    color: #6c757d;
+    border: 1px solid #dee2e6;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    text-decoration: none !important;
+}
+
+.ticket-link-icon:hover {
+    background-color: #e9ecef;
+    color: #e91e63;
+    border-color: #ffc1dc;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+.ticket-link-icon i {
+    font-size: 14px;
+}
 
 /* 境界線：背景色（#f0f0f0や白など）と同じ色の太線を引くことで隙間に見せる */
 .group-separator td {
