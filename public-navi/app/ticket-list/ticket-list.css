@@ -41,10 +41,30 @@
   border: 1px solid #bbdefb;
 }
 
+/* 人数表示の小さなバッジ */
+.count-badge {
+    display: inline-block;
+    font-size: 11px;
+}
+
+/* --- 予約者ごとの区切り（隙間デザイン） --- */
+
+/* 境界線：背景色（#f0f0f0や白など）と同じ色の太線を引くことで隙間に見せる */
+.group-separator td {
+    border-top: 3px solid #f4f4f4 !important;
+}
+
+/* 担当者セルの強調 */
+.rep-name-cell {
+    font-weight: 600;
+    color: #333;
+}
+
+/* 既存の調整：一般のラベルも合わせる */
 .status-general {
-  background-color: #f5f5f5;
-  color: #616161;
-  border: 1px solid #e0e0e0;
+    background-color: #f5f5f5;
+    color: #616161;
+    border: 1px solid #e0e0e0;
 }
 
 .text-center {

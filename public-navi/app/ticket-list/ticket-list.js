@@ -116,10 +116,11 @@ function renderTickets(ticketArray, checkedNames = []) {
   const $tbody = $('#ticket-table-body').empty();
   let totalSum = 0;
   let totalRows = 0;
+  let lastUid = null; // 前の行のUIDを保持
 
   if (ticketArray.length === 0) {
     $tbody.append(
-      '<tr><td colspan="6" class="text-center">予約データは見つかりませんでした。</td></tr>',
+      '<tr><td colspan="5" class="text-center">予約データは見つかりませんでした。</td></tr>',
     );
     $('#total-count-display').text('該当: 0件 / 合計人数: 0名');
     return;
@@ -133,6 +134,10 @@ function renderTickets(ticketArray, checkedNames = []) {
   };
 
   ticketArray.forEach((t) => {
+    // UIDが変わったタイミングを判定（最初の一件目は除外）
+    const isNewUser = lastUid !== null && lastUid !== t.uid;
+    lastUid = t.uid;
+
     const createdAt = t.createdAt
       ? utils.format(t.createdAt, 'yyyy/MM/dd HH:mm')
       : '-';
@@ -153,16 +158,20 @@ function renderTickets(ticketArray, checkedNames = []) {
         const customerHtml =
           groupCount > 0 ? companionsFormatted.join('<br>') : '(招待客なし)';
 
-        // ID生成時に明確に _g を付与
+        // 💡 修正：新しい予約者の最初のグループ行にだけ separator クラスを付与
+        const rowClass = gIdx === 0 && isNewUser ? 'group-separator' : '';
+
         const row = `
-          <tr>
+          <tr class="${rowClass}">
             <td class="text-center">
               <a href="javascript:void(0)" class="open-checkin" data-id="${t.id}_g${gIdx + 1}" style="font-weight:bold; color: #e91e63; text-decoration: underline;">${gNo}</a>
-              <span class="res-type-label status-invite">招待</span>
+              <div style="margin-top:4px;">
+                <span class="res-type-label status-invite">招待</span>
+                <span class="count-badge">${groupCount}名</span>
+              </div>
             </td>
-            <td class="text-center">${groupCount} 名</td>
             <td style="line-height: 1.5;">${customerHtml}</td>
-            <td>${t.representativeName}<br><small style="color:#888;">(${group.groupName})</small></td>
+            <td class="rep-name-cell">${t.representativeName}<br><small style="color:#888;">(${group.groupName})</small></td>
             <td style="font-size: 11px; color: #666;">${createdAt}</td>
             <td style="font-size: 11px; color: #666;">${updatedAt}</td>
           </tr>
@@ -179,15 +188,20 @@ function renderTickets(ticketArray, checkedNames = []) {
       const count = allCustomers.length;
       totalSum += count;
 
+      // 💡 修正：一般予約でもUIDが変われば separator クラスを付与
+      const rowClass = isNewUser ? 'group-separator' : '';
+
       const row = `
-        <tr>
+        <tr class="${rowClass}">
           <td class="text-center">
             <a href="javascript:void(0)" class="open-checkin" data-id="${t.id}" style="font-weight:bold; color: #e91e63; text-decoration: underline;">${t.reservationNo || '-'}</a>
-            <span class="res-type-label status-general">一般</span>
+            <div style="margin-top:4px;">
+              <span class="res-type-label status-general">一般</span>
+              <span class="count-badge">${count}名</span>
+            </div>
           </td>
-          <td class="text-center">${count} 名</td>
           <td style="line-height: 1.5;">${allCustomers.join('<br>')}</td>
-          <td>-</td>
+          <td class="rep-name-cell">-</td>
           <td style="font-size: 11px; color: #666;">${createdAt}</td>
           <td style="font-size: 11px; color: #666;">${updatedAt}</td>
         </tr>
