@@ -240,8 +240,8 @@ async function openCheckInModal(fullId) {
     const gIndex = fullId.lastIndexOf('_g');
 
     if (underscoreCount >= 2 && gIndex !== -1) {
-      ticketId = fullId.substring(0, gIndex); // liveId_uid 部分
-      groupSuffix = fullId.substring(gIndex + 2); // N 部分
+      ticketId = fullId.substring(0, gIndex);
+      groupSuffix = fullId.substring(gIndex + 2);
     }
 
     const ticket = tickets.find((t) => t.id === ticketId);
@@ -261,9 +261,19 @@ async function openCheckInModal(fullId) {
 
     let targets = [];
     let displayNo = ticket.reservationNo;
+    let inviteHeaderHtml = ''; // 招待用ヘッダー
+
+    // 招待予約の場合のヘッダー生成
+    if (ticket.resType === 'invite') {
+      inviteHeaderHtml = `
+        <div class="invite-info-header">
+          <div class="invite-by">${ticket.representativeName} 様のご招待</div>
+          ${groupSuffix ? `<div class="group-for">${ticket.groups[parseInt(groupSuffix) - 1].groupName} のみなさま</div>` : ''}
+        </div>
+      `;
+    }
 
     if (groupSuffix && ticket.groups) {
-      // 特定の招待グループのみ表示
       const gIdx = parseInt(groupSuffix) - 1;
       const group = ticket.groups[gIdx];
       if (group) {
@@ -273,7 +283,6 @@ async function openCheckInModal(fullId) {
           .map((name) => ({ name, type: group.groupName }));
       }
     } else if (ticket.resType === 'invite') {
-      // 全招待グループ表示
       ticket.groups.forEach((g) => {
         g.companions
           .filter((c) => c !== '')
@@ -282,9 +291,8 @@ async function openCheckInModal(fullId) {
           });
       });
     } else {
-      // 一般予約（修正箇所）
       targets.push({ name: ticket.representativeName, type: '代表者' });
-      (ticket.companions || []) // ここを t から ticket に修正しました
+      (ticket.companions || [])
         .filter((c) => c !== '')
         .forEach((name) => {
           targets.push({ name, type: '同行者' });
@@ -295,8 +303,9 @@ async function openCheckInModal(fullId) {
 
     let modalBody = `
       <div class="checkin-container">
-        <p style="margin-bottom: 15px; font-size: 0.9em; color: #666;">
-          予約番号: <strong>${displayNo}</strong>
+        ${inviteHeaderHtml}
+        <p style="margin-bottom: 15px; font-size: 0.85em; color: #888; text-align: right;">
+          予約番号: ${displayNo}
         </p>
         <div class="checkin-list" style="display: flex; flex-direction: column; gap: 10px;">
     `;
@@ -304,13 +313,13 @@ async function openCheckInModal(fullId) {
     targets.forEach((target, index) => {
       const isChecked = !!currentCheckedMap[target.name];
       modalBody += `
-        <label style="display: flex; align-items: center; padding: 12px; border: 1px solid #ddd; border-radius: 8px; cursor: pointer; background: #fff;">
-          <input type="checkbox" id="checkin_${index}" value="${target.name}" style="width: 20px; height: 20px; margin-right: 10px;" ${isChecked ? 'checked' : ''}>
-          <div>
-            <span style="font-weight: bold;">${target.name} 様</span>
-            <span style="display: block; font-size: 0.75em; color: #888;">${target.type}</span>
+        <label class="checkin-item ${isChecked ? 'is-checked' : ''}">
+          <input type="checkbox" id="checkin_${index}" value="${target.name}" style="width: 22px; height: 22px; margin-right: 12px;" ${isChecked ? 'checked' : ''}>
+          <div style="flex: 1;">
+            <span class="visitor-name">${target.name} 様</span>
+            <span class="visitor-type">${target.type}</span>
           </div>
-          ${isChecked ? '<span style="margin-left: auto; color: #4caf50; font-size: 0.8em;" class="status-badge"><i class="fas fa-check-circle"></i> 済み</span>' : ''}
+          ${isChecked ? '<span class="status-badge-checked"><i class="fas fa-check-circle"></i> 済み</span>' : ''}
         </label>
       `;
     });

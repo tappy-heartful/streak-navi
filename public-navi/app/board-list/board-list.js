@@ -57,10 +57,8 @@ async function fetchAndSetSectionName() {
 }
 
 async function setUpPage() {
-  // 注意: 元のコードが orderBy('title', 'asc') でしたのでそのままにしていますが、
-  // 通常は createdAt (降順) の方が掲示板らしいかもしれません。
   const boardsRef = utils.collection(utils.db, 'boards');
-  const qBoard = utils.query(boardsRef, utils.orderBy('title', 'asc'));
+  const qBoard = utils.query(boardsRef, utils.orderBy('createdAt', 'desc'));
   const boardSnap = await utils.getWrapDocs(qBoard);
 
   cachedBoards = boardSnap.docs.map((doc) => ({
@@ -77,12 +75,12 @@ async function setUpPage() {
 function renderAllLists() {
   // 1. セクション向け
   const sectionBoards = cachedBoards.filter(
-    (data) => data.sectionId === userSectionId
+    (data) => data.sectionId === userSectionId,
   );
   renderTable(
     $('#section-board-body'),
     sectionBoards,
-    `${userSectionName}向けの投稿はありません🍀`
+    `${userSectionName}向けの投稿はありません🍀`,
   );
 
   // 2. 全体向け
@@ -98,7 +96,7 @@ function renderTable($tbody, dataList, emptyMsg) {
 
   if (dataList.length === 0) {
     $tbody.append(
-      `<tr><td colspan="3" class="empty-row">${emptyMsg}</td></tr>`
+      `<tr><td colspan="3" class="empty-row">${emptyMsg}</td></tr>`,
     );
     return;
   }
