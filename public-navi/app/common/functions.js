@@ -944,13 +944,13 @@ export async function getWrapDoc(ref) {
 export async function archiveAndDeleteDoc(collectionName, docId) {
   // 1. 削除対象ドキュメント参照の構築
   const docRef = doc(db, collectionName, docId);
-  // const docRef = utils.doc(utils.db, collectionName, docId); // utilsがFirestore関数をラップしている場合
+  // const docRef = doc(db, collectionName, docId); // utilsがFirestore関数をラップしている場合
 
   // 2. バッチ処理の開始
-  const batch = writeBatch(db); // utils.writeBatchではなく、直接FirestoreのwriteBatchを使用すると仮定
+  const batch = writeBatch(db); // writeBatchではなく、直接FirestoreのwriteBatchを使用すると仮定
 
   // 3. 元ドキュメントのデータを取得
-  const docSnap = await getDoc(docRef); // utils.getDocではなく、直接getDocを使用すると仮定
+  const docSnap = await getDoc(docRef); // getDocではなく、直接getDocを使用すると仮定
 
   if (!docSnap.exists()) {
     console.warn(
