@@ -358,7 +358,7 @@ async function openCheckInModal(fullId) {
 
       if (promises.length > 0) {
         await Promise.all(promises);
-        utils.showDialog('チェックイン情報を更新しました');
+        utils.showDialog('チェックイン情報を更新しました', true);
         await fetchAndRenderTickets();
       }
       utils.hideSpinner();
