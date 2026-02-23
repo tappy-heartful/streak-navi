@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
@@ -23,19 +23,13 @@
           <table class="list-table">
             <thead>
               <tr>
-                <th>
-                  対象日 /<br />
-                  内容
-                </th>
+                <th>対象日 /<br />内容</th>
                 <th>状況</th>
                 <th>受付期間</th>
                 <th>1人あたり</th>
                 <th>支払い</th>
                 <th>金額 /<br />人数</th>
-                <th>
-                  担当 /<br />
-                  立替
-                </th>
+                <th>担当 /<br />立替</th>
                 <th>備考</th>
               </tr>
             </thead>
@@ -45,15 +39,17 @@
         <button
           id="add-button"
           class="list-add-button"
-          onclick="window.location.href = '../collect-edit/collect-edit.html?mode=new'"
+          onclick="
+            window.location.href = '../collect-edit/collect-edit.html?mode=new'
+          "
           style="display: none"
         >
           ＋ 新規集金作成
         </button>
       </div>
 
-      <div class="container" id="closed-container">
-        <h3>🏁 期間外</h3>
+      <div class="container" id="upcoming-container">
+        <h3>⏳ 受付前</h3>
         <div class="table-wrapper">
           <table class="list-table">
             <thead>
@@ -64,14 +60,32 @@
                 <th>1人あたり</th>
                 <th>支払い</th>
                 <th>金額 /<br />人数</th>
-                <th>
-                  担当 /<br />
-                  立替
-                </th>
+                <th>担当 /<br />立替</th>
                 <th>備考</th>
               </tr>
             </thead>
-            <tbody id="closed-list-body"></tbody>
+            <tbody id="upcoming-list-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="container" id="expired-container">
+        <h3>🏁 終了</h3>
+        <div class="table-wrapper">
+          <table class="list-table">
+            <thead>
+              <tr>
+                <th>対象日 /<br />内容</th>
+                <th>状況</th>
+                <th>受付期間</th>
+                <th>1人あたり</th>
+                <th>支払い</th>
+                <th>金額 /<br />人数</th>
+                <th>担当 /<br />立替</th>
+                <th>備考</th>
+              </tr>
+            </thead>
+            <tbody id="expired-list-body"></tbody>
           </table>
         </div>
       </div>

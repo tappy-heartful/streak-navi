@@ -16,38 +16,28 @@ async function setUpPage() {
   utils.isAdmin('Collect') ? $('#add-button').show() : $('#add-button').hide();
 
   const $activeBody = $('#active-list-body').empty();
-  const $closedBody = $('#closed-list-body').empty();
+  const $upcomingBody = $('#upcoming-list-body').empty(); // 追加
+  const $expiredBody = $('#expired-list-body').empty(); // 追加（旧closed）
 
-  const myUid = utils.getSession('uid'); // ログイン中のユーザーIDを取得
+  const myUid = utils.getSession('uid');
+  const today = utils.format(new Date()); // "YYYY-MM-DD"形式
 
-  // 1. 集金データとユーザーデータを取得
+  // --- (中略：データ取得部分は変更なし) ---
   const collectRef = utils.collection(utils.db, 'collects');
   const userRef = utils.collection(utils.db, 'users');
-
-  const qCollects = utils.query(
-    collectRef,
-    utils.orderBy('targetDate', 'desc'),
-  );
-
+  const qCollects = utils.query(collectRef, utils.orderBy('targetDate', 'asc'));
   const [snap, userSnap] = await Promise.all([
     utils.getWrapDocs(qCollects),
     utils.getWrapDocs(userRef),
   ]);
-
-  // 2. ユーザーIDをキーにした名前のマップを作成
   const userMap = {};
   userSnap.forEach((doc) => {
     userMap[doc.id] = doc.data().displayName || '不明';
   });
-
-  // 3. 各集金ドキュメントに対して「支払い済み」かどうかの判定を並列で行う
-  // responsesサブコレクションの中に自分のUIDがあるかを確認
   const collectDocsWithPaymentStatus = await Promise.all(
     snap.docs.map(async (doc) => {
       const data = doc.data();
       let hasPaid = false;
-
-      // 自分が参加者に含まれている場合のみ、支払い状況を確認
       if (myUid && data.participants && data.participants.includes(myUid)) {
         const responseDocRef = utils.doc(
           utils.db,
@@ -59,26 +49,28 @@ async function setUpPage() {
         const responseSnap = await utils.getWrapDoc(responseDocRef);
         hasPaid = responseSnap.exists();
       }
-
-      return {
-        id: doc.id,
-        data: data,
-        hasPaid: hasPaid,
-        myUid: myUid,
-      };
+      return { id: doc.id, data: data, hasPaid: hasPaid, myUid: myUid };
     }),
   );
+  // --- (ここまで変更なし) ---
 
   let activeCount = 0;
-  let closedCount = 0;
+  let upcomingCount = 0;
+  let expiredCount = 0;
 
   collectDocsWithPaymentStatus.forEach(({ id, data, hasPaid, myUid }) => {
+    // 期間判定ロジック
     const isActive = utils.isInTerm(data.acceptStartDate, data.acceptEndDate);
+    const isUpcoming = data.acceptStartDate > today; // 開始日が今日より後
+    const isExpired = data.acceptEndDate < today; // 終了日が今日より前
 
     const formatYen = (num) => (num ? `¥${Number(num).toLocaleString()}` : '-');
     const amountText = formatYen(data.amountPerPerson);
     const upfrontText = formatYen(data.upfrontAmount);
     const termText = `${data.acceptStartDate}～<br>${data.acceptEndDate}`;
+
+    // ステータステキストのカスタム（任意）
+    let customStatusText = isActive ? '受付中' : isUpcoming ? '受付前' : '終了';
 
     const row = makeCollectRow(
       id,
@@ -88,21 +80,27 @@ async function setUpPage() {
       upfrontText,
       termText,
       userMap,
-      hasPaid, // 支払い済みフラグを追加
-      myUid, // 自分のUIDを渡す（参加者判定用）
+      hasPaid,
+      myUid,
+      customStatusText, // 引数を追加するか、内部で判定するように調整
     );
 
     if (isActive) {
       $activeBody.append(row);
       activeCount++;
+    } else if (isUpcoming) {
+      $upcomingBody.append(row);
+      upcomingCount++;
     } else {
-      $closedBody.append(row);
-      closedCount++;
+      $expiredBody.append(row);
+      expiredCount++;
     }
   });
 
+  // 表示制御
   if (activeCount === 0) showEmptyRow($activeBody);
-  if (closedCount === 0) $('#closed-container').hide();
+  if (upcomingCount === 0) $('#upcoming-container').hide();
+  if (expiredCount === 0) $('#expired-container').hide();
 }
 
 function makeCollectRow(
