@@ -25,15 +25,28 @@ async function setUpPage() {
   utils.showSpinner();
 
   if (utils.isAdmin('Ticket')) {
+    const $btnContainer = $('<div style="display: flex; gap: 8px;"></div>');
+
+    // QRスキャンボタン
     const $cameraBtn = $(
       `<button type="button" class="btn-qr-scan">
         <i class="fas fa-camera"></i>
-        <span>QRスキャン</span>
+        <span>QR</span>
       </button>`,
     );
-
     $cameraBtn.on('click', openCameraModal);
-    $('#admin-camera-btn-placeholder').append($cameraBtn);
+
+    // 当日受付ボタン
+    const $doorBtn = $(
+      `<button type="button" class="btn-qr-scan" style="background-color: #4caf50; box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);">
+        <i class="fas fa-user-plus"></i>
+        <span>当日</span>
+      </button>`,
+    );
+    $doorBtn.on('click', openDoorCheckInModal);
+
+    $btnContainer.append($cameraBtn).append($doorBtn);
+    $('#admin-camera-btn-placeholder').append($btnContainer);
   }
 
   const livesRef = utils.collection(utils.db, 'lives');
@@ -85,8 +98,14 @@ async function fetchAndRenderTickets() {
     tickets = ticketSnap.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
 
     const checkInsRef = utils.collection(utils.db, 'checkIns');
-    const checkInSnap = await utils.getWrapDocs(checkInsRef);
-    const checkedNames = checkInSnap.docs.map((doc) => doc.data().name);
+    const checkInSnap = await utils.getWrapDocs(
+      utils.query(checkInsRef, utils.orderBy('reservationNo', 'asc')),
+    );
+    const allCheckIns = checkInSnap.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    }));
+    const checkedNames = allCheckIns.map((c) => c.name);
 
     const resNoKeyword = $('#search-res-no').val().trim();
     const nameKeyword = $('#search-name').val().toLowerCase();
@@ -104,7 +123,14 @@ async function fetchAndRenderTickets() {
       return matchResNo && matchName && matchLive;
     });
 
+    // 当日受付(door)データのフィルタリング
+    const doorCheckIns = allCheckIns.filter(
+      (c) =>
+        c.type === 'door' && (!selectedLiveId || c.liveId === selectedLiveId),
+    );
+
     renderTickets(filtered, checkedNames);
+    renderDoorTickets(doorCheckIns);
   } catch (e) {
     console.error(e);
   } finally {
@@ -119,60 +145,91 @@ function renderTickets(ticketArray, checkedNames = []) {
   let lastUid = null;
 
   if (ticketArray.length === 0) {
-    // colspanを6に変更
     $tbody.append(
       '<tr><td colspan="6" class="text-center">予約データは見つかりませんでした。</td></tr>',
     );
     $('#total-count-display').text('該当: 0件 / 合計人数: 0名');
-    return;
-  }
+  } else {
+    const formatName = (name) => {
+      if (!name) return '未設定';
+      return checkedNames.includes(name)
+        ? `<span style="color: #28a745;">✅ ${name} 様</span>`
+        : `${name} 様`;
+    };
 
-  const formatName = (name) => {
-    if (!name) return '未設定';
-    return checkedNames.includes(name)
-      ? `<span style="color: #28a745;">✅ ${name} 様</span>`
-      : `${name} 様`;
-  };
+    ticketArray.forEach((t) => {
+      const isNewUser = lastUid !== null && lastUid !== t.uid;
+      lastUid = t.uid;
 
-  ticketArray.forEach((t) => {
-    const isNewUser = lastUid !== null && lastUid !== t.uid;
-    lastUid = t.uid;
+      const createdAt = t.createdAt
+        ? utils.format(t.createdAt, 'yyyy/MM/dd HH:mm')
+        : '-';
+      const updatedAt = t.updatedAt
+        ? utils.format(t.updatedAt, 'yyyy/MM/dd HH:mm')
+        : '-';
 
-    const createdAt = t.createdAt
-      ? utils.format(t.createdAt, 'yyyy/MM/dd HH:mm')
-      : '-';
-    const updatedAt = t.updatedAt
-      ? utils.format(t.updatedAt, 'yyyy/MM/dd HH:mm')
-      : '-';
+      if (t.resType === 'invite' && t.groups) {
+        t.groups.forEach((group, gIdx) => {
+          totalRows++;
+          const gNo = `${t.reservationNo}-${gIdx + 1}`;
+          const fullId = `${t.id}?g=${gIdx + 1}`;
+          const companionsFormatted = group.companions
+            .filter((c) => c !== '')
+            .map((c) => formatName(c));
+          const groupCount = companionsFormatted.length;
+          totalSum += groupCount;
 
-    if (t.resType === 'invite' && t.groups) {
-      t.groups.forEach((group, gIdx) => {
+          const customerHtml =
+            groupCount > 0 ? companionsFormatted.join('<br>') : '(招待客なし)';
+          const rowClass = gIdx === 0 && isNewUser ? 'group-separator' : '';
+
+          const row = `
+            <tr class="${rowClass}">
+              <td class="text-center">
+                <a href="javascript:void(0)" class="open-checkin" data-id="${t.id}_g${gIdx + 1}" style="font-weight:bold; color: #e91e63; text-decoration: underline;">${gNo}</a>
+                <div style="margin-top:4px;">
+                  <span class="res-type-label status-invite">招待</span>
+                  <span class="count-badge">${groupCount}名</span>
+                </div>
+              </td>
+              <td style="line-height: 1.5;">${customerHtml}</td>
+              <td class="rep-name-cell">${t.representativeName}<br><small style="color:#888;">(${group.groupName})</small></td>
+              <td class="text-center">
+                <a href="https://ssjo.vercel.app/ticket-detail/${fullId}" target="_blank" class="ticket-link-icon" title="チケット表示">
+                  <i class="fas fa-external-link-alt"></i>
+                </a>
+              </td>
+              <td style="font-size: 11px; color: #666;">${createdAt}</td>
+              <td style="font-size: 11px; color: #666;">${updatedAt}</td>
+            </tr>
+          `;
+          $tbody.append(row);
+        });
+      } else {
         totalRows++;
-        const gNo = `${t.reservationNo}-${gIdx + 1}`;
-        const fullId = `${t.id}?g=${gIdx + 1}`; // 招待用ID
-        const companionsFormatted = group.companions
+        const repNameFormatted = formatName(t.representativeName);
+        const companionsFormatted = (t.companions || [])
           .filter((c) => c !== '')
           .map((c) => formatName(c));
-        const groupCount = companionsFormatted.length;
-        totalSum += groupCount;
+        const allCustomers = [repNameFormatted, ...companionsFormatted];
+        const count = allCustomers.length;
+        totalSum += count;
 
-        const customerHtml =
-          groupCount > 0 ? companionsFormatted.join('<br>') : '(招待客なし)';
-        const rowClass = gIdx === 0 && isNewUser ? 'group-separator' : '';
+        const rowClass = isNewUser ? 'group-separator' : '';
 
         const row = `
           <tr class="${rowClass}">
             <td class="text-center">
-              <a href="javascript:void(0)" class="open-checkin" data-id="${t.id}_g${gIdx + 1}" style="font-weight:bold; color: #e91e63; text-decoration: underline;">${gNo}</a>
+              <a href="javascript:void(0)" class="open-checkin" data-id="${t.id}" style="font-weight:bold; color: #e91e63; text-decoration: underline;">${t.reservationNo || '-'}</a>
               <div style="margin-top:4px;">
-                <span class="res-type-label status-invite">招待</span>
-                <span class="count-badge">${groupCount}名</span>
+                <span class="res-type-label status-general">一般</span>
+                <span class="count-badge">${count}名</span>
               </div>
             </td>
-            <td style="line-height: 1.5;">${customerHtml}</td>
-            <td class="rep-name-cell">${t.representativeName}<br><small style="color:#888;">(${group.groupName})</small></td>
+            <td style="line-height: 1.5;">${allCustomers.join('<br>')}</td>
+            <td class="rep-name-cell">-</td>
             <td class="text-center">
-              <a href="https://ssjo.vercel.app/ticket-detail/${fullId}" target="_blank" class="ticket-link-icon" title="チケット表示">
+              <a href="https://ssjo.vercel.app/ticket-detail/${t.id}" target="_blank" class="ticket-link-icon" title="チケット表示">
                 <i class="fas fa-external-link-alt"></i>
               </a>
             </td>
@@ -181,42 +238,9 @@ function renderTickets(ticketArray, checkedNames = []) {
           </tr>
         `;
         $tbody.append(row);
-      });
-    } else {
-      totalRows++;
-      const repNameFormatted = formatName(t.representativeName);
-      const companionsFormatted = (t.companions || [])
-        .filter((c) => c !== '')
-        .map((c) => formatName(c));
-      const allCustomers = [repNameFormatted, ...companionsFormatted];
-      const count = allCustomers.length;
-      totalSum += count;
-
-      const rowClass = isNewUser ? 'group-separator' : '';
-
-      const row = `
-        <tr class="${rowClass}">
-          <td class="text-center">
-            <a href="javascript:void(0)" class="open-checkin" data-id="${t.id}" style="font-weight:bold; color: #e91e63; text-decoration: underline;">${t.reservationNo || '-'}</a>
-            <div style="margin-top:4px;">
-              <span class="res-type-label status-general">一般</span>
-              <span class="count-badge">${count}名</span>
-            </div>
-          </td>
-          <td style="line-height: 1.5;">${allCustomers.join('<br>')}</td>
-          <td class="rep-name-cell">-</td>
-          <td class="text-center">
-            <a href="https://ssjo.vercel.app/ticket-detail/${t.id}" target="_blank" class="ticket-link-icon" title="チケット表示">
-              <i class="fas fa-external-link-alt"></i>
-            </a>
-          </td>
-          <td style="font-size: 11px; color: #666;">${createdAt}</td>
-          <td style="font-size: 11px; color: #666;">${updatedAt}</td>
-        </tr>
-      `;
-      $tbody.append(row);
-    }
-  });
+      }
+    });
+  }
 
   $('.open-checkin')
     .off('click')
@@ -229,13 +253,123 @@ function renderTickets(ticketArray, checkedNames = []) {
   );
 }
 
+// 当日受付テーブルの描画
+function renderDoorTickets(doorCheckIns) {
+  const $tbody = $('#door-table-body').empty();
+  if (doorCheckIns.length === 0) {
+    $tbody.append(
+      '<tr><td colspan="4" class="text-center">当日受付のデータはありません。</td></tr>',
+    );
+    return;
+  }
+
+  doorCheckIns.forEach((c) => {
+    const time = c.createdAt
+      ? utils.format(c.createdAt, 'yyyy/MM/dd HH:mm')
+      : '-';
+    const row = `
+      <tr>
+        <td class="text-center">
+          <a href="javascript:void(0)" class="delete-door-checkin" data-id="${c.id}" data-no="${c.reservationNo}" style="font-weight:bold; color:#4caf50; text-decoration: underline;">${c.reservationNo}</a>
+        </td>
+        <td>${c.name}</td>
+        <td class="text-center"><span class="badge badge-success">チェックイン済</span></td>
+        <td class="text-center" style="font-size: 11px; color: #666;">${time}</td>
+      </tr>
+    `;
+    $tbody.append(row);
+  });
+
+  // 削除イベントの設定
+  $('.delete-door-checkin')
+    .off('click')
+    .on('click', function () {
+      const docId = $(this).data('id');
+      const resNo = $(this).data('no');
+      deleteDoorCheckIn(docId, resNo);
+    });
+}
+
+// 当日受付の削除処理
+async function deleteDoorCheckIn(docId, resNo) {
+  const confirm = await utils.showDialog(`このチェックインを削除しますか？`);
+  if (confirm) {
+    utils.showSpinner();
+    try {
+      await utils.archiveAndDeleteDoc('checkIns', docId);
+      utils.showDialog('削除しました', true);
+      await fetchAndRenderTickets();
+    } catch (e) {
+      console.error(e);
+      utils.showDialog('削除に失敗しました', true);
+    } finally {
+      utils.hideSpinner();
+    }
+  }
+}
+
+async function openDoorCheckInModal() {
+  const selectedLiveId = $('#live-filter-select').val();
+  if (!selectedLiveId) {
+    utils.showDialog('ライブを選択してください', true);
+    return;
+  }
+
+  const modalBody = `
+    <div style="padding: 10px;">
+      <p style="margin-bottom:15px;">当日受付の人数を入力してください。</p>
+      <input type="number" id="door-count-input" class="form-control" value="1" min="1" style="width:100%; font-size:1.2em; text-align:center;">
+    </div>
+  `;
+
+  const result = await utils.showModal(
+    '当日受付チェックイン',
+    modalBody,
+    '登録',
+    'キャンセル',
+  );
+
+  if (result && result.success) {
+    const count = parseInt(result.data['door-count-input']);
+    if (isNaN(count) || count <= 0) return;
+
+    utils.showSpinner();
+    try {
+      const randomId = Math.floor(100 + Math.random() * 900); // 3桁
+      const resNo = `D${randomId}`;
+      const promises = [];
+
+      for (let i = 0; i < count; i++) {
+        promises.push(
+          utils.addDoc(utils.collection(utils.db, 'checkIns'), {
+            ticketId: null,
+            reservationNo: resNo,
+            liveId: selectedLiveId,
+            name: '当日受付のお客様',
+            type: 'door',
+            createdAt: utils.serverTimestamp(),
+          }),
+        );
+      }
+
+      await Promise.all(promises);
+      utils.showDialog(`${count}名のチェックインを登録しました`, true);
+      await fetchAndRenderTickets();
+    } catch (e) {
+      console.error(e);
+      utils.showDialog('登録に失敗しました', true);
+    } finally {
+      utils.hideSpinner();
+    }
+  }
+}
+
 async function openCheckInModal(fullId) {
   utils.showSpinner();
   try {
     let ticketId = fullId;
     let groupSuffix = null;
 
-    // --- ID解析ロジック ---
     const underscoreCount = (fullId.match(/_/g) || []).length;
     const gIndex = fullId.lastIndexOf('_g');
 
@@ -261,9 +395,8 @@ async function openCheckInModal(fullId) {
 
     let targets = [];
     let displayNo = ticket.reservationNo;
-    let inviteHeaderHtml = ''; // 招待用ヘッダー
+    let inviteHeaderHtml = '';
 
-    // 招待予約の場合のヘッダー生成
     if (ticket.resType === 'invite') {
       inviteHeaderHtml = `
         <div class="invite-info-header">
@@ -426,7 +559,6 @@ function scanTick() {
       stopCamera();
       $('.modal-close').click();
 
-      // 解析ロジックを統一
       const underscoreCount = (fullId.match(/_/g) || []).length;
       const gIndex = fullId.lastIndexOf('_g');
       const baseId =
