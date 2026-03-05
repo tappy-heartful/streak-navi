@@ -181,7 +181,7 @@ function renderRatingStats($container, q, answers) {
     <div class="enquete-stat-card">
       <div class="stat-header">
         <span class="question-label">${q.label}</span>
-        <span class="avg-badge">平均 ${avg}</span>
+        <span class="avg-badge">${avg}</span>
       </div>
       <div class="rating-bar-group">
         ${counts
