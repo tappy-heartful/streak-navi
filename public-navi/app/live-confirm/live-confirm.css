@@ -132,3 +132,93 @@
   color: #e91e63;
   font-size: 1.5em;
 }
+
+.enquete-stat-card {
+  background: #fdfdfd;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.question-label {
+  font-weight: bold;
+  font-size: 0.95em;
+  color: #444;
+}
+
+.avg-badge {
+  background: #e91e63;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.8em;
+}
+
+/* グラフバーの共通スタイル */
+.bar-bg {
+  flex: 1;
+  background: #eee;
+  height: 8px;
+  border-radius: 4px;
+  margin: 0 10px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: #ffc107;
+  transition: width 0.6s ease;
+}
+
+/* Rating行 */
+.rating-bar-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 0.85em;
+}
+
+.star-num { width: 30px; color: #888; }
+.count-num { width: 20px; text-align: right; color: #666; }
+
+/* Radio行 */
+.radio-row { margin-bottom: 10px; }
+.radio-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85em;
+  margin-bottom: 3px;
+}
+
+/* 自由回答エリア */
+.feedback-scroll-area {
+  max-height: 400px;
+  overflow-y: auto;
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.feedback-card {
+  background: #fff;
+  padding: 12px;
+  border-left: 4px solid #e91e63;
+  margin-bottom: 10px;
+  font-size: 0.9em;
+  line-height: 1.5;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.sub-title {
+  font-size: 1em;
+  margin: 20px 0 10px;
+  color: #666;
+}

@@ -61,12 +61,12 @@ async function renderLive() {
   $('#live-maxCompanions').text(data.maxCompanions || 0);
   $('#live-notes').text(data.notes || '');
 
-  // 管理者の場合のみメニューと分析を表示
   if (utils.isAdmin('Live')) {
     $('.confirm-buttons').show();
-    await renderAnalysis(liveId, data.totalReserved || 0);
   }
 
+  await renderAnalysis(liveId, data.totalReserved || 0);
+  await renderEnqueteAnalysis(liveId);
   setupEventHandlers(liveId);
 }
 
@@ -126,6 +126,111 @@ async function renderAnalysis(liveId, totalReserved) {
   } catch (e) {
     console.error('Analysis Error:', e);
   }
+}
+// renderLive内の管理者チェック後に追加
+// await renderEnqueteAnalysis(liveId);
+
+async function renderEnqueteAnalysis(liveId) {
+  try {
+    // 1. 質問設定と回答データの取得
+    const [qSnap, aSnap] = await Promise.all([
+      utils.getWrapDoc(utils.doc(utils.db, 'configs', 'enqueteQuestions')),
+      utils.getWrapDocs(
+        utils.query(
+          utils.collection(utils.db, 'enqueteAnswers'),
+          utils.where('liveId', '==', liveId),
+        ),
+      ),
+    ]);
+
+    if (!qSnap.exists() || aSnap.empty) return;
+
+    const questions = qSnap.data().questions;
+    const allAnswers = aSnap.docs.map((doc) => doc.data().common);
+    $('#enquete-section').show();
+
+    const $statsContainer = $('#enquete-stats-container').empty();
+    const $textContainer = $('#enquete-text-answers').empty();
+
+    questions.forEach((q) => {
+      const answersForQ = allAnswers
+        .map((a) => a[q.id])
+        .filter((v) => v !== undefined && v !== '');
+
+      if (q.type === 'rating') {
+        renderRatingStats($statsContainer, q, answersForQ);
+      } else if (q.type === 'radio') {
+        renderRadioStats($statsContainer, q, answersForQ);
+      } else if (q.type === 'textarea' || q.type === 'text') {
+        renderTextAnswers($textContainer, q, answersForQ);
+      }
+    });
+  } catch (e) {
+    console.error('Enquete Analysis Error:', e);
+  }
+}
+
+function renderRatingStats($container, q, answers) {
+  const avg = answers.length
+    ? (answers.reduce((a, b) => a + b, 0) / answers.length).toFixed(1)
+    : 0;
+  const counts = [0, 0, 0, 0, 0]; // 1-5のカウント
+  answers.forEach((v) => counts[v - 1]++);
+
+  const html = `
+    <div class="enquete-stat-card">
+      <div class="stat-header">
+        <span class="question-label">${q.label}</span>
+        <span class="avg-badge">平均 ${avg}</span>
+      </div>
+      <div class="rating-bar-group">
+        ${counts
+          .reverse()
+          .map((count, i) => {
+            const num = 5 - i;
+            const percent = answers.length ? (count / answers.length) * 100 : 0;
+            return `
+            <div class="rating-bar-row">
+              <span class="star-num">${num}★</span>
+              <div class="bar-bg"><div class="bar-fill" style="width: ${percent}%"></div></div>
+              <span class="count-num">${count}</span>
+            </div>`;
+          })
+          .join('')}
+      </div>
+    </div>`;
+  $container.append(html);
+}
+
+function renderRadioStats($container, q, answers) {
+  const html = `
+    <div class="enquete-stat-card">
+      <div class="stat-header"><span class="question-label">${q.label}</span></div>
+      <div class="radio-stats">
+        ${q.options
+          .map((opt) => {
+            const count = answers.filter((a) => a === opt).length;
+            const percent = answers.length ? (count / answers.length) * 100 : 0;
+            return `
+            <div class="radio-row">
+              <div class="radio-info"><span>${opt}</span><span>${count}票</span></div>
+              <div class="bar-bg"><div class="bar-fill" style="width: ${percent}%; background: #4caf50;"></div></div>
+            </div>`;
+          })
+          .join('')}
+      </div>
+    </div>`;
+  $container.append(html);
+}
+
+function renderTextAnswers($container, q, answers) {
+  if (answers.length === 0) return;
+  const html = `
+    <div class="text-answer-group">
+      <h4>${q.label}</h4>
+      ${answers.map((a) => `<div class="feedback-card">${a}</div>`).join('')}
+    </div>`;
+  $container.append(html);
 }
 
 function setupEventHandlers(liveId) {
