@@ -228,7 +228,7 @@ function renderTextAnswers($container, q, answers) {
   const html = `
     <div class="text-answer-group">
       <h4>${q.label}</h4>
-      ${answers.map((a) => `<div class="feedback-card">${a}</div>`).join('')}
+      ${answers.map((a) => `<div class="feedback-card">${a?.replace(/\n/g, '<br>')}</div>`).join('')}
     </div>`;
   $container.append(html);
 }
