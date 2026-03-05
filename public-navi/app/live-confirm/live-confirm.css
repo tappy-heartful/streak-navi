@@ -47,3 +47,178 @@
 .label-value {
   line-height: 1.6;
 }
+
+
+/* 1. コンテナ自体が画面からはみ出さないよう box-sizing を徹底 */
+.analysis-container {
+  margin-top: 20px;
+  padding: 15px; /* スマホ用に少し小さくすると収まりがいいです */
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  border: 1px solid #eee;
+  box-sizing: border-box; /* paddingを含めた幅計算にする */
+  width: 100%;            /* 親のcontainerに合わせる */
+}
+
+.analysis-title {
+  font-size: 1.1em;
+  margin-bottom: 20px;
+  color: #333;
+  border-bottom: 2px solid #e91e63;
+  padding-bottom: 8px;
+}
+
+/* 2. グリッドの幅を親に固定 */
+.analysis-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: center;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* 3. 【重要】グラフの親要素に最大幅を設定 */
+.chart-wrapper {
+  height: 200px;
+  position: relative;
+  width: 100%;    /* これを追加 */
+  min-width: 0;   /* これを追加：グリッド内での最小幅を0にしないと突き抜けることがあります */
+  overflow: hidden; /* 万が一のはみ出しをカット */
+}
+
+@media (max-width: 600px) {
+  .analysis-grid {
+    grid-template-columns: 1fr;
+  }
+  .chart-wrapper {
+    height: 180px; /* スマホでは少し高さを抑えると見やすいです */
+  }
+}
+.stats-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.stat-card {
+  background: #f8f9fa;
+  padding: 12px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.stat-card.primary {
+  background: #fff0f5;
+  grid-column: span 2;
+}
+
+.stat-label {
+  font-size: 11px;
+  color: #666;
+  margin-bottom: 4px;
+}
+
+.stat-value {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #333;
+}
+
+.stat-card.primary .stat-value {
+  color: #e91e63;
+  font-size: 1.5em;
+}
+
+.enquete-stat-card {
+  background: #fdfdfd;
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 15px;
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.question-label {
+  font-weight: bold;
+  font-size: 0.95em;
+  color: #444;
+}
+
+.avg-badge {
+  background: #e91e63;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 20px;
+  font-size: 0.8em;
+}
+
+/* グラフバーの共通スタイル */
+.bar-bg {
+  flex: 1;
+  background: #eee;
+  height: 8px;
+  border-radius: 4px;
+  margin: 0 10px;
+  overflow: hidden;
+}
+
+.bar-fill {
+  height: 100%;
+  background: #ffc107;
+  transition: width 0.6s ease;
+}
+
+/* Rating行 */
+.rating-bar-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 4px;
+  font-size: 0.85em;
+}
+
+.star-num { width: 30px; color: #888; }
+.count-num { width: 20px; text-align: right; color: #666; }
+
+/* Radio行 */
+.radio-row { margin-bottom: 10px; }
+.radio-info {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85em;
+  margin-bottom: 3px;
+}
+
+/* 自由回答エリア */
+.feedback-scroll-area {
+  max-height: 400px;
+  overflow-y: auto;
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+}
+
+.feedback-card {
+  background: #fff;
+  padding: 12px;
+  border-left: 4px solid #e91e63;
+  margin-bottom: 10px;
+  font-size: 0.9em;
+  line-height: 1.5;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.sub-title {
+  font-size: 1em;
+  margin: 20px 0 10px;
+  color: #666;
+}

@@ -12,6 +12,7 @@
     <title>ライブ確認</title>
     <link rel="stylesheet" href="../common/common.css" />
     <link rel="stylesheet" href="live-confirm.css" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   </head>
   <body>
     <div id="header-placeholder"></div>
@@ -21,64 +22,116 @@
     </div>
 
     <main class="container">
-      <div class="flyer-container" id="live-flyer-wrapper">
-        <img
-          src=""
-          alt="Flyer"
-          id="live-flyer"
-          class="live-flyer-img"
-          style="display: none"
-        />
-      </div>
-
-      <div class="form-group">
-        <label class="label-title">ライブ名</label>
-        <div class="label-value" id="live-title"></div>
-      </div>
-
-      <div class="form-group">
-        <label class="label-title">開催日時</label>
-        <div class="label-value">
-          <span id="live-date"></span><br />
-          OPEN <span id="live-open"></span> / START
-          <span id="live-start"></span>
+      <section class="info-section">
+        <div class="flyer-container" id="live-flyer-wrapper">
+          <img
+            src=""
+            alt="Flyer"
+            id="live-flyer"
+            class="live-flyer-img"
+            style="display: none"
+          />
         </div>
-      </div>
 
-      <div class="form-group">
-        <label class="label-title">会場</label>
-        <div class="label-value">
-          <span id="live-venue"></span><br />
-          <div id="live-venue-links" class="link-group"></div>
+        <div class="form-group">
+          <label class="label-title">ライブ名</label>
+          <div class="label-value" id="live-title"></div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label class="label-title">料金</label>
-        <div class="label-value">
-          前売：<span id="live-advance"></span><br />
-          当日：<span id="live-door"></span>
+        <div class="form-group">
+          <label class="label-title">開催日時</label>
+          <div class="label-value">
+            <span id="live-date"></span><br />
+            OPEN <span id="live-open"></span> / START
+            <span id="live-start"></span>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label class="label-title">予約受付状況</label>
-        <div class="label-value">
-          ステータス：<span id="live-isAcceptReserve"></span><br />
-          受付期間：<span id="live-reserve-term"></span><br />
-          予約済み：<span id="live-stock"></span>（最大同伴
-          <span id="live-maxCompanions"></span> 名）
+        <div class="form-group">
+          <label class="label-title">会場</label>
+          <div class="label-value">
+            <span id="live-venue"></span><br />
+            <div id="live-venue-links" class="link-group"></div>
+          </div>
         </div>
-      </div>
 
-      <div class="form-group">
-        <label class="label-title">備考・ご案内</label>
-        <div
-          class="label-value"
-          id="live-notes"
-          style="white-space: pre-wrap"
-        ></div>
-      </div>
+        <div class="form-group">
+          <label class="label-title">料金</label>
+          <div class="label-value">
+            前売：<span id="live-advance"></span><br />
+            当日：<span id="live-door"></span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="label-title">予約受付状況</label>
+          <div class="label-value">
+            ステータス：<span id="live-isAcceptReserve"></span><br />
+            受付期間：<span id="live-reserve-term"></span><br />
+            予約済み：<span id="live-stock"></span>（最大同伴
+            <span id="live-maxCompanions"></span> 名）
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="label-title">備考・ご案内</label>
+          <div
+            class="label-value"
+            id="live-notes"
+            style="white-space: pre-wrap"
+          ></div>
+        </div>
+      </section>
+
+      <section
+        class="analysis-container"
+        id="analysis-section"
+        style="display: none"
+      >
+        <h2 class="analysis-title">
+          <i class="fas fa-chart-pie"></i> ライブ動員分析
+        </h2>
+        <div class="analysis-grid">
+          <div class="chart-wrapper">
+            <canvas id="checkin-chart"></canvas>
+          </div>
+          <div class="stats-wrapper">
+            <div class="stat-card">
+              <span class="stat-label">予約チェックイン</span>
+              <span class="stat-value" id="stat-reserve-checkin">-</span>
+            </div>
+            <div class="stat-card">
+              <span class="stat-label">当日受付数</span>
+              <span class="stat-value" id="stat-door-count">-</span>
+            </div>
+            <div class="stat-card primary">
+              <span class="stat-label">総入場者数</span>
+              <span class="stat-value" id="stat-total-entry">-</span>
+            </div>
+            <div class="stat-card primary">
+              <span class="stat-label">予約来場率</span>
+              <span class="stat-value" id="stat-checkin-rate">-</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        class="analysis-container"
+        id="enquete-section"
+        style="display: none; margin-top: 30px"
+      >
+        <h2 class="analysis-title">
+          <i class="fas fa-comment-dots"></i> アンケート回答集計
+        </h2>
+
+        <div id="enquete-stats-container"></div>
+
+        <div class="enquete-feedback-list">
+          <h3 class="sub-title">自由記述フィードバック</h3>
+          <div id="enquete-text-answers" class="feedback-scroll-area"></div>
+        </div>
+      </section>
 
       <div class="confirm-buttons" style="display: none">
         <button id="live-edit-button" class="edit-button">編集</button>
