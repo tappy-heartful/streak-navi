@@ -48,15 +48,17 @@
   line-height: 1.6;
 }
 
-/* 既存のスタイル... */
 
+/* 1. コンテナ自体が画面からはみ出さないよう box-sizing を徹底 */
 .analysis-container {
   margin-top: 20px;
-  padding: 20px;
+  padding: 15px; /* スマホ用に少し小さくすると収まりがいいです */
   background: #fff;
   border-radius: 12px;
   box-shadow: 0 4px 15px rgba(0,0,0,0.08);
   border: 1px solid #eee;
+  box-sizing: border-box; /* paddingを含めた幅計算にする */
+  width: 100%;            /* 親のcontainerに合わせる */
 }
 
 .analysis-title {
@@ -67,22 +69,33 @@
   padding-bottom: 8px;
 }
 
+/* 2. グリッドの幅を親に固定 */
 .analysis-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 20px;
   align-items: center;
+  width: 100%;
+  box-sizing: border-box;
 }
 
-@media (max-width: 600px) {
-  .analysis-grid { grid-template-columns: 1fr; }
-}
-
+/* 3. 【重要】グラフの親要素に最大幅を設定 */
 .chart-wrapper {
   height: 200px;
   position: relative;
+  width: 100%;    /* これを追加 */
+  min-width: 0;   /* これを追加：グリッド内での最小幅を0にしないと突き抜けることがあります */
+  overflow: hidden; /* 万が一のはみ出しをカット */
 }
 
+@media (max-width: 600px) {
+  .analysis-grid {
+    grid-template-columns: 1fr;
+  }
+  .chart-wrapper {
+    height: 180px; /* スマホでは少し高さを抑えると見やすいです */
+  }
+}
 .stats-wrapper {
   display: grid;
   grid-template-columns: 1fr 1fr;
