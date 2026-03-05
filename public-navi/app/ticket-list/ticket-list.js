@@ -269,7 +269,9 @@ function renderDoorTickets(doorCheckIns) {
       : '-';
     const row = `
       <tr>
-        <td class="text-center" style="font-weight:bold; color:#4caf50;">${c.reservationNo}</td>
+        <td class="text-center">
+          <a href="javascript:void(0)" class="delete-door-checkin" data-id="${c.id}" data-no="${c.reservationNo}" style="font-weight:bold; color:#4caf50; text-decoration: underline;">${c.reservationNo}</a>
+        </td>
         <td>${c.name}</td>
         <td class="text-center"><span class="badge badge-success">チェックイン済</span></td>
         <td class="text-center" style="font-size: 11px; color: #666;">${time}</td>
@@ -277,6 +279,33 @@ function renderDoorTickets(doorCheckIns) {
     `;
     $tbody.append(row);
   });
+
+  // 削除イベントの設定
+  $('.delete-door-checkin')
+    .off('click')
+    .on('click', function () {
+      const docId = $(this).data('id');
+      const resNo = $(this).data('no');
+      deleteDoorCheckIn(docId, resNo);
+    });
+}
+
+// 当日受付の削除処理
+async function deleteDoorCheckIn(docId, resNo) {
+  const confirm = await utils.showDialog(`このチェックインを削除しますか？`);
+  if (confirm) {
+    utils.showSpinner();
+    try {
+      await utils.archiveAndDeleteDoc('checkIns', docId);
+      utils.showDialog('削除しました', true);
+      await fetchAndRenderTickets();
+    } catch (e) {
+      console.error(e);
+      utils.showDialog('削除に失敗しました', true);
+    } finally {
+      utils.hideSpinner();
+    }
+  }
 }
 
 async function openDoorCheckInModal() {
