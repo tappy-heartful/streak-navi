@@ -27,15 +27,6 @@ async function setUpPage() {
   if (utils.isAdmin('Ticket')) {
     const $btnContainer = $('<div style="display: flex; gap: 8px;"></div>');
 
-    // QRスキャンボタン
-    const $cameraBtn = $(
-      `<button type="button" class="btn-qr-scan">
-        <i class="fas fa-camera"></i>
-        <span>QR</span>
-      </button>`,
-    );
-    $cameraBtn.on('click', openCameraModal);
-
     // 当日受付ボタン
     const $doorBtn = $(
       `<button type="button" class="btn-qr-scan" style="background-color: #4caf50; box-shadow: 0 2px 8px rgba(76, 175, 80, 0.3);">
@@ -45,7 +36,16 @@ async function setUpPage() {
     );
     $doorBtn.on('click', openDoorCheckInModal);
 
-    $btnContainer.append($cameraBtn).append($doorBtn);
+    // QRスキャンボタン
+    const $cameraBtn = $(
+      `<button type="button" class="btn-qr-scan">
+        <i class="fas fa-camera"></i>
+        <span>QR</span>
+      </button>`,
+    );
+    $cameraBtn.on('click', openCameraModal);
+
+    $btnContainer.append($doorBtn).append($cameraBtn);
     $('#admin-camera-btn-placeholder').append($btnContainer);
   }
 
